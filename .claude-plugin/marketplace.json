@@ -1,0 +1,13 @@
+{
+  "name": "sumik",
+  "owner": {
+    "name": "sumik5"
+  },
+  "plugins": [
+    {
+      "name": "sumik",
+      "source": "./",
+      "description": "sumik Claude Code Plugin"
+    }
+  ]
+}
