@@ -6,6 +6,8 @@
 
 - [カバレッジ目標](#カバレッジ目標)
 - [ベストプラクティス](#ベストプラクティス)
+  - [マジックナンバー・ストリングの排除](#マジックナンバーストリングの排除)
+  - [Fixture化とファクトリー関数](#fixture化とファクトリー関数)
 - [テストコマンドリファレンス](#テストコマンドリファレンス)
 - [実装チェックリスト](#実装チェックリスト)
 - [トラブルシューティング](#トラブルシューティング)
@@ -239,6 +241,553 @@ expect(logger.info).toHaveBeenCalledWith(
 )
 ```
 
+### マジックナンバー・ストリングの排除
+
+#### 問題
+マジックナンバー（`100`, `0.1`）やマジックストリング（`"ACTIVE"`, `"admin"`）を直書きすると、リファクタリング時の修正漏れやコードの意図不明瞭化を引き起こします。
+
+#### 対策: Enum・定数の使用
+
+##### Enumの使用（推奨）
+
+```typescript
+// ❌ 悪い例: マジックストリング直書き
+describe('UserService', () => {
+  it('should create active user', async () => {
+    const user = await service.create({ name: 'John', status: 'ACTIVE' })
+    expect(user.status).toBe('ACTIVE')
+  })
+
+  it('should update to inactive', async () => {
+    await service.updateStatus('user1', 'INACTIVE')
+    const user = await service.findById('user1')
+    expect(user.status).toBe('INACTIVE')
+  })
+})
+
+// ✅ 良い例: Enumを使用
+import { UserStatus } from '@/types/user'
+
+describe('UserService', () => {
+  it('should create active user', async () => {
+    const user = await service.create({ name: 'John', status: UserStatus.Active })
+    expect(user.status).toBe(UserStatus.Active)
+  })
+
+  it('should update to inactive', async () => {
+    await service.updateStatus('user1', UserStatus.Inactive)
+    const user = await service.findById('user1')
+    expect(user.status).toBe(UserStatus.Inactive)
+  })
+})
+```
+
+##### 定数オブジェクトの使用
+
+```typescript
+// ❌ 悪い例: マジックナンバー直書き
+describe('PricingService', () => {
+  it('should apply standard discount', () => {
+    expect(calculateDiscount(1000, 'STANDARD')).toBe(900) // 0.1の直書き
+  })
+
+  it('should apply premium discount', () => {
+    expect(calculateDiscount(1000, 'PREMIUM')).toBe(800) // 0.2の直書き
+  })
+
+  it('should apply free shipping threshold', () => {
+    expect(calculateShippingFee(5000)).toBe(0) // 3000円の閾値が不明
+  })
+})
+
+// ✅ 良い例: 定数を使用
+const DISCOUNT_RATES = {
+  STANDARD: 0.1,
+  PREMIUM: 0.2,
+} as const
+
+const SHIPPING = {
+  FREE_THRESHOLD: 3000,
+  STANDARD_FEE: 500,
+} as const
+
+describe('PricingService', () => {
+  it('should apply standard discount', () => {
+    const amount = 1000
+    const expected = amount * (1 - DISCOUNT_RATES.STANDARD)
+    expect(calculateDiscount(amount, 'STANDARD')).toBe(expected)
+  })
+
+  it('should apply premium discount', () => {
+    const amount = 1000
+    const expected = amount * (1 - DISCOUNT_RATES.PREMIUM)
+    expect(calculateDiscount(amount, 'PREMIUM')).toBe(expected)
+  })
+
+  it('should apply free shipping for orders over threshold', () => {
+    expect(calculateShippingFee(SHIPPING.FREE_THRESHOLD)).toBe(0)
+  })
+
+  it('should charge standard fee for orders under threshold', () => {
+    expect(calculateShippingFee(SHIPPING.FREE_THRESHOLD - 1)).toBe(SHIPPING.STANDARD_FEE)
+  })
+})
+```
+
+##### プロダクションコードの定数を再利用
+
+```typescript
+// src/constants/pricing.ts
+export const DISCOUNT_RATES = {
+  STANDARD: 0.1,
+  PREMIUM: 0.2,
+  VIP: 0.3,
+} as const
+
+export const SHIPPING = {
+  FREE_THRESHOLD: 3000,
+  STANDARD_FEE: 500,
+  EXPRESS_FEE: 1000,
+} as const
+
+// src/services/pricing.test.ts
+import { DISCOUNT_RATES, SHIPPING } from '@/constants/pricing'
+
+describe('PricingService', () => {
+  it('should apply standard discount', () => {
+    const amount = 1000
+    const expected = amount * (1 - DISCOUNT_RATES.STANDARD)
+    expect(calculateDiscount(amount, 'STANDARD')).toBe(expected)
+  })
+
+  it('should charge standard shipping fee', () => {
+    const amount = SHIPPING.FREE_THRESHOLD - 1
+    expect(calculateShippingFee(amount)).toBe(SHIPPING.STANDARD_FEE)
+  })
+})
+```
+
+#### メリット
+
+1. **リファクタリング安全性**: 値の変更が1箇所で完結
+2. **意図の明示**: `SHIPPING.FREE_THRESHOLD` は `3000` より意図が明確
+3. **型安全性**: TypeScriptの型推論が効く
+4. **IDE補完**: Enumや定数はIDEで補完される
+
+---
+
+### Fixture化とファクトリー関数
+
+#### 問題
+各テストでダミーデータを毎回構築すると、コード重複・型変更時の修正漏れ・可読性低下が発生します。
+
+#### 対策: ファクトリー関数パターン
+
+##### 基本パターン
+
+```typescript
+// ❌ 悪い例: 各テストでダミーデータを重複生成
+describe('UserService', () => {
+  it('should create user', async () => {
+    const userData = {
+      id: '1',
+      email: 'john@example.com',
+      name: 'John Doe',
+      role: 'USER',
+      status: 'ACTIVE',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    const user = await service.create(userData)
+    expect(user.id).toBe('1')
+  })
+
+  it('should update user', async () => {
+    const userData = {
+      id: '1',
+      email: 'john@example.com',
+      name: 'John Doe',
+      role: 'USER',
+      status: 'ACTIVE',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    const updated = await service.update('1', { name: 'Jane Doe' })
+    expect(updated.name).toBe('Jane Doe')
+  })
+
+  it('should delete user', async () => {
+    const userData = {
+      id: '1',
+      email: 'john@example.com',
+      name: 'John Doe',
+      role: 'USER',
+      status: 'ACTIVE',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    await service.delete('1')
+    const user = await service.findById('1')
+    expect(user).toBeNull()
+  })
+})
+
+// ✅ 良い例: ファクトリー関数で共通化
+import { UserRole, UserStatus } from '@/types/user'
+
+function createUserFixture(overrides?: Partial<User>): User {
+  return {
+    id: '1',
+    email: 'john@example.com',
+    name: 'John Doe',
+    role: UserRole.User,
+    status: UserStatus.Active,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+
+describe('UserService', () => {
+  it('should create user', async () => {
+    const userData = createUserFixture()
+    const user = await service.create(userData)
+    expect(user.id).toBe('1')
+  })
+
+  it('should update user', async () => {
+    const userData = createUserFixture()
+    const updated = await service.update('1', { name: 'Jane Doe' })
+    expect(updated.name).toBe('Jane Doe')
+  })
+
+  it('should delete user', async () => {
+    const userData = createUserFixture()
+    await service.delete('1')
+    const user = await service.findById('1')
+    expect(user).toBeNull()
+  })
+
+  it('should handle admin role', async () => {
+    const adminUser = createUserFixture({ role: UserRole.Admin })
+    const user = await service.create(adminUser)
+    expect(user.role).toBe(UserRole.Admin)
+  })
+
+  it('should handle inactive status', async () => {
+    const inactiveUser = createUserFixture({ status: UserStatus.Inactive })
+    const user = await service.create(inactiveUser)
+    expect(user.status).toBe(UserStatus.Inactive)
+  })
+})
+```
+
+##### ネストしたオブジェクトのFixture
+
+```typescript
+// ❌ 悪い例: ネストした構造を毎回構築
+describe('OrderService', () => {
+  it('should create order with customer', async () => {
+    const orderData = {
+      id: 'order1',
+      items: [
+        { id: 'item1', name: 'Product A', price: 1000, quantity: 2 },
+        { id: 'item2', name: 'Product B', price: 2000, quantity: 1 },
+      ],
+      customer: {
+        id: 'customer1',
+        name: 'John Doe',
+        email: 'john@example.com',
+        address: {
+          street: '123 Main St',
+          city: 'Tokyo',
+          postalCode: '100-0001',
+          country: 'Japan',
+        },
+      },
+      createdAt: new Date(),
+    }
+    const order = await service.create(orderData)
+    expect(order.id).toBe('order1')
+  })
+})
+
+// ✅ 良い例: 階層的なファクトリー関数
+function createAddressFixture(overrides?: Partial<Address>): Address {
+  return {
+    street: '123 Main St',
+    city: 'Tokyo',
+    postalCode: '100-0001',
+    country: 'Japan',
+    ...overrides,
+  }
+}
+
+function createCustomerFixture(
+  overrides?: Partial<Customer>,
+  addressOverrides?: Partial<Address>
+): Customer {
+  return {
+    id: 'customer1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    address: createAddressFixture(addressOverrides),
+    ...overrides,
+  }
+}
+
+function createOrderItemFixture(overrides?: Partial<OrderItem>): OrderItem {
+  return {
+    id: 'item1',
+    name: 'Product A',
+    price: 1000,
+    quantity: 1,
+    ...overrides,
+  }
+}
+
+function createOrderFixture(
+  overrides?: Partial<Order>,
+  customerOverrides?: Partial<Customer>
+): Order {
+  return {
+    id: 'order1',
+    items: [createOrderItemFixture()],
+    customer: createCustomerFixture(customerOverrides),
+    createdAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+
+describe('OrderService', () => {
+  it('should create order with customer', async () => {
+    const orderData = createOrderFixture()
+    const order = await service.create(orderData)
+    expect(order.id).toBe('order1')
+  })
+
+  it('should create order with custom address', async () => {
+    const orderData = createOrderFixture(
+      {},
+      { address: createAddressFixture({ city: 'Osaka' }) }
+    )
+    const order = await service.create(orderData)
+    expect(order.customer.address.city).toBe('Osaka')
+  })
+
+  it('should create order with multiple items', async () => {
+    const orderData = createOrderFixture({
+      items: [
+        createOrderItemFixture({ name: 'Product A', price: 1000 }),
+        createOrderItemFixture({ id: 'item2', name: 'Product B', price: 2000 }),
+      ],
+    })
+    const order = await service.create(orderData)
+    expect(order.items).toHaveLength(2)
+  })
+})
+```
+
+##### リレーションを持つエンティティのFixture
+
+```typescript
+// ✅ 良い例: リレーションエンティティのファクトリー関数
+function createOrganizationFixture(overrides?: Partial<Organization>): Organization {
+  return {
+    id: 'org1',
+    name: 'ACME Corp',
+    status: OrganizationStatus.Active,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+
+function createProjectFixture(
+  overrides?: Partial<Project>,
+  organization?: Organization
+): Project {
+  return {
+    id: 'proj1',
+    name: 'Project Alpha',
+    organizationId: organization?.id ?? 'org1',
+    organization: organization ?? createOrganizationFixture(),
+    status: ProjectStatus.Active,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+
+function createTaskFixture(
+  overrides?: Partial<Task>,
+  project?: Project
+): Task {
+  return {
+    id: 'task1',
+    title: 'Implement feature',
+    projectId: project?.id ?? 'proj1',
+    project: project ?? createProjectFixture(),
+    status: TaskStatus.Todo,
+    createdAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+
+describe('TaskService', () => {
+  it('should create task with project and organization', async () => {
+    const org = createOrganizationFixture({ name: 'Custom Org' })
+    const project = createProjectFixture({ name: 'Custom Project' }, org)
+    const task = createTaskFixture({ title: 'Custom Task' }, project)
+
+    const saved = await service.create(task)
+    expect(saved.project.organization.name).toBe('Custom Org')
+  })
+
+  it('should filter tasks by organization', async () => {
+    const org1 = createOrganizationFixture({ id: 'org1' })
+    const org2 = createOrganizationFixture({ id: 'org2' })
+
+    const project1 = createProjectFixture({ id: 'proj1' }, org1)
+    const project2 = createProjectFixture({ id: 'proj2' }, org2)
+
+    await service.create(createTaskFixture({}, project1))
+    await service.create(createTaskFixture({}, project2))
+
+    const tasks = await service.findByOrganization('org1')
+    expect(tasks).toHaveLength(1)
+    expect(tasks[0].project.organizationId).toBe('org1')
+  })
+})
+```
+
+##### Fixtureファイルの配置と再利用
+
+```typescript
+// src/test/fixtures/user.fixture.ts
+import { User, UserRole, UserStatus } from '@/types/user'
+
+export function createUserFixture(overrides?: Partial<User>): User {
+  return {
+    id: '1',
+    email: 'john@example.com',
+    name: 'John Doe',
+    role: UserRole.User,
+    status: UserStatus.Active,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+
+export function createAdminUserFixture(overrides?: Partial<User>): User {
+  return createUserFixture({
+    role: UserRole.Admin,
+    ...overrides,
+  })
+}
+
+// src/test/fixtures/index.ts（エクスポート集約）
+export * from './user.fixture'
+export * from './organization.fixture'
+export * from './project.fixture'
+
+// src/services/user.test.ts
+import { createUserFixture, createAdminUserFixture } from '@/test/fixtures'
+
+describe('UserService', () => {
+  it('should create regular user', async () => {
+    const user = createUserFixture({ email: 'test@example.com' })
+    const saved = await service.create(user)
+    expect(saved.role).toBe(UserRole.User)
+  })
+
+  it('should create admin user', async () => {
+    const admin = createAdminUserFixture({ email: 'admin@example.com' })
+    const saved = await service.create(admin)
+    expect(saved.role).toBe(UserRole.Admin)
+  })
+})
+```
+
+##### ビルダーパターン（複雑なケース）
+
+```typescript
+// ✅ 良い例: ビルダーパターン（複雑な構築ロジック）
+class UserFixtureBuilder {
+  private user: Partial<User> = {
+    id: '1',
+    email: 'john@example.com',
+    name: 'John Doe',
+    role: UserRole.User,
+    status: UserStatus.Active,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  }
+
+  withEmail(email: string): this {
+    this.user.email = email
+    return this
+  }
+
+  withRole(role: UserRole): this {
+    this.user.role = role
+    return this
+  }
+
+  withStatus(status: UserStatus): this {
+    this.user.status = status
+    return this
+  }
+
+  asAdmin(): this {
+    this.user.role = UserRole.Admin
+    return this
+  }
+
+  asInactive(): this {
+    this.user.status = UserStatus.Inactive
+    return this
+  }
+
+  build(): User {
+    return this.user as User
+  }
+}
+
+describe('UserService', () => {
+  it('should create admin user', async () => {
+    const admin = new UserFixtureBuilder()
+      .withEmail('admin@example.com')
+      .asAdmin()
+      .build()
+
+    const saved = await service.create(admin)
+    expect(saved.role).toBe(UserRole.Admin)
+  })
+
+  it('should create inactive user', async () => {
+    const inactive = new UserFixtureBuilder()
+      .withEmail('inactive@example.com')
+      .asInactive()
+      .build()
+
+    const saved = await service.create(inactive)
+    expect(saved.status).toBe(UserStatus.Inactive)
+  })
+})
+```
+
+#### メリット
+
+1. **DRY原則**: 重複コード削減
+2. **型安全性**: 型変更時の修正漏れ防止
+3. **可読性**: `createUserFixture({ role: UserRole.Admin })` で意図が明確
+4. **メンテナンス性**: ダミーデータの変更が1箇所で完結
+5. **テストの意図明示**: 必要な属性のみ上書きすることで、テストの焦点が明確になる
+
+---
+
 ### 非同期テストのベストプラクティス
 
 #### 1. async/await の使用
@@ -424,9 +973,14 @@ npx playwright test --workers=4
 - [ ] テストコードの可読性は高いか
 - [ ] 重複したテストコードはないか
 - [ ] テストヘルパーは適切に活用されているか
-- [ ] マジックナンバーは定数化されているか
+- [ ] マジックナンバーは定数化されているか（Enum/定数使用）
+- [ ] マジックストリングは定数化されているか（`"ACTIVE"` → `Status.Active`）
+- [ ] Fixture/ファクトリー関数が活用されているか
+- [ ] 各テストに「仕様コメント」が記述されているか
+- [ ] テスト対象の責務外のケースが削除されているか
 - [ ] コメントは必要十分か
 - [ ] テストデータは意味のある値か（`foo`, `bar` など避ける）
+- [ ] レイヤー間で重複したテストがないか
 
 ### リリース前のチェックリスト
 

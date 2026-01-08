@@ -332,6 +332,34 @@ pnpm coverage
 open coverage/index.html
 ```
 
+## AI生成テストコードの注意点
+
+AIが生成したテストコードは網羅的ですが、以下の観点でレビューが必要です。
+
+### 主要な注意点
+
+1. **テストケースの肥大化**: 分岐網羅・境界値を全部入りで生成 → 責務分離・優先度付けで絞り込む
+2. **マジックナンバー/ストリング**: Enum/定数を無視して直書き → リファクタリング時の修正漏れの原因
+3. **Fixture未使用**: 各テストでダミーデータ重複生成 → ファクトリー関数で共通化
+4. **責務混在**: テスト対象外のケース（バリデーション等）まで含む → レイヤー分離
+5. **重複テスト**: 同じ仕様を複数レイヤーでテスト → レイヤー間の重複排除
+
+**詳細は `testing` スキルの [AI-REVIEW-GUIDELINES.md](../../testing/AI-REVIEW-GUIDELINES.md) を参照してください。**
+
+### AIへの指示例
+
+```
+【テスト生成時のプロンプト】
+- 網羅率を上げる目的での境界値テストは禁止
+- 各テストケースに「何の仕様を守るためか」を1行コメントで記述
+- マジックナンバー/ストリングは禁止（Enum/定数を使用）
+- Fixture/ファクトリー関数を活用
+- テスト対象の責務外のケースは削除
+- DB制約で保証される条件はテスト対象外
+```
+
+---
+
 ## ベストプラクティス
 
 ### 1. AAAパターン（Arrange-Act-Assert）
@@ -374,6 +402,247 @@ it("should return error when email is invalid", () => {});
 // ❌ 悪い例
 it("test1", () => {});
 ```
+
+### 4. Fixtureパターン（Next.js版）
+
+#### Prismaシードとファクトリー関数
+
+Next.jsプロジェクトでは、Prismaを使用する場合、テストデータの準備にファクトリー関数を活用します。
+
+##### Fixtureファイルの配置
+
+```
+src/
+├── test/
+│   ├── fixtures/
+│   │   ├── user.fixture.ts
+│   │   ├── organization.fixture.ts
+│   │   └── index.ts
+│   └── setup.ts
+```
+
+##### ファクトリー関数の実装
+
+```typescript
+// src/test/fixtures/user.fixture.ts
+import { User, UserRole, UserStatus } from '@/types/user'
+
+export function createUserFixture(overrides?: Partial<User>): User {
+  return {
+    id: 'user_1',
+    email: 'john@example.com',
+    name: 'John Doe',
+    role: UserRole.User,
+    status: UserStatus.Active,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+
+export function createAdminUserFixture(overrides?: Partial<User>): User {
+  return createUserFixture({
+    role: UserRole.Admin,
+    ...overrides,
+  })
+}
+```
+
+```typescript
+// src/test/fixtures/organization.fixture.ts
+import { Organization, OrganizationStatus } from '@/types/organization'
+
+export function createOrganizationFixture(
+  overrides?: Partial<Organization>
+): Organization {
+  return {
+    id: 'org_1',
+    name: 'ACME Corp',
+    status: OrganizationStatus.Active,
+    ownerId: 'user_1',
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+```
+
+```typescript
+// src/test/fixtures/index.ts
+export * from './user.fixture'
+export * from './organization.fixture'
+```
+
+##### Server Actionでの使用例
+
+```typescript
+// src/actions/users/create.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { createUser } from './create'
+import { createUserFixture } from '@/test/fixtures'
+import { UserRole, UserStatus } from '@/types/user'
+
+// Prismaモック
+vi.mock('@/lib/prisma', () => ({
+  prisma: {
+    user: {
+      create: vi.fn(),
+      findUnique: vi.fn(),
+    },
+  },
+}))
+
+describe('createUser', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  // 仕様: 有効なデータでユーザーを作成
+  it('should create user with valid data', async () => {
+    const userData = createUserFixture({ email: 'test@example.com' })
+
+    const { prisma } = await import('@/lib/prisma')
+    vi.mocked(prisma.user.create).mockResolvedValue(userData)
+
+    const formData = new FormData()
+    formData.append('email', userData.email)
+    formData.append('name', userData.name)
+
+    const result = await createUser(formData)
+
+    expect(result.success).toBe(true)
+    expect(result.data?.email).toBe('test@example.com')
+  })
+
+  // 仕様: 管理者ユーザーを作成
+  it('should create admin user', async () => {
+    const adminData = createUserFixture({
+      email: 'admin@example.com',
+      role: UserRole.Admin,
+    })
+
+    const { prisma } = await import('@/lib/prisma')
+    vi.mocked(prisma.user.create).mockResolvedValue(adminData)
+
+    const formData = new FormData()
+    formData.append('email', adminData.email)
+    formData.append('name', adminData.name)
+    formData.append('role', UserRole.Admin)
+
+    const result = await createUser(formData)
+
+    expect(result.success).toBe(true)
+    expect(result.data?.role).toBe(UserRole.Admin)
+  })
+})
+```
+
+##### React Server Componentでの使用例
+
+```typescript
+// src/app/users/page.test.tsx
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import UsersPage from './page'
+import { createUserFixture } from '@/test/fixtures'
+import { UserRole } from '@/types/user'
+
+vi.mock('@/lib/prisma', () => ({
+  prisma: {
+    user: {
+      findMany: vi.fn(),
+    },
+  },
+}))
+
+describe('UsersPage', () => {
+  // 仕様: ユーザー一覧を表示
+  it('should render users list', async () => {
+    const users = [
+      createUserFixture({ id: 'user_1', name: 'John Doe' }),
+      createUserFixture({ id: 'user_2', name: 'Jane Doe', email: 'jane@example.com' }),
+    ]
+
+    const { prisma } = await import('@/lib/prisma')
+    vi.mocked(prisma.user.findMany).mockResolvedValue(users)
+
+    render(await UsersPage())
+
+    expect(screen.getByText('John Doe')).toBeInTheDocument()
+    expect(screen.getByText('Jane Doe')).toBeInTheDocument()
+  })
+
+  // 仕様: 管理者には管理者バッジを表示
+  it('should display admin badge for admin users', async () => {
+    const users = [
+      createUserFixture({ id: 'user_1', name: 'Admin User', role: UserRole.Admin }),
+    ]
+
+    const { prisma } = await import('@/lib/prisma')
+    vi.mocked(prisma.user.findMany).mockResolvedValue(users)
+
+    render(await UsersPage())
+
+    expect(screen.getByText('Admin')).toBeInTheDocument()
+  })
+})
+```
+
+##### リレーションを持つエンティティのFixture
+
+```typescript
+// src/test/fixtures/project.fixture.ts
+import { Project, ProjectStatus } from '@/types/project'
+import { createOrganizationFixture } from './organization.fixture'
+
+export function createProjectFixture(
+  overrides?: Partial<Project>,
+  organization?: Organization
+): Project {
+  const org = organization ?? createOrganizationFixture()
+
+  return {
+    id: 'proj_1',
+    name: 'Project Alpha',
+    organizationId: org.id,
+    organization: org,
+    status: ProjectStatus.Active,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    ...overrides,
+  }
+}
+```
+
+```typescript
+// src/actions/projects/create.test.ts
+import { describe, it, expect } from 'vitest'
+import { createProject } from './create'
+import { createProjectFixture, createOrganizationFixture } from '@/test/fixtures'
+
+describe('createProject', () => {
+  // 仕様: 組織配下にプロジェクトを作成
+  it('should create project under organization', async () => {
+    const org = createOrganizationFixture({ name: 'Custom Org' })
+    const projectData = createProjectFixture({ name: 'Custom Project' }, org)
+
+    const result = await createProject(projectData)
+
+    expect(result.success).toBe(true)
+    expect(result.data?.organization.name).toBe('Custom Org')
+  })
+})
+```
+
+#### Fixtureパターンのメリット（Next.js版）
+
+1. **型安全性**: Prismaの型定義と同期
+2. **DRY原則**: テストデータの重複排除
+3. **メンテナンス性**: Prismaスキーマ変更時の修正が容易
+4. **可読性**: テストの意図が明確
+5. **Server Componentとの相性**: async/awaitとの組み合わせが自然
+
+---
 
 ## トラブルシューティング
 

@@ -14,6 +14,7 @@ description: Provides comprehensive testing and TDD guidance. Use for writing te
 - **[TEST-TYPES.md](./TEST-TYPES.md)**: テストピラミッド（単体、統合、E2E）
 - **[TESTABLE-DESIGN.md](./TESTABLE-DESIGN.md)**: テスタブルな設計原則
 - **[REFERENCE.md](./REFERENCE.md)**: ベストプラクティス、カバレッジ、チェックリスト
+- **[AI-REVIEW-GUIDELINES.md](./AI-REVIEW-GUIDELINES.md)**: AIテストコードレビュー観点
 
 ## 🎯 使用タイミング
 
@@ -104,6 +105,22 @@ it('should create user with valid data', () => {
 - テスト用モックの作成が容易
 
 詳細は [TESTABLE-DESIGN.md](./TESTABLE-DESIGN.md) を参照してください。
+
+## 🤖 AI生成コードの注意点
+
+AIが生成したテストコードは網羅的ですが、以下の観点でレビューが必要です：
+
+### 主要な注意点
+
+1. **テストケースの肥大化**: 分岐網羅・境界値を全部入りで生成 → 責務分離・優先度付けで絞り込む
+2. **マジックナンバー/ストリング**: Enum/定数を無視して直書き → リファクタリング時の修正漏れの原因
+3. **Fixture未使用**: 各テストでダミーデータ重複生成 → ファクトリー関数で共通化
+4. **責務混在**: テスト対象外のケース（バリデーション等）まで含む → レイヤー分離
+5. **重複テスト**: 同じ仕様を複数レイヤーでテスト → レイヤー間の重複排除
+
+**詳細は [AI-REVIEW-GUIDELINES.md](./AI-REVIEW-GUIDELINES.md) を参照してください。**
+
+---
 
 ## 📊 クイックスタート
 
