@@ -1,9 +1,5 @@
 {
   "mcpServers": {
-    "figma": {
-      "type": "http",
-      "url": "https://mcp.figma.com/mcp"
-    },
     "serena": {
       "command": "uvx",
       "args": [
@@ -29,19 +25,6 @@
       "args": [
         "mcp-remote",
         "https://mcp.deepwiki.com/sse"
-      ],
-      "env": {}
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["--yes", "@upstash/context7-mcp"],
-      "env": {}
-    },
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@latest"
       ],
       "env": {}
     },
