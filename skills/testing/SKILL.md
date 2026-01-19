@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Provides comprehensive testing and TDD guidance. Use for writing tests before implementing new features, creating reproduction tests for bug fixes, running regression tests during refactoring, and checking test coverage during code reviews. Enforces AAA pattern and 100% coverage goal.
+description: Provides comprehensive testing and TDD guidance for Vitest, React Testing Library, Jest, and Playwright. Use for writing tests before implementing new features, creating reproduction tests for bug fixes, running regression tests during refactoring, and checking test coverage during code reviews. Enforces AAA pattern with actual/expected variables, prohibits nested describes, and requires Japanese test naming format. Also provides AI-generated test code review guidelines.
 ---
 
 # テストファーストアプローチ
@@ -10,6 +10,7 @@ description: Provides comprehensive testing and TDD guidance. Use for writing te
 このスキルは以下のファイルで構成されています：
 
 - **SKILL.md** (このファイル): 概要と使用タイミング
+- **[VITEST-RTL-GUIDELINES.md](./VITEST-RTL-GUIDELINES.md)**: Vitest / React Testing Library コード規約 ⭐NEW
 - **[TDD.md](./TDD.md)**: TDDサイクルと実装パターン
 - **[TEST-TYPES.md](./TEST-TYPES.md)**: テストピラミッド（単体、統合、E2E）
 - **[TESTABLE-DESIGN.md](./TESTABLE-DESIGN.md)**: テスタブルな設計原則
@@ -60,20 +61,34 @@ description: Provides comprehensive testing and TDD guidance. Use for writing te
 
 ### AAAパターン（必須）
 
-すべてのテストは **Arrange-Act-Assert** パターンに従います：
+すべてのテストは **Arrange-Act-Assert** パターンに従い、**actual / expected 変数**で比較します：
 
 ```typescript
-it('should create user with valid data', () => {
+it('有効なデータの時、ユーザーを作成すべき', () => {
   // Arrange（準備）
   const userData = { name: 'John', email: 'john@example.com' }
 
   // Act（実行）
-  const user = userService.createUser(userData)
+  const actual = userService.createUser(userData)
 
   // Assert（検証）
-  expect(user.name).toBe('John')
+  const expected = { name: 'John', email: 'john@example.com' }
+  expect(actual).toEqual(expect.objectContaining(expected))
 })
 ```
+
+### Vitest / RTL 必須規約
+
+**詳細は [VITEST-RTL-GUIDELINES.md](./VITEST-RTL-GUIDELINES.md) を参照。**
+
+| 規約 | 説明 |
+|------|------|
+| **明示的インポート** | `import { describe, it, expect } from 'vitest'` を必ず記述 |
+| **日本語テスト名** | 「〜の時、〜すべき」形式で条件と結果を明示 |
+| **ネスト禁止** | `describe` のネストは禁止。フラットな構造を維持 |
+| **actual/expected** | AAA パターンで `actual` と `expected` 変数を使用 |
+| **1テスト1検証** | オブジェクト比較で複数プロパティを1回で検証可 |
+| **スナップショット制限** | セマンティックHTMLとa11y属性の検証のみに使用 |
 
 ## 🎯 カバレッジ目標
 
@@ -154,13 +169,23 @@ AIが生成したテストコードは網羅的ですが、以下の観点でレ
 
 ## 🚀 実践例
 
-### TypeScript + Jest
+### TypeScript + Vitest
 
 ```typescript
-// テスト
+import { describe, it, expect } from 'vitest'
+
 describe('calculateTotal', () => {
-  it('should calculate total with discount', () => {
-    expect(calculateTotal([100, 200], 0.1)).toBe(270)
+  it('割引率が指定された時、割引後の合計を返すべき', () => {
+    // Arrange
+    const items = [100, 200]
+    const discountRate = 0.1
+
+    // Act
+    const actual = calculateTotal(items, discountRate)
+
+    // Assert
+    const expected = 270 // (100 + 200) * 0.9
+    expect(actual).toBe(expected)
   })
 })
 
@@ -174,10 +199,17 @@ function calculateTotal(items: number[], discount: number): number {
 ### E2Eテスト（Playwright）
 
 ```typescript
-test('user registration flow', async ({ page }) => {
+import { test, expect } from '@playwright/test'
+
+test('新規登録フォーム送信時、成功メッセージが表示されるべき', async ({ page }) => {
+  // Arrange
   await page.goto('/register')
+
+  // Act
   await page.fill('#email', 'john@example.com')
   await page.click('button[type="submit"]')
+
+  // Assert
   await expect(page.locator('.success')).toBeVisible()
 })
 ```
@@ -185,10 +217,12 @@ test('user registration flow', async ({ page }) => {
 ## 📋 最小限のチェックリスト
 
 実装完了前に確認：
-- [ ] AAAパターンに従っているか
-- [ ] テスト名は仕様を説明しているか
+- [ ] vitest から明示的にインポートしているか
+- [ ] テスト名は「〜の時、〜すべき」形式か
+- [ ] AAA パターンで actual / expected を使用しているか
+- [ ] describe がネストしていないか
 - [ ] カバレッジ目標を達成しているか
-- [ ] テストは独立しているか
+- [ ] テストは独立しているか（順序依存なし）
 
 完全なチェックリストは [REFERENCE.md](./REFERENCE.md) を参照してください。
 
