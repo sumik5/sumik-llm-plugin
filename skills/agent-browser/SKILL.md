@@ -1,34 +1,36 @@
 ---
 name: agent-browser
-description: Automates browser interactions for web testing, form filling, screenshots, and data extraction. Use when the user needs to navigate websites, interact with web pages, fill forms, take screenshots, test web applications, scrape data, or automate authentication flows. This skill requires the agent-browser CLI tool to be installed.
+description: Full-featured browser automation with advanced capabilities. Use for complex scenarios requiring semantic locators (find by role/label), state persistence (save/load auth), network interception, device emulation, or JSON output. Provides snapshot filtering (-i for interactive only), wait commands, and rich debugging tools. Choose this over playwright-cli when you need professional-grade automation features.
+allowed-tools:
+  - Bash(agent-browser:*)
+  - Bash(which agent-browser*)
+  - Bash(command -v agent-browser*)
+  - Bash(npm install -g agent-browser*)
+  - Bash(export AGENT_BROWSER_PROFILE*)
 ---
 
 # Browser Automation with agent-browser
 
-## Prerequisites Check
+## Prerequisites Check (Auto-Install)
 
-**IMPORTANT:** Before using agent-browser, verify installation:
-
-```bash
-# Check if agent-browser is installed
-which agent-browser || command -v agent-browser
-
-# If not installed, run the install script
-bash "${CLAUDE_PLUGIN_ROOT}/skills/agent-browser/scripts/install.sh"
-```
-
-## Installation (if not present)
+**IMPORTANT:** Before using agent-browser, run these commands:
 
 ```bash
-# Install globally via npm
-npm install -g agent-browser
+# 1. Set storage location to /tmp (prevents cluttering project directories)
+export AGENT_BROWSER_PROFILE=/tmp/agent-browser-profile
 
-# Install browser dependencies (required after npm install)
-agent-browser install
-
-# Linux users: include system dependencies
-agent-browser install --with-deps
+# 2. Auto-install if not present
+which agent-browser || npm install -g agent-browser
 ```
+
+## Environment Variables
+
+| Variable | Description | Recommended Value |
+|----------|-------------|-------------------|
+| `AGENT_BROWSER_PROFILE` | Browser profile storage location | `/tmp/agent-browser-profile` |
+| `AGENT_BROWSER_SESSION` | Default session name | (optional) |
+
+**Always set `AGENT_BROWSER_PROFILE` before running commands** to avoid creating `.playwright-cli` folders in your working directory.
 
 ## Quick Start Workflow
 
