@@ -2,7 +2,7 @@
 
 このファイルでは、Developer Agentの作業手順とWorktree管理の詳細を説明します。
 
-## 📋 目次
+## 目次
 
 - [基本的な動作フロー](#基本的な動作フロー)
 - [Worktree作業の基本フロー](#worktree作業の基本フロー)
@@ -12,7 +12,7 @@
 - [実装品質の確保](#実装品質の確保)
 - [インフラ・環境構築](#インフラ環境構築)
 
-## 🔄 基本的な動作フロー
+## 基本的な動作フロー
 
 Developer Agentは以下の標準フローで作業を実施します：
 
@@ -39,7 +39,7 @@ Developer Agentは以下の標準フローで作業を実施します：
 ### 詳細ステップ
 
 **ステップ1: タスク受信**
-- ManagerまたはClaude Codeからタスクと役割の指示を待つ
+- Claude Code本体からタスクと役割の指示を待つ
 - タスク内容、役割、要件を確認
 
 **ステップ2: Worktree情報の確認と移動（最重要）**
@@ -58,7 +58,7 @@ Developer Agentは以下の標準フローで作業を実施します：
 - 依存関係を分析
 
 **ステップ5: 割り振られた役割に応じて専門性を発揮**
-- 自分の役割（dev1-4）に応じた専門性を活用
+- 自分の役割（tachikoma1-4）に応じた専門性を活用
 - 詳細は[SPECIALIZATIONS.md](./SPECIALIZATIONS.md)を参照
 
 **ステップ6: 担当領域での作業を開始**
@@ -67,14 +67,14 @@ Developer Agentは以下の標準フローで作業を実施します：
 - 品質基準の遵守
 
 **ステップ7: 定期的な進捗報告**
-- 作業状況をManagerに報告
+- 作業状況をClaude Code本体に報告
 - 報告フォーマットは[REFERENCE.md](./REFERENCE.md)を参照
 
-**ステップ8: 作業完了時はManagerまたはClaude Codeに報告**
+**ステップ8: 作業完了時はClaude Code本体に報告**
 - 完了内容、成果物を明記
 - 報告フォーマットは[REFERENCE.md](./REFERENCE.md)を参照
 
-## 🌳 Worktree作業の基本フロー
+## Worktree作業の基本フロー
 
 Git Worktreeを使用した並行開発の詳細手順です。
 
@@ -82,7 +82,7 @@ Git Worktreeを使用した並行開発の詳細手順です。
 
 **1. Worktree情報の受信**
 ```
-Manager/Claude Codeから以下の情報を受け取る：
+Claude Code本体から以下の情報を受け取る：
 - Worktree名（例: wt-feat-auth）
 - ブランチ名（例: feature/user-auth）
 - 元ブランチ（例: main）
@@ -123,21 +123,21 @@ git diff
 cd ..
 ```
 
-### 🚨 Worktree作業の重要な注意点
+### Worktree作業の重要な注意点
 
 **必ず守るべきルール:**
-- ✅ 指定されたworktree配下で作業
-- ✅ 環境変数(.env)と.serenaは親からコピー
-- ✅ 作業前に必ず`pwd`でWorktree内にいることを確認
+- 指定されたworktree配下で作業
+- 環境変数(.env)と.serenaは親からコピー
+- 作業前に必ず`pwd`でWorktree内にいることを確認
 
 **絶対禁止事項:**
-- ❌ Worktreeを勝手に作成・削除しない
-- ❌ メインリポジトリで作業しない（worktree指定時）
-- ❌ Git書き込み操作（add, commit, push等）を実行しない
+- Worktreeを勝手に作成・削除しない
+- メインリポジトリで作業しない（worktree指定時）
+- Git書き込み操作（add, commit, push等）を実行しない
 
 詳細は`managing-git-worktrees`スキルを参照してください。
 
-## 🛠️ 開発タスクの実行方法
+## 開発タスクの実行方法
 
 ### serena MCPを活用した効率的実装
 
@@ -172,7 +172,7 @@ cd ..
 ```
 
 #### ステップ1: タスク受信
-- Managerまたは Claude Codeからタスクと要件を受信
+- Claude Code本体からタスクと要件を受信
 - タスク内容、技術スタック、成果物を確認
 
 #### ステップ2: Worktree配下への移動
@@ -242,15 +242,15 @@ npm run type-check
 #### ステップ8: 完了報告
 フォーマットは[REFERENCE.md](./REFERENCE.md)を参照してください。
 
-## 🔒 Git Worktree作業の必須ルール
+## Git Worktree作業の必須ルール
 
 ### 絶対に守るべき原則
 
 **最重要:**
-- ✅ **必ず指定されたworktree配下で作業**
-- ✅ **環境変数(.env)と.serenaは親からコピー**
-- ❌ **Worktreeを勝手に作成・削除しない**
-- ❌ **メインリポジトリで作業しない（worktree指定時）**
+- **必ず指定されたworktree配下で作業**
+- **環境変数(.env)と.serenaは親からコピー**
+- **Worktreeを勝手に作成・削除しない**
+- **メインリポジトリで作業しない（worktree指定時）**
 
 ### Worktree作業のチェックリスト
 
@@ -275,9 +275,9 @@ npm run type-check
 
 詳細な手順、トラブルシューティング、ベストプラクティスについては、`managing-git-worktrees`スキルを参照してください。
 
-## 📚 ライブラリ・ドキュメント参照
+## ライブラリ・ドキュメント参照
 
-### ⚠️ 重要: 実装前に必ず最新仕様を確認
+### 重要: 実装前に必ず最新仕様を確認
 
 ライブラリやフレームワークを使用する際は、必ず最新の公式ドキュメントを確認してから実装してください。
 
@@ -355,7 +355,7 @@ mcp__nextjs_docs__search(query="Server Components")
 
 詳細は`using-next-devtools`スキルを参照してください。
 
-## ✅ 実装品質の確保
+## 実装品質の確保
 
 実装時は以下の品質基準を必ず遵守してください。
 
@@ -375,12 +375,12 @@ mcp__nextjs_docs__search(query="Server Components")
 **詳細は`enforcing-type-safety`スキルを参照してください。**
 
 **絶対禁止:**
-- ❌ TypeScriptの`any`型使用
-- ❌ Pythonの`Any`型使用
+- TypeScriptの`any`型使用
+- Pythonの`Any`型使用
 
 **推奨:**
-- ✅ `unknown`と型ガードの使用（TypeScript）
-- ✅ 明示的な型ヒント（Python）
+- `unknown`と型ガードの使用（TypeScript）
+- 明示的な型ヒント（Python）
 
 ### テストファーストアプローチ
 
@@ -407,7 +407,7 @@ Skill tool: /codeguard-security:software-security
 
 **セキュリティ脆弱性が検出された場合は必ず修正してから完了報告。**
 
-## 🏗️ インフラ・環境構築
+## インフラ・環境構築
 
 インフラ構築タスクを受け取った場合の標準フローです。
 
@@ -441,7 +441,7 @@ Skill tool: /codeguard-security:software-security
 3. テストシナリオの実装
 4. 実行とデバッグ
 
-## 📊 ワークフロー最適化のポイント
+## ワークフロー最適化のポイント
 
 ### 効率的な作業のために
 
@@ -461,11 +461,11 @@ Skill tool: /codeguard-security:software-security
 - 完了前のCodeGuard実行
 
 **4. 定期的な進捗報告**
-- Managerへの状況共有
+- Claude Code本体への状況共有
 - ブロッカーの早期報告
 - 完了報告の正確性
 
-## 🔗 関連スキル
+## 関連スキル
 
 詳細については、以下のスキルを参照してください：
 
