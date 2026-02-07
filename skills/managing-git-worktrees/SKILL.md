@@ -1,6 +1,6 @@
 ---
 name: managing-git-worktrees
-description: Manages Git Worktree parallel development. Required when starting new work. Creates worktrees with wt- prefix for parallel development. User confirmation required before creation.
+description: "Manages Git Worktree parallel development. Creates worktrees with wt- prefix for parallel development. Use when starting new feature branches, creating parallel development environments, or managing multiple worktrees. User confirmation required before creation."
 ---
 
 # Git Worktree並行開発ガイド

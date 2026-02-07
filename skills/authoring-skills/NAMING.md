@@ -58,19 +58,49 @@ processing.pdfs   # periods
 | Required | Non-empty |
 | Forbidden | XML tags |
 
-### The Two-Part Formula
+### The Three-Part Formula
 
 Every description must answer:
-1. **What does it do?** (capability)
-2. **When to use it?** (trigger conditions)
+1. **What does it do?** (capability) — Third person, present tense
+2. **When to use it?** (trigger conditions) — "Use when", "Use for", "Required"
+3. **How to differentiate?** (optional, mutual reference) — "For X, use Y instead."
 
 ```yaml
 # Template
-description: [What it does]. Use when [trigger conditions].
+description: [What it does]. [Use when trigger conditions]. [For X, use Y instead (optional)].
 
-# Example
+# Basic example
 description: Extracts text and tables from PDF files. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction.
 ```
+
+#### Differentiation Pattern (Part 3)
+
+When similar skills exist, add mutual references to prevent confusion:
+
+```yaml
+# Pair: Theory ↔ Implementation
+# design-guidelines (theory)
+description: "...Use when making design decisions or evaluating existing interfaces. For actual frontend code generation, use designing-frontend instead."
+
+# designing-frontend (implementation)
+description: "...Use when implementing web components that need creative, polished UI code. For theoretical UI/UX design principles, use design-guidelines instead."
+```
+
+```yaml
+# Pair: Lightweight ↔ Full-featured
+# playwright (lightweight)
+description: "...Use when straightforward browser control is needed. For complex scenarios requiring semantic locators or state persistence, use agent-browser instead."
+
+# agent-browser (full-featured)
+description: "...Choose over playwright for professional-grade automation."
+```
+
+| Differentiation Type | Pattern | Example |
+|---------------------|---------|---------|
+| Theory ↔ Implementation | "For actual X, use Y instead" | design-guidelines ↔ designing-frontend |
+| Lightweight ↔ Full-featured | "For complex X, use Y instead" | playwright ↔ agent-browser |
+| General ↔ Specific | "Reference Y for general X" | converting-markdown-to-skill → authoring-skills |
+| Parent ↔ Child | "For specific use case, see Y" | authoring-skills → converting-markdown-to-skill |
 
 ### Point of View: Always Third Person
 
@@ -189,5 +219,6 @@ Before finalizing your skill name and description:
 - [ ] Description uses third person
 - [ ] Description explains what it does
 - [ ] Description includes trigger conditions
+- [ ] Description includes differentiation (if similar skills exist)
 - [ ] Description includes key search terms
 - [ ] Description is under 1024 characters

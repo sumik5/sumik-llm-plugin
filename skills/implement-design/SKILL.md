@@ -250,3 +250,23 @@ By following this workflow, you ensure that every Figma design is implemented wi
 - [Figma MCP Server Documentation](https://developers.figma.com/docs/figma-mcp-server/)
 - [Figma MCP Server Tools and Prompts](https://developers.figma.com/docs/figma-mcp-server/tools-and-prompts/)
 - [Figma Variables and Design Tokens](https://help.figma.com/hc/en-us/articles/15339657135383-Guide-to-variables-in-Figma)
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| ターゲットフレームワーク | React, Next.js, Vue, HTML |
+| コンポーネント粒度 | 1コンポーネント, ページ全体, デザインシステム |
+| レスポンシブ対応 | Figmaのデザイン通り固定, ブレークポイント追加 |
+| 画像アセット | SVGインライン, 画像ファイル, CSS背景 |
+| インタラクション | Figmaに記載なしのホバー/アニメーション追加可否 |
+
+### 確認不要な場面
+
+- Figmaのカラー・フォント・スペーシングの忠実な再現（常に1:1）
+- セマンティックHTMLの使用（常に必須）
+- TypeScript使用（プロジェクトがTS環境の場合）

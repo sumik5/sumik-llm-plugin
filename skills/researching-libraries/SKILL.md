@@ -1,6 +1,6 @@
 ---
 name: researching-libraries
-description: Researches existing libraries before implementation. Required before writing any new functionality. Prevents reinventing the wheel by finding and evaluating existing packages.
+description: "Researches existing libraries before implementation. Required before writing any new functionality. Use when evaluating npm packages, pip packages, Go modules, or any third-party libraries. Prevents reinventing the wheel by finding and evaluating existing solutions."
 ---
 
 # ライブラリ調査（車輪の再発明禁止）
@@ -174,6 +174,26 @@ import isEmpty from 'lodash-es/isEmpty';
 // ✅ Better: 標準機能で十分な場合
 Object.keys(obj).length === 0;
 ```
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| 複数候補がある場合 | ライブラリA vs B vs C の選択 |
+| ライセンス制約 | MIT限定, GPL許容, 商用ライセンス可否 |
+| バンドルサイズの許容度 | 軽量優先, 機能優先 |
+| メンテナンス状況 | 最終更新が古いが安定 vs 新しいが不安定 |
+| 既存ライブラリとの競合 | 同種のライブラリが既にインストール済み |
+
+### 確認不要な場面
+
+- 調査実施の要否（新機能実装前は常に必須）
+- セキュリティ脆弱性のあるパッケージの除外（常に除外）
+- TypeScript型定義の有無確認（常に確認）
 
 ## 🔗 関連スキル
 

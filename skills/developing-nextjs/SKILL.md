@@ -1,6 +1,6 @@
 ---
 name: developing-nextjs
-description: Guides Next.js 16 / React 19 development. Use when package.json contains 'next' or next.config.* is detected. Supports App Router, Server Components, Cache Components, strict TypeScript, Tailwind CSS v4, Prisma ORM, and Vitest.
+description: Guides Next.js 16 / React 19 development. Use when package.json contains 'next' or next.config.* is detected. Supports App Router, Server Components, Cache Components, strict TypeScript, Tailwind CSS（最新版）, Prisma ORM, and Vitest.
 ---
 
 # Next.js 16 / React 19 Modern Web Development Skill
@@ -24,7 +24,9 @@ description: Guides Next.js 16 / React 19 development. Use when package.json con
 - **Next.js**: 16.0.0（App Router、Server Components、Cache Components）
 - **React**: 19.2.0（Actions、useActionState、ref as prop等の新機能）
 - **TypeScript**: 5.9.3（strict mode、厳格な型チェック）
-- **Tailwind CSS**: 4.1.15 + shadcn/ui 3.4.2
+- **Tailwind CSS**: 最新版 + shadcn/ui 3.4.2
+
+> **重要**: Tailwind CSS最新版はCSS-first設定。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。詳細は[STYLING.md](./STYLING.md)参照。
 - **Prisma ORM**: 6.18.0（PostgreSQL）
 - **Vitest + MSW**: テスト環境
 - **Docker**: マルチステージビルド、GCPデプロイ対応
@@ -43,7 +45,7 @@ description: Guides Next.js 16 / React 19 development. Use when package.json con
 - **[REACT-GUIDE.md](./REACT-GUIDE.md)**: React 19新機能（Actions、useActionState、ref as prop等）
 
 ### 🎨 UI・スタイリング
-- **[STYLING.md](./STYLING.md)**: Tailwind CSS v4設定、shadcn/ui使用方法、カスタムコンポーネント作成
+- **[STYLING.md](./STYLING.md)**: Tailwind CSS（最新版）設定、shadcn/ui使用方法、カスタムコンポーネント作成
 
 ### 🗄️ データ管理とテスト
 - **[DATABASE.md](./DATABASE.md)**: Prisma ORM設定、マイグレーション、型安全なクエリ
@@ -141,8 +143,29 @@ pnpm add -D vitest @vitejs/plugin-react vite-tsconfig-paths jsdom
 不明点や改善提案があれば、関連ドキュメントを参照するか、最新の公式ドキュメントを確認してください：
 - **Next.js公式**: https://nextjs.org/docs
 - **React公式**: https://react.dev
-- **Tailwind CSS v4**: https://tailwindcss.com
+- **Tailwind CSS公式**: https://tailwindcss.com
 - **shadcn/ui**: https://ui.shadcn.com
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| デプロイ先 | Vercel, AWS, Docker, セルフホスト |
+| データベース | PostgreSQL, MySQL, SQLite, PlanetScale |
+| 認証方式 | NextAuth, Clerk, Supabase Auth, カスタム |
+| スタイリング | Tailwind CSS, CSS Modules, styled-components |
+| 状態管理 | React state, Zustand, Jotai |
+| テスト戦略 | Vitest + RTL, Playwright E2E, 両方 |
+
+### 確認不要な場面
+
+- App Router vs Pages Router（App Routerがデフォルト）
+- TypeScript使用（必須）
+- package.jsonで技術スタックが確定済みの場合
 
 ---
 

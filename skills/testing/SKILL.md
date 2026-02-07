@@ -226,6 +226,28 @@ test('新規登録フォーム送信時、成功メッセージが表示され�
 
 完全なチェックリストは [REFERENCE.md](./REFERENCE.md) を参照してください。
 
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| テストフレームワーク | Vitest, Jest, pytest, Go testing |
+| テスト種別の比率 | ユニット重視, E2E重視, バランス型 |
+| カバレッジ目標 | 80%, 90%, 100%（ビジネスロジック） |
+| モック戦略 | MSW, vi.mock, 手動モック |
+| E2Eツール | Playwright, Cypress |
+| テスト環境 | jsdom, happy-dom, node |
+
+### 確認不要な場面
+
+- AAAパターンの使用（必須）
+- actual/expected変数の明示（必須）
+- 日本語テスト名の使用（必須）
+- ネストしたdescribeの禁止（必須）
+
 ## 🔗 関連スキル
 
 - **applying-solid-principles** - テスタブルな設計原則

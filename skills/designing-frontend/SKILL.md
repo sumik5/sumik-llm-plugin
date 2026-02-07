@@ -1,7 +1,9 @@
 ---
 name: designing-frontend
-description: Creates distinctive, production-grade frontend interfaces. Use when building web components, pages, or applications. Generates creative, polished code that avoids generic AI aesthetics.
+description: "Creates distinctive, production-grade frontend code with high design quality. Use when implementing web components, pages, or applications that need creative, polished UI code. Focuses on actual code generation (HTML/CSS/JS). For theoretical UI/UX design principles and guidelines, use design-guidelines instead."
 ---
+
+> **Tailwind CSS**: 常に最新版（CSS-first設定）を使用すること。`@tailwind`ディレクティブではなく`@import "tailwindcss"`を使う。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。
 
 # フロントエンドデザイン
 
@@ -124,6 +126,27 @@ description: Creates distinctive, production-grade frontend interfaces. Use when
 □ 本番環境グレードで機能する
 □ 誰かが覚えている一つの要素がある
 ```
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| UIフレームワーク | React, Vue, Svelte, vanilla |
+| スタイリング手法 | Tailwind CSS, CSS Modules, styled-components |
+| コンポーネントライブラリ | shadcn/ui, MUI, Radix UI, 自作 |
+| レスポンシブ戦略 | モバイルファースト, デスクトップファースト |
+| アニメーション | Framer Motion, CSS transitions, GSAP |
+| デザインの方向性 | ミニマル, リッチ, ダッシュボード風 |
+
+### 確認不要な場面
+
+- プロジェクトで技術スタックが既に決まっている場合
+- CLAUDE.mdやpackage.jsonで指定済みの場合
+- アクセシビリティ対応（常に必須）
 
 ## 🔗 関連スキル
 

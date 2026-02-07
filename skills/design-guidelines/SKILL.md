@@ -1,6 +1,6 @@
 ---
 name: design-guidelines
-description: Comprehensive UI/UX design guidelines covering visual design (typography, color, motion) and user experience (cognitive psychology, interaction patterns, mental models). Use when building frontend interfaces or evaluating design decisions.
+description: "Comprehensive UI/UX design principles covering visual design (typography, color, motion) and user experience (cognitive psychology, interaction patterns, mental models). Use when making design decisions, evaluating existing interfaces, or needing theoretical design guidance. For actual frontend code generation, use designing-frontend instead."
 license: Complete terms in LICENSE.txt
 ---
 
@@ -45,3 +45,23 @@ User experience principles based on cognitive psychology and HCI:
 - **Cognitive respect**: Every element costs mental effort - be ruthless about reducing unnecessary complexity
 
 Reference the specific documents (ui-design.md or ux-design.md) as needed for detailed guidance.
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| デザインシステムの有無 | 既存のデザインシステムに従うか、新規作成か |
+| ブランドカラー | プロジェクト固有の配色指定 |
+| アクセシビリティ基準 | WCAG 2.1 AA, AAA |
+| モーション設定 | アニメーション有無、reduced motion対応 |
+| タイポグラフィ | フォントファミリー、スケール |
+
+### 確認不要な場面
+
+- 認知心理学の原則適用（常に適用）
+- コントラスト比の確保（常に必須）
+- レスポンシブデザインの考慮（常に必須）

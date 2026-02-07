@@ -14,7 +14,7 @@ description: Enables token-efficient structured development via /serena command.
 ## 🎯 概要
 
 `/serena` コマンドを使用した、トークン効率の高い構造化開発。
-**Claude Code本体、Tachikoma、その他すべてのAgentで活用可能。**
+**Claude Code本体、タチコマ、その他すべてのAgentで活用可能。**
 
 ## 📋 使用タイミング（自動トリガー）
 
@@ -40,11 +40,11 @@ description: Enables token-efficient structured development via /serena command.
 
 | 場面 | 推奨 |
 |------|------|
-| Tachikoma実装作業 | `/serena`積極活用 |
+| タチコマ実装作業 | `/serena`積極活用 |
 | Claude Code直接作業 | `/serena`活用可 |
 | 複雑な問題解決 | `/serena -d -r`推奨 |
 
 ## 🔗 関連スキル
 
-- **implementing-as-tachikoma**: Tachikoma Agentでの活用
+- **implementing-as-tachikoma**: タチコマ Agentでの活用
 - **applying-solid-principles**: コード品質基準

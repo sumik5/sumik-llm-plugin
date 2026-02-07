@@ -285,7 +285,7 @@ Developer Agentは、Claude Code本体からの指示がない限り、以下の
 
 **理由:**
 - Developer Agentは「タスク実行エージェント」であり、「提案エージェント」ではない
-- 指示系統を明確にするため（Claude Code → Tachikoma）
+- 指示系統を明確にするため（Claude Code → タチコマ）
 - 不要なコンテキスト消費を避けるため
 - Claude Code本体の計画を尊重するため
 

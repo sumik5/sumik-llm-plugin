@@ -59,9 +59,10 @@ description: Describes what it does and when to use it.  # max 1024 chars
 - Good: `processing-pdfs`, `analyzing-data`, `testing-code`
 - Avoid: `helper`, `utils`, `tools`
 
-**Description rules**:
+**Description rules** (Three-Part Formula):
 - Always write in **third person**
 - Include what the skill does AND when to use it
+- Add differentiation when similar skills exist (e.g., "For X, use Y instead.")
 - Be specific and include key terms for discovery
 
 See [NAMING.md](NAMING.md) for detailed naming guidelines.
@@ -165,6 +166,40 @@ Guide through decision points:
    - **Editing existing?** → See "Editing workflow"
 ```
 
+### AskUserQuestion Pattern
+
+Guide users through decision points with structured choices:
+
+````markdown
+### ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+- **確認すべき場面**:
+  - [このスキル固有の判断分岐を列挙]
+- **確認不要な場面**:
+  - [ベストプラクティスが明確な場合]
+  - [スキル内で明確に推奨している場合]
+
+**AskUserQuestion使用例:**
+
+```python
+AskUserQuestion(
+    questions=[{
+        "question": "[判断が必要な質問]",
+        "header": "[短いラベル]",
+        "options": [
+            {"label": "[選択肢1]", "description": "[説明]"},
+            {"label": "[選択肢2]", "description": "[説明]"}
+        ],
+        "multiSelect": False
+    }]
+)
+```
+````
+
+**When to include**: If your skill has sections where multiple valid approaches exist (architecture choices, library selection, deployment strategies), add an AskUserQuestion section guiding users to confirm before proceeding.
+
 ## Anti-Patterns to Avoid
 
 | Anti-Pattern | Problem | Solution |
@@ -185,5 +220,6 @@ Guide through decision points:
 
 ## Related Skills
 
+- **converting-markdown-to-skill**: Converts existing markdown files (book summaries, technical notes) into Claude Code Skills. Use this when creating skills from existing source material
 - **writing-technical-docs**: General documentation principles
 - **applying-solid-principles**: Code quality for utility scripts

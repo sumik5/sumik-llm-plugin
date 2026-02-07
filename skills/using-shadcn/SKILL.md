@@ -118,6 +118,25 @@ mcp__shadcn__get_item_examples_from_registries({
 - `"example-booking-form"` - 予約フォームの例
 - `"tooltip-demo"` - ツールチップのデモ
 
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| コンポーネント選択 | 類似コンポーネントが複数ある場合（Dialog vs Drawer vs Sheet） |
+| テーマカスタマイズ | カラーパレット、border-radius、フォント |
+| 既存コンポーネントとの統合 | カスタムコンポーネントの上書き vs 拡張 |
+| 追加レジストリ | デフォルトのみ vs サードパーティレジストリ |
+
+### 確認不要な場面
+
+- components.jsonの存在確認（使用前に必ず確認）
+- Tailwind CSSの使用（shadcn/ui の前提）
+- TypeScript型定義の活用（常に使用）
+
 ## 🔗 関連ツール
 - `get_project_registries` - レジストリ確認
 - `search_items_in_registries` - コンポーネント検索

@@ -56,7 +56,7 @@ Managerから開発タスクを受信した場合、以下の専門性を活用�
 **使用技術例:**
 - React, Next.js, Vue.js
 - TypeScript/JavaScript
-- CSS-in-JS, Tailwind CSS
+- CSS-in-JS, Tailwind CSS（最新版）
 - shadcn/ui, Material-UI
 - Framer Motion
 

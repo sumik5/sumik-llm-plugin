@@ -66,7 +66,8 @@ project-root/
 ├── next.config.js             # Next.js設定
 ├── package.json               # npm依存関係
 ├── tsconfig.json              # TypeScript設定
-├── tailwind.config.js         # Tailwind CSS設定
+├── postcss.config.cjs         # PostCSS設定（@tailwindcss/postcss）
+├── tailwind.config.js         # Tailwind CSS設定（プラグイン・shadcn/ui互換）
 ├── vitest.config.mts          # Vitestテスト設定
 └── .env.example               # 環境変数テンプレート
 ```

@@ -1,6 +1,6 @@
 ---
 name: securing-code
-description: Enforces secure coding practices. Required after all code implementations to run CodeGuard security check. Covers input validation, secrets management, and OWASP countermeasures.
+description: "Enforces secure coding practices and runs CodeGuard security check. Use after all code implementations to verify security. Covers input validation, secrets management, OWASP top 10 countermeasures, and authentication/authorization patterns."
 ---
 
 # セキュアコーディング
@@ -183,6 +183,27 @@ HTTPヘッダー、ファイルアップロード、その他のセキュリテ�
 - レート制限の実装
 - セキュアなログ管理
 - 依存関係のセキュリティ管理
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| 認証方式 | JWT, セッション, OAuth2, API Key |
+| 暗号化方式 | bcrypt, argon2, scrypt（パスワード） |
+| CORS設定 | 許可するオリジン、メソッド |
+| セキュリティヘッダー | CSP設定のstrictさ |
+| 機密情報の保存先 | 環境変数, Vault, AWS Secrets Manager |
+
+### 確認不要な場面
+
+- SQLインジェクション対策（プリペアドステートメント必須）
+- XSS対策（エスケープ処理必須）
+- CodeGuard実行（実装完了後必須）
+- HTTPS使用（本番環境で必須）
 
 ## 🔗 関連スキル
 

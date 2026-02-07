@@ -1,6 +1,6 @@
 ---
-name: vercel-react-best-practices
-description: React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.
+name: react-best-practices
+description: "React and Next.js performance optimization guidelines from Vercel Engineering. Covers optimal component patterns, data fetching, bundle optimization, and rendering strategies. Use when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns."
 license: MIT
 metadata:
   author: vercel
@@ -123,3 +123,23 @@ Each rule file contains:
 ## Full Compiled Document
 
 For the complete guide with all rules expanded: `AGENTS.md`
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| 状態管理手法 | React state, Zustand, Jotai, Redux |
+| データフェッチ戦略 | Server Components, TanStack Query, SWR |
+| レンダリング方式 | SSR, SSG, ISR, CSR |
+| バンドル最適化 | dynamic import の粒度、lazy loading対象 |
+| キャッシュ戦略 | Cache Components, unstable_cache, fetch cache |
+
+### 確認不要な場面
+
+- Server Componentsの優先使用（デフォルト）
+- use clientの最小化（常に最小限に）
+- メモ化の判断（React Compilerに委ねる）

@@ -1,6 +1,6 @@
 ---
 name: storybook-guidelines
-description: Comprehensive Storybook story creation guidelines. Covers story structure, naming conventions, and visual testing patterns. Reference this skill when creating Storybook stories for components with conditional rendering or complex UI states during Phase 2 (Testing & Stories).
+description: "Comprehensive Storybook story creation guidelines. Covers story structure, naming conventions, and visual testing patterns. Use when creating Storybook stories, .stories.tsx/.stories.ts files, or setting up component visual testing for components with conditional rendering or complex UI states."
 ---
 
 # Storybook Guidelines
@@ -212,3 +212,23 @@ export const Default2: Story = {
   },
 };
 ```
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| ストーリー構成 | CSF3形式のみか、MDX併用か |
+| インタラクションテスト | play function使用有無 |
+| ビジュアルテスト | Chromatic, Percy, なし |
+| アドオン | a11y, viewport, darkmode等の追加 |
+| ストーリーの粒度 | 全バリアント網羅か、代表パターンのみか |
+
+### 確認不要な場面
+
+- CSF3形式の使用（デフォルト）
+- TypeScriptでの型定義（必須）
+- 命名規則（`Component/Variant`パターン）

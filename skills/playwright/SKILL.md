@@ -1,6 +1,6 @@
 ---
-name: playwright-cli
-description: Lightweight browser automation using Microsoft's official Playwright MCP. Best for simple workflows - basic navigation, form filling, screenshots, and JavaScript evaluation. Use when you need straightforward browser control without advanced features. For complex scenarios requiring semantic locators, state persistence, network interception, or device emulation, use agent-browser instead.
+name: playwright
+description: "Lightweight browser automation using Microsoft's official Playwright MCP. Best for simple workflows - basic navigation, form filling, screenshots, and JavaScript evaluation. Use when straightforward browser control is needed without advanced features. For complex scenarios requiring semantic locators, state persistence, network interception, or device emulation, use agent-browser instead."
 allowed-tools:
   - Bash(playwright-cli:*)
   - Bash(which playwright-cli*)

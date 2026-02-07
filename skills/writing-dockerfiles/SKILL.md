@@ -278,3 +278,24 @@ docker run --rm -i hadolint/hadolint < Dockerfile
 - [Google Distroless Images](https://github.com/GoogleContainerTools/distroless)
 - [Hadolint](https://github.com/hadolint/hadolint)
 - [Docker Scout](https://docs.docker.com/scout/)
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| ベースイメージ | node:22-alpine, python:3.13-slim, golang:1.23 |
+| マルチステージ構成 | ビルドステージ数、最終イメージの構成 |
+| 実行ユーザー | root, 非rootユーザー名 |
+| パッケージマネージャー | apt, apk, yum |
+| キャッシュ戦略 | BuildKit cache mount使用有無 |
+| 用途 | 開発用, 本番用, CI/CD用 |
+
+### 確認不要な場面
+
+- COPY前の.dockerignore確認（常に必須）
+- 不要パッケージの削除（常に実施）
+- LABELメタデータの付与（常に推奨）

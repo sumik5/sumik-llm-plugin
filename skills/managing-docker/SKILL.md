@@ -1,6 +1,6 @@
 ---
 name: managing-docker
-description: Manages Docker development environments. Use for containerized projects, Docker operations, Compose management, and environment setup.
+description: "Manages Docker development environments. Use when Dockerfile, docker-compose.yml, docker-compose.yaml, or .dockerignore is detected, or when working with containerized projects, Docker operations, Compose management, and environment setup."
 ---
 
 # Docker開発環境管理
@@ -173,6 +173,26 @@ mcp__docker__get_container_logs({ container_name: "..." })
 - `build_image` - イメージビルド
 - `compose_up` - Compose起動
 - `get_container_logs` - ログ取得
+
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| ベースイメージ | alpine, debian, ubuntu, distroless |
+| Compose構成 | 開発用のみ, 本番用も, プロファイル分離 |
+| ポートマッピング | ホスト側ポート番号、既存サービスとの競合 |
+| ボリューム戦略 | bind mount, named volume, tmpfs |
+| ネットワーク構成 | デフォルト, カスタムネットワーク |
+
+### 確認不要な場面
+
+- Docker Composeバージョン（v2がデフォルト）
+- .dockerignoreの作成（常に必須）
+- ヘルスチェックの追加（常に推奨）
 
 ## 🔗 関連ツール
 - **filesystem MCP**: Dockerfile、docker-compose.yml編集

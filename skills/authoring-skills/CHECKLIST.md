@@ -45,6 +45,21 @@ TESTING
 - [ ] Tested with intended model(s)
 - [ ] Tested with real usage scenarios
 - [ ] Team feedback incorporated (if applicable)
+
+ASKUSERQUESTION (if skill has decision points)
+- [ ] AskUserQuestion section included for ambiguous decisions
+- [ ] "確認すべき場面" (when to ask) documented
+- [ ] "確認不要な場面" (when NOT to ask) documented
+- [ ] AskUserQuestion code example included
+
+SOURCE ATTRIBUTION (if skill is based on external material)
+- [ ] No book titles, author names, or publisher names
+- [ ] No "based on", "according to" attribution phrases
+- [ ] Content framed as general best practices
+
+DIFFERENTIATION (if similar skills exist)
+- [ ] Description includes mutual reference ("For X, use Y instead")
+- [ ] Related Skills section lists similar skills with distinction
 ```
 
 ## Detailed Requirements

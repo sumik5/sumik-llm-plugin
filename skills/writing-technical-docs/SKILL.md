@@ -80,6 +80,26 @@ description: Guides technical documentation and report writing. Applies the 7 Cs
 - 読者層に応じた説明レベル
 - 組織固有のスタイルガイド
 
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| 対象読者 | 開発者, マネージャー, エンドユーザー |
+| ドキュメント形式 | Markdown, PDF, HTML, Confluence |
+| 詳細レベル | 概要のみ, 手順書, 詳細仕様書 |
+| 言語 | 日本語, 英語, 両方 |
+| テンプレート | ADR, RFC, 技術設計書, 運用手順書 |
+
+### 確認不要な場面
+
+- 7つのCの原則の適用（常に適用）
+- Markdownの基本記法
+- コードコメントの記述（コードの言語に従う）
+
 ## 🔗 関連スキル
 - **applying-solid-principles**: コメントとドキュメントの品質
 - **testing**: テストケース名の明確性

@@ -1,6 +1,6 @@
 ---
 name: implementing-as-tachikoma
-description: Operates as Tachikoma Agent (Implementation Worker). Performs actual implementation work. Adapts to frontend, backend, testing, or other roles based on Claude Code's assignment. Uses /serena command for efficient development.
+description: "Operates as Tachikoma Agent (Implementation Worker). Performs actual implementation work. Adapts to frontend, backend, testing, or other roles based on Claude Code's assignment. Use when receiving task assignments from Claude Code for code implementation, test creation, or documentation work."
 ---
 
 # Developer Agent運用ガイド
@@ -10,6 +10,7 @@ description: Operates as Tachikoma Agent (Implementation Worker). Performs actua
 このスキルは以下のファイルで構成されています：
 
 - **SKILL.md** (このファイル): 概要と基本ワークフロー
+- **[PARALLEL-EXECUTION.md](./PARALLEL-EXECUTION.md)**: 並列実行の判断基準とパターン（重要）
 - **[TOOLS.md](./TOOLS.md)**: 使用可能なツールの詳細リファレンス
 - **[WORKFLOWS.md](./WORKFLOWS.md)**: 作業手順とWorktree管理の詳細
 - **[SPECIALIZATIONS.md](./SPECIALIZATIONS.md)**: tachikoma1-4の専門性と役割分担
@@ -106,6 +107,18 @@ Developer Agentは全てのツールを使用可能です：
 - その他多数
 
 **詳細**: [TOOLS.md](./TOOLS.md) を参照
+
+## 並列実行（デフォルト推奨）
+
+**タスクが2つ以上の独立した関心事を含む場合、並列実行がデフォルト。**
+
+Claude Code本体は以下の判断基準で並列化を決定:
+- 2+ファイルの独立した変更 → 並列
+- フロントエンド + バックエンド → 並列
+- 実装 + テスト → 並列
+- 単一ファイル・単一関心事 → 単体
+
+**詳細**: [PARALLEL-EXECUTION.md](./PARALLEL-EXECUTION.md) を参照
 
 ## 専門性（tachikoma1-4）
 

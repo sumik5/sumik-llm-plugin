@@ -207,6 +207,7 @@ Include if relevant:
 - **Common Patterns**: Frequently used approaches
 - **Anti-Patterns**: What to avoid
 - **Troubleshooting**: Common issues
+- **AskUserQuestion / User Confirmation**: When skill has decision points with multiple valid approaches, include a section guiding users to confirm via AskUserQuestion before proceeding
 
 ## Scripts Organization
 

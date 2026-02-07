@@ -1,40 +1,155 @@
-# Tailwind CSS v4 + shadcn/ui スタイリングガイド
+# Tailwind CSS + shadcn/ui スタイリングガイド
 
 ## 概要
 
-このプロジェクトでは、Tailwind CSS v4とshadcn/uiを使用してスタイリングを行います。
+このプロジェクトでは、Tailwind CSS（最新版）とshadcn/uiを使用してスタイリングを行います。
 
-## Tailwind CSS v4
+## Tailwind CSS（最新版）
 
 ### セットアップ
 
+> **重要**: Tailwind CSS最新版はCSS-first設定を採用。`@tailwind`ディレクティブは廃止され、`@import "tailwindcss"`を使用する。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。
+
 **インストール:**
 ```bash
-pnpm add -D tailwindcss@4.1.15 postcss autoprefixer
-pnpm dlx tailwindcss init -p
+pnpm add tailwindcss @tailwindcss/postcss tailwindcss-animate autoprefixer
+pnpm add -D tailwind-merge
 ```
 
-**tailwind.config.js:**
+**postcss.config.cjs:**
 ```javascript
-/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
-  theme: {
-    extend: {},
+  plugins: {
+    "@tailwindcss/postcss": {},
   },
-  plugins: [],
 };
 ```
+
+> 注: `"type": "module"`のプロジェクトではCommonJS形式の`.cjs`拡張子を使用。
 
 **globals.css:**
 ```css
 /* src/app/globals.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-background: 0 0% 100%;
+  --color-foreground: 222.2 84% 4.9%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
 ```
+
+**tailwind.config.js:**
+```javascript
+export default {
+  darkMode: ["class"],
+  content: [
+    "./src/app/**/*.{ts,tsx}",
+    "./src/components/**/*.{ts,tsx}",
+    "!./node_modules/**",
+  ],
+  theme: {
+    extend: {
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      colors: {
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+};
+```
+
+> **構成のポイント:**
+> - `@import "tailwindcss"` + `@theme`ブロック: CSS-first設定（最新版の標準）
+> - `tailwind.config.js`: プラグイン（`tailwindcss-animate`）、`darkMode`設定、shadcn/ui互換のために共存
+> - CSS変数 `hsl(var(--xxx))` 形式: shadcn/uiとの統合パターン
+> - `:root` / `.dark` セレクタ: ライト/ダークモードの切り替え
+
+### 旧バージョンとの主な違い（旧バージョンの書き方は使わないこと）
+
+| 項目 | ❌ 旧バージョン（禁止） | ✅ 最新版（必須） |
+|---|---|---|
+| CSS読み込み | `@tailwind base/components/utilities;` | `@import "tailwindcss";` |
+| テーマトークン | JS内のみで定義 | CSS内の`@theme { }`で定義可能 |
+| PostCSS | `tailwindcss`プラグイン直接指定 | `@tailwindcss/postcss` |
+| 初期化 | `tailwindcss init -p` | 手動でファイル作成 |
 
 ### 基本的な使用方法
 
@@ -358,16 +473,24 @@ import { Button } from "@/components/ui/button";
 ### 2. 一貫性のあるスタイリング
 
 **カラーパレット、スペーシング、フォントサイズを統一:**
-```tsx
-// Tailwind設定で定義
+```css
+/* globals.css でテーマトークン定義 */
+@theme {
+  --color-brand: 222.2 47.4% 11.2%;
+}
+
+/* :root でCSS変数定義 */
+:root {
+  --brand: 222.2 47.4% 11.2%;
+}
+```
+
+```javascript
+// tailwind.config.js で参照
 theme: {
   extend: {
     colors: {
-      primary: "#3b82f6",
-      secondary: "#6366f1",
-    },
-    spacing: {
-      18: "4.5rem",
+      brand: "hsl(var(--brand))",
     },
   },
 }
@@ -388,7 +511,7 @@ theme: {
 
 ## 参考資料
 
-- **Tailwind CSS v4公式**: https://tailwindcss.com
+- **Tailwind CSS公式**: https://tailwindcss.com
 - **shadcn/ui公式**: https://ui.shadcn.com
 - **next-themes**: https://github.com/pacocoursey/next-themes
 

@@ -1,0 +1,209 @@
+---
+name: converting-markdown-to-skill
+description: >-
+  Converts markdown files (book summaries, technical notes, reference docs) into
+  well-structured Claude Code Skills with proper frontmatter, progressive disclosure,
+  and AskUserQuestion patterns. Use when creating new skills from existing markdown
+  source material, technical documentation, or book notes. Reference authoring-skills
+  for general skill creation guidelines.
+---
+
+# Markdown to Skill 変換ガイド
+
+## Overview
+
+Markdownファイル（書籍要約、技術ノート、リファレンス等）を読み込み、Claude Code Skill形式に変換するメタスキル。
+
+- **入力**: Markdownファイルパス
+- **出力**: Claude Code Skill（SKILL.md + 必要に応じてサブファイル）
+
+## 使用タイミング
+
+- 既存Markdownからスキルを作成するとき
+- 技術書の要約、社内ドキュメント、技術ノートをスキル化するとき
+- 引数としてソースMarkdownファイルパスを受け取る
+
+## 変換ワークフロー（5フェーズ）
+
+### Phase 1: 分析（Analysis）
+
+1. ソースMarkdownを読み込む
+2. 内容構造を分析:
+   - セクション数とトピック
+   - コード例の有無・言語
+   - 判断基準テーブルの有無
+   - 推定総行数
+3. スキルのスコープを特定（どの領域をカバーするか）
+
+### Phase 2: ユーザー確認（AskUserQuestion 必須）
+
+**分析結果をもとに、必ずAskUserQuestionで以下を確認する。**
+
+確認項目:
+1. **スキル名**: gerund形式の候補を2-3個提示
+2. **ファイル分割方針**: SKILL.md単体 or サブファイル分割
+3. **対象読者・使用場面**: descriptionに反映
+4. **除外内容**: ソース出典情報の除去可否、その他除外項目
+5. **既存スキルとの差別化方針**
+
+AskUserQuestionの実装例:
+
+```python
+AskUserQuestion(
+    questions=[
+        {
+            "question": "作成するスキルの名前を決めてください（gerund形式推奨）",
+            "header": "スキル名",
+            "options": [
+                {"label": "developing-xxx", "description": "xxx開発のガイドスキル"},
+                {"label": "implementing-xxx", "description": "xxx実装の手順スキル"},
+                {"label": "managing-xxx", "description": "xxx管理のワークフロースキル"}
+            ],
+            "multiSelect": False
+        },
+        {
+            "question": "ファイル構成をどうしますか？",
+            "header": "ファイル構成",
+            "options": [
+                {"label": "SKILL.md単体", "description": "内容が少なめの場合（500行以下）"},
+                {"label": "複数ファイル分割", "description": "内容が多い場合（トピック別に分割）"}
+            ],
+            "multiSelect": False
+        }
+    ]
+)
+```
+
+### Phase 3: 構造設計（Design）
+
+1. **Frontmatter設計** -- 二部構成の公式に従う（後述 4.4）
+2. **SKILL.mdのセクション構成決定**（500行以下厳守）
+3. **サブファイルの構成決定**（必要な場合、命名は UPPER-CASE-HYPHEN.md）
+4. **判断分岐箇所の特定** -- AskUserQuestion指示を配置する箇所を決定
+
+### Phase 4: 生成（Generate）
+
+1. SKILL.md生成
+2. サブファイル生成（必要な場合）
+3. **ソース出典情報の除去**（後述 4.1）:
+   - 書籍タイトル、著者名、出版社名、ISBN
+   - 「~に基づく」「~を参考に」等の出典参照フレーズ
+   - 内容は一般的なベストプラクティスとして記述し直す
+
+### Phase 5: 品質チェック（Validate）
+
+後述のセクション「品質チェックリスト」を適用し、全項目を確認する。
+
+## 変換ルール
+
+### 4.1 ソース出典の除去ルール
+
+**書籍タイトル、著者名、出版社名、ISBN等を絶対に含めない。**
+
+- 「~に基づく」「~を参考に」「~によると」等の出典参照フレーズを除去
+- 引用ブロック (`>`) は出典を示さず、核心メッセージとして記述
+- 内容は一般的なベストプラクティス・業界知識として記述
+
+| 除去対象 | 変換後の記述 |
+|---------|------------|
+| 「Clean Code第3章によると...」 | 「関数設計のベストプラクティスとして...」 |
+| `> -- Robert C. Martin` | `> 関数は一つのことだけを行うべきである` |
+| 「ISBN 978-xxx」 | （完全に除去） |
+
+### 4.2 AskUserQuestion配置基準
+
+判断分岐のある箇所には、スキル内にAskUserQuestion使用を指示する文を配置する。
+
+**配置すべき箇所:**
+- アーキテクチャ選択（モノリス vs マイクロサービス等）
+- ライブラリ・フレームワーク選択
+- テスト戦略（範囲、ツール、対象）
+- デプロイ戦略
+- プロジェクト固有の要件に依存する判断
+
+**配置不要な箇所:**
+- ベストプラクティスが一義的に決まる場合（例: SQLインジェクション対策）
+- セキュリティ必須対策（例: パスワードハッシュ化）
+- スキル内で明確に推奨している場合
+
+生成するスキル内に記述する指示文の例:
+
+```markdown
+### ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+確認すべき場面:
+- [このスキル固有の判断分岐を列挙]
+
+確認不要な場面:
+- [明確なベストプラクティスがある場合を列挙]
+```
+
+### 4.3 Progressive Disclosure
+
+- SKILL.md本体は **500行以下**
+- セクション数5つ以上 or 推定行数500行超 --> サブファイル分割必須
+- サブファイル命名: `UPPER-CASE-HYPHEN.md`（例: `BACKEND-STRATEGIES.md`）
+- SKILL.mdからサブファイルへのリンクを配置
+
+詳細は [authoring-skills](../authoring-skills/SKILL.md) の Progressive Disclosure セクション参照。
+
+### 4.4 Frontmatter 二部構成の公式
+
+```
+[What: 三人称で能力を明記]. [When: トリガー条件]. [差別化: 類似スキルとの区別（任意）].
+```
+
+例:
+- `"Guides Next.js 16 / React 19 development. Use when package.json contains 'next'."`
+- `"Enforces type safety in TypeScript/Python. Any/any types strictly prohibited. Use when processing API responses."`
+- `"Converts markdown files into well-structured Claude Code Skills. Use when creating new skills from existing markdown source material."`
+
+### 4.5 日本語・スタイルルール
+
+- スキル本文は **日本語** で記述（技術用語は原語のまま）
+- Frontmatterのdescriptionは **英語**
+- セクション数が多い場合は目次にアンカーリンク付き
+- 判断基準テーブル（`| 要素 | 値 |` 形式）を活用
+- コード例はソース内容に準じた言語で記述
+- チェックリストは `- [ ]` 形式
+
+## 品質チェックリスト
+
+作成したスキルに対して以下を全項目確認する。
+
+### Frontmatter
+- [ ] name: gerund形式、小文字ハイフン区切り
+- [ ] description: What（三人称）+ When（トリガー）含む
+- [ ] description: 差別化（類似スキルとの区別）含む（該当する場合）
+
+### 構造
+- [ ] SKILL.md本体が500行以下
+- [ ] サブファイルへの適切な分割（必要な場合）
+- [ ] 目次/ナビゲーションあり（サブファイルがある場合）
+
+### AskUserQuestion
+- [ ] 判断分岐箇所にAskUserQuestion使用指示が配置されている
+- [ ] 確認すべき場面と確認不要な場面が明記されている
+- [ ] AskUserQuestionのコード例が含まれている
+
+### ソース出典
+- [ ] 書籍タイトル・著者名・出版社名が含まれていない
+- [ ] 「~に基づく」等の出典参照フレーズがない
+- [ ] 内容が一般的なベストプラクティスとして記述されている
+
+### コンテンツ品質
+- [ ] 日本語で記述されている（技術用語は原語）
+- [ ] コード例が含まれている（該当する場合）
+- [ ] 判断基準テーブルが含まれている（該当する場合）
+- [ ] 自己完結している（他スキルを参照しなくても理解可能）
+
+## 関連スキル
+
+- **[authoring-skills](../authoring-skills/SKILL.md)**: 一般的なスキル作成ガイド。命名規則、ファイル構造、評価駆動開発。このスキルの基盤
+- **[writing-technical-docs](../writing-technical-docs/SKILL.md)**: 技術ドキュメントの7つのC原則。スキル内の文章品質向上に参照
+
+## テンプレート参照
+
+詳細なテンプレート集は [TEMPLATES.md](TEMPLATES.md) を参照。

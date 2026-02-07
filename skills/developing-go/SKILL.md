@@ -217,6 +217,26 @@ func process(item *Item) error {
 }
 ```
 
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| HTTPフレームワーク | net/http, Chi, Gin, Echo |
+| プロジェクト構造 | Standard Layout, Flat, Domain-driven |
+| DBドライバ | database/sql, sqlx, GORM, ent |
+| ログライブラリ | log/slog, zap, zerolog |
+| 設定管理 | 環境変数, Viper, envconfig |
+
+### 確認不要な場面
+
+- Go バージョン（go.mod記載のバージョンに従う）
+- コードフォーマッタ（gofmt/goimports は必須）
+- エラーハンドリングスタイル（Google Style Guide準拠）
+
 ## 🔗 関連スキル
 
 - **[applying-solid-principles](../applying-solid-principles/SKILL.md)**: SOLID原則とクリーンコード

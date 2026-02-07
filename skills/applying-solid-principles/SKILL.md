@@ -1,6 +1,6 @@
 ---
 name: applying-solid-principles
-description: Applies SOLID principles and clean code practices. Required for all code implementations. Covers single responsibility, open-closed, and dependency injection principles.
+description: "Applies SOLID principles and clean code practices. Required for all code implementations - automatically reference when writing or reviewing any code. Covers single responsibility, open-closed, Liskov substitution, interface segregation, and dependency inversion principles."
 ---
 
 # SOLID原則とクリーンコード

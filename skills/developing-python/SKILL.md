@@ -143,6 +143,27 @@ uv run pytest
 - データベース接続プール
 - Dockerマルチステージビルドによるイメージ最適化
 
+## ユーザー確認の原則（AskUserQuestion）
+
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+
+### 確認すべき場面
+
+| 確認項目 | 例 |
+|---|---|
+| Pythonバージョン | 3.11, 3.12, 3.13 |
+| Webフレームワーク | FastAPI, Flask, Django |
+| パッケージマネージャー | uv, pip, poetry |
+| DB選択 | PostgreSQL, SQLite, MongoDB |
+| ORM | SQLAlchemy, Prisma, Tortoise |
+| テストランナー | pytest, unittest |
+
+### 確認不要な場面
+
+- pyproject.toml が既に存在し設定が明確な場合
+- CLAUDE.mdや既存コードで技術スタックが指定済みの場合
+- linter/formatterの選択（ruff + mypy がデフォルト）
+
 ## 🔗 関連スキル
 
 - **[applying-solid-principles](../applying-solid-principles/SKILL.md)**: SOLID原則とクリーンコード
