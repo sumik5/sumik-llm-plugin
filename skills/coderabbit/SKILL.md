@@ -3,123 +3,170 @@ name: code-review
 description: "AI-powered code review using CodeRabbit. Default code-review skill. Trigger for any explicit review request AND autonomously when the agent thinks a review is needed (code/PR/quality/security)."
 ---
 
-# CodeRabbit Code Review
+# CodeRabbit コードレビュー
 
-AI-powered code review using CodeRabbit. Enables developers to implement features, review code, and fix issues in autonomous cycles without manual intervention.
+CodeRabbit を使った AI コードレビュー。機能実装・コードレビュー・問題修正を自律的なサイクルで実行し、手動介入なしで完了させる。
 
-## Capabilities
+## 機能
 
-- Finds bugs, security issues, and quality risks in changed code
-- Groups findings by severity (Critical, Warning, Info)
-- Works on staged, committed, or all changes; supports base branch/commit
-- Provides fix suggestions (`--plain`) or minimal output for agents (`--prompt-only`)
+- 変更されたコードのバグ、セキュリティ問題、品質リスクを検出
+- 深刻度別に分類（Critical, Warning, Info）
+- ステージ済み・コミット済み・全変更に対応。ベースブランチ/コミット指定も可能
+- 修正提案付き出力（`--plain`）またはAgent最適化出力（`--prompt-only`）
+- **自動修正ループ**: レビュー → 修正 → 再レビューを問題解消まで繰り返す
 
-## When to Use
+## 使用タイミング
 
-When user asks to:
+ユーザーが以下を依頼した場合:
 
-- Review code changes / Review my code
-- Check code quality / Find bugs or security issues
-- Get PR feedback / Pull request review
-- What's wrong with my code / my changes
-- Run coderabbit / Use coderabbit
+- コード変更のレビュー / コードをレビューして
+- コード品質のチェック / バグやセキュリティ問題の検出
+- PRフィードバック / プルリクエストのレビュー
+- コードの問題点を教えて / 変更内容を確認して
+- coderabbit を実行して / coderabbit を使って
 
-## How to Review
+## レビュー手順
 
-### 1. Check Prerequisites
+### 1. 前提条件の確認
 
 ```bash
 coderabbit --version 2>/dev/null || echo "NOT_INSTALLED"
 coderabbit auth status 2>&1
 ```
 
-**If CLI not installed**, tell user:
+**CLI が未インストールの場合**、ユーザーに伝える:
 
 ```text
-Please install CodeRabbit CLI first:
+CodeRabbit CLI をインストールしてください:
 curl -fsSL https://cli.coderabbit.ai/install.sh | sh
 ```
 
-**If not authenticated**, tell user:
+**未認証の場合**、ユーザーに伝える:
 
 ```text
-Please authenticate first:
+認証を行ってください:
 coderabbit auth login
 ```
 
-### 2. Run Review
+### 2. レビュー実行（デフォルト: 未コミットの変更）
 
-Use `--prompt-only` for minimal output optimized for AI agents:
-
-```bash
-coderabbit review --prompt-only
-```
-
-Or use `--plain` for detailed feedback with fix suggestions:
+デフォルトでは未コミットの変更のみをレビューする:
 
 ```bash
-coderabbit review --plain
+coderabbit review --prompt-only --type uncommitted
 ```
 
-**Options:**
+**オプション:**
 
-| Flag             | Description                              |
+| フラグ           | 説明                                     |
 | ---------------- | ---------------------------------------- |
-| `-t all`         | All changes (default)                    |
-| `-t committed`   | Committed changes only                   |
-| `-t uncommitted` | Uncommitted changes only                 |
-| `--base main`    | Compare against specific branch          |
-| `--base-commit`  | Compare against specific commit hash     |
-| `--prompt-only`  | Minimal output optimized for AI agents   |
-| `--plain`        | Detailed feedback with fix suggestions   |
+| `-t all`         | 全変更                                   |
+| `-t committed`   | コミット済みの変更のみ                   |
+| `-t uncommitted` | 未コミットの変更のみ（デフォルト）       |
+| `--base main`    | 特定のブランチと比較                     |
+| `--base-commit`  | 特定のコミットハッシュと比較             |
+| `--prompt-only`  | Agent最適化の簡潔な出力                  |
+| `--plain`        | 修正提案付きの詳細出力                   |
 
-**Shorthand:** `cr` is an alias for `coderabbit`:
-
-```bash
-cr review --prompt-only
-```
-
-### 3. Present Results
-
-Group findings by severity:
-
-1. **Critical** - Security vulnerabilities, data loss risks, crashes
-2. **Warning** - Bugs, performance issues, anti-patterns
-3. **Info** - Style issues, suggestions, minor improvements
-
-Create a task list for issues found that need to be addressed.
-
-### 4. Fix Issues (Autonomous Workflow)
-
-When user requests implementation + review:
-
-1. Implement the requested feature
-2. Run `coderabbit review --prompt-only`
-3. Create task list from findings
-4. Fix critical and warning issues systematically
-5. Re-run review to verify fixes
-6. Repeat until clean or only info-level issues remain
-
-### 5. Review Specific Changes
-
-**Review only uncommitted changes:**
+**省略形:** `cr` は `coderabbit` のエイリアス:
 
 ```bash
-cr review --prompt-only -t uncommitted
+cr review --prompt-only --type uncommitted
 ```
 
-**Review against a branch:**
+### 3. 結果の提示
+
+深刻度別にグループ化して報告:
+
+1. **Critical** - セキュリティ脆弱性、データ損失リスク、クラッシュ
+2. **Warning** - バグ、パフォーマンス問題、アンチパターン
+3. **Info** - スタイルの問題、提案、軽微な改善
+
+### 4. 自動修正ループ（デフォルトワークフロー）
+
+レビュー指摘を自動修正し、問題がなくなるまで繰り返す。これがデフォルトのワークフロー。
+
+#### フロー
+
+```
+┌─────────────────────────────────────┐
+│  1. レビュー実行                      │
+│  coderabbit review                  │
+│    --prompt-only                    │
+│    --type uncommitted               │
+├─────────────────────────────────────┤
+│  2. 結果解析                         │
+│  - Critical / Warning / Info        │
+├─────────────────────────────────────┤
+│  3. Critical または Warning あり？    │
+│  ├─ YES → 問題を修正                 │
+│  │   └─ ステップ1に戻る              │
+│  └─ NO  → 完了 ✓                    │
+└─────────────────────────────────────┘
+最大イテレーション: 5回
+```
+
+#### 手順
+
+1. **レビュー実行**:
+   ```bash
+   coderabbit review --prompt-only --type uncommitted
+   ```
+
+2. **出力の解析**: レビュー結果を解析し、深刻度別（Critical, Warning, Info）に分類する。
+
+3. **Critical または Warning の問題がある場合**:
+   - Critical と Warning の全問題をタスクリストに作成
+   - Critical から順に体系的に修正
+   - 全修正が完了したらステップ4へ
+
+4. **再レビュー実行**:
+   ```bash
+   coderabbit review --prompt-only --type uncommitted
+   ```
+
+5. **結果確認**:
+   - 新たな Critical/Warning がある → ステップ3から繰り返す
+   - Info のみまたは問題なし → **レビュー完了**
+
+6. **イテレーション上限**: 最大5回。5サイクル後も問題が残る場合、残存する問題をユーザーに報告して停止する。
+
+#### ユーザー確認
+
+修正が不明確またはリスクがある場合、必ず `AskUserQuestion` ツールを使ってユーザーに確認を取ること:
+
+- 修正方法が複数ある場合 → 選択肢を提示して確認
+- 修正の影響範囲が大きい場合 → 修正内容を説明して確認
+- レビュー指摘の意図が不明確な場合 → 解釈を確認
+
+#### 注意事項
+
+- **Info レベルの指摘は許容** - 特に要求がない限り、Info レベルの問題は修正しない
+- **イテレーション回数を追跡** - 現在のイテレーションを報告する（例: 「レビュー イテレーション 2/5」）
+- **進捗を報告** - 各イテレーション後に、修正内容と残存する問題を要約する
+- **新しい問題を生まない** - 修正時に新たな問題を作り込まないよう注意する
+- **修正が不明確またはリスクがある場合** - `AskUserQuestion` ツールを使ってユーザーに確認を取ってから適用する
+
+### 5. 特定の変更をレビュー
+
+**全変更をレビュー（未コミットに限らない）:**
+
+```bash
+cr review --prompt-only -t all
+```
+
+**特定のブランチと比較してレビュー:**
 
 ```bash
 cr review --prompt-only --base main
 ```
 
-**Review a specific commit range:**
+**特定のコミット範囲をレビュー:**
 
 ```bash
 cr review --prompt-only --base-commit abc123
 ```
 
-## Documentation
+## ドキュメント
 
-For more details: <https://docs.coderabbit.ai/cli>
+詳細: <https://docs.coderabbit.ai/cli>
