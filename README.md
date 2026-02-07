@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (3個)
 ├── scripts/            # ヘルパースクリプト
-└── skills/             # ナレッジスキル (29個)
+└── skills/             # ナレッジスキル (42個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (29個)
+### Skills (42個)
 
 #### コア開発
 
@@ -71,15 +71,30 @@ sumik-claude-plugin/
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング |
 
+#### アーキテクチャ
+
+| スキル | 説明 |
+|--------|------|
+| `modernizing-architecture` | Socio-technicalアーキテクチャモダナイゼーション |
+| `designing-web-apis` | Web API設計ベストプラクティス |
+| `building-multi-tenant-saas` | マルチテナントSaaSアーキテクチャ設計ガイド |
+
 #### フレームワーク
 
 | スキル | 説明 |
 |--------|------|
 | `developing-nextjs` | Next.js 16 / React 19 |
 | `developing-go` | Go開発 |
+| `writing-clean-go` | Goクリーンコード実践 |
+| `applying-go-design-patterns` | Goデザインパターン（GoF+並行処理+DDD/CQRS） |
+| `mastering-go-internals` | Go内部構造（型システム/スライス/マップ/interface/reflection/unsafe/cgo） |
 | `developing-python` | Python 3.13開発 |
+| `writing-effective-python` | Python 125項目ベストプラクティス（パフォーマンス/データ構造/テスト/コラボレーション） |
 | `developing-fullstack-javascript` | フルスタックJS |
 | `react-best-practices` | React性能最適化 |
+| `mastering-react-internals` | React内部メカニズム・高度パターン・データ管理 |
+| `mastering-typescript` | TypeScript包括的マスターガイド |
+| `writing-effective-typescript` | TypeScript実装判断基準ガイド（83項目） |
 
 #### フロントエンド・デザイン
 
@@ -91,12 +106,13 @@ sumik-claude-plugin/
 | `storybook-guidelines` | Storybook story作成 |
 | `using-shadcn` | shadcn/ui管理 |
 
-#### ブラウザ自動化
+#### ブラウザ自動化・E2Eテスト
 
 | スキル | 説明 |
 |--------|------|
 | `agent-browser` | 高度なブラウザ自動化 |
 | `playwright` | Playwright MCP |
+| `mastering-playwright-testing` | Playwright Test E2Eテスト包括ガイド |
 
 #### インフラ・ツール
 
@@ -106,6 +122,8 @@ sumik-claude-plugin/
 | `writing-dockerfiles` | Dockerfile作成 |
 | `using-next-devtools` | Next.js DevTools |
 | `managing-git-worktrees` | Git Worktree管理 |
+| `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
+| `developing-terraform` | Terraform IaC開発（HCL構文/モジュール設計/ステート管理/AWS構築） |
 
 #### ドキュメント・品質
 
