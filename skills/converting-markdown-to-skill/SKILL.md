@@ -50,6 +50,10 @@ Markdownファイル（書籍要約、技術ノート、リファレンス等）
      | 既存スキルのサブトピック | **既存にサブファイルとして追加**推奨 | 関連情報の集約 |
      | 既存スキルと部分的に重複するが独立性あり | AskUserQuestionで確認 | ユーザー判断が必要 |
      | 完全に新しいドメイン | **新規作成**推奨 | 独立したスキルとして価値がある |
+7. **相互description更新の必要性判定**:
+   - 「既存スキルと部分的に重複するが独立性あり」→ 新規作成の場合: **双方のdescriptionに相互参照を追加**
+   - 「完全に新しいドメイン」→ 近接ドメインのスキルがあれば: **差別化文言を追加**
+   - 更新が必要な既存スキルのリストを作成し、Phase 2で確認、Phase 4で実行
    - 比較結果と推奨をPhase 2のAskUserQuestionに反映
 
 ### Phase 2: ユーザー確認（AskUserQuestion 必須）
@@ -107,10 +111,14 @@ AskUserQuestion(
 
 ### Phase 3: 構造設計（Design）
 
-1. **Frontmatter設計** -- 二部構成の公式に従う（後述 4.4）
+1. **Frontmatter設計** -- 三部構成の公式に従う（後述 4.4）
 2. **SKILL.mdのセクション構成決定**（500行以下厳守）
 3. **サブファイルの構成決定**（必要な場合、命名は UPPER-CASE-HYPHEN.md）
 4. **判断分岐箇所の特定** -- AskUserQuestion指示を配置する箇所を決定
+5. **類似スキルのdescription相互更新設計**
+   - Phase 1で特定した類似スキルそれぞれについて、description更新案を作成
+   - 相互参照パターン（後述 4.6）に従い、「For X, use Y instead.」形式の差別化文言を設計
+   - 新規スキル側と既存スキル側の両方のdescription案を用意
 
 ### Phase 4: 生成（Generate）
 
@@ -124,6 +132,13 @@ AskUserQuestion(
    - 書籍タイトル、著者名、出版社名、ISBN
    - 「~に基づく」「~を参考に」等の出典参照フレーズ
    - 内容は一般的なベストプラクティスとして記述し直す
+4. **類似スキルのdescription相互更新**:
+   - Phase 3で設計した更新案に基づき、既存類似スキルのSKILL.md frontmatter descriptionを更新
+   - 新規スキル → 既存スキルへの参照と、既存スキル → 新規スキルへの参照の**双方向**を確実に設定
+   - 更新対象ファイル一覧:
+     - 新規スキルのSKILL.md（frontmatter description）
+     - 各類似スキルのSKILL.md（frontmatter description）
+   - 注意: 既存スキルのdescription更新は差別化文言の追加のみ。既存の「What」「When」部分は変更しない
 
 ### Phase 5: 品質チェック（Validate）
 
@@ -184,16 +199,18 @@ AskUserQuestion(
 
 詳細は [authoring-skills](../authoring-skills/SKILL.md) の Progressive Disclosure セクション参照。
 
-### 4.4 Frontmatter 二部構成の公式
+### 4.4 Frontmatter 三部構成の公式
 
 ```
-[What: 三人称で能力を明記]. [When: トリガー条件]. [差別化: 類似スキルとの区別（任意）].
+[What: 三人称で能力を明記]. [When: トリガー条件]. [差別化: 類似スキルとの区別（類似スキル存在時は必須）].
 ```
 
 例:
 - `"Guides Next.js 16 / React 19 development. Use when package.json contains 'next'."`
 - `"Enforces type safety in TypeScript/Python. Any/any types strictly prohibited. Use when processing API responses."`
-- `"Converts markdown files into well-structured Claude Code Skills. Use when creating new skills from existing markdown source material."`
+- `"Converts markdown files into well-structured Claude Code Skills. Use when creating new skills from existing markdown source material. Reference authoring-skills for general skill creation guidelines."`
+
+**注意**: 類似スキルが存在する場合、第三部の差別化文言は必須。4.6の相互description更新パターンを参照すること。
 
 ### 4.5 日本語・スタイルルール
 
@@ -204,6 +221,17 @@ AskUserQuestion(
 - コード例はソース内容に準じた言語で記述
 - チェックリストは `- [ ]` 形式
 
+### 4.6 相互description更新パターン
+
+類似スキルが存在する場合、**新規スキルと既存スキルの双方のdescription**に差別化文言を追加する。片方だけの更新は不完全であり、Claude Codeがスキル選択を誤る原因となる。
+
+差別化タイプ別パターン、相互更新の実装例、更新時の注意事項の詳細は [authoring-skills/NAMING.md](../authoring-skills/NAMING.md) の「Mutual Update Requirement」セクションを参照。
+
+**要点:**
+- 既存スキルの「What」（Part 1）と「When」（Part 2）は変更しない
+- 追加するのは差別化文言（Part 3）のみ
+- 1つのスキルに対して複数の差別化参照を持つことは可能
+
 ## 品質チェックリスト
 
 作成したスキルに対して以下を全項目確認する。
@@ -212,6 +240,12 @@ AskUserQuestion(
 - [ ] name: gerund形式、小文字ハイフン区切り
 - [ ] description: What（三人称）+ When（トリガー）含む
 - [ ] description: 差別化（類似スキルとの区別）含む（該当する場合）
+
+### 相互description更新
+- [ ] 類似スキルが存在する場合、新規スキルのdescriptionに差別化文言が含まれている
+- [ ] 類似スキル側のdescriptionにも新規スキルへの相互参照が追加されている
+- [ ] [authoring-skills/NAMING.md](../authoring-skills/NAMING.md) の差別化パターンに従っている
+- [ ] 既存スキルの「What」「When」部分が変更されていない（差別化文言の追加のみ）
 
 ### 構造
 - [ ] SKILL.md本体が500行以下

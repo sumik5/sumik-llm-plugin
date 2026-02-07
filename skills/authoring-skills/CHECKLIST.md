@@ -58,8 +58,11 @@ SOURCE ATTRIBUTION (if skill is based on external material)
 - [ ] Content framed as general best practices
 
 DIFFERENTIATION (if similar skills exist)
-- [ ] Description includes mutual reference ("For X, use Y instead")
-- [ ] Related Skills section lists similar skills with distinction
+- [ ] New skill's description includes differentiation text ("For X, use Y instead")
+- [ ] Similar existing skills' descriptions updated with mutual reference to new skill
+- [ ] Differentiation follows type patterns in NAMING.md
+- [ ] Existing skills' "What" and "When" parts remain unchanged (only Part 3 added)
+- [ ] Related Skills section lists similar skills with clear distinction
 ```
 
 ## Detailed Requirements

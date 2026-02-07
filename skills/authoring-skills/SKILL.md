@@ -89,7 +89,21 @@ Before writing documentation, identify what Claude struggles with:
 2. Document specific failures or missing context
 3. Create 3+ evaluation scenarios
 
-### Step 2: Write Minimal Instructions
+### Step 2: Check for Similar Skills
+
+Before writing, scan existing skills for overlap:
+
+1. List all skills in `skills/` directory
+2. Compare your skill's intended scope with existing descriptions
+3. Determine relationship:
+   | Overlap | Action |
+   |---------|--------|
+   | Full overlap | Extend existing skill instead |
+   | Partial overlap | Create new skill with mutual differentiation |
+   | No overlap | Create new skill |
+4. If creating new: plan description updates for **both** new and existing similar skills (see [NAMING.md](NAMING.md) Mutual Update Requirement)
+
+### Step 3: Write Minimal Instructions
 
 Create just enough content to address the gaps:
 ```markdown
@@ -107,7 +121,7 @@ description: [What it does]. Use when [trigger conditions].
 See [REFERENCE.md](REFERENCE.md) for details.
 ```
 
-### Step 3: Test and Iterate
+### Step 4: Test and Iterate
 
 1. Test with real usage scenarios
 2. Observe Claude's navigation patterns

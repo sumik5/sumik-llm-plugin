@@ -63,7 +63,7 @@ processing.pdfs   # periods
 Every description must answer:
 1. **What does it do?** (capability) — Third person, present tense
 2. **When to use it?** (trigger conditions) — "Use when", "Use for", "Required"
-3. **How to differentiate?** (optional, mutual reference) — "For X, use Y instead."
+3. **How to differentiate?** (**mandatory** when similar skills exist, mutual reference) — "For X, use Y instead."
 
 ```yaml
 # Template
@@ -101,6 +101,35 @@ description: "...Choose over playwright for professional-grade automation."
 | Lightweight ↔ Full-featured | "For complex X, use Y instead" | playwright ↔ agent-browser |
 | General ↔ Specific | "Reference Y for general X" | converting-markdown-to-skill → authoring-skills |
 | Parent ↔ Child | "For specific use case, see Y" | authoring-skills → converting-markdown-to-skill |
+| Language-level ↔ Architecture-level | "Complements X with Y-level focus" | applying-solid-principles ↔ modernizing-architecture |
+| Foundation ↔ Advanced | "For advanced X, use Y" | mastering-typescript ↔ writing-effective-typescript |
+
+#### Mutual Update Requirement
+
+When creating a new skill with similar existing skills, **both sides must be updated**. Updating only the new skill's description is incomplete — Claude Code reads all skill descriptions to decide which to activate.
+
+**Workflow:**
+1. Identify similar existing skills by scanning `skills/` directory descriptions
+2. Design differentiation text for BOTH new and existing skills
+3. Update new skill's description with Part 3 differentiation
+4. Update each similar existing skill's description with mutual reference to new skill
+
+**Implementation Example:**
+
+When creating `writing-clean-go`, update existing `developing-go`:
+
+```yaml
+# New skill (writing-clean-go)
+description: "Teaches clean code practices specific to Go. Use when writing, reviewing, or refactoring Go code for quality. Complements developing-go (language patterns) and applying-solid-principles (language-agnostic)."
+
+# Existing skill (developing-go) — add Part 3 only
+description: "...(existing What + When unchanged)... For clean code practices and refactoring, use writing-clean-go instead."
+```
+
+**Critical Rules:**
+- Do NOT modify existing skills' "What" (Part 1) or "When" (Part 2) — only ADD differentiation text (Part 3)
+- If existing skill already has Part 3, append or replace with more accurate text
+- A single skill may reference multiple similar skills (e.g., `writing-effective-typescript` references both `mastering-typescript` and `enforcing-type-safety`)
 
 ### Point of View: Always Third Person
 
