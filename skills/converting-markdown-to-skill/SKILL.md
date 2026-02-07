@@ -34,30 +34,61 @@ Markdownファイル（書籍要約、技術ノート、リファレンス等）
    - 判断基準テーブルの有無
    - 推定総行数
 3. スキルのスコープを特定（どの領域をカバーするか）
+4. ファイル名からキーワード抽出:
+   - 拡張子除去、区切り文字分割（ハイフン、アンダースコア、スペース）
+   - キーワードからドメイン・トピックを特定
+5. コンテンツからアクションタイプを特定:
+   - 詳細は [NAMING-STRATEGY.md](NAMING-STRATEGY.md) のマッピング表参照
+   - ドメインキーワード + アクション動詞 → gerund形式のスキル名候補2-3個を生成
+6. 既存スキルとのスコープ比較:
+   - `skills/` ディレクトリ内の既存スキル一覧を取得
+   - 各スキルのfrontmatter descriptionと、ソースMarkdownの主要トピックを比較
+   - 判断基準:
+     | 状況 | 判断 | 理由 |
+     |------|------|------|
+     | 既存スキルと完全に同じドメイン・スコープ | **既存に追記**推奨 | 重複を避け、情報を集約 |
+     | 既存スキルのサブトピック | **既存にサブファイルとして追加**推奨 | 関連情報の集約 |
+     | 既存スキルと部分的に重複するが独立性あり | AskUserQuestionで確認 | ユーザー判断が必要 |
+     | 完全に新しいドメイン | **新規作成**推奨 | 独立したスキルとして価値がある |
+   - 比較結果と推奨をPhase 2のAskUserQuestionに反映
 
 ### Phase 2: ユーザー確認（AskUserQuestion 必須）
 
 **分析結果をもとに、必ずAskUserQuestionで以下を確認する。**
 
 確認項目:
-1. **スキル名**: gerund形式の候補を2-3個提示
-2. **ファイル分割方針**: SKILL.md単体 or サブファイル分割
-3. **対象読者・使用場面**: descriptionに反映
-4. **除外内容**: ソース出典情報の除去可否、その他除外項目
-5. **既存スキルとの差別化方針**
+1. **新規作成 or 既存追記**: 既存スキルとの比較結果に基づき推奨を提示
+   - 既存スキルとの重複が検出された場合、該当スキル名と重複箇所を明示
+2. **スキル名**: ファイル名・コンテンツ分析から生成した具体的な候補を2-3個提示（gerund形式）
+   - 命名ロジックの詳細は [NAMING-STRATEGY.md](NAMING-STRATEGY.md) 参照
+3. **ファイル分割方針**: SKILL.md単体 or サブファイル分割
+4. **対象読者・使用場面**: descriptionに反映
+5. **除外内容**: ソース出典情報の除去可否、その他除外項目
+6. **既存スキルとの差別化方針**
 
 AskUserQuestionの実装例:
 
 ```python
+# 例: docker-best-practices.md を入力した場合
 AskUserQuestion(
     questions=[
         {
-            "question": "作成するスキルの名前を決めてください（gerund形式推奨）",
+            "question": "既存スキルとの重複が検出されました。新規作成しますか、既存に追記しますか？",
+            "header": "作成方針",
+            "options": [
+                {"label": "既存 managing-docker に追記（推奨）", "description": "Docker運用ガイドとしてスコープが重複。サブファイルとして追加"},
+                {"label": "既存 writing-dockerfiles に追記", "description": "Dockerfile作成に特化した内容の場合"},
+                {"label": "新規スキルとして作成", "description": "既存スキルとは異なる独立したスコープの場合"}
+            ],
+            "multiSelect": False
+        },
+        {
+            "question": "スキル名を決めてください（ファイル名・内容から自動推定）。",
             "header": "スキル名",
             "options": [
-                {"label": "developing-xxx", "description": "xxx開発のガイドスキル"},
-                {"label": "implementing-xxx", "description": "xxx実装の手順スキル"},
-                {"label": "managing-xxx", "description": "xxx管理のワークフロースキル"}
+                {"label": "optimizing-docker", "description": "Docker最適化に焦点を当てたスキル"},
+                {"label": "deploying-containers", "description": "コンテナデプロイに焦点を当てたスキル"},
+                {"label": "managing-docker", "description": "既存スキルに追記する場合"}
             ],
             "multiSelect": False
         },
@@ -65,8 +96,8 @@ AskUserQuestion(
             "question": "ファイル構成をどうしますか？",
             "header": "ファイル構成",
             "options": [
-                {"label": "SKILL.md単体", "description": "内容が少なめの場合（500行以下）"},
-                {"label": "複数ファイル分割", "description": "内容が多い場合（トピック別に分割）"}
+                {"label": "SKILL.md単体", "description": "内容が500行以下に収まる場合（推奨）"},
+                {"label": "複数ファイル分割", "description": "内容が多くトピック別分割が必要な場合"}
             ],
             "multiSelect": False
         }
@@ -198,6 +229,10 @@ AskUserQuestion(
 - [ ] コード例が含まれている（該当する場合）
 - [ ] 判断基準テーブルが含まれている（該当する場合）
 - [ ] 自己完結している（他スキルを参照しなくても理解可能）
+
+## 命名戦略参照
+
+スキル名の自動推定ロジック、コンテンツパターン→gerund動詞マッピング表は [NAMING-STRATEGY.md](NAMING-STRATEGY.md) を参照。
 
 ## 関連スキル
 

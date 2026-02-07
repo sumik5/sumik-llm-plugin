@@ -523,18 +523,32 @@ AskUserQuestion(
 
 ### 3.4 スキル作成時の標準確認セット
 
-スキル作成のPhase 2（設計確認）で使用する、複合的な確認テンプレート。1回のAskUserQuestionで複数の設計判断を同時に確認できる。
+スキル作成のPhase 2（設計確認）で使用する、複合的な確認テンプレート。ソース分析結果に基づいて適切なパターンを選択する。
 
-```python
+#### パターンA: 既存スキルとの重複が検出された場合
+
+既存スキルとのスコープ比較で重複が見つかった場合に使用する。新規作成 vs 既存追記の判断を最初に確認。
+
+````python
+# 例: docker-optimization.md を分析し、managing-docker と writing-dockerfiles に重複を検出
 AskUserQuestion(
     questions=[
         {
-            "question": "作成するスキルの名前を決めてください（gerund形式推奨）。",
+            "question": "既存スキルとの重複が検出されました。どのように進めますか？\n\n検出結果:\n- managing-docker: Docker運用ガイドとしてスコープが重複\n- writing-dockerfiles: Dockerfile作成部分が重複",
+            "header": "作成方針",
+            "options": [
+                {"label": "既存 managing-docker に追記（推奨）", "description": "サブファイルとして追加。既存スキルのスコープを拡張"},
+                {"label": "既存 writing-dockerfiles に追記", "description": "Dockerfile最適化に特化した内容として追加"},
+                {"label": "新規スキルとして作成", "description": "既存スキルとは異なる独立したスコープの場合"}
+            ],
+            "multiSelect": False
+        },
+        {
+            "question": "新規作成の場合、スキル名を決めてください（ファイル名・内容から自動推定）。",
             "header": "スキル名",
             "options": [
-                {"label": "[候補1]", "description": "[説明]"},
-                {"label": "[候補2]", "description": "[説明]"},
-                {"label": "[候補3]", "description": "[説明]"}
+                {"label": "optimizing-docker", "description": "Docker最適化に焦点（ファイル名ベース候補）"},
+                {"label": "tuning-containers", "description": "コンテナチューニング全般（コンテンツベース候補）"}
             ],
             "multiSelect": False
         },
@@ -542,20 +556,83 @@ AskUserQuestion(
             "question": "ファイル構成をどうしますか？",
             "header": "ファイル構成",
             "options": [
-                {
-                    "label": "SKILL.md単体",
-                    "description": "内容が500行以下に収まる場合（推奨）"
-                },
-                {
-                    "label": "複数ファイル分割",
-                    "description": "内容が多くトピック別分割が必要な場合"
-                }
+                {"label": "SKILL.md単体", "description": "内容が500行以下に収まる場合（推奨）"},
+                {"label": "複数ファイル分割", "description": "内容が多くトピック別分割が必要な場合"}
             ],
             "multiSelect": False
         }
     ]
 )
-```
+````
+
+**注意**: ユーザーが「既存に追記」を選択した場合、スキル名・ファイル構成の質問はスキップし、追記先スキルの構造に合わせた追加方法を確認する。
+
+---
+
+#### パターンB: 既存スキルとの重複なし（新規作成確定）
+
+既存スキルとのスコープ比較で重複がない場合に使用する。スキル名の選択に注力。
+
+````python
+# 例: rust-development-guide.md を分析し、重複なし
+AskUserQuestion(
+    questions=[
+        {
+            "question": "作成するスキルの名前を決めてください（ファイル名・内容から自動推定）。",
+            "header": "スキル名",
+            "options": [
+                {"label": "developing-rust（推奨）", "description": "Rust開発ガイドスキル（ファイル名+コンテンツから推定）"},
+                {"label": "writing-rust", "description": "Rustコード記述に焦点を当てたスキル"},
+                {"label": "implementing-rust-patterns", "description": "Rustパターン実装に焦点を当てたスキル"}
+            ],
+            "multiSelect": False
+        },
+        {
+            "question": "ファイル構成をどうしますか？",
+            "header": "ファイル構成",
+            "options": [
+                {"label": "SKILL.md単体", "description": "内容が500行以下に収まる場合（推奨）"},
+                {"label": "複数ファイル分割", "description": "内容が多くトピック別分割が必要な場合"}
+            ],
+            "multiSelect": False
+        }
+    ]
+)
+````
+
+---
+
+#### パターンC: 既存スキルへの追記が確定した場合
+
+パターンAでユーザーが「既存に追記」を選択した後に使用する。追記方法を確認。
+
+````python
+# 例: managing-docker に追記する場合
+AskUserQuestion(
+    questions=[
+        {
+            "question": "既存スキル managing-docker への追記方法を選択してください。",
+            "header": "追記方法",
+            "options": [
+                {"label": "新規サブファイルとして追加（推奨）", "description": "OPTIMIZATION.md 等のサブファイルを新規作成"},
+                {"label": "既存ファイルに統合", "description": "既存のSKILL.mdまたはサブファイルに内容を統合"},
+                {"label": "既存サブファイルを置換", "description": "既存のサブファイルを更新版で置き換え"}
+            ],
+            "multiSelect": False
+        },
+        {
+            "question": "追加するサブファイル名を決めてください（UPPER-CASE-HYPHEN.md形式）。",
+            "header": "ファイル名",
+            "options": [
+                {"label": "OPTIMIZATION.md", "description": "Docker最適化ガイド"},
+                {"label": "PERFORMANCE-TUNING.md", "description": "パフォーマンスチューニング"},
+                {"label": "BEST-PRACTICES.md", "description": "ベストプラクティス集"}
+            ],
+            "multiSelect": False
+        }
+    ]
+)
+````
 
 ---
 
