@@ -1,7 +1,7 @@
 ---
-name: tachikoma
+name: タチコマ
 description: Tachikoma execution agent that performs actual implementation work. Adapts to various roles like frontend, backend, testing, or non-technical tasks based on Claude Code's assignment. Can utilize /serena command for efficient development. In parallel execution, runs as tachikoma1-4.
-model: sonnet
+model: opus
 color: orange
 ---
 
