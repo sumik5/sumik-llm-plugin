@@ -99,8 +99,8 @@ description: "...Choose over playwright for professional-grade automation."
 |---------------------|---------|---------|
 | Theory ↔ Implementation | "For actual X, use Y instead" | design-guidelines ↔ designing-frontend |
 | Lightweight ↔ Full-featured | "For complex X, use Y instead" | playwright ↔ agent-browser |
-| General ↔ Specific | "Reference Y for general X" | converting-markdown-to-skill → authoring-skills |
-| Parent ↔ Child | "For specific use case, see Y" | authoring-skills → converting-markdown-to-skill |
+| General ↔ Specific | "Reference Y for general X" | convert-to-skill → authoring-skills |
+| Parent ↔ Child | "For specific use case, see Y" | authoring-skills → convert-to-skill |
 | Language-level ↔ Architecture-level | "Complements X with Y-level focus" | applying-solid-principles ↔ modernizing-architecture |
 | Foundation ↔ Advanced | "For advanced X, use Y" | mastering-typescript ↔ writing-effective-typescript |
 

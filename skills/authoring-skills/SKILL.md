@@ -234,6 +234,6 @@ AskUserQuestion(
 
 ## Related Skills
 
-- **converting-markdown-to-skill**: Converts existing markdown files (book summaries, technical notes) into Claude Code Skills. Use this when creating skills from existing source material
+- **convert-to-skill**: Converts files (Markdown, PDF, EPUB) and folders into Claude Code Skills. Use this when creating skills from existing source material
 - **writing-technical-docs**: General documentation principles
 - **applying-solid-principles**: Code quality for utility scripts

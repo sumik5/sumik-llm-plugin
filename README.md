@@ -133,7 +133,7 @@ sumik-claude-plugin/
 | `writing-technical-docs` | 技術ドキュメント（7つのC原則） |
 | `writing-latex` | LaTeX文書作成 |
 | `authoring-skills` | スキル作成ガイド |
-| `converting-markdown-to-skill` | Markdown→スキル変換 |
+| `convert-to-skill` | ソースファイル（Markdown/PDF/EPUB）→スキル変換 |
 | `searching-web` | Web検索（gemini） |
 | `coderabbit` | CodeRabbitコードレビュー |
 

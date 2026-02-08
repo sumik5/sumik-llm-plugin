@@ -1,6 +1,6 @@
 # スキル命名戦略
 
-> ソースMarkdownのファイル名・コンテンツから、適切なスキル名を自動推定するためのルール集。
+> ソースファイル（Markdown/PDF/EPUB）のファイル名・コンテンツから、適切なスキル名を自動推定するためのルール集。
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### 抽出手順
 
-1. 拡張子を除去（`.md`, `.txt` 等）
+1. 拡張子を除去（`.md`, `.pdf`, `.epub`, `.txt` 等）
 2. 区切り文字（ハイフン`-`、アンダースコア`_`、スペース）で分割
 3. ストップワードを除去（`guide`, `notes`, `summary`, `draft`, `v1`, `v2`, `final`等）
 4. 残ったキーワードをドメイン候補とする
@@ -23,6 +23,8 @@
 | `api-security-checklist.md` | api, security, checklist | APIセキュリティ |
 | `golang-concurrency.md` | golang, concurrency | Go並行処理 |
 | `nextjs-app-router.md` | nextjs, app, router | Next.js App Router |
+| `clean-code.pdf` | clean, code | クリーンコード |
+| `effective-typescript.epub` | effective, typescript | TypeScript |
 
 ---
 
@@ -45,7 +47,7 @@
 | セキュリティ対策 | 脆弱性、認証、暗号化、OWASP | `securing-` | securing-code |
 | ツール・ライブラリの使い方 | コマンド一覧、設定方法、API使用法 | `using-` | using-shadcn, using-next-devtools, using-serena |
 | 実装手順・ワークフロー | ステップバイステップ、手順書 | `implementing-` | implementing-as-tachikoma |
-| データ変換・処理 | 入出力変換、パース、マイグレーション | `converting-` / `processing-` | converting-markdown-to-skill |
+| データ変換・処理 | 入出力変換、パース、マイグレーション | `converting-` / `processing-` | convert-to-skill |
 | Web検索・情報収集 | 検索クエリ、情報源、調査手法 | `searching-` | searching-web |
 | ベストプラクティス集 | パターン集、アンチパターン、最適化Tips | `[topic]-best-practices` | react-best-practices |
 | ガイドライン・原則集 | 設計原則、コーディング規約 | `applying-` / `[topic]-guidelines` | applying-solid-principles, design-guidelines, storybook-guidelines |

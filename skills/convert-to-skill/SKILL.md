@@ -1,33 +1,100 @@
 ---
-name: converting-markdown-to-skill
+name: convert-to-skill
 description: >-
-  Converts markdown files (book summaries, technical notes, reference docs) into
-  well-structured Claude Code Skills with proper frontmatter, progressive disclosure,
-  and AskUserQuestion patterns. Use when creating new skills from existing markdown
-  source material, technical documentation, or book notes. Reference authoring-skills
-  for general skill creation guidelines.
+  Converts files (Markdown, PDF, EPUB) and folders into well-structured Claude Code Skills
+  with proper frontmatter, progressive disclosure, and AskUserQuestion patterns.
+  Use when creating new skills from existing source material including books, technical
+  documentation, or reference docs. Supports folder batch processing.
+  Reference authoring-skills for general skill creation guidelines.
 ---
 
-# Markdown to Skill 変換ガイド
+# ソースファイル → スキル変換ガイド
 
 ## Overview
 
-Markdownファイル（書籍要約、技術ノート、リファレンス等）を読み込み、Claude Code Skill形式に変換するメタスキル。
+ソースファイル（Markdown、PDF、EPUB）またはフォルダを読み込み、Claude Code Skill形式に変換するメタスキル。
 
-- **入力**: Markdownファイルパス
+- **入力**: Markdownファイル、PDFファイル、EPUBファイル、またはフォルダパス
 - **出力**: Claude Code Skill（SKILL.md + 必要に応じてサブファイル）
+
+### 対応形式
+
+| 形式 | 拡張子 | 前処理 |
+|------|--------|--------|
+| Markdown | `.md` | なし（直接処理） |
+| PDF | `.pdf` | `scripts/pdf-to-markdown.mjs` でMarkdown変換 |
+| EPUB | `.epub` | `scripts/epub-to-markdown.mjs` でMarkdown変換 |
+| フォルダ | ディレクトリ | 上記形式のファイルを再帰的に列挙 |
 
 ## 使用タイミング
 
 - 既存Markdownからスキルを作成するとき
-- 技術書の要約、社内ドキュメント、技術ノートをスキル化するとき
-- 引数としてソースMarkdownファイルパスを受け取る
+- 技術書（PDF/EPUB）の要約をスキル化するとき
+- 社内ドキュメント、技術ノートをスキル化するとき
+- フォルダ内の複数ファイルを一括でスキル化するとき
+- 引数としてソースファイルパスまたはフォルダパスを受け取る
 
-## 変換ワークフロー（5フェーズ）
+## 変換ワークフロー（6フェーズ）
+
+### Phase 0: 前処理（PDF/EPUB/フォルダ対応）
+
+**Markdownファイル1つの場合はこのPhaseをスキップしてPhase 1へ進む。**
+
+#### 0.1 入力判定
+
+| 入力タイプ | 判定方法 | 次のステップ |
+|-----------|---------|-------------|
+| 単一Markdownファイル | `.md`拡張子 | Phase 1へスキップ |
+| 単一PDFファイル | `.pdf`拡張子 | 0.2 PDF変換 |
+| 単一EPUBファイル | `.epub`拡張子 | 0.2 EPUB変換 |
+| フォルダ | ディレクトリパス | 0.1.1 ファイル列挙 |
+
+#### 0.1.1 フォルダ処理
+
+1. 指定フォルダ内の `.md`, `.pdf`, `.epub` ファイルを再帰的に列挙
+2. 対象ファイルリストと作業計画を `docs/` に保存
+3. 各ファイルに対して以下を順次適用:
+   - PDF/EPUB → Phase 0.2で変換
+   - Markdown → そのままPhase 1-5を適用
+4. **1ファイルずつ**既存Phase 1-5を順次適用（各ファイル内はタチコマ並列可能）
+
+#### 0.2 PDF/EPUB → Markdown変換
+
+スクリプトの場所: `skills/convert-to-skill/scripts/`
+
+**PDF変換:**
+```bash
+node skills/convert-to-skill/scripts/pdf-to-markdown.mjs <input.pdf> <output.md>
+```
+
+**EPUB変換:**
+```bash
+node skills/convert-to-skill/scripts/epub-to-markdown.mjs <input.epub> <output.md>
+```
+
+**初回実行時**: スクリプトが依存パッケージを自動インストールする（`node_modules`未存在の場合）。
+
+#### 0.3 変換結果の検証
+
+```bash
+# PDF（ページ数を指定）
+node skills/convert-to-skill/scripts/validate-conversion.mjs <output.md> --type pdf --pages N
+
+# EPUB（チャプター数を指定）
+node skills/convert-to-skill/scripts/validate-conversion.mjs <output.md> --type epub --chapters N
+```
+
+検証基準:
+| 元形式 | 最小期待文字数 | 警告条件 |
+|--------|-------------|---------|
+| PDF | ページ数 × 500 | 下回ったら警告 |
+| EPUB | チャプター数 × 1000 | 下回ったら警告 |
+
+**警告が出た場合**: 変換結果を目視確認し、問題があれば手動でMarkdownを修正してからPhase 1に進む。
 
 ### Phase 1: 分析（Analysis）
 
-1. ソースMarkdownを読み込む
+1. ソースMarkdownを読み込む（PDF/EPUBの場合はPhase 0で変換済み）
 2. 内容構造を分析:
    - セクション数とトピック
    - コード例の有無・言語
