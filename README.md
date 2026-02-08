@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (3個)
 ├── scripts/            # ヘルパースクリプト
-└── skills/             # ナレッジスキル (43個)
+└── skills/             # ナレッジスキル (44個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (43個)
+### Skills (44個)
 
 #### コア開発
 
@@ -79,6 +79,7 @@ sumik-claude-plugin/
 | `designing-web-apis` | Web API設計ベストプラクティス |
 | `building-multi-tenant-saas` | マルチテナントSaaSアーキテクチャ設計ガイド |
 | `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
+| `architecting-microservices` | マイクロサービスアーキテクチャパターン設計（CQRS、Saga、分散トランザクション、メッセージング、レジリエンス、セキュリティ） |
 
 #### フレームワーク
 

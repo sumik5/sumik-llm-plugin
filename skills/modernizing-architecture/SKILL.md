@@ -4,6 +4,7 @@ description: >-
   Guides socio-technical architecture modernization covering strategy, domain design, team organization, and migration patterns.
   Use when modernizing legacy systems, redesigning domain boundaries, planning migration strategies, or aligning software architecture with business strategy.
   Differs from applying-solid-principles (code-level design) by focusing on system-level and organizational architecture decisions.
+  For microservices implementation patterns (CQRS, Saga, transactions), use architecting-microservices instead.
 ---
 
 # アーキテクチャモダナイゼーション

@@ -1,0 +1,685 @@
+# 分散トランザクション
+
+マイクロサービスにおける分散トランザクションパターンを解説します。
+
+## 📋 目次
+
+- [トランザクションパターン比較](#トランザクションパターン比較)
+- [XA/2フェーズコミット](#XA2フェーズコミット)
+- [Sagaパターン](#Sagaパターン)
+- [BASEトランザクション](#BASEトランザクション)
+- [冪等性設計](#冪等性設計)
+- [重複・順序外れメッセージ対処](#重複順序外れメッセージ対処)
+- [トランザクション境界最適化](#トランザクション境界最適化)
+
+---
+
+## トランザクションパターン比較
+
+### 全体比較テーブル
+
+| パターン | ACID保証 | 性能 | 複雑性 | 可用性 | 適用場面 |
+|---------|---------|-----|-------|-------|---------|
+| **ローカルトランザクション** | ✅ 完全 | ⭐⭐⭐⭐⭐ 高速 | ⭐ 簡単 | ⭐⭐⭐ 中 | 単一サービス内 |
+| **グローバルXA/2PC** | ✅ 完全 | ⭐ 遅い | ⭐⭐⭐⭐ 複雑 | ⭐ 低 | 金融取引、決済 |
+| **Saga (Orchestration)** | ❌ 結果整合性 | ⭐⭐⭐ 中速 | ⭐⭐⭐ 中複雑 | ⭐⭐⭐⭐ 高 | 複雑なビジネスプロセス |
+| **Saga (Choreography)** | ❌ 結果整合性 | ⭐⭐⭐⭐ 速い | ⭐⭐⭐⭐ 複雑 | ⭐⭐⭐⭐⭐ 最高 | イベント駆動、疎結合 |
+| **BASE (結果整合性)** | ❌ 最終的のみ | ⭐⭐⭐⭐⭐ 最速 | ⭐⭐ 比較的簡単 | ⭐⭐⭐⭐⭐ 最高 | SNS投稿、ログ集約 |
+
+### ACID vs BASE
+
+| 項目 | ACID | BASE |
+|-----|------|------|
+| **略称** | Atomicity, Consistency, Isolation, Durability | Basically Available, Soft state, Eventually consistent |
+| **一貫性** | 強整合性 (即座に一貫) | 結果整合性 (最終的に一貫) |
+| **可用性** | 低 (ロック待ち、調整時間) | 高 (即座にレスポンス) |
+| **性能** | 遅い (2PC調整) | 速い (ローカル処理) |
+| **適用場面** | 銀行送金、在庫引当 | SNSいいね数、閲覧数カウント |
+
+---
+
+## XA/2フェーズコミット
+
+### 2フェーズコミットの仕組み
+
+#### Phase 1: 準備フェーズ (Prepare)
+
+```
+[Coordinator (Transaction Manager)]
+    ↓
+    ├─→ [Participant 1: DB Service] "準備完了？"
+    ├─→ [Participant 2: Queue Service] "準備完了？"
+    └─→ [Participant 3: Cache Service] "準備完了？"
+
+    ↓ (全員が "OK" を返答)
+
+全Participantが準備完了 → Phase 2へ
+1つでも "NG" → 全体Abort
+```
+
+#### Phase 2: コミットフェーズ (Commit/Abort)
+
+```
+[Coordinator]
+    ↓
+    ├─→ [Participant 1] "Commit実行"
+    ├─→ [Participant 2] "Commit実行"
+    └─→ [Participant 3] "Commit実行"
+
+    ↓
+全Participantがコミット完了 → トランザクション成功
+```
+
+### 2PCの問題点
+
+| 問題 | 説明 | 影響 |
+|-----|------|------|
+| **ブロッキング** | Phase 1でリソースをロック、Phase 2完了まで占有 | スループット低下 |
+| **単一障害点 (SPOF)** | Coordinator障害で全体停止 | 可用性低下 |
+| **ネットワーク遅延** | 全Participantとの通信待ち | レイテンシ増加 |
+| **完全性の非保証** | Phase 2でParticipant障害時、手動介入必要 | 運用負荷 |
+
+### XA/2PC適用基準
+
+| 判断軸 | XA/2PC採用 | XA/2PC不採用 |
+|-------|-----------|------------|
+| **トランザクション要件** | ACID必須 (金融、決済) | 結果整合性許容 |
+| **スループット** | 低頻度 (<100 TPS) | 高頻度 (>1000 TPS) |
+| **レイテンシ要求** | 秒単位許容 | ミリ秒単位必須 |
+| **サービス数** | 2〜3サービス | 5サービス以上 |
+| **運用体制** | 手動介入可能 | 自動復旧必須 |
+
+### 擬似コード例
+
+```
+// Coordinator
+function executeGlobalTransaction():
+    participants = [DB, Queue, Cache]
+
+    // Phase 1: Prepare
+    prepareResults = []
+    for participant in participants:
+        result = participant.prepare()
+        prepareResults.append(result)
+
+    if all(prepareResults == "OK"):
+        // Phase 2: Commit
+        for participant in participants:
+            participant.commit()
+        return "SUCCESS"
+    else:
+        // Phase 2: Abort
+        for participant in participants:
+            participant.rollback()
+        return "ABORTED"
+
+// Participant (例: Database)
+class DatabaseParticipant:
+    function prepare():
+        // トランザクション開始
+        transaction = database.beginTransaction()
+        try:
+            // 書き込み処理 (実行はするがコミットしない)
+            database.executeSQL("UPDATE ...")
+            database.prepareCommit()  // ログに記録
+            return "OK"
+        catch error:
+            transaction.rollback()
+            return "NG"
+
+    function commit():
+        database.commitTransaction()
+
+    function rollback():
+        database.rollbackTransaction()
+```
+
+---
+
+## Sagaパターン
+
+### Saga概要
+
+**定義**: 分散トランザクションをローカルトランザクションのシーケンスに分解し、失敗時は**補償トランザクション (Compensating Transaction)** で巻き戻す。
+
+### Orchestration型 vs Choreography型
+
+#### Orchestration型 (中央制御)
+
+```
+[Saga Orchestrator (中央制御)]
+    ↓
+    1. CreateOrderCommand → [Order Service]
+    ↓ (成功)
+    2. ReserveInventoryCommand → [Inventory Service]
+    ↓ (失敗!)
+    3. CancelOrderCommand → [Order Service] (補償)
+```
+
+**特徴:**
+
+- 中央のOrchestratorがフロー制御
+- 可視性高、デバッグ容易
+- Orchestratorが単一障害点 (SPOF)
+
+#### Choreography型 (イベント駆動)
+
+```
+[Order Service]
+    ↓ OrderCreatedEvent
+[Inventory Service] → InventoryReservedEvent
+    ↓ (失敗!)
+    ↓ InventoryReservationFailedEvent
+[Order Service] → OrderCancelledEvent (補償)
+```
+
+**特徴:**
+
+- サービス間がイベントで連携
+- 疎結合、SPOFなし
+- デバッグ困難、フロー追跡が複雑
+
+### Saga比較テーブル
+
+| 項目 | Orchestration | Choreography |
+|-----|--------------|--------------|
+| **制御方式** | 中央制御 | 分散制御 |
+| **可視性** | ⭐⭐⭐⭐⭐ 高 | ⭐⭐ 低 |
+| **疎結合** | ⭐⭐ 低 | ⭐⭐⭐⭐⭐ 高 |
+| **SPOF** | ✅ あり (Orchestrator) | ❌ なし |
+| **デバッグ** | 容易 | 困難 (分散トレーシング必須) |
+| **適用場面** | 複雑なビジネスプロセス | イベント駆動アーキテクチャ |
+
+### Saga Orchestration擬似コード
+
+```
+// Saga Orchestrator
+class OrderSagaOrchestrator:
+    function executeOrderSaga(orderId, userId, items):
+        try:
+            // Step 1: 注文作成
+            orderService.createOrder(orderId, userId, items)
+
+            // Step 2: 在庫引当
+            inventoryService.reserveInventory(orderId, items)
+
+            // Step 3: 決済処理
+            paymentService.processPayment(orderId, amount)
+
+            // Step 4: 配送手配
+            shippingService.arrangeShipping(orderId, address)
+
+            return "SUCCESS"
+
+        catch error at step:
+            // 補償トランザクション実行
+            compensate(step, orderId)
+            return "FAILED"
+
+    function compensate(failedStep, orderId):
+        if failedStep >= 4:
+            shippingService.cancelShipping(orderId)
+        if failedStep >= 3:
+            paymentService.refundPayment(orderId)
+        if failedStep >= 2:
+            inventoryService.releaseInventory(orderId)
+        if failedStep >= 1:
+            orderService.cancelOrder(orderId)
+```
+
+### Saga Choreography擬似コード
+
+```
+// Order Service
+class OrderService:
+    function createOrder(orderId, userId, items):
+        order = saveOrder(orderId, userId, items)
+        eventBus.publish(OrderCreatedEvent(orderId, items))
+
+    @EventHandler
+    function handleInventoryReservationFailed(event):
+        cancelOrder(event.orderId)
+        eventBus.publish(OrderCancelledEvent(event.orderId))
+
+// Inventory Service
+class InventoryService:
+    @EventHandler
+    function handleOrderCreated(event):
+        try:
+            reserveInventory(event.orderId, event.items)
+            eventBus.publish(InventoryReservedEvent(event.orderId))
+        catch InsufficientStockError:
+            eventBus.publish(InventoryReservationFailedEvent(event.orderId))
+
+// Payment Service
+class PaymentService:
+    @EventHandler
+    function handleInventoryReserved(event):
+        try:
+            processPayment(event.orderId)
+            eventBus.publish(PaymentProcessedEvent(event.orderId))
+        catch PaymentFailedError:
+            eventBus.publish(PaymentFailedEvent(event.orderId))
+
+    @EventHandler
+    function handleOrderCancelled(event):
+        refundPayment(event.orderId)  // 補償
+```
+
+---
+
+## BASEトランザクション
+
+### BASE原則
+
+| 原則 | 意味 | 実装例 |
+|-----|------|--------|
+| **Basically Available** | 基本的に利用可能 | レプリカの一部が停止しても残りで応答 |
+| **Soft state** | 柔軟な状態 | 一時的に不整合を許容 |
+| **Eventually consistent** | 結果整合性 | 最終的には整合する (数秒〜数分) |
+
+### BASEの実装パターン
+
+#### パターン1: 非同期イベント伝播
+
+```
+[Write Service]
+    ↓ (即座に成功レスポンス)
+[User] ← "注文受付完了"
+
+    ↓ (バックグラウンドでイベント処理)
+[EventBus] → [Read Service] → [Materialized View更新]
+```
+
+- ユーザーには即座にレスポンス
+- バックグラウンドで非同期にRead Model更新
+
+#### パターン2: 定期バッチ調整
+
+```
+[Service A: 注文数カウント] (リアルタイム更新)
+    ↓ (不整合発生の可能性)
+[Service B: 集計レポート] ← 1時間ごとに再集計
+```
+
+- リアルタイムは概算値
+- 定期的に正確な値を再計算
+
+### BASE適用判断
+
+| ユースケース | BASE採用 | 理由 |
+|------------|---------|------|
+| **SNS投稿のいいね数** | ✅ | 数秒の遅延OK、高可用性優先 |
+| **商品レビュー集計** | ✅ | 概算値で十分 |
+| **銀行口座残高** | ❌ | 正確な残高必須 |
+| **在庫数 (EC)** | ⚠️ | 過剰引当防止策とセットで採用 |
+
+---
+
+## 冪等性設計
+
+### 冪等性とは
+
+**定義**: 同じ操作を複数回実行しても、結果が1回実行した場合と同じになる性質。
+
+```
+// 冪等
+SET balance = 1000  // 何度実行しても balance = 1000
+
+// 非冪等
+ADD balance = 100  // 実行するたびに +100 される
+```
+
+### 冪等性が必要な理由
+
+マイクロサービスでは以下のシナリオで重複実行が発生する:
+
+1. **ネットワークタイムアウト**: レスポンスが届かずリトライ
+2. **メッセージブローカーの再配信**: At-Least-Once配信
+3. **障害復旧**: 処理途中でサービス再起動
+
+### 冪等性設計パターン
+
+#### パターン1: Transaction ID Pattern
+
+```
+// リクエスト
+Request:
+    transactionId: "tx-12345"  // クライアント生成のユニークID
+    amount: 100
+
+// サーバー側処理
+function processPayment(request):
+    existing = transactionStore.find(request.transactionId)
+    if existing is not null:
+        // 重複リクエスト: 前回結果を返す
+        return existing.result
+
+    // 初回処理
+    result = executePayment(request.amount)
+    transactionStore.save(request.transactionId, result)
+    return result
+```
+
+#### パターン2: Idempotent Consumer (メッセージング)
+
+```
+// メッセージ
+Message:
+    messageId: "msg-67890"
+    orderId: "order-123"
+    amount: 500
+
+// Consumer側処理
+function onMessage(message):
+    existing = processedMessages.find(message.messageId)
+    if existing is not null:
+        // 重複メッセージ: 無視
+        logDebug("Duplicate message ignored: " + message.messageId)
+        return
+
+    // 初回処理
+    processOrder(message.orderId, message.amount)
+    processedMessages.save(message.messageId, timestamp=now())
+```
+
+#### パターン3: 自然な冪等性 (Set操作)
+
+```
+// 冪等な操作に変換
+// ❌ 非冪等
+function addBalance(userId, amount):
+    user = getUser(userId)
+    user.balance += amount  // 重複実行で加算される
+    saveUser(user)
+
+// ✅ 冪等
+function setBalanceFromTransactions(userId):
+    transactions = getTransactions(userId)
+    totalBalance = sum(transactions.amount)  // 全トランザクションから再計算
+    user = getUser(userId)
+    user.balance = totalBalance  // SET操作は冪等
+    saveUser(user)
+```
+
+### 冪等性実装のベストプラクティス
+
+| 項目 | 推奨実装 |
+|-----|---------|
+| **Transaction ID生成** | UUID v4、UUIDv7 (時刻順序付き) |
+| **Transaction ID保存期間** | 最低24時間、理想は7日間 |
+| **重複判定のタイミング** | トランザクション開始前 (REQUIRES_NEW) |
+| **べき等性の範囲** | API境界、メッセージ受信境界 |
+
+---
+
+## 重複・順序外れメッセージ対処
+
+### メッセージングの問題点
+
+| 問題 | 発生原因 | 影響 |
+|-----|---------|------|
+| **重複メッセージ** | ブローカーの再配信、ネットワーク遅延 | データ重複、二重課金 |
+| **順序外れ** | 並列処理、パーティション間の順序保証なし | 古いデータで上書き |
+| **欠落メッセージ** | ブローカー障害、Producerエラー | データ欠損 |
+
+### 重複メッセージ対処
+
+#### 対処1: Message Deduplication Table
+
+```
+Table: ProcessedMessages
+    messageId (PK)    processedAt         status
+    ----------------  ------------------  ------
+    msg-001           2026-02-08 10:00    SUCCESS
+    msg-002           2026-02-08 10:01    SUCCESS
+
+function handleMessage(message):
+    // トランザクション境界外で先に記録 (REQUIRES_NEW)
+    isDuplicate = processedMessages.insertIfNotExists(message.messageId)
+    if isDuplicate:
+        return  // 重複: 処理スキップ
+
+    // 実際のビジネス処理
+    processBusinessLogic(message)
+```
+
+#### 対処2: Unique Constraint (DB)
+
+```
+Table: Orders
+    orderId (PK)      externalId (UNIQUE)   status
+    ----------------  -------------------   ------
+    order-001         ext-12345             CREATED
+
+function createOrder(externalId, items):
+    try:
+        order = Order(externalId, items)
+        database.save(order)  // UNIQUE制約で重複防止
+    catch UniqueConstraintViolation:
+        // 重複リクエスト: 既存注文を返す
+        return database.findByExternalId(externalId)
+```
+
+### 順序外れメッセージ対処
+
+#### 対処1: Version/Timestamp比較
+
+```
+Table: UserProfile
+    userId (PK)    name      lastUpdatedAt
+    ------------   -------   ------------------
+    user-001       Taro      2026-02-08 10:00
+
+function updateProfile(userId, name, messageTimestamp):
+    user = database.find(userId)
+
+    // 古いメッセージは無視
+    if messageTimestamp <= user.lastUpdatedAt:
+        logDebug("Outdated message ignored")
+        return
+
+    // 新しいメッセージのみ適用
+    user.name = name
+    user.lastUpdatedAt = messageTimestamp
+    database.save(user)
+```
+
+#### 対処2: Event Sourcing (完全な順序保証)
+
+```
+// 全イベントに順序番号を付与
+Event UserProfileUpdatedEvent:
+    userId: user-001
+    name: "Taro"
+    timestamp: 2026-02-08 10:00
+    sequenceNumber: 42  // 順序番号
+
+function applyEvent(event):
+    aggregate = eventStore.load(event.userId)
+
+    // 順序番号で重複・欠落をチェック
+    if event.sequenceNumber <= aggregate.lastSequenceNumber:
+        return  // 重複 or 古いイベント
+
+    if event.sequenceNumber != aggregate.lastSequenceNumber + 1:
+        // 欠落検出: リカバリー処理
+        recoverMissingEvents(aggregate, event)
+
+    aggregate.apply(event)
+    eventStore.save(aggregate)
+```
+
+---
+
+## トランザクション境界最適化
+
+### グローバル vs ローカルリソース
+
+#### 問題: グローバルトランザクションの範囲拡大
+
+```
+// ❌ 悪い例: 全体がグローバルトランザクション
+GlobalTransaction:
+    Service A DB (Resource 1)
+    Message Queue (Resource 2)
+    Service B DB (Resource 3)
+
+→ 3つのリソースで2PC → 遅い、SPOF
+```
+
+#### 解決策: リソース共有によるローカル化
+
+**最適化1: Queue永続化とDB統合**
+
+```
+// ✅ 良い例: Queueの永続化バックエンドとDBを同一リソースに
+LocalTransaction:
+    Service A DB (同一リソース)
+    Message Queue永続化 (同一リソース内)
+
+→ ローカルトランザクション → 高速、ACID保証
+```
+
+**最適化2: トランザクション境界の配置**
+
+```
+┌─── Option 1: Upstream側でローカル化 ───┐
+│                                         │
+│  [Service A]                           │
+│      ├─ Quote DB                       │
+│      └─ Queue永続化 (同一DB)           │
+│              ↓                         │
+│          [Queue]                       │
+│              ↓ (グローバルXA)          │
+│  [Service B]                           │
+│      └─ UserBalance DB                 │
+│                                         │
+└─────────────────────────────────────────┘
+
+┌─── Option 2: Downstream側でローカル化 ───┐
+│                                         │
+│  [Service A]                           │
+│      └─ Quote DB                       │
+│              ↓ (グローバルXA)          │
+│          [Queue]                       │
+│              ↓                         │
+│  [Service B]                           │
+│      ├─ UserBalance DB                 │
+│      └─ Queue永続化 (同一DB)           │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+**推奨: Option 1 (Upstream側ローカル化)**
+
+- 顧客対応サービス (Upstream) のスループット最大化
+- バックオフィス (Downstream) はグローバルXA許容
+
+### トランザクション境界設計の原則
+
+| 原則 | 説明 |
+|-----|------|
+| **1. 境界を最小化** | トランザクションスコープを可能な限り小さく |
+| **2. ローカル優先** | グローバルXAより複数のローカルトランザクション |
+| **3. 顧客対応を優先** | ユーザー向けサービスは高速レスポンス優先 |
+| **4. リソース共有** | 同一ベンダー、同一ノードでリソース配置 |
+
+---
+
+## 実装例: トランザクション障害への対処
+
+### ケース1: Quote処理での失敗シナリオ
+
+```
+// ❌ 問題シナリオ
+LocalTransaction 1:
+    Update Quote Status = "Confirmed"  // 成功
+
+LocalTransaction 2:
+    Update UserBalance  // 失敗!
+
+→ Quoteは "Confirmed" だが残高未更新 (不整合)
+```
+
+### 解決策1: トランザクション順序逆転
+
+```
+// ✅ 改善版: 順序を逆転
+LocalTransaction 1:
+    Update UserBalance  // 先に実行
+
+LocalTransaction 2:
+    Update Quote Status = "Confirmed"  // 後に実行
+
+→ UserBalance更新成功を確認後にQuote Status変更
+```
+
+**新たな問題**: UserBalance更新後、Quote Status更新失敗
+
+```
+LocalTransaction 1:
+    Update UserBalance  // 成功
+
+LocalTransaction 2:
+    Update Quote Status = "Confirmed"  // 失敗!
+
+→ 残高は更新されたがQuoteは "New" のまま
+```
+
+### 解決策2: 重複検出テーブル + 冪等性
+
+```
+Table: QuotesTX (トランザクション履歴)
+    id    quoteId (UNIQUE)    status      createdAt
+    ----  ------------------  ----------  ----------
+    1     quote-001           SETTLED     2026-02-08
+
+function settleQuote(quote):
+    // REQUIRES_NEW: 独立トランザクションで記録
+    isDuplicate = quotesTX.insertIfNotExists(quote.id)
+    if isDuplicate:
+        return  // 重複: スキップ
+
+    // 既に決済済みか確認
+    if quotesTX.isSettled(quote.id):
+        return
+
+    // 決済処理
+    updateUserBalance(quote)
+    quotesTX.markSettled(quote.id)
+```
+
+### タイムスタンプによる順序外れ対処
+
+```
+Table: User
+    userId    amountSold    lastQuoteAt
+    -------   ----------    ------------------
+    user-001  5000          2026-02-08 10:00
+
+function reconcile(quote):
+    user = getUser(quote.sellerId)
+
+    // 売上加算
+    user.amountSold += quote.amount
+
+    // 最新のQuoteタイムスタンプのみ保存
+    if quote.createdAt > user.lastQuoteAt:
+        user.lastQuoteAt = quote.createdAt
+
+    saveUser(user)
+```
+
+---
+
+## まとめ
+
+- **XA/2PC**: ACID保証、金融向け、性能・可用性犠牲
+- **Saga**: 結果整合性、補償トランザクション、Orchestration vs Choreography
+- **BASE**: 高可用性、最終的一貫性、非同期処理
+- **冪等性**: Transaction ID Pattern、重複検出テーブル、Set操作
+- **順序外れ**: Timestamp比較、Event Sourcing順序番号
+- **境界最適化**: ローカルトランザクション優先、リソース共有
+
+次は [MESSAGING-PATTERNS.md](MESSAGING-PATTERNS.md) でメッセージングパターンを確認してください。
