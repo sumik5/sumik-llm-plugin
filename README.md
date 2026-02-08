@@ -123,7 +123,6 @@ sumik-claude-plugin/
 | `managing-docker` | Docker環境管理 |
 | `writing-dockerfiles` | Dockerfile作成 |
 | `using-next-devtools` | Next.js DevTools |
-| `managing-git-worktrees` | Git Worktree管理 |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
 | `developing-terraform` | Terraform IaC開発（HCL構文/モジュール設計/ステート管理/AWS構築） |
 
@@ -132,6 +131,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `writing-technical-docs` | 技術ドキュメント（7つのC原則） |
+| `removing-ai-smell` | AI臭除去（コード・文章の自然化） |
 | `writing-latex` | LaTeX文書作成 |
 | `authoring-skills` | スキル作成ガイド |
 | `convert-to-skill` | ソースファイル（Markdown/PDF/EPUB）→スキル変換 |
