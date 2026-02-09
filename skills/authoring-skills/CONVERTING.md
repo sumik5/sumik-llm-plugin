@@ -9,9 +9,9 @@
 | 形式 | 拡張子 | 前処理 |
 |------|--------|--------|
 | Markdown | `.md` | なし（直接処理） |
-| PDF | `.pdf` | `scripts/pdf-to-markdown.mjs` でMarkdown変換 |
-| EPUB | `.epub` | `scripts/epub-to-markdown.mjs` でMarkdown変換 |
-| URL | `https://...` | `scripts/url-to-markdown.mjs` でMarkdown変換 |
+| PDF | `.pdf` | MCP Pandoc (`mcp-pandoc`) でMarkdown変換 |
+| EPUB | `.epub` | MCP Pandoc (`mcp-pandoc`) でMarkdown変換 |
+| URL | `https://...` | WebFetch ツールでMarkdown変換 |
 | フォルダ | ディレクトリ | 上記形式のファイルを再帰的に列挙 |
 
 ---
@@ -55,24 +55,28 @@
 
 #### 0.2 PDF/EPUB/URL → Markdown変換
 
-スクリプトの場所: `skills/authoring-skills/scripts/`
+**PDF変換（MCP Pandoc）:**
 
-**PDF変換:**
-```bash
-node skills/authoring-skills/scripts/pdf-to-markdown.mjs <input.pdf> <output.md>
-```
+MCP Pandoc の `convert-contents` ツールを使用:
+- `input_file`: 入力PDFのフルパス
+- `input_format`: `"pdf"`
+- `output_format`: `"markdown"`
+- `output_file`: 出力Markdownのフルパス
 
-**EPUB変換:**
-```bash
-node skills/authoring-skills/scripts/epub-to-markdown.mjs <input.epub> <output.md>
-```
+**EPUB変換（MCP Pandoc）:**
 
-**URL変換:**
-```bash
-node skills/authoring-skills/scripts/url-to-markdown.mjs <url> <output.md>
-```
+MCP Pandoc の `convert-contents` ツールを使用:
+- `input_file`: 入力EPUBのフルパス
+- `input_format`: `"epub"`
+- `output_format`: `"markdown"`
+- `output_file`: 出力Markdownのフルパス
 
-**初回実行時**: スクリプトが依存パッケージを自動インストールする（`node_modules`未存在の場合）。
+**URL変換（WebFetch）:**
+
+Claude Code の WebFetch ツールを使用:
+- `url`: 対象URL
+- `prompt`: `"この記事の本文をMarkdown形式で全文抽出してください"`
+- WebFetchの結果をMarkdownファイルとして保存
 
 #### 0.3 変換結果の検証
 

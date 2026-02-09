@@ -21,21 +21,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
- * 依存関係の自動確認
- */
-async function ensureDependencies() {
-  const nodeModulesPath = path.join(__dirname, "node_modules");
-  try {
-    await fs.access(nodeModulesPath);
-  } catch {
-    console.error("依存関係がインストールされていません。");
-    console.error("以下のコマンドを実行してください:");
-    console.error(`  cd ${__dirname} && npm install`);
-    process.exit(1);
-  }
-}
-
-/**
  * コマンドライン引数をパース
  */
 function parseArgs(args) {
@@ -103,9 +88,6 @@ async function validateConversion(filePath, type, count) {
  * メイン処理
  */
 async function main() {
-  // 依存関係の確認
-  await ensureDependencies();
-
   const args = process.argv.slice(2);
 
   if (args.length < 4) {
