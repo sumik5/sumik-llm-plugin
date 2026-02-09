@@ -1,6 +1,6 @@
 ---
 name: modernizing-architecture
-description: Socio-technical architecture modernization covering strategy, domain design, and team organization. Use when modernizing legacy systems, redesigning domain boundaries, or planning migration strategies. Differs from writing-clean-code (code-level SOLID principles) by focusing on system-level decisions. For microservices patterns, use architecting-microservices instead.
+description: Socio-technical architecture modernization covering strategy, domain design, and team organization. Use when modernizing legacy systems, redesigning domain boundaries, or planning migration strategies. Differs from writing-clean-code (code-level SOLID principles) by focusing on system-level decisions. For microservices patterns, use architecting-microservices instead. For DDD strategic/tactical patterns and domain modeling, use applying-domain-driven-design instead.
 ---
 
 # アーキテクチャモダナイゼーション

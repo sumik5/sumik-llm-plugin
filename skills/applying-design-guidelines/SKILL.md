@@ -1,6 +1,6 @@
 ---
 name: applying-design-guidelines
-description: UI/UX design principles covering visual design and user experience fundamentals. Use when making design decisions or evaluating existing interfaces. Covers typography, color, motion, cognitive psychology, and interaction patterns. For frontend code generation, use designing-frontend instead.
+description: UI/UX design principles covering visual design, user experience fundamentals, and practical interface design rules. Use when making design decisions, evaluating existing interfaces, or implementing UI components. Covers typography, color, motion, cognitive psychology, interaction patterns, and 101 practical Do/Don't rules for forms, controls, navigation, and accessibility. For frontend code generation, use designing-frontend instead.
 license: Complete terms in LICENSE.txt
 ---
 
@@ -17,7 +17,7 @@ Apply these guidelines when:
 
 ## Structure
 
-This skill consists of two complementary perspectives:
+This skill consists of three complementary perspectives:
 
 ### ui-design.md
 Visual design principles focused on aesthetics and brand:
@@ -35,7 +35,17 @@ User experience principles based on cognitive psychology and HCI:
 - Accessibility and inclusive design
 - Making interfaces feel natural and effortless
 
-**IMPORTANT**: Great design requires both perspectives. Visual beauty without usability is frustrating. Usability without aesthetics is forgettable. Use both documents together for complete design guidance.
+### Interface Design Rules（実践的UIルール集）
+
+具体的なUIコンポーネント別のDo/Don'tルール:
+
+- **[TYPOGRAPHY-RULES.md](TYPOGRAPHY-RULES.md)**: 書体、フォントサイズ、コントラスト、用語統一のルール（ルール002-013）
+- **[CONTROLS-RULES.md](CONTROLS-RULES.md)**: アイコン、ボタン、ドロップダウン、スライダー、リンクのルール（ルール014-035）
+- **[FORMS-RULES.md](FORMS-RULES.md)**: 検索、バリデーション、パスワード、決済フォームのルール（ルール036-054）
+- **[NAVIGATION-RULES.md](NAVIGATION-RULES.md)**: ナビゲーション、ジャーニー、プログレスバー、通知のルール（ルール055-084）
+- **[ACCESSIBILITY-UX-RULES.md](ACCESSIBILITY-UX-RULES.md)**: アクセシビリティ、デフォルト設定、ダークパターン回避のルール（ルール085-101）
+
+**IMPORTANT**: Great design requires all three perspectives. Visual beauty without usability is frustrating. Usability without aesthetics is forgettable. Practical rules without principles are fragile. Use all documents together for complete design guidance.
 
 ## Design Philosophy
 

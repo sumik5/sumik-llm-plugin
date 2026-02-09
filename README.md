@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (38個)
+└── skills/             # ナレッジスキル (39個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (38個)
+### Skills (39個)
 
 #### コア開発
 
@@ -75,6 +75,7 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
+| `applying-domain-driven-design` | DDD実践ガイド（設計ヒューリスティックス・イベントストーミング・レガシーシステム導入戦略） |
 | `modernizing-architecture` | Socio-technicalアーキテクチャモダナイゼーション |
 | `designing-web-apis` | Web API設計ベストプラクティス |
 | `building-multi-tenant-saas` | マルチテナントSaaSアーキテクチャ設計ガイド |
@@ -98,7 +99,7 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `applying-design-guidelines` | UI/UXデザイン設計 |
+| `applying-design-guidelines` | UI/UXデザイン設計（視覚デザイン・認知心理学・実践的UIルール101） |
 | `designing-frontend` | フロントエンド実装（Storybook・shadcn/ui統合） |
 | `implementing-design` | Figmaデザイン→コード |
 
