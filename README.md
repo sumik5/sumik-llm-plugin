@@ -136,7 +136,7 @@ sumik-claude-plugin/
 | `removing-ai-smell` | AI臭除去（コード・文章の自然化） |
 | `writing-latex` | LaTeX文書作成 |
 | `authoring-skills` | スキル作成ガイド |
-| `convert-to-skill` | ソースファイル（Markdown/PDF/EPUB）→スキル変換 |
+| `convert-to-skill` | ソースファイル（Markdown/PDF/EPUB）、URL→スキル変換 |
 | `searching-web` | Web検索（gemini） |
 | `coderabbit` | CodeRabbitコードレビュー |
 

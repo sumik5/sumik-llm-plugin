@@ -1,10 +1,10 @@
 ---
 name: convert-to-skill
 description: >-
-  Converts files (Markdown, PDF, EPUB) and folders into well-structured Claude Code Skills
+  Converts files (Markdown, PDF, EPUB), URLs, and folders into well-structured Claude Code Skills
   with proper frontmatter, progressive disclosure, and AskUserQuestion patterns.
   Use when creating new skills from existing source material including books, technical
-  documentation, or reference docs. Supports folder batch processing.
+  documentation, web articles, or reference docs. Supports folder batch processing.
   Reference authoring-skills for general skill creation guidelines.
 ---
 
@@ -12,9 +12,9 @@ description: >-
 
 ## Overview
 
-ソースファイル（Markdown、PDF、EPUB）またはフォルダを読み込み、Claude Code Skill形式に変換するメタスキル。
+ソースファイル（Markdown、PDF、EPUB）、URL、またはフォルダを読み込み、Claude Code Skill形式に変換するメタスキル。
 
-- **入力**: Markdownファイル、PDFファイル、EPUBファイル、またはフォルダパス
+- **入力**: Markdownファイル、PDFファイル、EPUBファイル、URL、またはフォルダパス
 - **出力**: Claude Code Skill（SKILL.md + 必要に応じてサブファイル）
 
 ### 対応形式
@@ -24,6 +24,7 @@ description: >-
 | Markdown | `.md` | なし（直接処理） |
 | PDF | `.pdf` | `scripts/pdf-to-markdown.mjs` でMarkdown変換 |
 | EPUB | `.epub` | `scripts/epub-to-markdown.mjs` でMarkdown変換 |
+| URL | `https://...` | `scripts/url-to-markdown.mjs` でMarkdown変換 |
 | フォルダ | ディレクトリ | 上記形式のファイルを再帰的に列挙 |
 
 ## 使用タイミング
@@ -31,8 +32,10 @@ description: >-
 - 既存Markdownからスキルを作成するとき
 - 技術書（PDF/EPUB）の要約をスキル化するとき
 - 社内ドキュメント、技術ノートをスキル化するとき
+- Web上の技術記事・ブログ記事をスキル化するとき
+- 公式ドキュメントのページをスキル化するとき
 - フォルダ内の複数ファイルを一括でスキル化するとき
-- 引数としてソースファイルパスまたはフォルダパスを受け取る
+- 引数としてソースファイルパス、URL、またはフォルダパスを受け取る
 
 ## 変換ワークフロー（6フェーズ）
 
@@ -47,6 +50,7 @@ description: >-
 | 単一Markdownファイル | `.md`拡張子 | Phase 1へスキップ |
 | 単一PDFファイル | `.pdf`拡張子 | 0.2 PDF変換 |
 | 単一EPUBファイル | `.epub`拡張子 | 0.2 EPUB変換 |
+| URL | `http://` or `https://` で始まる | 0.2 URL変換 |
 | フォルダ | ディレクトリパス | 0.1.1 ファイル列挙 |
 
 #### 0.1.1 フォルダ処理
@@ -58,7 +62,7 @@ description: >-
    - Markdown → そのままPhase 1-5を適用
 4. **1ファイルずつ**既存Phase 1-5を順次適用（各ファイル内はタチコマ並列可能）
 
-#### 0.2 PDF/EPUB → Markdown変換
+#### 0.2 PDF/EPUB/URL → Markdown変換
 
 スクリプトの場所: `skills/convert-to-skill/scripts/`
 
@@ -70,6 +74,11 @@ node skills/convert-to-skill/scripts/pdf-to-markdown.mjs <input.pdf> <output.md>
 **EPUB変換:**
 ```bash
 node skills/convert-to-skill/scripts/epub-to-markdown.mjs <input.epub> <output.md>
+```
+
+**URL変換:**
+```bash
+node skills/convert-to-skill/scripts/url-to-markdown.mjs <url> <output.md>
 ```
 
 **初回実行時**: スクリプトが依存パッケージを自動インストールする（`node_modules`未存在の場合）。
@@ -89,6 +98,9 @@ node skills/convert-to-skill/scripts/validate-conversion.mjs <output.md> --type 
 |--------|-------------|---------|
 | PDF | ページ数 × 500 | 下回ったら警告 |
 | EPUB | チャプター数 × 1000 | 下回ったら警告 |
+| URL | - | 目視確認（本文が適切に抽出されているか） |
+
+**URL変換の場合**: Readabilityによる本文抽出が行われるため、変換後のMarkdownが元ページの本文を適切に含んでいるか目視確認する。
 
 **警告が出た場合**: 変換結果を目視確認し、問題があれば手動でMarkdownを修正してからPhase 1に進む。
 
@@ -104,6 +116,7 @@ node skills/convert-to-skill/scripts/validate-conversion.mjs <output.md> --type 
 4. ファイル名からキーワード抽出:
    - 拡張子除去、区切り文字分割（ハイフン、アンダースコア、スペース）
    - キーワードからドメイン・トピックを特定
+   - **URL入力の場合**: ファイル名からのキーワード抽出は行わず、URLのパス部分とコンテンツ分析からドメイン・トピックを特定する
 5. コンテンツからアクションタイプを特定:
    - 詳細は [NAMING-STRATEGY.md](NAMING-STRATEGY.md) のマッピング表参照
    - ドメインキーワード + アクション動詞 → gerund形式のスキル名候補2-3個を生成
