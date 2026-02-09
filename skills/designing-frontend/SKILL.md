@@ -1,6 +1,6 @@
 ---
 name: designing-frontend
-description: Creates distinctive, production-grade frontend code with high design quality. Use when implementing web components, pages, or applications requiring creative, polished UI code. Focuses on actual HTML/CSS/JS code generation. For theoretical UI/UX design principles, use design-guidelines instead.
+description: Creates distinctive, production-grade frontend code with Storybook and shadcn/ui integration. Use when implementing web components, pages, or applications requiring creative, polished UI code. Covers HTML/CSS/JS code generation, Storybook story creation, and shadcn/ui component management. For theoretical UI/UX design principles, use applying-design-guidelines instead.
 ---
 
 > **Tailwind CSS**: 常に最新版（CSS-first設定）を使用すること。`@tailwind`ディレクティブではなく`@import "tailwindcss"`を使う。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。
@@ -151,8 +151,9 @@ description: Creates distinctive, production-grade frontend code with high desig
 ## 🔗 関連スキル
 
 - **developing-nextjs**: Next.js固有の最適化
-- **using-shadcn**: shadcn/uiコンポーネントの活用
 - **enforcing-type-safety**: TypeScript型安全性
+- **本スキル内のSTORYBOOK.md**: Storybook story作成ガイド
+- **本スキル内のSHADCN.md**: shadcn/uiコンポーネント管理
 
 ## 📚 技術スタック別ガイド
 
@@ -170,6 +171,20 @@ description: Creates distinctive, production-grade frontend code with high desig
 - Vue Transitionコンポーネント
 - GSAP連携
 - Scoped Stylesでのカプセル化
+
+---
+
+## Storybook
+
+Storybook story作成ガイドライン。コンポーネントの視覚テスト、条件付きレンダリング、複雑なUI状態の管理。
+
+詳細: [STORYBOOK.md](./STORYBOOK.md)
+
+## shadcn/ui
+
+shadcn/uiコンポーネント管理。React/Next.jsプロジェクトでのUI構築。
+
+詳細: [SHADCN.md](./SHADCN.md)
 
 ---
 

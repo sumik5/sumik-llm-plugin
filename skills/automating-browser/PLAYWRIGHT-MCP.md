@@ -1,13 +1,3 @@
----
-name: playwright
-description: Lightweight browser automation using Microsoft's Playwright MCP for simple workflows. Use when basic navigation, form filling, screenshots, or JavaScript evaluation is needed. For complex scenarios requiring semantic locators, state persistence, or network interception, use agent-browser instead.
-allowed-tools:
-  - Bash(playwright-cli:*)
-  - Bash(which playwright-cli*)
-  - Bash(command -v playwright-cli*)
-  - Bash(npm install -g @playwright/mcp*)
----
-
 # Browser Automation with playwright-cli
 
 ## Prerequisites Check (Auto-Install)
@@ -176,6 +166,6 @@ playwright-cli run-code "await page.waitForTimeout(1000)"
 
 ## Additional Resources
 
-- **Detailed Command Reference**: See [COMMANDS.md](COMMANDS.md)
-- **Practical Examples**: See [EXAMPLES.md](EXAMPLES.md)
+- **Detailed Command Reference**: See [PLAYWRIGHT-COMMANDS.md](PLAYWRIGHT-COMMANDS.md)
+- **Practical Examples**: See [PLAYWRIGHT-EXAMPLES.md](PLAYWRIGHT-EXAMPLES.md)
 - **Playwright MCP**: https://github.com/microsoft/playwright-mcp

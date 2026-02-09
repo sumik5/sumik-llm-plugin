@@ -337,7 +337,7 @@ mcp__shadcn__get_add_command(
 )
 ```
 
-詳細は`using-shadcn`スキルを参照してください。
+詳細は`designing-frontend`スキルを参照してください。
 
 ### Next.js開発の場合
 
@@ -472,7 +472,7 @@ Skill tool: /codeguard-security:software-security
 - **managing-git-worktrees** - Worktree管理の詳細
 - **using-serena** - serena MCP詳細ガイド
 - **using-next-devtools** - Next.js開発の詳細
-- **using-shadcn** - UIコンポーネント管理
+- **designing-frontend** - UIコンポーネント管理
 - **mcp-search** - 情報検索戦略
 - **writing-clean-code** - SOLID原則とクリーンコード
 - **enforcing-type-safety** - 型安全性の徹底

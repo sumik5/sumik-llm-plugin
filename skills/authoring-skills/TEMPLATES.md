@@ -145,9 +145,9 @@ description: >-
 **既存スキルの実例:**
 
 ```yaml
-# design-guidelines（理論寄り）
+# applying-design-guidelines（理論寄り）
 ---
-name: design-guidelines
+name: applying-design-guidelines
 description: >-
   Comprehensive UI/UX design principles covering visual design
   (typography, color, motion) and user experience
@@ -163,40 +163,26 @@ description: >-
 ---
 name: designing-frontend
 description: >-
-  Creates distinctive, production-grade frontend code with high design quality.
+  Creates distinctive, production-grade frontend code with Storybook and shadcn/ui integration.
   Use when implementing web components, pages, or applications
   that need creative, polished UI code.
-  Focuses on actual code generation (HTML/CSS/JS).
+  Focuses on actual code generation (HTML/CSS/JS) with component management.
   For theoretical UI/UX design principles and guidelines,
-  use design-guidelines instead.
+  use applying-design-guidelines instead.
 ---
 ```
 
 ```yaml
-# playwright（軽量）
+# automating-browser（統合）
 ---
-name: playwright
+name: automating-browser
 description: >-
-  Lightweight browser automation using Microsoft's official Playwright MCP.
-  Best for simple workflows - basic navigation, form filling, screenshots,
-  and JavaScript evaluation.
-  Use when straightforward browser control is needed without advanced features.
-  For complex scenarios requiring semantic locators, state persistence,
-  network interception, or device emulation, use agent-browser instead.
----
-```
-
-```yaml
-# agent-browser（高機能）
----
-name: agent-browser
-description: >-
-  Full-featured browser automation with advanced capabilities via browser-use agent.
-  Use for complex browser scenarios requiring semantic locators (find by role/label),
-  state persistence (save/load auth), network interception, device emulation,
-  or JSON output.
-  Provides snapshot filtering, wait commands, and rich debugging tools.
-  Choose over playwright for professional-grade automation.
+  Unified browser automation covering Playwright MCP (lightweight automation),
+  CLI agent (advanced scenarios), and E2E testing with Playwright Test.
+  Use for any browser automation needs - from simple navigation to complex
+  testing workflows.
+  Integrates three approaches: MCP for quick scripts, CLI agent for
+  professional automation, and E2E testing for comprehensive test suites.
 ---
 ```
 
@@ -204,8 +190,8 @@ description: >-
 
 | 関係性 | パターン | 例 |
 |--------|----------|----|
-| 理論 vs 実装 | 理論側: `For actual [実装], use [実装スキル]` | design-guidelines / designing-frontend |
-| 軽量 vs 高機能 | 軽量側: `For complex scenarios requiring [機能], use [高機能スキル]` | playwright / agent-browser |
+| 理論 vs 実装 | 理論側: `For actual [実装], use [実装スキル]` | applying-design-guidelines / designing-frontend |
+| 統合ツール | `Unified [機能] covering [3つの柱]` | automating-browser |
 | 汎用 vs 特化 | 汎用側: `For [特化ドメイン], use [特化スキル]` | - |
 
 ---

@@ -45,15 +45,15 @@
 | UI・画面・デザインの作成 | コンポーネント、レイアウト、色、フォント | `designing-` | designing-frontend |
 | テスト戦略・手法 | テストケース、カバレッジ、TDD、モック | `testing` / `testing-` | testing |
 | セキュリティ対策 | 脆弱性、認証、暗号化、OWASP | `securing-` | securing-code |
-| ツール・ライブラリの使い方 | コマンド一覧、設定方法、API使用法 | `using-` | using-shadcn, using-next-devtools, using-serena |
+| ツール・ライブラリの使い方 | コマンド一覧、設定方法、API使用法 | `using-` | using-serena, using-next-devtools |
 | 実装手順・ワークフロー | ステップバイステップ、手順書 | `implementing-` | implementing-as-tachikoma |
 | データ変換・処理 | 入出力変換、パース、マイグレーション | `converting-` / `processing-` | convert-to-skill |
 | Web検索・情報収集 | 検索クエリ、情報源、調査手法 | `searching-` | searching-web |
-| ベストプラクティス集 | パターン集、アンチパターン、最適化Tips | `[topic]-best-practices` | react-best-practices |
-| ガイドライン・原則集 | 設計原則、コーディング規約 | `applying-` / `[topic]-guidelines` | design-guidelines, storybook-guidelines |
-| ブラウザ自動化 | スクレイピング、E2Eテスト、操作自動化 | `[tool-name]` / `agent-` | playwright, agent-browser |
+| ベストプラクティス集 | パターン集、アンチパターン、最適化Tips | `[topic]-best-practices` | (developing-nextjsに統合済み) |
+| ガイドライン・原則集 | 設計原則、コーディング規約 | `applying-` / `[topic]-guidelines` | applying-design-guidelines |
+| ブラウザ自動化 | スクレイピング、E2Eテスト、操作自動化 | `automating-` | automating-browser |
 | Git・バージョン管理 | ブランチ戦略、ワークフロー | `managing-git-` | managing-git-worktrees |
-| レビュー・分析 | コードレビュー、品質分析 | `reviewing-` / `analyzing-` | coderabbit |
+| レビュー・分析 | コードレビュー、品質分析 | `reviewing-` / `analyzing-` | reviewing-with-coderabbit |
 
 ### 動詞選択のフローチャート
 
@@ -115,7 +115,7 @@
 | ソースファイル | 主要コンテンツ | 候補1（ファイル名ベース） | 候補2（コンテンツベース） | 候補3（既存パターンベース） |
 |-------------|-------------|----------------------|---------------------|--------------------------|
 | `terraform-patterns.md` | Terraform設計パターン | `designing-terraform` | `implementing-terraform-patterns` | `developing-terraform` ※既存に追記 |
-| `react-hooks-patterns.md` | React Hooks設計パターン | `designing-react-hooks` | `implementing-react-hooks` | `react-best-practices` ※既存に追記 |
+| `react-hooks-patterns.md` | React Hooks設計パターン | `designing-react-hooks` | `implementing-react-hooks` | `developing-nextjs` ※既存に追記 |
 | `rust-intro.md` | Rust言語入門 | `developing-rust` | `developing-rust` | `developing-rust`（新規） |
 | `api-auth-guide.md` | API認証実装ガイド | `implementing-api-auth` | `securing-api-auth` | `securing-code` ※既存に追記の可能性 |
 

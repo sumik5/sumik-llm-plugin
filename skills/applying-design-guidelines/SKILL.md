@@ -1,5 +1,5 @@
 ---
-name: design-guidelines
+name: applying-design-guidelines
 description: UI/UX design principles covering visual design and user experience fundamentals. Use when making design decisions or evaluating existing interfaces. Covers typography, color, motion, cognitive psychology, and interaction patterns. For frontend code generation, use designing-frontend instead.
 license: Complete terms in LICENSE.txt
 ---

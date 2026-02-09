@@ -1,5 +1,5 @@
 ---
-name: testing
+name: testing-code
 description: REQUIRED for all feature implementations. Automatically load when writing or reviewing tests. Enforces TDD approach with AAA pattern, actual/expected variables, and 100% coverage goal for business logic. Covers Vitest, React Testing Library, Jest, and Playwright.
 ---
 

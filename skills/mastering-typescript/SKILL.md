@@ -1,6 +1,6 @@
 ---
 name: mastering-typescript
-description: Comprehensive TypeScript language reference covering type system, advanced patterns (Generics, Conditional Types), and framework integration. MUST load when working in TypeScript projects detected by tsconfig.json. For strict type safety rules, use enforcing-type-safety instead.
+description: Comprehensive TypeScript guide covering type system, advanced patterns, framework integration, and 83 best practice decision criteria. MUST load when working in TypeScript projects detected by tsconfig.json. Covers Generics, Conditional Types, type inference, type design, and practical migration tips. For strict type safety rules, use enforcing-type-safety instead.
 ---
 
 # TypeScript マスターガイド
@@ -124,9 +124,8 @@ interface UserResponse {
 | スキル | 関係 |
 |--------|------|
 | `enforcing-type-safety` | 型安全性の強制ルール（`any`禁止等）。本スキルは「学ぶ」、あちらは「強制する」 |
-| `developing-nextjs` | Next.js固有のTypeScript設定・パターン |
+| `developing-nextjs` | Next.js固有のTypeScript設定・パターン（React性能最適化含む） |
 | `developing-fullstack-javascript` | フルスタックJS/TSアーキテクチャ戦略 |
-| `react-best-practices` | React固有の性能最適化パターン |
 
 ---
 
@@ -139,3 +138,21 @@ interface UserResponse {
 3. **Interfaceでオブジェクト形状を定義**: Declaration Mergingが必要ならInterface、それ以外はtype aliasも可
 4. **Genericsで再利用性を高める**: 同じロジックの型違いはジェネリクスで抽象化
 5. **フレームワーク固有の型パターンを活用**: `React.FC<Props>`, `Request/Response` 型等
+
+---
+
+## Effective TypeScript
+
+83項目のTypeScript実装判断基準。
+
+| ファイル | 内容 |
+|---------|------|
+| [ET-CH01-FUNDAMENTALS.md](./ET-CH01-FUNDAMENTALS.md) | 基礎と設定 |
+| [ET-CH03-TYPE-INFERENCE.md](./ET-CH03-TYPE-INFERENCE.md) | 型推論 |
+| [ET-CH04-TYPE-DESIGN.md](./ET-CH04-TYPE-DESIGN.md) | 型設計 |
+| [ET-CH05-UNSOUNDNESS-AND-ANY.md](./ET-CH05-UNSOUNDNESS-AND-ANY.md) | 型の不健全性とany |
+| [ET-CH06-GENERICS.md](./ET-CH06-GENERICS.md) | ジェネリクス |
+| [ET-CH07-RECIPES.md](./ET-CH07-RECIPES.md) | レシピ集 |
+| [ET-CH08-TYPE-DECLARATIONS.md](./ET-CH08-TYPE-DECLARATIONS.md) | 型宣言 |
+| [ET-CH09-PRACTICAL-TIPS.md](./ET-CH09-PRACTICAL-TIPS.md) | 実践的なTips |
+| [ET-CH10-MIGRATION.md](./ET-CH10-MIGRATION.md) | 移行ガイド |

@@ -79,30 +79,27 @@ When similar skills exist, add mutual references to prevent confusion:
 
 ```yaml
 # Pair: Theory ↔ Implementation
-# design-guidelines (theory)
+# applying-design-guidelines (theory)
 description: "...Use when making design decisions or evaluating existing interfaces. For actual frontend code generation, use designing-frontend instead."
 
 # designing-frontend (implementation)
-description: "...Use when implementing web components that need creative, polished UI code. For theoretical UI/UX design principles, use design-guidelines instead."
+description: "...Use when implementing web components that need creative, polished UI code. For theoretical UI/UX design principles, use applying-design-guidelines instead."
 ```
 
 ```yaml
-# Pair: Lightweight ↔ Full-featured
-# playwright (lightweight)
-description: "...Use when straightforward browser control is needed. For complex scenarios requiring semantic locators or state persistence, use agent-browser instead."
-
-# agent-browser (full-featured)
-description: "...Choose over playwright for professional-grade automation."
+# Unified: All-in-one browser automation
+# automating-browser (unified)
+description: "...Covers Playwright MCP (lightweight automation), CLI agent (advanced scenarios), and E2E testing. Use for any browser automation needs."
 ```
 
 | Differentiation Type | Pattern | Example |
 |---------------------|---------|---------|
-| Theory ↔ Implementation | "For actual X, use Y instead" | design-guidelines ↔ designing-frontend |
-| Lightweight ↔ Full-featured | "For complex X, use Y instead" | playwright ↔ agent-browser |
+| Theory ↔ Implementation | "For actual X, use Y instead" | applying-design-guidelines ↔ designing-frontend |
+| Unified Tool | "All-in-one for X" | automating-browser (統合: Playwright MCP + CLIエージェント + E2Eテスト) |
 | General ↔ Specific | "Reference Y for general X" | convert-to-skill → authoring-skills |
 | Parent ↔ Child | "For specific use case, see Y" | authoring-skills → convert-to-skill |
 | Language-level ↔ Architecture-level | "Complements X with Y-level focus" | writing-clean-code ↔ modernizing-architecture |
-| Foundation ↔ Advanced | "For advanced X, use Y" | mastering-typescript ↔ writing-effective-typescript |
+| Foundation ↔ Advanced | "For advanced X, use Y" | mastering-typescript (統合済み: 言語機能+実装判断基準) |
 
 #### Mutual Update Requirement
 
@@ -116,20 +113,19 @@ When creating a new skill with similar existing skills, **both sides must be upd
 
 **Implementation Example:**
 
-When creating a framework-specific skill, update the language-level skill:
+When consolidating related skills, update all references:
 
 ```yaml
-# New skill (react-best-practices)
-description: "Provides React-specific performance optimization patterns. Use when optimizing React applications. Complements mastering-react-internals (internals) and developing-nextjs (Next.js framework)."
+# Unified skill (developing-nextjs)
+description: "Next.js 16 / React 19 development guide covering App Router, Server Components, React performance optimization, and React internals. Use when package.json contains 'next'."
 
-# Existing skill (mastering-react-internals) — add Part 3 only
-description: "...(existing What + When unchanged)... For performance optimization patterns, use react-best-practices instead."
+# Result: react-best-practices and mastering-react-internals are integrated into developing-nextjs
 ```
 
 **Critical Rules:**
 - Do NOT modify existing skills' "What" (Part 1) or "When" (Part 2) — only ADD differentiation text (Part 3)
 - If existing skill already has Part 3, append or replace with more accurate text
-- A single skill may reference multiple similar skills (e.g., `writing-effective-typescript` references both `mastering-typescript` and `enforcing-type-safety`)
+- A single skill may reference multiple similar skills (e.g., `mastering-typescript` references `enforcing-type-safety` for type safety rules)
 
 ### Point of View: Always Third Person
 
@@ -251,3 +247,60 @@ Before finalizing your skill name and description:
 - [ ] Description includes differentiation (if similar skills exist)
 - [ ] Description includes key search terms
 - [ ] Description is under 1024 characters
+
+---
+
+## Unified Naming Rules
+
+### Prefix 標準一覧
+
+スキル名は以下のgerund prefix のいずれかで始めること:
+
+| Prefix | 用途 | 例 |
+|--------|------|-----|
+| `developing-` | 言語・フレームワーク開発ガイド | `developing-nextjs`, `developing-go` |
+| `writing-` | ドキュメント・コード記述 | `writing-clean-code`, `writing-latex` |
+| `designing-` | UI/UX・API設計 | `designing-frontend`, `designing-web-apis` |
+| `implementing-` | 実装手順・ワークフロー | `implementing-opentelemetry` |
+| `enforcing-` | ルール・制約の強制 | `enforcing-type-safety` |
+| `managing-` | 運用・インフラ管理 | `managing-docker` |
+| `using-` | ツール・ライブラリ活用 | `using-serena`, `using-next-devtools` |
+| `testing-` | テスト戦略・手法 | `testing-code` |
+| `securing-` | セキュリティ対策 | `securing-code` |
+| `researching-` | 調査・評価 | `researching-libraries` |
+| `building-` | システム・アプリ構築 | `building-multi-tenant-saas` |
+| `mastering-` | 内部構造・上級者向け深掘り | `mastering-typescript` |
+| `applying-` | パターン・ガイドライン適用 | `applying-design-guidelines` |
+| `automating-` | ブラウザ・プロセス自動化 | `automating-browser` |
+| `reviewing-` | レビュー・分析 | `reviewing-code` |
+| `converting-` | 変換・処理 | `converting-documents` |
+| `crafting-` | コンテンツ制作 | `crafting-ai-copywriting` |
+| `generating-` | 成果物自動生成 | `generating-google-slides` |
+| `removing-` | 特定要素の除去 | `removing-ai-smell` |
+| `searching-` | 検索・情報収集 | `searching-web` |
+| `modernizing-` | レガシー刷新 | `modernizing-architecture` |
+| `architecting-` | アーキテクチャ設計 | `architecting-microservices` |
+| `authoring-` | スキル・コンテンツ作成 | `authoring-skills` |
+
+### 命名規則チェックフロー
+
+```
+新スキル名を決める際:
+1. gerund形式（動詞-ing + 目的語）であること → 必須
+2. 上記 prefix 一覧のいずれかで始まること → 推奨
+3. 目的語が具体的であること（vague な名前を避ける）
+4. 64文字以内であること
+5. 既存スキルと重複しないこと
+```
+
+### 1言語/1ライブラリ = 1スキルの原則
+
+同一の言語・ライブラリ・トピックに対して複数スキルを作成しない。関連コンテンツはサブファイルとして Progressive Disclosure で管理する。
+
+| 原則 | 説明 |
+|------|------|
+| 1言語 = 1スキル | Go開発ガイド + Goデザインパターン + Go内部構造 → `developing-go/` に統合 |
+| 1ツール = 1スキル | ツール活用 + ツール設定 → `using-[tool]/` に統合 |
+| 1トピック = 1スキル | スキル作成 + スキル変換 + スキルレビュー → `authoring-skills/` に統合 |
+
+例外: 明確に異なる対象読者・使用タイミングを持つ場合（例: `enforcing-type-safety` は全コード共通、`mastering-typescript` はTS深掘り）

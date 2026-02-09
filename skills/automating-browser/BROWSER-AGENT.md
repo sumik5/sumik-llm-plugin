@@ -1,14 +1,3 @@
----
-name: agent-browser
-description: Advanced browser automation with semantic locators, state persistence, and network interception. Use when complex browser scenarios require role/label finding, save/load auth, device emulation, or JSON output. Provides rich debugging tools. For simple workflows, use playwright instead.
-allowed-tools:
-  - Bash(agent-browser:*)
-  - Bash(which agent-browser*)
-  - Bash(command -v agent-browser*)
-  - Bash(npm install -g agent-browser*)
-  - Bash(export AGENT_BROWSER_PROFILE*)
----
-
 # Browser Automation with agent-browser
 
 ## Prerequisites Check (Auto-Install)
@@ -222,6 +211,6 @@ agent-browser eval "document.querySelectorAll('.item').length"
 
 ## Additional Resources
 
-- **Detailed Command Reference**: See `COMMANDS.md`
-- **Practical Examples**: See `EXAMPLES.md`
+- **Detailed Command Reference**: See `AGENT-COMMANDS.md`
+- **Practical Examples**: See `AGENT-EXAMPLES.md`
 - **GitHub Repository**: https://github.com/vercel-labs/agent-browser

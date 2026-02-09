@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (47個)
+└── skills/             # ナレッジスキル (35個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (47個)
+### Skills (35個)
 
 #### コア開発
 
@@ -67,7 +67,7 @@ sumik-claude-plugin/
 | `using-serena` | Serena MCP活用 |
 | `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則含む25カテゴリのコードスメル検出・リファクタリング） |
 | `enforcing-type-safety` | 型安全性強制（any禁止） |
-| `testing` | テストファースト（Vitest/RTL/Playwright） |
+| `testing-code` | テストファースト（Vitest/RTL/Playwright） |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング |
 
@@ -86,36 +86,26 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `developing-nextjs` | Next.js 16 / React 19 |
-| `developing-go` | Go開発（クリーンコード実践・プロジェクト構造含む） |
-| `applying-go-design-patterns` | Goデザインパターン（GoF+並行処理+DDD/CQRS） |
-| `mastering-go-internals` | Go内部構造（型システム/スライス/マップ/interface/reflection/unsafe/cgo） |
-| `developing-python` | Python 3.13開発 |
-| `writing-effective-python` | Python 125項目ベストプラクティス（パフォーマンス/データ構造/テスト/コラボレーション） |
+| `developing-nextjs` | Next.js 16 / React 19（React性能最適化・内部メカニズム含む） |
+| `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・内部構造） |
+| `developing-python` | Python 3.13開発（Effective Python 125項目含む） |
 | `developing-fullstack-javascript` | フルスタックJS |
-| `react-best-practices` | React性能最適化 |
-| `mastering-react-internals` | React内部メカニズム・高度パターン・データ管理 |
-| `mastering-typescript` | TypeScript包括的マスターガイド |
-| `writing-effective-typescript` | TypeScript実装判断基準ガイド（83項目） |
+| `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準含む） |
 | `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド |
 
 #### フロントエンド・デザイン
 
 | スキル | 説明 |
 |--------|------|
-| `design-guidelines` | UI/UXデザイン設計 |
-| `designing-frontend` | フロントエンド実装 |
-| `implement-design` | Figmaデザイン→コード |
-| `storybook-guidelines` | Storybook story作成 |
-| `using-shadcn` | shadcn/ui管理 |
+| `applying-design-guidelines` | UI/UXデザイン設計 |
+| `designing-frontend` | フロントエンド実装（Storybook・shadcn/ui統合） |
+| `implementing-design` | Figmaデザイン→コード |
 
 #### ブラウザ自動化・E2Eテスト
 
 | スキル | 説明 |
 |--------|------|
-| `agent-browser` | 高度なブラウザ自動化 |
-| `playwright` | Playwright MCP |
-| `mastering-playwright-testing` | Playwright Test E2Eテスト包括ガイド |
+| `automating-browser` | ブラウザ自動化統合（Playwright MCP・CLIエージェント・E2Eテスト） |
 
 #### インフラ・ツール
 
@@ -135,11 +125,9 @@ sumik-claude-plugin/
 | `crafting-ai-copywriting` | AIコピーライティング（15の心理的プロンプト技法） |
 | `writing-latex` | LaTeX文書作成 |
 | `generating-google-slides` | Google Slides自動生成（GAS slideDataオブジェクト生成） |
-| `authoring-skills` | スキル作成ガイド |
-| `reviewing-skill-usage` | スキル利用状況レビュー・棚卸しガイド（未使用スキル検出・統合判断） |
-| `convert-to-skill` | ソースファイル（Markdown/PDF/EPUB）、URL→スキル変換 |
+| `authoring-skills` | スキル作成・ソース変換・利用状況レビュー統合ガイド |
 | `searching-web` | Web検索（gemini） |
-| `coderabbit` | CodeRabbitコードレビュー |
+| `reviewing-with-coderabbit` | CodeRabbitコードレビュー |
 
 ### Scripts (1個)
 

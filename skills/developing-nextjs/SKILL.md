@@ -1,6 +1,6 @@
 ---
 name: developing-nextjs
-description: Next.js 16 / React 19 development framework guide. MUST load when package.json contains 'next' or next.config.* is detected. Covers App Router, Server Components, Cache Components, strict TypeScript, and Tailwind CSS (latest). For SaaS patterns (auth, payments, AI), use building-nextjs-saas instead.
+description: Next.js 16 / React 19 development guide covering App Router, Server Components, React performance optimization, and React internals. MUST load when package.json contains 'next' or next.config.* is detected. Covers Cache Components, strict TypeScript, Tailwind CSS, Vercel performance rules, rendering mechanisms, and advanced React patterns. For SaaS patterns (auth, payments, AI), use building-nextjs-saas instead.
 ---
 
 # Next.js 16 / React 19 Modern Web Development Skill
@@ -71,7 +71,7 @@ description: Next.js 16 / React 19 development framework guide. MUST load when p
 ### 推奨MCP（効率的開発）
 - **`using-serena`**: コード編集・分析（最優先）
 - **`using-next-devtools`**: Next.js専用ツール（診断、アップグレード、Cache Components最適化）
-- **`using-shadcn`**: UIコンポーネント管理（shadcn/ui検索・追加）
+- **`designing-frontend`**: UIコンポーネント管理（shadcn/ui含む）
 - **`mcp-search`**: 最新仕様確認（context7、kagi等）
 
 ## 学習パス
@@ -166,6 +166,30 @@ pnpm add -D vitest @vitejs/plugin-react vite-tsconfig-paths jsdom
 - App Router vs Pages Router（App Routerがデフォルト）
 - TypeScript使用（必須）
 - package.jsonで技術スタックが確定済みの場合
+
+---
+
+## React Performance (Vercel Engineering)
+
+Vercel Engineeringによるパフォーマンス最適化ルール集。
+
+| ファイル | 内容 |
+|---------|------|
+| [RP-AGENTS.md](./RP-AGENTS.md) | Vercel AIエージェント向けルール |
+| [RP-README.md](./RP-README.md) | ルール概要 |
+| [RP-rules/](./RP-rules/) | 50+の個別パフォーマンスルール |
+
+## React Internals
+
+Reactの内部メカニズム、高度パターン、データ管理。
+
+| ファイル | 内容 |
+|---------|------|
+| [RI-PATTERNS.md](./RI-PATTERNS.md) | 高度なReactパターン |
+| [RI-PERFORMANCE.md](./RI-PERFORMANCE.md) | レンダリングと最適化の内部構造 |
+| [RI-DATA-MANAGEMENT.md](./RI-DATA-MANAGEMENT.md) | 状態管理とデータフロー |
+| [RI-TYPESCRIPT-REACT.md](./RI-TYPESCRIPT-REACT.md) | TypeScript + React統合 |
+| [RI-TESTING-AND-TOOLING.md](./RI-TESTING-AND-TOOLING.md) | テストとツール |
 
 ---
 

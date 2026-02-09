@@ -12,13 +12,41 @@ fi
 ALWAYS_SKILLS=(
     "writing-clean-code"
     "enforcing-type-safety"
-    "testing"
+    "testing-code"
     "securing-code"
     "removing-ai-smell"
 )
 
 # プロジェクト固有スキル（検出結果を格納）
 declare -a PROJECT_SKILLS=()
+
+# スキル説明文を取得する関数（bash 3.2互換）
+get_skill_description() {
+    local skill="$1"
+    case "$skill" in
+        "writing-clean-code") echo "コード実装前に必ずロード" ;;
+        "enforcing-type-safety") echo "TypeScriptコード記述時にロード" ;;
+        "testing-code") echo "テスト作成・修正時にロード" ;;
+        "securing-code") echo "実装完了後に必ずロード" ;;
+        "removing-ai-smell") echo "コメント・ドキュメント記述時にロード" ;;
+        "developing-nextjs") echo "Next.js 16 / React 19開発" ;;
+        "using-next-devtools") echo "Next.js DevTools MCP活用" ;;
+        "mastering-typescript") echo "TypeScript型システム・パターン" ;;
+        "designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
+        "developing-go") echo "Go開発ガイド" ;;
+        "developing-python") echo "Python開発ガイド" ;;
+        "developing-terraform") echo "Terraform IaC開発" ;;
+        "managing-docker") echo "Docker開発環境・コンテナ管理" ;;
+        "writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
+        "developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
+        "automating-browser") echo "Playwright ブラウザ自動化・E2Eテスト" ;;
+        "implementing-opentelemetry") echo "OpenTelemetry 分散トレーシング" ;;
+        "building-adk-agents") echo "Google ADK AIエージェント開発" ;;
+        "building-nextjs-saas") echo "Next.js SaaSアプリケーション構築" ;;
+        "implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
+        *) echo "" ;;
+    esac
+}
 
 # 作業ディレクトリ
 WORK_DIR="${PWD}"
@@ -27,52 +55,86 @@ WORK_DIR="${PWD}"
 check_package_json() {
     local package_json="$WORK_DIR/package.json"
 
-    if [[ -f "$package_json" ]]; then
-        # next.js をチェック
-        if jq -e '.dependencies.next // .devDependencies.next' "$package_json" &>/dev/null; then
-            PROJECT_SKILLS+=("developing-nextjs" "using-next-devtools" "react-best-practices")
-            return
-        fi
+    if [[ ! -f "$package_json" ]]; then
+        return
+    fi
 
-        # react をチェック（nextがない場合のみ）
-        if jq -e '.dependencies.react // .devDependencies.react' "$package_json" &>/dev/null; then
-            PROJECT_SKILLS+=("mastering-react-internals" "react-best-practices")
+    local deps
+    deps=$(jq -r '(.dependencies // {} | keys[]) , (.devDependencies // {} | keys[])' "$package_json" 2>/dev/null) || return
+
+    local has_next=false has_react=false
+
+    # Next.js チェック
+    if echo "$deps" | grep -qx "next"; then
+        has_next=true
+        PROJECT_SKILLS+=("developing-nextjs" "using-next-devtools")
+
+        # Next.js SaaS チェック（stripe / next-auth / @auth/core / @clerk/nextjs）
+        if echo "$deps" | grep -qE '^(stripe|next-auth|@auth/core|@clerk/nextjs)$'; then
+            PROJECT_SKILLS+=("building-nextjs-saas")
         fi
+    fi
+
+    # React チェック（Next.jsがない場合）
+    # developing-nextjs はReact Internals/Performance統合済みなのでReact単独でも有用
+    if [[ "$has_next" == "false" ]] && echo "$deps" | grep -qx "react"; then
+        has_react=true
+        PROJECT_SKILLS+=("developing-nextjs")
+    fi
+
+    # フルスタックJS チェック（express / @nestjs/core / fastify / koa / @hapi/hapi）
+    if echo "$deps" | grep -qE '^(express|@nestjs/core|fastify|koa|@hapi/hapi)$'; then
+        PROJECT_SKILLS+=("developing-fullstack-javascript")
+    fi
+
+    # Playwright チェック（package.json内）
+    if echo "$deps" | grep -qx "@playwright/test"; then
+        PROJECT_SKILLS+=("automating-browser")
+    fi
+
+    # OpenTelemetry チェック（JS）
+    if echo "$deps" | grep -q "^@opentelemetry/"; then
+        PROJECT_SKILLS+=("implementing-opentelemetry")
     fi
 }
 
 # TypeScript プロジェクトチェック
 check_typescript() {
     if [[ -f "$WORK_DIR/tsconfig.json" ]]; then
-        PROJECT_SKILLS+=("mastering-typescript" "writing-effective-typescript")
+        PROJECT_SKILLS+=("mastering-typescript")
     fi
 }
 
 # shadcn/ui チェック
 check_shadcn() {
     if [[ -f "$WORK_DIR/components.json" ]]; then
-        PROJECT_SKILLS+=("using-shadcn")
+        PROJECT_SKILLS+=("designing-frontend")
     fi
 }
 
 # Storybook チェック
 check_storybook() {
     if find "$WORK_DIR" -maxdepth 3 -name "*.stories.tsx" -o -name "*.stories.ts" 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("storybook-guidelines")
+        PROJECT_SKILLS+=("designing-frontend")
     fi
 }
 
 # Go プロジェクトチェック
 check_go() {
     if [[ -f "$WORK_DIR/go.mod" ]]; then
-        PROJECT_SKILLS+=("developing-go" "applying-go-design-patterns")
+        PROJECT_SKILLS+=("developing-go")
+
+        # Terraform provider/plugin 開発チェック
+        if grep -q "hashicorp/terraform" "$WORK_DIR/go.mod"; then
+            PROJECT_SKILLS+=("developing-terraform")
+        fi
     fi
 }
 
 # Python プロジェクトチェック
 check_python() {
     if [[ -f "$WORK_DIR/pyproject.toml" ]] || [[ -f "$WORK_DIR/requirements.txt" ]]; then
-        PROJECT_SKILLS+=("developing-python" "writing-effective-python")
+        PROJECT_SKILLS+=("developing-python")
     fi
 }
 
@@ -97,16 +159,59 @@ check_latex() {
     fi
 }
 
+# Playwright 設定ファイルチェック
+check_playwright_config() {
+    if find "$WORK_DIR" -maxdepth 2 -name "playwright.config.*" 2>/dev/null | grep -q .; then
+        PROJECT_SKILLS+=("automating-browser")
+    fi
+}
+
+# Python 依存関係チェック（ADK、OpenTelemetry等）
+check_python_deps() {
+    local deps_content=""
+
+    if [[ -f "$WORK_DIR/pyproject.toml" ]]; then
+        deps_content+=$(cat "$WORK_DIR/pyproject.toml" 2>/dev/null)
+    fi
+    if [[ -f "$WORK_DIR/requirements.txt" ]]; then
+        deps_content+=$(cat "$WORK_DIR/requirements.txt" 2>/dev/null)
+    fi
+
+    if [[ -z "$deps_content" ]]; then
+        return
+    fi
+
+    # Google ADK チェック
+    if echo "$deps_content" | grep -q "google-adk"; then
+        PROJECT_SKILLS+=("building-adk-agents")
+    fi
+
+    # OpenTelemetry チェック（Python）
+    if echo "$deps_content" | grep -q "opentelemetry-"; then
+        PROJECT_SKILLS+=("implementing-opentelemetry")
+    fi
+}
+
+# Cedar ポリシーファイルチェック
+check_cedar() {
+    if find "$WORK_DIR" -maxdepth 3 -name "*.cedar" 2>/dev/null | grep -q .; then
+        PROJECT_SKILLS+=("implementing-dynamic-authorization")
+    fi
+}
+
 # 検出実行
 check_package_json
 check_typescript
 check_shadcn
 check_storybook
+check_playwright_config
 check_go
 check_python
+check_python_deps
 check_terraform
 check_docker
 check_latex
+check_cedar
 
 # 重複を除去（sortとuniqを使用）
 if [[ ${#PROJECT_SKILLS[@]} -gt 0 ]]; then
@@ -120,12 +225,20 @@ PROMPT_TEXT="## Auto-detected Skills for This Session
 以下のスキルがプロジェクト構成から検出されました。関連タスク実行時に Skill ツールでロードしてください。
 
 ### 🔴 Always Required
-- \`writing-clean-code\` - コード実装前に必ずロード
-- \`enforcing-type-safety\` - TypeScriptコード記述時にロード
-- \`testing\` - テスト作成・修正時にロード
-- \`securing-code\` - 実装完了後に必ずロード
-- \`removing-ai-smell\` - コメント・ドキュメント記述時にロード
 "
+
+for skill in "${ALWAYS_SKILLS[@]}"; do
+    desc=$(get_skill_description "$skill")
+    if [[ -n "$desc" ]]; then
+        PROMPT_TEXT+="- \`$skill\` - $desc
+"
+    else
+        PROMPT_TEXT+="- \`$skill\`
+"
+    fi
+done
+
+PROMPT_TEXT+=""
 
 if [[ ${#PROJECT_SKILLS[@]} -gt 0 ]]; then
     PROMPT_TEXT+="
@@ -136,8 +249,14 @@ if [[ ${#PROJECT_SKILLS[@]} -gt 0 ]]; then
     unset IFS
 
     for skill in "${SORTED_SKILLS[@]}"; do
-        PROMPT_TEXT+="- \`$skill\`
+        desc=$(get_skill_description "$skill")
+        if [[ -n "$desc" ]]; then
+            PROMPT_TEXT+="- \`$skill\` - $desc
 "
+        else
+            PROMPT_TEXT+="- \`$skill\`
+"
+        fi
     done
 else
     PROMPT_TEXT+="

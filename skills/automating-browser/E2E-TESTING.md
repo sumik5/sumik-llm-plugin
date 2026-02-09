@@ -1,8 +1,3 @@
----
-name: mastering-playwright-testing
-description: Playwright Test E2E testing guide covering locators, fixtures, assertions, CI/CD, and reliability patterns. Use when writing Playwright Test E2E tests or configuring CI pipelines. Distinct from testing (TDD/Vitest general) and playwright (MCP automation) by focusing on E2E test suite design.
----
-
 # Playwright Test マスターガイド
 
 ## 📖 概要
@@ -15,14 +10,14 @@ description: Playwright Test E2E testing guide covering locators, fixtures, asse
 
 | スキル | 対象 | 用途 |
 |--------|------|------|
-| **`testing`** | TDD 全般（Vitest / RTL / Jest） | 単体テスト・統合テストの設計原則、AAA パターン、カバレッジ |
-| **`playwright`** | MCP ブラウザ自動化 | `playwright-cli` による単発のブラウザ操作（スクレイピング、スクリーンショット） |
-| **`mastering-playwright-testing`**（本スキル） | Playwright Test E2E テスト | E2E テストスイート設計、ロケーター戦略、CI/CD、Flakiness 対策 |
+| **`testing-code`** | TDD 全般（Vitest / RTL / Jest） | 単体テスト・統合テストの設計原則、AAA パターン、カバレッジ |
+| **PLAYWRIGHT-MCP.md** | MCP ブラウザ自動化 | `playwright-cli` による単発のブラウザ操作（スクレイピング、スクリーンショット） |
+| **E2E-TESTING.md**（本ファイル） | Playwright Test E2E テスト | E2E テストスイート設計、ロケーター戦略、CI/CD、Flakiness 対策 |
 
 **適切な選択基準:**
-- **TDD 原則・単体テスト・統合テスト** → `testing` スキル
-- **ブラウザ自動化・単発スクリプト** → `playwright` スキル
-- **E2E テストスイート設計・実装** → 本スキル（`mastering-playwright-testing`）
+- **TDD 原則・単体テスト・統合テスト** → `testing-code` スキル
+- **ブラウザ自動化・単発スクリプト** → PLAYWRIGHT-MCP.md
+- **E2E テストスイート設計・実装** → 本ファイル（E2E-TESTING.md）
 
 ---
 
@@ -32,14 +27,14 @@ description: Playwright Test E2E testing guide covering locators, fixtures, asse
 
 | ファイル | 内容 |
 |---------|------|
-| **[FUNDAMENTALS.md](./FUNDAMENTALS.md)** | セットアップ、テスト記述基礎、Assertions、Actions、設定 |
-| **[LOCATORS.md](./LOCATORS.md)** | ロケーター戦略、Tier List、`getByRole` マスタリー |
-| **[FIXTURES-AND-POM.md](./FIXTURES-AND-POM.md)** | Fixture 深掘り、Page Object Model（POM）設計 |
-| **[CI-AND-PERFORMANCE.md](./CI-AND-PERFORMANCE.md)** | CI/CD パイプライン、並列化、シャーディング |
-| **[MOCKING-AND-EMULATION.md](./MOCKING-AND-EMULATION.md)** | デバイスエミュレーション、ネットワークモック |
-| **[RELIABILITY.md](./RELIABILITY.md)** | Auto-waiting、Flakiness 対策、リトライ戦略 |
-| **[EXTENDING.md](./EXTENDING.md)** | カスタム expect、レポーター、テストデータ管理 |
-| **[BEYOND-E2E.md](./BEYOND-E2E.md)** | API テスト、コンポーネントテスト、テスト戦略 |
+| **[E2E-FUNDAMENTALS.md](./E2E-FUNDAMENTALS.md)** | セットアップ、テスト記述基礎、Assertions、Actions、設定 |
+| **[E2E-LOCATORS.md](./E2E-LOCATORS.md)** | ロケーター戦略、Tier List、`getByRole` マスタリー |
+| **[E2E-FIXTURES-AND-POM.md](./E2E-FIXTURES-AND-POM.md)** | Fixture 深掘り、Page Object Model（POM）設計 |
+| **[E2E-CI-AND-PERFORMANCE.md](./E2E-CI-AND-PERFORMANCE.md)** | CI/CD パイプライン、並列化、シャーディング |
+| **[E2E-MOCKING-AND-EMULATION.md](./E2E-MOCKING-AND-EMULATION.md)** | デバイスエミュレーション、ネットワークモック |
+| **[E2E-RELIABILITY.md](./E2E-RELIABILITY.md)** | Auto-waiting、Flakiness 対策、リトライ戦略 |
+| **[E2E-EXTENDING.md](./E2E-EXTENDING.md)** | カスタム expect、レポーター、テストデータ管理 |
+| **[E2E-BEYOND-E2E.md](./E2E-BEYOND-E2E.md)** | API テスト、コンポーネントテスト、テスト戦略 |
 
 ---
 
@@ -49,14 +44,14 @@ description: Playwright Test E2E testing guide covering locators, fixtures, asse
 
 | 状況 | 参照先 |
 |------|--------|
-| **E2E テスト新規作成** | [FUNDAMENTALS.md](./FUNDAMENTALS.md) → [LOCATORS.md](./LOCATORS.md) |
-| **Fixture / POM 設計** | [FIXTURES-AND-POM.md](./FIXTURES-AND-POM.md) |
-| **CI/CD パイプライン構築** | [CI-AND-PERFORMANCE.md](./CI-AND-PERFORMANCE.md) |
-| **テスト高速化** | [CI-AND-PERFORMANCE.md](./CI-AND-PERFORMANCE.md) |
-| **Flaky テスト対策** | [RELIABILITY.md](./RELIABILITY.md) |
-| **ネットワークモック** | [MOCKING-AND-EMULATION.md](./MOCKING-AND-EMULATION.md) |
-| **カスタムマッチャー実装** | [EXTENDING.md](./EXTENDING.md) |
-| **API テスト・コンポーネントテスト** | [BEYOND-E2E.md](./BEYOND-E2E.md) |
+| **E2E テスト新規作成** | [E2E-FUNDAMENTALS.md](./E2E-FUNDAMENTALS.md) → [E2E-LOCATORS.md](./E2E-LOCATORS.md) |
+| **Fixture / POM 設計** | [E2E-FIXTURES-AND-POM.md](./E2E-FIXTURES-AND-POM.md) |
+| **CI/CD パイプライン構築** | [E2E-CI-AND-PERFORMANCE.md](./E2E-CI-AND-PERFORMANCE.md) |
+| **テスト高速化** | [E2E-CI-AND-PERFORMANCE.md](./E2E-CI-AND-PERFORMANCE.md) |
+| **Flaky テスト対策** | [E2E-RELIABILITY.md](./E2E-RELIABILITY.md) |
+| **ネットワークモック** | [E2E-MOCKING-AND-EMULATION.md](./E2E-MOCKING-AND-EMULATION.md) |
+| **カスタムマッチャー実装** | [E2E-EXTENDING.md](./E2E-EXTENDING.md) |
+| **API テスト・コンポーネントテスト** | [E2E-BEYOND-E2E.md](./E2E-BEYOND-E2E.md) |
 
 ---
 
@@ -139,7 +134,7 @@ export default defineConfig({
 })
 ```
 
-**設定の詳細は [FUNDAMENTALS.md](./FUNDAMENTALS.md) を参照してください。**
+**設定の詳細は [E2E-FUNDAMENTALS.md](./E2E-FUNDAMENTALS.md) を参照してください。**
 
 ---
 
@@ -187,7 +182,7 @@ e2e/
     └── user.json
 ```
 
-**構成の詳細は [FIXTURES-AND-POM.md](./FIXTURES-AND-POM.md) を参照してください。**
+**構成の詳細は [E2E-FIXTURES-AND-POM.md](./E2E-FIXTURES-AND-POM.md) を参照してください。**
 
 ---
 
@@ -251,25 +246,25 @@ npx playwright show-report
 
 Playwright Test を習得するための推奨学習順序：
 
-1. **基礎** → [FUNDAMENTALS.md](./FUNDAMENTALS.md)
+1. **基礎** → [E2E-FUNDAMENTALS.md](./E2E-FUNDAMENTALS.md)
    - セットアップ、テスト記述、Assertions、Actions
 
-2. **ロケーター** → [LOCATORS.md](./LOCATORS.md)
+2. **ロケーター** → [E2E-LOCATORS.md](./E2E-LOCATORS.md)
    - `getByRole` マスタリー、Tier List、セマンティック HTML
 
-3. **再利用性** → [FIXTURES-AND-POM.md](./FIXTURES-AND-POM.md)
+3. **再利用性** → [E2E-FIXTURES-AND-POM.md](./E2E-FIXTURES-AND-POM.md)
    - Fixture、POM、カスタム test 拡張
 
-4. **信頼性** → [RELIABILITY.md](./RELIABILITY.md)
+4. **信頼性** → [E2E-RELIABILITY.md](./E2E-RELIABILITY.md)
    - Auto-waiting、Flakiness 対策、リトライ戦略
 
-5. **CI/CD** → [CI-AND-PERFORMANCE.md](./CI-AND-PERFORMANCE.md)
+5. **CI/CD** → [E2E-CI-AND-PERFORMANCE.md](./E2E-CI-AND-PERFORMANCE.md)
    - GitHub Actions、並列化、シャーディング
 
-6. **高度なテクニック** → [MOCKING-AND-EMULATION.md](./MOCKING-AND-EMULATION.md) / [EXTENDING.md](./EXTENDING.md)
+6. **高度なテクニック** → [E2E-MOCKING-AND-EMULATION.md](./E2E-MOCKING-AND-EMULATION.md) / [E2E-EXTENDING.md](./E2E-EXTENDING.md)
    - ネットワークモック、カスタムマッチャー、デバイスエミュレーション
 
-7. **戦略** → [BEYOND-E2E.md](./BEYOND-E2E.md)
+7. **戦略** → [E2E-BEYOND-E2E.md](./E2E-BEYOND-E2E.md)
    - テストピラミッド、API テスト、コンポーネントテスト
 
 ---
@@ -327,19 +322,19 @@ test.use({ storageState: '.auth/user.json' })
 **A:** Playwright は Puppeteer の後継として開発され、複数ブラウザ（Chromium / Firefox / WebKit）対応、自動待機、強力なロケーター、テストフレームワーク統合などの機能が追加されています。新規プロジェクトでは Playwright を推奨します。
 
 ### Q2. E2E テストと統合テストの使い分けは？
-**A:** 詳細は [BEYOND-E2E.md](./BEYOND-E2E.md) の「テスト戦略」セクションを参照してください。基本的には：
+**A:** 詳細は [E2E-BEYOND-E2E.md](./E2E-BEYOND-E2E.md) の「テスト戦略」セクションを参照してください。基本的には：
 - **E2E**: ユーザーフロー全体（ログイン → 商品追加 → チェックアウト）
 - **統合**: 複数コンポーネント間の連携（API → DB、フォーム送信 → バリデーション）
 
 ### Q3. Flaky テストを減らすには？
-**A:** [RELIABILITY.md](./RELIABILITY.md) を参照してください。主な対策：
+**A:** [E2E-RELIABILITY.md](./E2E-RELIABILITY.md) を参照してください。主な対策：
 - Web-First Assertions を使用
 - `page.waitForTimeout()` を避ける
 - ネットワークの待機を明示
 - ダイナミックコンテンツの完全な読み込みを確認
 
 ### Q4. CI で E2E テストが遅い場合は？
-**A:** [CI-AND-PERFORMANCE.md](./CI-AND-PERFORMANCE.md) を参照してください。主な対策：
+**A:** [E2E-CI-AND-PERFORMANCE.md](./E2E-CI-AND-PERFORMANCE.md) を参照してください。主な対策：
 - 並列化（workers 数を増やす）
 - シャーディング（テストを複数マシンに分散）
 - 認証状態の再利用（storageState）
@@ -355,4 +350,4 @@ test.use({ storageState: '.auth/user.json' })
 
 ---
 
-**次のステップ**: [FUNDAMENTALS.md](./FUNDAMENTALS.md) から始めて、Playwright Test の基礎を学習してください。
+**次のステップ**: [E2E-FUNDAMENTALS.md](./E2E-FUNDAMENTALS.md) から始めて、Playwright Test の基礎を学習してください。

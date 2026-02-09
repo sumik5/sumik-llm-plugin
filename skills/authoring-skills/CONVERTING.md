@@ -1,18 +1,10 @@
----
-name: convert-to-skill
-description: Converts Markdown, PDF, EPUB, or URLs into Claude Code Skills with proper frontmatter. Use when creating skills from existing source material like books, documentation, or web articles. Supports folder batch processing. For general skill creation, reference authoring-skills instead.
----
-
 # ソースファイル → スキル変換ガイド
-
-## Overview
 
 ソースファイル（Markdown、PDF、EPUB）、URL、またはフォルダを読み込み、Claude Code Skill形式に変換するメタスキル。
 
-- **入力**: Markdownファイル、PDFファイル、EPUBファイル、URL、またはフォルダパス
-- **出力**: Claude Code Skill（SKILL.md + 必要に応じてサブファイル）
+---
 
-### 対応形式
+## 対応形式
 
 | 形式 | 拡張子 | 前処理 |
 |------|--------|--------|
@@ -21,6 +13,8 @@ description: Converts Markdown, PDF, EPUB, or URLs into Claude Code Skills with 
 | EPUB | `.epub` | `scripts/epub-to-markdown.mjs` でMarkdown変換 |
 | URL | `https://...` | `scripts/url-to-markdown.mjs` でMarkdown変換 |
 | フォルダ | ディレクトリ | 上記形式のファイルを再帰的に列挙 |
+
+---
 
 ## 使用タイミング
 
@@ -31,6 +25,8 @@ description: Converts Markdown, PDF, EPUB, or URLs into Claude Code Skills with 
 - 公式ドキュメントのページをスキル化するとき
 - フォルダ内の複数ファイルを一括でスキル化するとき
 - 引数としてソースファイルパス、URL、またはフォルダパスを受け取る
+
+---
 
 ## 変換ワークフロー（6フェーズ）
 
@@ -59,21 +55,21 @@ description: Converts Markdown, PDF, EPUB, or URLs into Claude Code Skills with 
 
 #### 0.2 PDF/EPUB/URL → Markdown変換
 
-スクリプトの場所: `skills/convert-to-skill/scripts/`
+スクリプトの場所: `skills/authoring-skills/scripts/`
 
 **PDF変換:**
 ```bash
-node skills/convert-to-skill/scripts/pdf-to-markdown.mjs <input.pdf> <output.md>
+node skills/authoring-skills/scripts/pdf-to-markdown.mjs <input.pdf> <output.md>
 ```
 
 **EPUB変換:**
 ```bash
-node skills/convert-to-skill/scripts/epub-to-markdown.mjs <input.epub> <output.md>
+node skills/authoring-skills/scripts/epub-to-markdown.mjs <input.epub> <output.md>
 ```
 
 **URL変換:**
 ```bash
-node skills/convert-to-skill/scripts/url-to-markdown.mjs <url> <output.md>
+node skills/authoring-skills/scripts/url-to-markdown.mjs <url> <output.md>
 ```
 
 **初回実行時**: スクリプトが依存パッケージを自動インストールする（`node_modules`未存在の場合）。
@@ -82,10 +78,10 @@ node skills/convert-to-skill/scripts/url-to-markdown.mjs <url> <output.md>
 
 ```bash
 # PDF（ページ数を指定）
-node skills/convert-to-skill/scripts/validate-conversion.mjs <output.md> --type pdf --pages N
+node skills/authoring-skills/scripts/validate-conversion.mjs <output.md> --type pdf --pages N
 
 # EPUB（チャプター数を指定）
-node skills/convert-to-skill/scripts/validate-conversion.mjs <output.md> --type epub --chapters N
+node skills/authoring-skills/scripts/validate-conversion.mjs <output.md> --type epub --chapters N
 ```
 
 検証基準:
@@ -229,6 +225,8 @@ AskUserQuestion(
 
 後述のセクション「品質チェックリスト」を適用し、全項目を確認する。
 
+---
+
 ## 変換ルール
 
 ### 4.1 ソース出典の除去ルール
@@ -282,7 +280,7 @@ AskUserQuestion(
 - サブファイル命名: `UPPER-CASE-HYPHEN.md`（例: `BACKEND-STRATEGIES.md`）
 - SKILL.mdからサブファイルへのリンクを配置
 
-詳細は [authoring-skills](../authoring-skills/SKILL.md) の Progressive Disclosure セクション参照。
+詳細は [SKILL.md](SKILL.md) の Progressive Disclosure セクション参照。
 
 ### 4.4 Frontmatter 三部構成の公式
 
@@ -310,12 +308,14 @@ AskUserQuestion(
 
 類似スキルが存在する場合、**新規スキルと既存スキルの双方のdescription**に差別化文言を追加する。片方だけの更新は不完全であり、Claude Codeがスキル選択を誤る原因となる。
 
-差別化タイプ別パターン、相互更新の実装例、更新時の注意事項の詳細は [authoring-skills/NAMING.md](../authoring-skills/NAMING.md) の「Mutual Update Requirement」セクションを参照。
+差別化タイプ別パターン、相互更新の実装例、更新時の注意事項の詳細は [NAMING.md](NAMING.md) の「Mutual Update Requirement」セクションを参照。
 
 **要点:**
 - 既存スキルの「What」（Part 1）と「When」（Part 2）は変更しない
 - 追加するのは差別化文言（Part 3）のみ
 - 1つのスキルに対して複数の差別化参照を持つことは可能
+
+---
 
 ## 品質チェックリスト
 
@@ -330,7 +330,7 @@ AskUserQuestion(
 ### 相互description更新
 - [ ] 類似スキルが存在する場合、新規スキルのdescriptionに差別化文言が含まれている
 - [ ] 類似スキル側のdescriptionにも新規スキルへの相互参照が追加されている
-- [ ] [authoring-skills/NAMING.md](../authoring-skills/NAMING.md) の差別化パターンに従っている
+- [ ] [NAMING.md](NAMING.md) の差別化パターンに従っている
 - [ ] 既存スキルの「What」「When」部分が変更されていない（差別化文言の追加のみ）
 
 ### 構造
@@ -353,16 +353,3 @@ AskUserQuestion(
 - [ ] コード例が含まれている（該当する場合）
 - [ ] 判断基準テーブルが含まれている（該当する場合）
 - [ ] 自己完結している（他スキルを参照しなくても理解可能）
-
-## 命名戦略参照
-
-スキル名の自動推定ロジック、コンテンツパターン→gerund動詞マッピング表は [NAMING-STRATEGY.md](NAMING-STRATEGY.md) を参照。
-
-## 関連スキル
-
-- **[authoring-skills](../authoring-skills/SKILL.md)**: 一般的なスキル作成ガイド。命名規則、ファイル構造、評価駆動開発。このスキルの基盤
-- **[writing-technical-docs](../writing-technical-docs/SKILL.md)**: 技術ドキュメントの7つのC原則。スキル内の文章品質向上に参照
-
-## テンプレート参照
-
-詳細なテンプレート集は [TEMPLATES.md](TEMPLATES.md) を参照。

@@ -4,7 +4,7 @@ description: >-
   REQUIRED for all code implementations. Automatically load when writing or reviewing any code.
   Covers SOLID principles (SRP, OCP, LSP, ISP, DIP), 25 code smell categories with MAPPER principles,
   and practical refactoring recipes. Language-agnostic clean code guide.
-  For language-specific practices, use developing-go, writing-effective-typescript, or writing-effective-python.
+  For language-specific practices, use developing-go, mastering-typescript, or developing-python.
 ---
 
 # クリーンコード実践レシピ

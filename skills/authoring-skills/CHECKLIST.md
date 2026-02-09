@@ -68,6 +68,21 @@ TRIGGERING
 - [ ] descriptionに「REQUIRED」または「MUST」を含む（必須スキルの場合）
 - [ ] 「Use when」条件が具体的で実行可能
 - [ ] 自動検出対象にすべき場合、`detect-project-skills.sh` に追加済み
+
+SOURCE CONVERSION (if creating from existing material)
+- [ ] Source format correctly identified (MD/PDF/EPUB/URL/Folder)
+- [ ] Pre-processing script executed (if PDF/EPUB/URL)
+- [ ] Conversion validation passed (character count check)
+- [ ] 6-phase conversion workflow completed
+- [ ] Source attribution removed (no book titles, author names, ISBNs)
+- [ ] Content reframed as general best practices
+
+USAGE REVIEW (if reviewing skill portfolio)
+- [ ] analyze-skill-usage.sh report generated
+- [ ] Top/bottom skill usage reviewed
+- [ ] Unused skills triaged (deprecate/improve/hold)
+- [ ] Description improvements applied (three-part formula)
+- [ ] Hook-based auto-triggering reviewed
 ```
 
 ## Detailed Requirements

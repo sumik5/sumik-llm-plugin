@@ -1,15 +1,11 @@
----
-name: reviewing-skill-usage
-description: Guides periodic skill usage review based on session log analysis. Use when auditing skill portfolio, identifying unused skills, or planning skill consolidation. Provides usage analytics and lifecycle management. Distinct from authoring-skills (creation) by focusing on analytics.
----
-
 # Skill Usage Review Guide
 
-## 概要
+Claude Code のセッションログ分析に基づくスキル利用状況の定期的なレビュー手順を提供します。
 
-このスキルは、Claude Code のセッションログ分析に基づくスキル利用状況の定期的なレビュー手順を提供します。
+---
 
-**目的:**
+## 目的
+
 - スキルポートフォリオの健全性を維持
 - 未使用・低使用スキルの棚卸し
 - description改善による発見可能性の向上
@@ -24,7 +20,7 @@ description: Guides periodic skill usage review based on session log analysis. U
 
 ## 前提ツール
 
-### `skills/reviewing-skill-usage/scripts/analyze-skill-usage.sh` — ログ解析スクリプト
+### `skills/authoring-skills/scripts/analyze-skill-usage.sh` — ログ解析スクリプト
 
 スキル利用状況を自動集計するスクリプト。全プロジェクトのセッションログ（`~/.claude/projects/*/*.jsonl`）をスキャンし、以下を集計します：
 
@@ -36,19 +32,19 @@ description: Guides periodic skill usage review based on session log analysis. U
 
 ```bash
 # 全期間の利用状況を分析（デフォルト）
-./skills/reviewing-skill-usage/scripts/analyze-skill-usage.sh
+./skills/authoring-skills/scripts/analyze-skill-usage.sh
 
 # 期間指定
-./skills/reviewing-skill-usage/scripts/analyze-skill-usage.sh --since 2026-01-01
+./skills/authoring-skills/scripts/analyze-skill-usage.sh --since 2026-01-01
 
 # 期間範囲指定
-./skills/reviewing-skill-usage/scripts/analyze-skill-usage.sh --since 2026-01-01 --until 2026-02-01
+./skills/authoring-skills/scripts/analyze-skill-usage.sh --since 2026-01-01 --until 2026-02-01
 
 # JSON形式で出力
-./skills/reviewing-skill-usage/scripts/analyze-skill-usage.sh --format json --output report.json
+./skills/authoring-skills/scripts/analyze-skill-usage.sh --format json --output report.json
 
 # CSV形式で出力
-./skills/reviewing-skill-usage/scripts/analyze-skill-usage.sh --format csv --output report.csv
+./skills/authoring-skills/scripts/analyze-skill-usage.sh --format csv --output report.csv
 ```
 
 #### 出力例
@@ -131,7 +127,7 @@ description: Guides periodic skill usage review based on session log analysis. U
 ### ⚠️ description改善（Improve Description）
 
 発見可能性を高めるため、frontmatter description を改善：
-- **三部構成の徹底**（authoring-skills スキル参照）:
+- **三部構成の徹底**（SKILL.md スキル参照）:
   1. 機能の端的な説明
   2. 使用タイミング（"Use when ..."）
   3. 補足的なトリガー情報・類似スキルとの差別化
@@ -143,7 +139,7 @@ description: Guides periodic skill usage review based on session log analysis. U
 
 類似スキルとマージ：
 1. **統合先スキルの選定**: より一般的な名前、高頻度利用のスキルを優先
-2. **内容のマージ**: authoring-skills の Progressive Disclosure 原則に従う
+2. **内容のマージ**: Progressive Disclosure 原則に従う
 3. **plugin.json 更新**: 統合元スキルのエントリを削除
 4. **README.md 更新**: スキルカウント・テーブルを更新
 
@@ -171,7 +167,7 @@ description: Guides periodic skill usage review based on session log analysis. U
 
 ### 月次レビュー（Monthly Review）
 
-- [ ] `./skills/reviewing-skill-usage/scripts/analyze-skill-usage.sh` を実行してレポート生成
+- [ ] `./skills/authoring-skills/scripts/analyze-skill-usage.sh` を実行してレポート生成
 - [ ] トップ10スキルを確認（品質改善の優先順位付け）
 - [ ] ボトム10スキルを確認（棚卸し候補の洗い出し）
 - [ ] 未使用スキルのリストを確認
@@ -241,22 +237,27 @@ AskUserQuestion(
 #### 統合候補の確認
 
 ```python
+# 統合完了済み: 'playwright', 'agent-browser', 'mastering-playwright-testing'
+# → 'automating-browser' に統合
+# 統合日: 2026-02-09
+
+# 新規統合候補の例（テンプレート）
 AskUserQuestion(
     questions=[{
-        "question": "'playwright' と 'agent-browser' の統合を検討しています。統合先を選択してください。",
+        "question": "'skill-a' と 'skill-b' の統合を検討しています。統合先を選択してください。",
         "header": "スキル統合",
         "options": [
             {
-                "label": "agent-browser に統合",
-                "description": "より高機能で、playwrightの用途をカバー可能"
+                "label": "skill-a に統合",
+                "description": "skill-bの機能をskill-aに追加"
             },
             {
-                "label": "playwright に統合",
-                "description": "軽量なユースケース向けとして保持"
+                "label": "skill-b に統合",
+                "description": "skill-aの機能をskill-bに追加"
             },
             {
                 "label": "統合しない",
-                "description": "現状維持。descriptionで差別化を強化（軽量 vs 高機能）"
+                "description": "現状維持。descriptionで差別化を強化"
             }
         ],
         "multiSelect": False
@@ -287,18 +288,3 @@ AskUserQuestion(
 - [ ] `detect-project-skills.sh` のスキルリストが最新
 - [ ] 高頻度スキルで自動検出対象外のものを確認
 - [ ] REQUIRED/MUST スキルの利用頻度が基準を満たしているか
-
----
-
-## Related Skills
-
-- **authoring-skills**: スキル作成・改善の原則。description改善や統合時に参照
-- **convert-to-skill**: 既存ドキュメントからスキルを作成する場合に使用
-
----
-
-## Notes
-
-- このスキルは **運用・ライフサイクル管理** に焦点を当てており、**スキルの作成** は authoring-skills の役割
-- スクリプトの改善・機能追加は `scripts/analyze-skill-usage.sh` に直接反映
-- レビュー結果はプロジェクトの `.claude/usage-data/` に保存され、トレンド分析に活用可能

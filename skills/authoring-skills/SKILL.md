@@ -1,20 +1,30 @@
 ---
 name: authoring-skills
-description: Creates effective Claude Agent Skills with proper structure and naming. Use when creating new skills or improving existing ones. Covers naming conventions, progressive disclosure, and evaluation-driven development. For usage analytics and lifecycle management, use reviewing-skill-usage instead.
+description: >-
+  Creates effective Claude Code Skills with proper structure, naming, and evaluation.
+  Use when creating new skills, converting source material (Markdown/PDF/EPUB/URL) into skills,
+  or reviewing skill usage analytics.
+  Covers naming conventions, progressive disclosure, source conversion, and lifecycle management.
 ---
 
 # Claude Skills Authoring Guide
 
 ## Overview
 
-This skill provides best practices for creating effective Claude Agent Skills that are discoverable, concise, and well-tested.
+スキルの作成・変換・レビューを統合的にガイドするメタスキル。
+
+3つの柱:
+- **Create**: 新規スキルの設計・実装（本ファイル + サブファイル群）
+- **Convert**: 既存ソース → スキル変換（[CONVERTING.md](CONVERTING.md)）
+- **Review**: 利用状況分析・ライフサイクル管理（[USAGE-REVIEW.md](USAGE-REVIEW.md)）
 
 ## When to Use
 
 - **Creating new skills**: Before writing a new SKILL.md
 - **Improving existing skills**: When refactoring or enhancing skills
+- **Converting source material**: Transforming Markdown, PDF, EPUB, URLs into skills → 詳細は [CONVERTING.md](CONVERTING.md) 参照
+- **Reviewing skill portfolio**: Analyzing usage patterns and maintaining skill health → 詳細は [USAGE-REVIEW.md](USAGE-REVIEW.md) 参照
 - **Reviewing skill quality**: For code review of skill files
-- **Learning skill authoring**: Understanding the skill architecture
 
 ## Core Principles
 
@@ -91,7 +101,7 @@ descriptionの「Use when ...」条件に該当する場合に明示的にロー
 
 例: `securing-code` → "Use after all code implementations to verify security"
 
-### File Structure
+## File Structure
 
 ```
 my-skill/
@@ -164,6 +174,29 @@ See [REFERENCE.md](REFERENCE.md) for details.
 3. Refine based on failures
 
 See [WORKFLOWS.md](WORKFLOWS.md) for detailed development workflow.
+
+## Source Conversion Workflow
+
+既存のMarkdown、PDF、EPUB、URLからスキルを作成する場合:
+
+1. ソース形式を特定（MD/PDF/EPUB/URL/フォルダ）
+2. 必要に応じてスクリプトでMarkdown変換（`scripts/`配下）
+3. 6フェーズの変換ワークフローを実行
+
+詳細は [CONVERTING.md](CONVERTING.md) を参照。
+
+命名戦略の自動推定については [NAMING-STRATEGY.md](NAMING-STRATEGY.md) を参照。
+テンプレート集については [TEMPLATES.md](TEMPLATES.md) を参照。
+
+## Skill Usage Review
+
+スキルポートフォリオの健全性を維持するため、定期的なレビューを実施:
+
+1. `scripts/analyze-skill-usage.sh` でログ分析
+2. 判断基準テーブルに基づき棚卸し
+3. 維持 / description改善 / 統合 / 廃止 を決定
+
+詳細は [USAGE-REVIEW.md](USAGE-REVIEW.md) を参照。
 
 ## Common Patterns
 
@@ -263,16 +296,24 @@ AskUserQuestion(
 
 ## Detailed Documentation
 
-- **[NAMING.md](NAMING.md)**: Naming conventions and description guidelines
-- **[STRUCTURE.md](STRUCTURE.md)**: File organization and progressive disclosure
-- **[WORKFLOWS.md](WORKFLOWS.md)**: Development workflow and iteration
-- **[CHECKLIST.md](CHECKLIST.md)**: Quality checklist before sharing
-- **[PATTERNS.md](PATTERNS.md)**: Advanced workflow patterns and MCP integration
-- **[TESTING.md](TESTING.md)**: Structured testing framework and success metrics
-- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**: Common issues and debugging guide
+### スキル作成
+- **[NAMING.md](NAMING.md)**: 命名規則、description三部構成、統一ネーミングルール
+- **[STRUCTURE.md](STRUCTURE.md)**: ファイル構造と Progressive Disclosure
+- **[WORKFLOWS.md](WORKFLOWS.md)**: 開発ワークフローとイテレーション
+- **[CHECKLIST.md](CHECKLIST.md)**: 品質チェックリスト
+- **[PATTERNS.md](PATTERNS.md)**: ワークフローパターン集
+- **[TESTING.md](TESTING.md)**: テスト・評価フレームワーク
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**: トラブルシューティング
+
+### ソース変換
+- **[CONVERTING.md](CONVERTING.md)**: ソース → スキル変換ワークフロー（6フェーズ）
+- **[NAMING-STRATEGY.md](NAMING-STRATEGY.md)**: 命名自動推定ロジック
+- **[TEMPLATES.md](TEMPLATES.md)**: テンプレート集
+
+### 利用状況レビュー
+- **[USAGE-REVIEW.md](USAGE-REVIEW.md)**: スキル利用状況レビュー・棚卸しガイド
 
 ## Related Skills
 
-- **convert-to-skill**: Converts files (Markdown, PDF, EPUB) and folders into Claude Code Skills. Use this when creating skills from existing source material
-- **writing-technical-docs**: General documentation principles
-- **writing-clean-code**: Code quality for utility scripts
+- **writing-technical-docs**: 一般的なドキュメント原則
+- **writing-clean-code**: ユーティリティスクリプトのコード品質

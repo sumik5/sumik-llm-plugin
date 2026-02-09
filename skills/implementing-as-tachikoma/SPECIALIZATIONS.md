@@ -489,7 +489,7 @@ POST /api/auth/login
 - **coordinating-as-kusanagi** - Managerからの指示の理解
 - **using-serena** - コード編集の詳細
 - **using-next-devtools** - Next.js開発の詳細
-- **using-shadcn** - UIコンポーネント管理
+- **designing-frontend** - UIコンポーネント管理
 - **managing-docker** - インフラ構築
 - **mcp-browser-auto** - テスト自動化
 - **writing-clean-code** - SOLID原則・コード品質基準

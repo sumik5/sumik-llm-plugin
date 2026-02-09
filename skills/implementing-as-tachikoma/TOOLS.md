@@ -77,7 +77,7 @@ Bashツールでコマンドを実行する場合：
 
 #### shadcn MCP（UIコンポーネント）
 **用途**: React/Next.js UIコンポーネント管理
-**スキル参照**: `using-shadcn`
+**スキル参照**: `designing-frontend`
 **優先度**: 🔴 必須（React/Next.jsプロジェクトの場合）
 
 **主な機能**:
@@ -255,7 +255,7 @@ ListMcpResourcesToolで全MCPサーバーの一覧を取得
 
 - **using-serena** - serena MCP詳細ガイド
 - **using-next-devtools** - Next.js開発ガイド
-- **using-shadcn** - UIコンポーネント管理
+- **designing-frontend** - UIコンポーネント管理
 - **managing-docker** - Docker環境管理
 - **mcp-aws** - AWSインフラ構築
 - **mcp-browser-auto** - ブラウザ自動化

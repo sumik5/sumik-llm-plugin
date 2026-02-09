@@ -1,6 +1,6 @@
 ---
 name: developing-python
-description: Modern Python project development guide. MUST load when pyproject.toml or requirements.txt is detected. Supports Python 3.13 + uv + ruff + mypy environment, FastAPI/FastMCP implementation, pytest, and Docker configuration.
+description: Modern Python development guide covering project setup, tooling, and 125 Pythonic best practices. MUST load when pyproject.toml or requirements.txt is detected. Covers Python 3.13 + uv + ruff + mypy, FastAPI/FastMCP, pytest, Docker, and Effective Python items (idioms, data structures, concurrency, testing).
 ---
 
 # Python開発環境（Modern Python Development）
@@ -180,3 +180,24 @@ uv run pytest
 4. **ツール設定**: [開発ツール](./TOOLING.md)でuv/ruff/mypy設定
 5. **Docker化**: [Docker構成](./DOCKER.md)でマルチステージビルド
 6. **コード例**: [実装例](./EXAMPLES.md)で具体的なパターンを確認
+
+## Effective Python
+
+125項目のPythonicコードベストプラクティス。
+
+| ファイル | 内容 |
+|---------|------|
+| [EP-CH01-PYTHONIC.md](./EP-CH01-PYTHONIC.md) | Pythonicな考え方 |
+| [EP-CH02-STRINGS-SLICES.md](./EP-CH02-STRINGS-SLICES.md) | 文字列とスライス |
+| [EP-CH03-LOOPS-ITERATORS.md](./EP-CH03-LOOPS-ITERATORS.md) | ループとイテレータ |
+| [EP-CH04-DICTIONARIES.md](./EP-CH04-DICTIONARIES.md) | 辞書 |
+| [EP-CH05-FUNCTIONS.md](./EP-CH05-FUNCTIONS.md) | 関数 |
+| [EP-CH06-COMPREHENSIONS.md](./EP-CH06-COMPREHENSIONS.md) | 内包表記とジェネレータ |
+| [EP-CH07-CLASSES.md](./EP-CH07-CLASSES.md) | クラスと継承 |
+| [EP-CH08-METACLASSES.md](./EP-CH08-METACLASSES.md) | メタクラスと属性 |
+| [EP-CH09-CONCURRENCY.md](./EP-CH09-CONCURRENCY.md) | 並行処理と並列処理 |
+| [EP-CH10-ROBUSTNESS.md](./EP-CH10-ROBUSTNESS.md) | 堅牢性と性能 |
+| [EP-CH11-PERFORMANCE.md](./EP-CH11-PERFORMANCE.md) | パフォーマンス |
+| [EP-CH12-DATA-STRUCTURES.md](./EP-CH12-DATA-STRUCTURES.md) | データ構造 |
+| [EP-CH13-TESTING.md](./EP-CH13-TESTING.md) | テストとデバッグ |
+| [EP-CH14-COLLABORATION.md](./EP-CH14-COLLABORATION.md) | コラボレーション |

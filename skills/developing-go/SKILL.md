@@ -1,12 +1,10 @@
 ---
 name: developing-go
 description: >-
-  Comprehensive Go development guide with clean code practices.
+  Comprehensive Go development guide covering clean code practices, design patterns (GoF/concurrency/DDD), and internals (type system/memory/reflection).
   MUST load when go.mod is detected or Go code is being written.
-  Covers naming, error handling, concurrency, testing, project structure, function design,
-  data structures, and refactoring strategies based on Google Style Guide and Effective Go.
-  For design patterns and architecture, use applying-go-design-patterns.
-  For internals and performance optimization, use mastering-go-internals.
+  Covers naming, error handling, concurrency, testing, project structure, function design, data structures, refactoring strategies,
+  GoF patterns, architectural patterns, type system internals, and performance optimization.
 ---
 
 # Go開発ガイド（Modern Go Development）
@@ -296,6 +294,32 @@ func process(item *Item) error {
 - [Google Go Style Guide](https://google.github.io/styleguide/go/)
 - [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments)
 
+## Design Patterns
+
+GoFデザインパターン、Go並行処理パターン、アーキテクチャパターン（DDD/CQRS/Event Sourcing）。
+
+| ファイル | 内容 |
+|---------|------|
+| [DP-CREATIONAL.md](./DP-CREATIONAL.md) | 生成パターン（Factory, Builder, Singleton等） |
+| [DP-STRUCTURAL.md](./DP-STRUCTURAL.md) | 構造パターン（Adapter, Decorator, Proxy等） |
+| [DP-BEHAVIORAL.md](./DP-BEHAVIORAL.md) | 振る舞いパターン（Strategy, Observer, Command等） |
+| [DP-CONCURRENCY.md](./DP-CONCURRENCY.md) | 並行処理パターン（Pipeline, Fan-out/Fan-in等） |
+| [DP-ADVANCED.md](./DP-ADVANCED.md) | 高度なパターン（DDD, CQRS, Event Sourcing） |
+| [DP-ANTI-PATTERNS.md](./DP-ANTI-PATTERNS.md) | アンチパターンと回避策 |
+| [DP-TESTING.md](./DP-TESTING.md) | パターンのテスト手法 |
+
+## Go Internals
+
+型システム、メモリレイアウト、スライス/マップ内部構造、interfaceの表現、リフレクション。
+
+| ファイル | 内容 |
+|---------|------|
+| [INT-TYPE-SYSTEM.md](./INT-TYPE-SYSTEM.md) | 型システムと基本型のメモリレイアウト |
+| [INT-COMPOSITE-INTERNALS.md](./INT-COMPOSITE-INTERNALS.md) | スライス・マップ・チャネルの内部構造 |
+| [INT-INTERFACE-INTERNALS.md](./INT-INTERFACE-INTERNALS.md) | interfaceの実装とディスパッチ |
+| [INT-REFLECTION.md](./INT-REFLECTION.md) | reflectパッケージとコード生成 |
+| [INT-LOW-LEVEL.md](./INT-LOW-LEVEL.md) | unsafe/cgo/メモリ管理 |
+
 ## 📖 次のステップ
 
 1. **初めての方**: [プロジェクト構造](./PROJECT-STRUCTURE.md)から始めてください
@@ -304,3 +328,5 @@ func process(item *Item) error {
 4. **並行処理**: [並行処理](./CONCURRENCY.md)でgoroutine/channel学習
 5. **テスト作成**: [テスト戦略](./TESTING.md)でテーブル駆動テスト
 6. **ツール設定**: [開発ツール](./TOOLING.md)でlint設定
+7. **デザインパターン**: [DP-CREATIONAL.md](./DP-CREATIONAL.md)からパターン学習
+8. **内部構造理解**: [INT-TYPE-SYSTEM.md](./INT-TYPE-SYSTEM.md)から型システム学習
