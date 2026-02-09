@@ -82,6 +82,18 @@ See [STRUCTURE.md](STRUCTURE.md) for progressive disclosure patterns.
 
 ## Skill Creation Workflow
 
+### Use Case Categories
+
+スキルは大きく3つのカテゴリに分類される:
+
+| カテゴリ | 用途 | キーテクニック |
+|---------|------|--------------|
+| **Document & Asset Creation** | 一貫した高品質の出力物を生成（文書、プレゼン、アプリ、デザイン、コード等） | スタイルガイド埋め込み、テンプレート、品質チェック |
+| **Workflow Automation** | 一貫した方法論でマルチステッププロセスを自動化（複数MCPサーバー連携含む） | ステップバイステップワークフロー、バリデーションゲート |
+| **MCP Enhancement** | MCPサーバーのツールアクセスにワークフロー知識を付加 | ドメイン専門知識、エラーハンドリング、コンテキスト補完 |
+
+詳細は [TESTING.md](TESTING.md) を参照。
+
 ### Step 1: Identify the Gap
 
 Before writing documentation, identify what Claude struggles with:
@@ -231,6 +243,9 @@ AskUserQuestion(
 - **[STRUCTURE.md](STRUCTURE.md)**: File organization and progressive disclosure
 - **[WORKFLOWS.md](WORKFLOWS.md)**: Development workflow and iteration
 - **[CHECKLIST.md](CHECKLIST.md)**: Quality checklist before sharing
+- **[PATTERNS.md](PATTERNS.md)**: Advanced workflow patterns and MCP integration
+- **[TESTING.md](TESTING.md)**: Structured testing framework and success metrics
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**: Common issues and debugging guide
 
 ## Related Skills
 
