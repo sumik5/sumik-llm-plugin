@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (3個)
 ├── scripts/            # ヘルパースクリプト
-└── skills/             # ナレッジスキル (47個)
+└── skills/             # ナレッジスキル (48個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (47個)
+### Skills (48個)
 
 #### コア開発
 
@@ -137,6 +137,7 @@ sumik-claude-plugin/
 | `removing-ai-smell` | AI臭除去（コード・文章の自然化） |
 | `crafting-ai-copywriting` | AIコピーライティング（15の心理的プロンプト技法） |
 | `writing-latex` | LaTeX文書作成 |
+| `generating-google-slides` | Google Slides自動生成（GAS slideDataオブジェクト生成） |
 | `authoring-skills` | スキル作成ガイド |
 | `convert-to-skill` | ソースファイル（Markdown/PDF/EPUB）、URL→スキル変換 |
 | `searching-web` | Web検索（gemini） |
