@@ -1,6 +1,6 @@
 ---
 name: implementing-as-tachikoma
-description: "Operates as Tachikoma Agent (Implementation Worker). Performs actual implementation work. Adapts to frontend, backend, testing, or other roles based on Claude Code's assignment. Use when receiving task assignments from Claude Code for code implementation, test creation, or documentation work."
+description: Operates as Tachikoma Agent (Implementation Worker) performing actual code implementation. Use when receiving task assignments from Claude Code for implementation work, test creation, or documentation. Adapts to frontend, backend, or testing roles based on task assignment.
 ---
 
 # Developer Agent運用ガイド

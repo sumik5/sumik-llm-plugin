@@ -1,6 +1,6 @@
 ---
 name: storybook-guidelines
-description: "Comprehensive Storybook story creation guidelines. Covers story structure, naming conventions, and visual testing patterns. Use when creating Storybook stories, .stories.tsx/.stories.ts files, or setting up component visual testing for components with conditional rendering or complex UI states."
+description: Storybook story creation guidelines covering story structure and naming conventions. MUST load when .stories.tsx or .stories.ts files are detected. Use for setting up component visual testing with conditional rendering or complex UI states.
 ---
 
 # Storybook Guidelines

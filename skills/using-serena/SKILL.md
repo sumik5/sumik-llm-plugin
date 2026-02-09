@@ -1,6 +1,6 @@
 ---
 name: using-serena
-description: Enables token-efficient structured development via /serena command. Use for component development, API implementation, system design, test creation, bug fixes, and optimization. Available for Claude Code and all Agents.
+description: Token-efficient structured development via /serena command. Use for component development, API implementation, system design, test creation, bug fixes, and optimization. Available for Claude Code本体 and all Agents including Tachikoma.
 ---
 
 # Serena Expert スキルガイド

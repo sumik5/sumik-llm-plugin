@@ -1,6 +1,6 @@
 ---
 name: mastering-react-internals
-description: "Provides deep understanding of React internals, advanced component patterns, performance optimization, data management strategies, and TypeScript integration. Use when designing React architecture, optimizing rendering, choosing state management, or implementing advanced component patterns. Complements react-best-practices (Vercel rules) with deeper mechanism-level understanding."
+description: Deep React internals covering rendering mechanisms, advanced patterns, and performance optimization. MUST load when working in React projects detected by package.json. Complements react-best-practices (Vercel rules) with deeper mechanism-level understanding for architecture design.
 ---
 
 # mastering-react-internals

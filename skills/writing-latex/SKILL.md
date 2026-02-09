@@ -1,6 +1,6 @@
 ---
 name: writing-latex
-description: Guides LaTeX document creation for Japanese academic reports. Use when writing .tex files, creating lab reports, assignments, or technical papers. Covers upLaTeX + dvipdfmx setup, minted code highlighting with Japanese font support, equations, figures, tables, and cover pages.
+description: LaTeX document creation for Japanese academic reports. MUST load when .tex files are detected. Covers upLaTeX + dvipdfmx setup, minted code highlighting with Japanese font support, equations, figures, tables, and cover pages.
 ---
 
 # LaTeX文書作成ガイド

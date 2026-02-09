@@ -1,6 +1,12 @@
 ---
 name: developing-go
-description: Guides Go development with best practices from Google Style Guide and Effective Go. Use when go.mod is detected or Go code is being written. Covers naming, error handling, concurrency, testing, and project structure.
+description: >-
+  Comprehensive Go development guide with clean code practices.
+  MUST load when go.mod is detected or Go code is being written.
+  Covers naming, error handling, concurrency, testing, project structure, function design,
+  data structures, and refactoring strategies based on Google Style Guide and Effective Go.
+  For design patterns and architecture, use applying-go-design-patterns.
+  For internals and performance optimization, use mastering-go-internals.
 ---
 
 # Go開発ガイド（Modern Go Development）
@@ -61,7 +67,47 @@ Goエコシステムのツール活用：
 - delve（デバッガ）
 - Makefileパターン
 
-## 🎯 Goの設計哲学
+### 7. [クリーンな関数設計](./CLEAN-FUNCTIONS.md)
+関数設計とリファクタリング：
+- 命名、引数、早期リターン
+- DRY/KISS/YAGNIの適用
+- 小さく焦点を絞った関数
+
+### 8. [データ構造設計](./DATA-STRUCTURES.md)
+構造体とインターフェースの設計：
+- struct、interface、ゼロ値
+- カプセル化の強化
+
+### 9. [クリーンなエラーハンドリング](./ERROR-HANDLING-CLEAN.md)
+エラーハンドリングパターンの詳細：
+- 明示的チェック、ラップ
+- カスタムエラー型の設計
+- センチネルエラーとエラーチェーン
+
+### 10. [並行処理とテスト](./CONCURRENCY-AND-TESTING.md)
+並行処理・テスト・リファクタリング：
+- context、channel
+- テーブル駆動テスト
+- リファクタリングチェックリスト
+
+## 🎯 Goの設計哲学とクリーンコード原則
+
+### 1. 可読性 > 巧妙さ
+Goコミュニティでは「Clever code is not idiomatic Go」が鉄則。読みやすさを最優先に。
+
+### 2. DRY + KISS + YAGNI
+- **DRY (Don't Repeat Yourself)**: 3回繰り返したら共通化を検討
+- **KISS (Keep It Simple, Stupid)**: シンプルに保つ
+- **YAGNI (You Aren't Gonna Need It)**: 必要になったときに追加
+
+### 3. 小さく焦点を絞った関数
+1つの関数は1つの責任を持ち、引数は3つ以下を目標に。
+
+### 4. インターフェースは小さく
+1-2メソッドの小さなインターフェースを推奨（`io.Reader`, `io.Writer`パターン）。
+
+### 5. ゼロ値の活用
+不要な初期化を省き、ゼロ値で有用な設計を心がける。
 
 ### シンプルさを重視
 ```go

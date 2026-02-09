@@ -1,11 +1,6 @@
 ---
 name: convert-to-skill
-description: >-
-  Converts files (Markdown, PDF, EPUB), URLs, and folders into well-structured Claude Code Skills
-  with proper frontmatter, progressive disclosure, and AskUserQuestion patterns.
-  Use when creating new skills from existing source material including books, technical
-  documentation, web articles, or reference docs. Supports folder batch processing.
-  Reference authoring-skills for general skill creation guidelines.
+description: Converts Markdown, PDF, EPUB, or URLs into Claude Code Skills with proper frontmatter. Use when creating skills from existing source material like books, documentation, or web articles. Supports folder batch processing. For general skill creation, reference authoring-skills instead.
 ---
 
 # ソースファイル → スキル変換ガイド

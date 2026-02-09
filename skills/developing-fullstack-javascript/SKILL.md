@@ -1,6 +1,6 @@
 ---
 name: developing-fullstack-javascript
-description: "Comprehensive full-stack JavaScript development strategy covering backend (NestJS/Express, API design, DB, caching), frontend (React, state management, data fetching), deployment (CI/CD, Blue-Green/Canary), and quality (testing, security, performance). Use when building full-stack JavaScript/TypeScript applications or when package.json contains Express, NestJS, or similar backend frameworks."
+description: Full-stack JavaScript development covering backend (NestJS/Express), frontend (React), deployment (CI/CD), and quality. MUST load when package.json contains Express, NestJS, or similar backend frameworks. Covers API design, state management, caching, and testing.
 ---
 
 # Full Stack JavaScript 開発ストラテジー

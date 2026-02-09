@@ -1,10 +1,6 @@
 ---
 name: writing-effective-typescript
-description: >-
-  Provides TypeScript best practice decision criteria covering type system design,
-  inference patterns, generics, and soundness trade-offs (83 items).
-  Use when writing TypeScript code and needing guidance on why/when to apply specific patterns.
-  For language feature reference, use mastering-typescript; for strict type safety rules, use enforcing-type-safety.
+description: TypeScript best practice decision criteria covering type system design and inference patterns. MUST load when writing TypeScript code detected by tsconfig.json. Provides 83 guidance items on why/when to apply patterns. For language reference, use mastering-typescript instead.
 ---
 
 # TypeScript実装判断基準ガイド

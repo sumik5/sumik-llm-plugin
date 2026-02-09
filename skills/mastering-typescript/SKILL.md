@@ -1,10 +1,6 @@
 ---
 name: mastering-typescript
-description: >-
-  Comprehensive TypeScript language mastery guide covering type system fundamentals,
-  advanced patterns (Generics, Conditional Types, Type Guards), and framework integration
-  (React, Angular, Vue, Node.js). Use when writing TypeScript code, designing type architectures,
-  or learning TypeScript patterns. For strict type safety enforcement rules, use enforcing-type-safety instead.
+description: Comprehensive TypeScript language reference covering type system, advanced patterns (Generics, Conditional Types), and framework integration. MUST load when working in TypeScript projects detected by tsconfig.json. For strict type safety rules, use enforcing-type-safety instead.
 ---
 
 # TypeScript マスターガイド

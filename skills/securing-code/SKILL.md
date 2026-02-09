@@ -1,6 +1,6 @@
 ---
 name: securing-code
-description: "Enforces secure coding practices and runs CodeGuard security check. Use after all code implementations to verify security. Covers input validation, secrets management, OWASP top 10 countermeasures, and authentication/authorization patterns."
+description: REQUIRED after all code implementations. Automatically load when implementation is complete to run CodeGuard security check. Covers input validation, secrets management, OWASP top 10 countermeasures, and authentication/authorization patterns.
 ---
 
 # セキュアコーディング

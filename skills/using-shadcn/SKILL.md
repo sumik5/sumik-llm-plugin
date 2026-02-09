@@ -1,6 +1,6 @@
 ---
 name: using-shadcn
-description: Manages shadcn/ui components in React/Next.js projects. Use for searching, adding, and managing UI components. Requires components.json in project root.
+description: Manages shadcn/ui components in React/Next.js projects. MUST load when components.json is detected in project root. Use for searching, adding, and managing UI components with shadcn registry.
 ---
 
 # shadcn/ui UIコンポーネント管理

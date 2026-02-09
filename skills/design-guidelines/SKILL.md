@@ -1,6 +1,6 @@
 ---
 name: design-guidelines
-description: "Comprehensive UI/UX design principles covering visual design (typography, color, motion) and user experience (cognitive psychology, interaction patterns, mental models). Use when making design decisions, evaluating existing interfaces, or needing theoretical design guidance. For actual frontend code generation, use designing-frontend instead."
+description: UI/UX design principles covering visual design and user experience fundamentals. Use when making design decisions or evaluating existing interfaces. Covers typography, color, motion, cognitive psychology, and interaction patterns. For frontend code generation, use designing-frontend instead.
 license: Complete terms in LICENSE.txt
 ---
 

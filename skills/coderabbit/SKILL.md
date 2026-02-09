@@ -1,6 +1,6 @@
 ---
 name: coderabbit
-description: "AI-powered code review using CodeRabbit. Default code-review skill. Trigger for any explicit review request AND autonomously when the agent thinks a review is needed (code/PR/quality/security)."
+description: AI-powered code review using CodeRabbit CLI. Use when user requests code review, PR feedback, or when quality/security checks are needed. Automatically runs review loops until Critical/Warning issues are resolved.
 ---
 
 # CodeRabbit コードレビュー

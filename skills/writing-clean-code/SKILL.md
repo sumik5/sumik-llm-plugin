@@ -1,6 +1,10 @@
 ---
 name: writing-clean-code
-description: "Comprehensive language-agnostic clean code recipes covering 25 code smell categories with practical refactoring patterns. Use when writing, reviewing, or refactoring code in any programming language. Complements applying-solid-principles (design principles focus) with practical code smell detection and recipe-based remediation."
+description: >-
+  REQUIRED for all code implementations. Automatically load when writing or reviewing any code.
+  Covers SOLID principles (SRP, OCP, LSP, ISP, DIP), 25 code smell categories with MAPPER principles,
+  and practical refactoring recipes. Language-agnostic clean code guide.
+  For language-specific practices, use developing-go, writing-effective-typescript, or writing-effective-python.
 ---
 
 # クリーンコード実践レシピ
@@ -95,9 +99,56 @@ description: "Comprehensive language-agnostic clean code recipes covering 25 cod
 
 ---
 
+---
+
+## SOLID原則の概要
+
+すべてのコード実装で必須の5つの原則:
+
+### S - Single Responsibility Principle（単一責任の原則）
+**「変更する理由」は1つだけ**
+- 各クラス・関数は単一の責任のみを持つ
+- 例: UserServiceはユーザー管理のみ、EmailServiceはメール送信のみ
+
+### O - Open/Closed Principle（開放閉鎖の原則）
+**拡張に開いており、修正に閉じている**
+- 新機能追加時は既存コードを変更せず、拡張で対応
+- インターフェースや抽象クラスを活用
+
+### L - Liskov Substitution Principle（リスコフの置換原則）
+**派生クラスは基底クラスと置換可能**
+- サブクラスは親クラスの契約を破らない
+- 継承よりコンポジションを優先
+
+### I - Interface Segregation Principle（インターフェース分離の原則）
+**クライアントが使用しないメソッドへの依存を強制しない**
+- 大きなインターフェースより小さな特化したインターフェース
+- 必要なメソッドのみを実装
+
+### D - Dependency Inversion Principle（依存関係逆転の原則）
+**上位モジュールは下位モジュールに依存しない**
+- 両者は抽象に依存する
+- 依存性注入（DI）を積極的に活用
+
+**詳細は [SOLID-PRINCIPLES.md](./SOLID-PRINCIPLES.md) を参照してください。**
+
+---
+
 ## サブファイルナビゲーション
 
 レシピは以下の6つのサブファイルに分類されています。
+
+### [SOLID-PRINCIPLES.md](./SOLID-PRINCIPLES.md) - SOLID原則の詳細解説
+**カバー内容**: 単一責任、開放閉鎖、リスコフ置換、インターフェース分離、依存関係逆転
+
+- 各原則の詳細な解説
+- 悪い例と良い例の対比
+- TypeScript/Go/Pythonのコード例
+- 依存性注入（DI）の実践パターン
+
+**主要原則**: SOLID全5原則（SRP, OCP, LSP, ISP, DIP）、DRY、KISS、YAGNI
+
+---
 
 ### [OBJECT-DESIGN.md](./OBJECT-DESIGN.md) - オブジェクト設計（Ch.3-5）
 **カバー内容**: 貧血モデル、プリミティブ執着、変更可能性
@@ -175,6 +226,34 @@ description: "Comprehensive language-agnostic clean code recipes covering 25 cod
 - セキュリティベストプラクティス
 
 **主要レシピ**: TDD、負債の可視化、例外設計パターン、型システム活用、セキュリティ対策
+
+---
+
+### [CLEAN-CODE-BASICS.md](./CLEAN-CODE-BASICS.md) - クリーンコードの基礎
+**カバー内容**: 日常的なコーディングで適用すべき基本原則
+
+- 意図を明確にする命名規則
+- 小さく単一責任の関数設計
+- 早期リターンによるネスト削減
+- マジックナンバーの排除
+
+---
+
+### [QUALITY-CHECKLIST.md](./QUALITY-CHECKLIST.md) - 品質チェックリスト
+**カバー内容**: 実装完了前の確認項目
+
+- 設計原則の遵守チェック
+- コードスメルの検出
+- リファクタリングの判断基準
+
+---
+
+### [QUICK-REFERENCE.md](./QUICK-REFERENCE.md) - クイックリファレンス
+**カバー内容**: 素早く参照できる簡潔な情報
+
+- SOLID原則の1行まとめ
+- よくある間違いと修正方法
+- コードレビューポイント
 
 ---
 
@@ -330,21 +409,6 @@ description: "Comprehensive language-agnostic clean code recipes covering 25 cod
 ---
 
 ## 既存スキルとの使い分け
-
-### applying-solid-principles との関係
-
-**applying-solid-principles**: 設計原則（SOLID、KISS、DRY等）に焦点
-- 「なぜその設計が良いか」の理論
-- アーキテクチャレベルの判断基準
-
-**writing-clean-code**: 実践的なコードスメル検出とレシピ
-- 「どう検出し、どう直すか」の実践
-- コードレベルの具体的パターン
-
-**使い分け**:
-- 設計原則の理解 → `applying-solid-principles`
-- コードレビューでの具体的指摘 → `writing-clean-code`
-- 両方を組み合わせて使用することを推奨
 
 ### enforcing-type-safety との関係
 

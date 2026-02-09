@@ -1,7 +1,6 @@
 ---
 name: writing-effective-python
-description: >-
-  Guides writing Pythonic, effective Python code following 125 best practices. Use when writing, reviewing, or refactoring Python code. Covers idioms, data structures, functions, classes, concurrency, robustness, performance, testing, and collaboration. Complements developing-python (project setup) with code-level best practices.
+description: Pythonic code best practices covering 125 items on idioms, data structures, functions, and concurrency. MUST load when working in Python projects detected by .py files. Complements developing-python (project setup) with code-level best practices.
 ---
 
 # Python ベストプラクティスガイド

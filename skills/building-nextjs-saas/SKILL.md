@@ -1,6 +1,6 @@
 ---
 name: building-nextjs-saas
-description: "Guides building full-stack AI SaaS applications with Next.js App Router. Use when implementing SaaS features like authentication, payment integration, credit-based billing, AI API integration, or cloud deployment. For Next.js framework fundamentals, use developing-nextjs instead. For enterprise multi-tenancy patterns, use building-multi-tenant-saas instead."
+description: Builds full-stack AI SaaS applications with Next.js App Router. Use when implementing SaaS features like authentication, payment integration, credit-based billing, or AI API integration. For Next.js fundamentals, use developing-nextjs; for enterprise multi-tenancy, use building-multi-tenant-saas instead.
 ---
 
 # building-nextjs-saas

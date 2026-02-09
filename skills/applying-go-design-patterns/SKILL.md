@@ -1,6 +1,6 @@
 ---
 name: applying-go-design-patterns
-description: "Comprehensive guide to applying GoF design patterns, Go concurrency patterns, anti-patterns, advanced patterns (DDD/CQRS/Event Sourcing), and pattern testing strategies in Go. Use when designing Go systems, choosing design patterns, implementing architectural solutions, or refactoring Go code. Complements developing-go (language fundamentals) and writing-clean-go (code quality)."
+description: GoF design patterns, Go concurrency patterns, and advanced architectural patterns in Go. Use when designing Go systems or choosing design patterns. Covers DDD/CQRS/Event Sourcing and pattern testing. Complements developing-go with design-level guidance.
 ---
 
 # Goデザインパターンガイド（Applying Go Design Patterns）

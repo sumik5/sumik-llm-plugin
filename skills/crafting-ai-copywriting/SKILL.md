@@ -1,6 +1,6 @@
 ---
 name: crafting-ai-copywriting
-description: "Guides AI-assisted copywriting with 15 proven prompt techniques leveraging psychological triggers (Caligula effect, loss aversion, storytelling). Use when creating marketing copy, blog titles, ad headlines, or social media posts with AI. Distinct from removing-ai-smell (eliminates AI patterns from text) by focusing on prompt engineering to generate compelling copy."
+description: AI-assisted copywriting with 15 prompt techniques leveraging psychological triggers. Use when creating marketing copy, blog titles, ad headlines, or social media posts. Focuses on prompt engineering to generate compelling copy. For eliminating AI patterns from text, use removing-ai-smell instead.
 ---
 
 # AIコピーライティング技法

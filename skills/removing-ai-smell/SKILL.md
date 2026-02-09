@@ -1,6 +1,6 @@
 ---
 name: removing-ai-smell
-description: Eliminates AI-generated text patterns from code comments, documentation, and prose. Use when writing or reviewing Japanese text output to ensure natural, human-like tone. For document structure and formatting, use writing-technical-docs instead.
+description: REQUIRED for all Japanese text output. Automatically load when writing code comments, documentation, or user-facing text to eliminate AI-generated patterns. Ensures natural, human-like tone. For document structure, use writing-technical-docs instead.
 ---
 
 # AI臭の除去

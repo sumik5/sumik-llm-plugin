@@ -1,11 +1,6 @@
 ---
 name: generating-google-slides
-description: >-
-  Generates Google Slides presentations from unstructured text via Google Apps Script slideData arrays.
-  Use when creating presentations from meeting notes, proposals, memos, or any text content,
-  or when generating slideData objects for the GAS Universal Google Design template.
-  For frontend UI component creation, use designing-frontend instead.
-  For LaTeX document creation, use writing-latex instead.
+description: Generates Google Slides presentations from unstructured text via Google Apps Script slideData arrays. Use when creating presentations from meeting notes, proposals, or memos. For frontend UI components, use designing-frontend; for LaTeX documents, use writing-latex instead.
 ---
 
 # generating-google-slides

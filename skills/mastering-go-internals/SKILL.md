@@ -1,6 +1,6 @@
 ---
 name: mastering-go-internals
-description: "Deep guide to Go internals including type system memory layout, slice/map internals, interface representation, reflection, and unsafe/cgo. Use when optimizing Go performance, debugging memory issues, implementing serialization, or working with cgo. Complements developing-go (fundamentals) and writing-clean-go (code quality)."
+description: Deep Go internals covering type system memory layout, slice/map internals, interface representation, and reflection. Use when optimizing Go performance, debugging memory issues, implementing serialization, or working with unsafe/cgo. Complements developing-go (fundamentals) with advanced internals knowledge.
 ---
 
 # Mastering Go Internals

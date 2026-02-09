@@ -1,6 +1,6 @@
 ---
 name: mastering-playwright-testing
-description: "Comprehensive Playwright Test E2E testing guide covering locators, fixtures, assertions, CI/CD, mocking, reliability, and testing strategy. Use when writing Playwright Test E2E tests, configuring CI pipelines for E2E, debugging flaky tests, or designing E2E testing architecture. Distinct from testing skill (TDD/Vitest/RTL general) and playwright skill (MCP browser automation)."
+description: Playwright Test E2E testing guide covering locators, fixtures, assertions, CI/CD, and reliability patterns. Use when writing Playwright Test E2E tests or configuring CI pipelines. Distinct from testing (TDD/Vitest general) and playwright (MCP automation) by focusing on E2E test suite design.
 ---
 
 # Playwright Test マスターガイド

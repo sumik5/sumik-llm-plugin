@@ -1,10 +1,6 @@
 ---
 name: building-adk-agents
-description: >-
-  Guides Google ADK (Agent Development Kit) development for building intelligent AI agents with Python.
-  Use when google-adk is in requirements, when building AI agents with Google ADK, or when working with
-  ADK concepts (Agent, Runner, Tool, Session, Memory). Distinct from developing-python (general Python)
-  and architecting-microservices (distributed systems) by focusing on ADK-specific agent development patterns.
+description: Google ADK (Agent Development Kit) for building intelligent AI agents with Python. MUST load when google-adk is detected in requirements or pyproject.toml. Covers Agent, Runner, Tool, Session, and Memory concepts. Distinct from developing-python (general) by focusing on ADK patterns.
 ---
 
 # Google ADK (Agent Development Kit) 開発ガイド

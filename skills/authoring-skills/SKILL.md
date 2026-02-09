@@ -1,6 +1,6 @@
 ---
 name: authoring-skills
-description: Guides the creation of effective Claude Agent Skills. Use when creating new skills, improving existing skills, or reviewing skill quality. Covers naming conventions, file structure, progressive disclosure, and evaluation-driven development.
+description: Creates effective Claude Agent Skills with proper structure and naming. Use when creating new skills or improving existing ones. Covers naming conventions, progressive disclosure, and evaluation-driven development. For usage analytics and lifecycle management, use reviewing-skill-usage instead.
 ---
 
 # Claude Skills Authoring Guide

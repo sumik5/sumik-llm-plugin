@@ -1,6 +1,6 @@
 ---
 name: searching-web
-description: "Enables advanced web search via gemini CLI tool for complex queries and detailed information gathering. Use when performing web searches, researching technologies, comparing libraries, or gathering up-to-date information from the internet. Preferred over Claude Code's built-in Web Search tool for multi-step research and detailed queries."
+description: Advanced web search via gemini CLI tool for complex queries and detailed information gathering. Use when performing web searches, researching technologies, or comparing libraries. Preferred over built-in Web Search for multi-step research and detailed queries.
 ---
 
 # Web Search

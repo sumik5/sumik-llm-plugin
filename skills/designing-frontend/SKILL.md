@@ -1,6 +1,6 @@
 ---
 name: designing-frontend
-description: "Creates distinctive, production-grade frontend code with high design quality. Use when implementing web components, pages, or applications that need creative, polished UI code. Focuses on actual code generation (HTML/CSS/JS). For theoretical UI/UX design principles and guidelines, use design-guidelines instead."
+description: Creates distinctive, production-grade frontend code with high design quality. Use when implementing web components, pages, or applications requiring creative, polished UI code. Focuses on actual HTML/CSS/JS code generation. For theoretical UI/UX design principles, use design-guidelines instead.
 ---
 
 > **Tailwind CSS**: 常に最新版（CSS-first設定）を使用すること。`@tailwind`ディレクティブではなく`@import "tailwindcss"`を使う。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。

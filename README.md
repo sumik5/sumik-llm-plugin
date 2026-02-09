@@ -28,9 +28,9 @@ sumik-claude-plugin/
 ├── .mcp.json           # MCPサーバー設定
 ├── agents/             # Agent定義 (2体)
 ├── commands/           # スラッシュコマンド (8個)
-├── hooks/              # イベントフック (3個)
-├── scripts/            # ヘルパースクリプト
-└── skills/             # ナレッジスキル (48個)
+├── hooks/              # イベントフック (4個)
+├── scripts/            # ヘルパースクリプト (1個)
+└── skills/             # ナレッジスキル (47個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (48個)
+### Skills (47個)
 
 #### コア開発
 
@@ -65,8 +65,7 @@ sumik-claude-plugin/
 |--------|------|
 | `implementing-as-tachikoma` | タチコマAgent運用ガイド |
 | `using-serena` | Serena MCP活用 |
-| `applying-solid-principles` | SOLID原則（全実装で必須） |
-| `writing-clean-code` | 言語非依存のクリーンコードレシピ（25カテゴリのコードスメル検出・リファクタリング） |
+| `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則含む25カテゴリのコードスメル検出・リファクタリング） |
 | `enforcing-type-safety` | 型安全性強制（any禁止） |
 | `testing` | テストファースト（Vitest/RTL/Playwright） |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
@@ -88,8 +87,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `developing-nextjs` | Next.js 16 / React 19 |
-| `developing-go` | Go開発 |
-| `writing-clean-go` | Goクリーンコード実践 |
+| `developing-go` | Go開発（クリーンコード実践・プロジェクト構造含む） |
 | `applying-go-design-patterns` | Goデザインパターン（GoF+並行処理+DDD/CQRS） |
 | `mastering-go-internals` | Go内部構造（型システム/スライス/マップ/interface/reflection/unsafe/cgo） |
 | `developing-python` | Python 3.13開発 |
@@ -123,8 +121,7 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `managing-docker` | Docker環境管理 |
-| `writing-dockerfiles` | Dockerfile作成 |
+| `managing-docker` | Docker環境管理（Dockerfile最適化含む） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
 | `developing-terraform` | Terraform IaC開発（HCL構文/モジュール設計/ステート管理/AWS構築） |
@@ -139,14 +136,22 @@ sumik-claude-plugin/
 | `writing-latex` | LaTeX文書作成 |
 | `generating-google-slides` | Google Slides自動生成（GAS slideDataオブジェクト生成） |
 | `authoring-skills` | スキル作成ガイド |
+| `reviewing-skill-usage` | スキル利用状況レビュー・棚卸しガイド（未使用スキル検出・統合判断） |
 | `convert-to-skill` | ソースファイル（Markdown/PDF/EPUB）、URL→スキル変換 |
 | `searching-web` | Web検索（gemini） |
 | `coderabbit` | CodeRabbitコードレビュー |
 
-### Hooks (3個)
+### Scripts (1個)
+
+| スクリプト | 説明 |
+|----------|------|
+| `convert-markdown-to-skill.sh` | Markdown→スキル変換スクリプト |
+
+### Hooks (4個)
 
 | フック | トリガー | 説明 |
 |-------|---------|------|
+| `detect-project-skills` | SessionStart | セッション開始時にプロジェクト構成を検出し、推奨スキルを自動提示 |
 | `format-on-save` | PostToolUse | ファイル保存時の自動フォーマット（TypeScript/JSON/Terraform等） |
 | `notify-complete` | Stop | タスク完了時のデスクトップ通知 |
 | `notify-waiting` | Stop | 待機状態の通知 |

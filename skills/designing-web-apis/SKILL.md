@@ -1,6 +1,6 @@
 ---
 name: designing-web-apis
-description: "Guides Web API design with best practices for endpoints, responses, HTTP spec usage, versioning, and security. Use when designing REST-style HTTP APIs, creating new endpoints, or reviewing API architecture. For framework-specific API implementation (Express, NestJS, FastAPI), use the respective framework skill instead. For microservices inter-service communication patterns and transaction strategies, use architecting-microservices instead."
+description: Web API design best practices for endpoints, responses, HTTP spec usage, versioning, and security. Use when designing REST-style HTTP APIs or creating new endpoints. For framework-specific implementation (Express, NestJS), use respective framework skill; for microservices patterns, use architecting-microservices instead.
 ---
 
 # Web API Design

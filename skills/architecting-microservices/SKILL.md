@@ -1,9 +1,6 @@
 ---
 name: architecting-microservices
-description: >-
-  Guides microservices architectural pattern design covering CQRS, Event Sourcing, Saga, distributed transactions, messaging, resilience, and security patterns.
-  Use when designing microservices architecture, choosing transaction strategies, implementing CQRS/Event Sourcing, or evaluating communication patterns between services.
-  For system-level migration strategy, use modernizing-architecture. For API endpoint design, use designing-web-apis.
+description: Microservices architectural patterns covering CQRS, Event Sourcing, Saga, and distributed transactions. Use when designing microservices architecture or choosing transaction strategies. Covers messaging, resilience, and security patterns. For migration strategy, use modernizing-architecture instead.
 ---
 
 # Architecting Microservices

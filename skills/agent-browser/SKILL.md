@@ -1,6 +1,6 @@
 ---
 name: agent-browser
-description: "Full-featured browser automation with advanced capabilities via browser-use agent. Use for complex browser scenarios requiring semantic locators (find by role/label), state persistence (save/load auth), network interception, device emulation, or JSON output. Provides snapshot filtering, wait commands, and rich debugging tools. Choose over playwright for professional-grade automation."
+description: Advanced browser automation with semantic locators, state persistence, and network interception. Use when complex browser scenarios require role/label finding, save/load auth, device emulation, or JSON output. Provides rich debugging tools. For simple workflows, use playwright instead.
 allowed-tools:
   - Bash(agent-browser:*)
   - Bash(which agent-browser*)

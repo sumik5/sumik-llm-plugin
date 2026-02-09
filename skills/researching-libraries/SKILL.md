@@ -1,6 +1,6 @@
 ---
 name: researching-libraries
-description: "Researches existing libraries before implementation. Required before writing any new functionality. Use when evaluating npm packages, pip packages, Go modules, or any third-party libraries. Prevents reinventing the wheel by finding and evaluating existing solutions."
+description: Researches existing libraries before implementation to prevent reinventing the wheel. REQUIRED before writing any new functionality. Use when evaluating npm packages, pip packages, Go modules, or any third-party libraries to find and evaluate existing solutions.
 ---
 
 # ライブラリ調査（車輪の再発明禁止）

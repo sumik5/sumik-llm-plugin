@@ -1,6 +1,6 @@
 ---
 name: using-next-devtools
-description: "Provides Next.js development integration tools via next-devtools MCP. Use when working on Next.js projects for diagnostics, version upgrades, Cache Components optimization, and automatic error fixes. Primary tool for all Next.js development tasks."
+description: Next.js development integration tools via next-devtools MCP. MUST load when working on Next.js projects detected by package.json. Provides diagnostics, version upgrades, Cache Components optimization, and automatic error fixes. Primary tool for Next.js tasks.
 ---
 
 # Next.js開発統合ツール

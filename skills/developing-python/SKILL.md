@@ -1,6 +1,6 @@
 ---
 name: developing-python
-description: Guides modern Python project development. Use when pyproject.toml or requirements.txt is detected. Supports Python 3.13 + uv + ruff + mypy environment, FastAPI/FastMCP implementation, pytest, and Docker configuration.
+description: Modern Python project development guide. MUST load when pyproject.toml or requirements.txt is detected. Supports Python 3.13 + uv + ruff + mypy environment, FastAPI/FastMCP implementation, pytest, and Docker configuration.
 ---
 
 # Python開発環境（Modern Python Development）

@@ -1,15 +1,22 @@
 ---
 name: managing-docker
-description: "Manages Docker development environments. Use when Dockerfile, docker-compose.yml, docker-compose.yaml, or .dockerignore is detected, or when working with containerized projects, Docker operations, Compose management, and environment setup."
+description: >-
+  Manages Docker development environments and Dockerfile optimization.
+  MUST load when Dockerfile, docker-compose.yml, docker-compose.yaml, or .dockerignore is detected.
+  Covers container management via Docker MCP, Compose orchestration, multi-stage builds,
+  cache optimization, security hardening, and image size minimization.
+  For Terraform IaC, use developing-terraform instead.
 ---
 
 # Docker開発環境管理
 
 ## 🎯 使用タイミング
 - **開発環境のコンテナ化時**
+- **Dockerfile作成・修正時**
 - **マイクロサービス構成時**
 - **Docker Composeプロジェクト管理時**
 - **コンテナのデバッグ・ログ確認時**
+- **イメージサイズ最適化・セキュリティ強化時**
 
 ## 📋 基本操作
 
@@ -130,17 +137,119 @@ services:
     image: redis:alpine
 ```
 
-## ⚠️ ベストプラクティス
+## 📝 Dockerfileベストプラクティス
 
-**Dockerfile作成時は必ず `writing-dockerfiles` スキルを参照してください。**
+### 1. マルチステージビルド（必須）
+ビルド環境と実行環境を分離し、最終イメージサイズを大幅削減（例: 916MB → 31.4MB）
+
+**Go言語の例**:
+```dockerfile
+# ビルドステージ
+FROM golang:1.21 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+# 実行ステージ
+FROM gcr.io/distroless/static:nonroot
+COPY --from=builder /app/main /main
+USER 65532:65532
+ENTRYPOINT ["/main"]
+```
+
+### 2. キャッシュ最適化（必須）
+**変更頻度の低いものを先に配置**
+
+```dockerfile
+# 正しい順序
+COPY package.json package-lock.json ./  # 依存関係定義（変更少）
+RUN npm ci                               # 依存関係インストール
+COPY . .                                 # アプリケーションコード（変更多）
+```
+
+### 3. .dockerignore（必須）
+プロジェクトルートに`.dockerignore`を必ず作成
+
+```dockerignore
+# Git
+.git
+.gitignore
+
+# 依存関係（ビルド時に再インストール）
+node_modules
+.venv
+__pycache__
+
+# ビルド成果物
+dist
+build
+
+# 環境ファイル（機密情報）
+.env*
+!.env.example
+```
+
+### 4. セキュリティ強化（必須）
+
+**非rootユーザー実行**:
+```dockerfile
+# UID 65532 (nonroot) を使用
+USER 65532:65532
+
+# またはDistrolessベースイメージ
+FROM gcr.io/distroless/static:nonroot
+```
+
+**ENTRYPOINT vs CMD**:
+```dockerfile
+# ENTRYPOINT: 固定コマンド（変更不可）
+ENTRYPOINT ["python", "-m", "app"]
+
+# CMD: デフォルト引数（実行時に上書き可能）
+CMD ["--port", "8080"]
+```
+
+### 5. イメージ脆弱性スキャン（推奨）
+```bash
+# Docker Scout
+docker scout cves myimage:latest
+
+# Trivy
+trivy image myimage:latest
+```
+
+### 6. Hadolintによる静的解析（推奨）
+```bash
+# ローカル実行
+hadolint Dockerfile
+
+# Docker経由
+docker run --rm -i hadolint/hadolint < Dockerfile
+```
+
+### チェックリスト
+- [ ] マルチステージビルドを使用
+- [ ] 依存関係ファイルを先にCOPY
+- [ ] RUNコマンドを統合
+- [ ] .dockerignoreを作成
+- [ ] 非rootユーザーで実行
+- [ ] ENTRYPOINTとCMDを適切に使い分け
+- [ ] バージョンタグを固定（`:latest`を避ける）
+
+**詳細は [DOCKERFILE-BEST-PRACTICES.md](./DOCKERFILE-BEST-PRACTICES.md) を参照してください。**
+
+---
+
+## ⚠️ Docker Composeベストプラクティス
 
 主要ポイント:
-1. **マルチステージビルド**: イメージサイズ最小化
-2. **環境変数管理**: .envファイルで管理、.gitignore追加
-3. **ヘルスチェック**: コンテナの正常性監視
-4. **ボリューム活用**: データ永続化
-5. **ネットワーク分離**: セキュリティ向上
-6. **ログ管理**: ログドライバー設定
+1. **環境変数管理**: .envファイルで管理、.gitignore追加
+2. **ヘルスチェック**: コンテナの正常性監視
+3. **ボリューム活用**: データ永続化
+4. **ネットワーク分離**: セキュリティ向上
+5. **ログ管理**: ログドライバー設定
 
 ## 🔧 トラブルシューティング
 

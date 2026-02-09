@@ -1,6 +1,6 @@
 ---
 name: enforcing-type-safety
-description: Enforces type safety in TypeScript/Python implementations. Any/any types strictly prohibited. Use when processing API responses, integrating external libraries, or implementing data validation. Supports strict mode configuration and type guard implementation.
+description: REQUIRED for all TypeScript/Python code. Automatically load when writing type annotations or handling external data. Any/any types strictly prohibited. Enforces strict mode configuration and type guard implementation.
 ---
 
 # 型安全性の原則

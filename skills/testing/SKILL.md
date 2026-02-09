@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Provides comprehensive testing and TDD guidance for Vitest, React Testing Library, Jest, and Playwright. Use for writing tests before implementing new features, creating reproduction tests for bug fixes, running regression tests during refactoring, and checking test coverage during code reviews. Enforces AAA pattern with actual/expected variables, prohibits nested describes, and requires Japanese test naming format. Also provides AI-generated test code review guidelines.
+description: REQUIRED for all feature implementations. Automatically load when writing or reviewing tests. Enforces TDD approach with AAA pattern, actual/expected variables, and 100% coverage goal for business logic. Covers Vitest, React Testing Library, Jest, and Playwright.
 ---
 
 # テストファーストアプローチ
