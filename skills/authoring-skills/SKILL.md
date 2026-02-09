@@ -67,6 +67,30 @@ description: Describes what it does and when to use it.  # max 1024 chars
 
 See [NAMING.md](NAMING.md) for detailed naming guidelines.
 
+## スキルトリガー機構
+
+スキルは以下の3つの方法でトリガーされる:
+
+### 1. REQUIRED/MUST パターン（強制ロード）
+descriptionに「REQUIRED」「MUST」を含むスキルは、該当タスク実行前に必ずロードされる。
+
+例: `researching-libraries` → "Required before writing any new functionality"
+
+### 2. SessionStart Hook（自動検出）
+`hooks/detect-project-skills.sh` がプロジェクトのファイル構成を解析し、関連スキルを自動推奨する。
+
+検出条件例:
+- `package.json` に `next` → `developing-nextjs` を推奨
+- `go.mod` 存在 → `developing-go` を推奨
+- `tsconfig.json` 存在 → `mastering-typescript` を推奨
+
+**新スキル追加時、自動検出対象にすべきか検討し、必要なら `detect-project-skills.sh` にも追加する。**
+
+### 3. Use when パターン（条件トリガー）
+descriptionの「Use when ...」条件に該当する場合に明示的にロードされる。
+
+例: `securing-code` → "Use after all code implementations to verify security"
+
 ### File Structure
 
 ```
@@ -251,4 +275,4 @@ AskUserQuestion(
 
 - **convert-to-skill**: Converts files (Markdown, PDF, EPUB) and folders into Claude Code Skills. Use this when creating skills from existing source material
 - **writing-technical-docs**: General documentation principles
-- **applying-solid-principles**: Code quality for utility scripts
+- **writing-clean-code**: Code quality for utility scripts

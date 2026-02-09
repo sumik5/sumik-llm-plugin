@@ -134,7 +134,7 @@ description: Pythonic code best practices covering 125 items on idioms, data str
 | [developing-python](../developing-python/SKILL.md) | Python環境構築・プロジェクト設定（補完関係） |
 | [testing](../testing/SKILL.md) | テストフレームワーク全般（本スキルはPython固有のテスト戦略） |
 | [enforcing-type-safety](../enforcing-type-safety/SKILL.md) | 型安全性（本スキルは型解析を扱う） |
-| [applying-solid-principles](../applying-solid-principles/SKILL.md) | 設計原則（本スキルはPython固有のクラス設計） |
+| [writing-clean-code](../writing-clean-code/SKILL.md) | SOLID原則・設計原則（本スキルはPython固有のクラス設計） |
 
 ## ツール推奨
 

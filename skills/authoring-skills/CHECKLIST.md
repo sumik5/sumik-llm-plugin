@@ -63,6 +63,11 @@ DIFFERENTIATION (if similar skills exist)
 - [ ] Differentiation follows type patterns in NAMING.md
 - [ ] Existing skills' "What" and "When" parts remain unchanged (only Part 3 added)
 - [ ] Related Skills section lists similar skills with clear distinction
+
+TRIGGERING
+- [ ] descriptionに「REQUIRED」または「MUST」を含む（必須スキルの場合）
+- [ ] 「Use when」条件が具体的で実行可能
+- [ ] 自動検出対象にすべき場合、`detect-project-skills.sh` に追加済み
 ```
 
 ## Detailed Requirements

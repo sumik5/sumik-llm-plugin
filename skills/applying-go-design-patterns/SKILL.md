@@ -276,9 +276,8 @@ AskUserQuestion(
 
 | スキル | 関係性 |
 |--------|-------|
-| [`developing-go`](../developing-go/SKILL.md) | **Go言語基礎**: 命名規則、エラーハンドリング、テスト戦略、パッケージ構成。本スキルの前提知識。 |
-| [`writing-clean-go`](../writing-clean-go/SKILL.md) | **Goクリーンコード**: 関数設計、リファクタリング、Code Smell検出。本スキルと併用してコード品質を向上。 |
-| [`applying-solid-principles`](../applying-solid-principles/SKILL.md) | **SOLID原則**: 言語非依存の設計原則。本スキルはGo固有の適用方法を扱う。 |
+| [`developing-go`](../developing-go/SKILL.md) | **Go言語基礎・クリーンコード**: 命名規則、エラーハンドリング、テスト戦略、パッケージ構成、関数設計、リファクタリング。本スキルの前提知識。 |
+| [`writing-clean-code`](../writing-clean-code/SKILL.md) | **SOLID原則**: 言語非依存の設計原則。本スキルはGo固有の適用方法を扱う。 |
 | [`testing`](../testing/SKILL.md) | **テスト全般**: テスト戦略、TDD、カバレッジ。本スキルの[TESTING.md](./TESTING.md)はパターン特化。 |
 | [`modernizing-architecture`](../modernizing-architecture/SKILL.md) | **アーキテクチャモダナイゼーション**: マイクロサービス、イベント駆動。本スキルの[ADVANCED.md](./ADVANCED.md)で詳細解説。 |
 

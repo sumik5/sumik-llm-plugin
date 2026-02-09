@@ -101,7 +101,7 @@ description: "...Choose over playwright for professional-grade automation."
 | Lightweight ↔ Full-featured | "For complex X, use Y instead" | playwright ↔ agent-browser |
 | General ↔ Specific | "Reference Y for general X" | convert-to-skill → authoring-skills |
 | Parent ↔ Child | "For specific use case, see Y" | authoring-skills → convert-to-skill |
-| Language-level ↔ Architecture-level | "Complements X with Y-level focus" | applying-solid-principles ↔ modernizing-architecture |
+| Language-level ↔ Architecture-level | "Complements X with Y-level focus" | writing-clean-code ↔ modernizing-architecture |
 | Foundation ↔ Advanced | "For advanced X, use Y" | mastering-typescript ↔ writing-effective-typescript |
 
 #### Mutual Update Requirement
@@ -116,14 +116,14 @@ When creating a new skill with similar existing skills, **both sides must be upd
 
 **Implementation Example:**
 
-When creating `writing-clean-go`, update existing `developing-go`:
+When creating a framework-specific skill, update the language-level skill:
 
 ```yaml
-# New skill (writing-clean-go)
-description: "Teaches clean code practices specific to Go. Use when writing, reviewing, or refactoring Go code for quality. Complements developing-go (language patterns) and applying-solid-principles (language-agnostic)."
+# New skill (react-best-practices)
+description: "Provides React-specific performance optimization patterns. Use when optimizing React applications. Complements mastering-react-internals (internals) and developing-nextjs (Next.js framework)."
 
-# Existing skill (developing-go) — add Part 3 only
-description: "...(existing What + When unchanged)... For clean code practices and refactoring, use writing-clean-go instead."
+# Existing skill (mastering-react-internals) — add Part 3 only
+description: "...(existing What + When unchanged)... For performance optimization patterns, use react-best-practices instead."
 ```
 
 **Critical Rules:**

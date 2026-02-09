@@ -334,7 +334,7 @@ tailwind.config.ts
 - **`building-multi-tenant-saas`**: エンタープライズ向けマルチテナント機能（組織管理、RBAC、テナント分離）が必要な場合に併用
 - **`designing-web-apis`**: 外部APIを提供する場合（SaaS自体がプラットフォームとなる場合）のAPI設計
 - **`developing-fullstack-javascript`**: バックエンドをNestJS等の別フレームワークで構築する場合の統合パターン
-- **`applying-solid-principles`**: ビジネスロジックの複雑化に伴うリファクタリング時の設計原則
+- **`writing-clean-code`**: SOLID原則・クリーンコード実践。ビジネスロジックの複雑化に伴うリファクタリング時の設計原則
 - **`testing`**: AI生成機能、決済フロー、クレジットシステムのテスト戦略
 
 ### 使い分け

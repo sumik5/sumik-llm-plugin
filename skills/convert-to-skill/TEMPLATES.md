@@ -210,6 +210,35 @@ description: >-
 
 ---
 
+### トリガーパターン（descriptionテンプレート）
+
+新規スキルの description は以下の3パターンのいずれかに従う:
+
+#### パターン1: 常時適用（REQUIRED）
+```
+REQUIRED for [scope]. Automatically load when [condition].
+[Key concepts covered]. [Distinction from similar skills].
+```
+例: writing-clean-code, enforcing-type-safety, testing, securing-code
+
+#### パターン2: 自動検出（MUST load）
+```
+[Action verb] [target] development.
+MUST load when [specific file/config] is detected in project.
+Covers [key features]. For [alternative scope], use [other-skill] instead.
+```
+例: developing-nextjs, developing-go, managing-docker
+
+#### パターン3: オンデマンド（Use when）
+```
+[Action verb] [target].
+Use when [specific user action or scenario].
+[Key features]. [Distinction].
+```
+例: その他全スキル
+
+---
+
 ## 2. SKILL.mdセクション構造テンプレート
 
 ### 2.1 標準構造（単一ファイル）
@@ -530,15 +559,14 @@ AskUserQuestion(
 既存スキルとのスコープ比較で重複が見つかった場合に使用する。新規作成 vs 既存追記の判断を最初に確認。
 
 ````python
-# 例: docker-optimization.md を分析し、managing-docker と writing-dockerfiles に重複を検出
+# 例: terraform-patterns.md を分析し、developing-terraform に重複を検出
 AskUserQuestion(
     questions=[
         {
-            "question": "既存スキルとの重複が検出されました。どのように進めますか？\n\n検出結果:\n- managing-docker: Docker運用ガイドとしてスコープが重複\n- writing-dockerfiles: Dockerfile作成部分が重複",
+            "question": "既存スキルとの重複が検出されました。どのように進めますか？\n\n検出結果:\n- developing-terraform: Terraform開発ガイドとしてスコープが重複",
             "header": "作成方針",
             "options": [
-                {"label": "既存 managing-docker に追記（推奨）", "description": "サブファイルとして追加。既存スキルのスコープを拡張"},
-                {"label": "既存 writing-dockerfiles に追記", "description": "Dockerfile最適化に特化した内容として追加"},
+                {"label": "既存 developing-terraform に追記（推奨）", "description": "サブファイルとして追加。既存スキルのスコープを拡張"},
                 {"label": "新規スキルとして作成", "description": "既存スキルとは異なる独立したスコープの場合"}
             ],
             "multiSelect": False

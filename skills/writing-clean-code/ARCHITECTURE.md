@@ -655,6 +655,6 @@ AskUserQuestion(
 
 ## 関連スキル
 
-- `applying-solid-principles`: SOLID原則の詳細
+- `writing-clean-code`: SOLID原則の詳細（本スキルのメインファイル）
 - `testing`: リファクタリング時のテスト戦略
 - `enforcing-type-safety`: 型システムによる依存関係の明示

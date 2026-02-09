@@ -250,7 +250,7 @@ test('新規登録フォーム送信時、成功メッセージが表示され�
 
 ## 🔗 関連スキル
 
-- **applying-solid-principles** - テスタブルな設計原則
+- **writing-clean-code** - SOLID原則・テスタブルな設計原則
 - **enforcing-type-safety** - 型安全なテストコード
 - **mcp-browser-auto** - E2Eテスト実装
 - **implementing-as-tachikoma** - Developer Agent実装ガイド

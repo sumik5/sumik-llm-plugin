@@ -186,7 +186,7 @@ src/
 
 ## 🔗 関連スキル
 
-- **applying-solid-principles**: SOLID原則とクリーンコード
+- **writing-clean-code**: SOLID原則とクリーンコード
 - **testing**: 型安全なテストコード
 - **securing-code**: セキュアな型使用
 - **implementing-as-tachikoma**: Developer実装時の型安全性

@@ -285,10 +285,10 @@ func process(item *Item) error {
 
 ## 🔗 関連スキル
 
-- **[applying-solid-principles](../applying-solid-principles/SKILL.md)**: SOLID原則とクリーンコード
+- **[writing-clean-code](../writing-clean-code/SKILL.md)**: SOLID原則とクリーンコード
 - **[testing](../testing/SKILL.md)**: テストファーストアプローチ
 - **[securing-code](../securing-code/SKILL.md)**: セキュアコーディング
-- **[writing-dockerfiles](../writing-dockerfiles/SKILL.md)**: Goアプリのコンテナ化
+- **[managing-docker](../managing-docker/SKILL.md)**: Goアプリのコンテナ化
 
 ## 📖 参考リソース
 

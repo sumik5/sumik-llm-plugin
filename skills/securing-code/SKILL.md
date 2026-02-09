@@ -209,7 +209,7 @@ HTTPヘッダー、ファイルアップロード、その他のセキュリテ�
 
 - **[enforcing-type-safety](../enforcing-type-safety/SKILL.md)**: 型安全性でセキュリティ向上
 - **[testing](../testing/SKILL.md)**: セキュリティテストの実施
-- **[applying-solid-principles](../applying-solid-principles/SKILL.md)**: セキュアな設計原則
+- **[writing-clean-code](../writing-clean-code/SKILL.md)**: SOLID原則・セキュアな設計原則
 
 ## 💡 ベストプラクティス
 

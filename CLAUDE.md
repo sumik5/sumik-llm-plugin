@@ -90,7 +90,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 - 配置: `skills/<skill-name>/SKILL.md`
 - ディレクトリ名: 動名詞形（verb + -ing）
-  - ✅ `developing-nextjs`, `applying-solid-principles`
+  - ✅ `developing-nextjs`, `writing-clean-code`
   - ❌ `nextjs-development`, `solid-principles`
 - SKILL.md: 500行以内を推奨
 - 詳細は別ファイルに分離（Progressive Disclosure）:

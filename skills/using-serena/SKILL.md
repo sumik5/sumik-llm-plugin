@@ -47,4 +47,4 @@ description: Token-efficient structured development via /serena command. Use for
 ## 🔗 関連スキル
 
 - **implementing-as-tachikoma**: タチコマ Agentでの活用
-- **applying-solid-principles**: コード品質基準
+- **writing-clean-code**: SOLID原則・コード品質基準

@@ -33,7 +33,7 @@ color: orange
 
 ## コード設計の原則（必須遵守）
 
-- **SOLID原則**: 単一責任、開放閉鎖、リスコフ置換、インターフェース分離、依存性逆転（詳細は `applying-solid-principles` スキル参照）
+- **SOLID原則**: 単一責任、開放閉鎖、リスコフ置換、インターフェース分離、依存性逆転（詳細は `writing-clean-code` スキル参照）
 - **型安全性**: any/Any型の使用禁止、strict mode有効化（詳細は `enforcing-type-safety` スキル参照）
 - **テスト**: テストファーストアプローチ、カバレッジ100%目標（詳細は `testing` スキル参照）
 - **セキュリティ**: 実装完了後に `/codeguard-security:software-security` を必ず実行（詳細は `securing-code` スキル参照）

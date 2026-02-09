@@ -101,7 +101,7 @@ description: Guides technical documentation and report writing. Applies the 7 Cs
 - コードコメントの記述（コードの言語に従う）
 
 ## 🔗 関連スキル
-- **applying-solid-principles**: コメントとドキュメントの品質
+- **writing-clean-code**: SOLID原則・コメントとドキュメントの品質
 - **testing**: テストケース名の明確性
 - **securing-code**: セキュリティドキュメント作成
 

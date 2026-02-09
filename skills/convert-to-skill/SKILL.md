@@ -195,6 +195,16 @@ AskUserQuestion(
    - 相互参照パターン（後述 4.6）に従い、「For X, use Y instead.」形式の差別化文言を設計
    - 新規スキル側と既存スキル側の両方のdescription案を用意
 
+### Phase 3.5: トリガー設定
+
+スキルの発見可能性を高めるため、descriptionのトリガーパターンを決定:
+
+1. **REQUIRED/MUST**: 必須スキルの場合、descriptionに明記
+2. **SessionStart hook**: 自動検出対象にする場合、`detect-project-skills.sh` への追加を検討
+3. **Use when**: 条件トリガーの場合、具体的な条件を列挙
+
+詳細は [TEMPLATES.md](TEMPLATES.md) の「トリガーパターン」セクション参照。
+
 ### Phase 4: 生成（Generate）
 
 > **重要: このタスクは個人利用目的**

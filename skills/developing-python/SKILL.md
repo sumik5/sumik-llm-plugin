@@ -166,7 +166,7 @@ uv run pytest
 
 ## 🔗 関連スキル
 
-- **[applying-solid-principles](../applying-solid-principles/SKILL.md)**: SOLID原則とクリーンコード
+- **[writing-clean-code](../writing-clean-code/SKILL.md)**: SOLID原則とクリーンコード
 - **[enforcing-type-safety](../enforcing-type-safety/SKILL.md)**: 型安全性の確保
 - **[testing](../testing/SKILL.md)**: テストファーストアプローチ
 - **[securing-code](../securing-code/SKILL.md)**: セキュアコーディング

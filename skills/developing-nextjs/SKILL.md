@@ -62,7 +62,7 @@ description: Next.js 16 / React 19 development framework guide. MUST load when p
 このスキルは、以下の既存スキルと組み合わせて使用してください：
 
 ### 必須スキル（実装時に必ず参照）
-- **`applying-solid-principles`**: SOLID原則、クリーンコード、単一責任原則等
+- **`writing-clean-code`**: SOLID原則、クリーンコード、単一責任原則等
 - **`enforcing-type-safety`**: any/Any型禁止、型ガード、厳格な型チェック
 - **`testing`**: TDD、AAA パターン、テストカバレッジ100%目標
 - **`securing-code`**: セキュアコーディング、CodeGuard実行（実装完了後必須）
@@ -89,7 +89,7 @@ description: Next.js 16 / React 19 development framework guide. MUST load when p
 ### 上級者向け
 1. **[TOOLING.md](./TOOLING.md)** - 開発ツールの最適化
 2. **[DOCKER.md](./DOCKER.md)** - 本番環境デプロイ
-3. `applying-solid-principles`、`enforcing-type-safety`、`securing-code` - コード品質向上
+3. `writing-clean-code`、`enforcing-type-safety`、`securing-code` - コード品質向上
 
 ## クイックスタート
 
@@ -127,7 +127,7 @@ pnpm add -D vitest @vitejs/plugin-react vite-tsconfig-paths jsdom
 - **Server Actions活用**: フォーム送信、データ更新はServer Actionsで処理
 
 ### 3. コード品質
-- **SOLID原則遵守**: `applying-solid-principles`スキル参照
+- **SOLID原則遵守**: `writing-clean-code`スキル参照
 - **テストファースト**: `testing`スキル参照
 - **セキュアコーディング**: `securing-code`スキル参照（実装完了後にCodeGuard必須実行）
 

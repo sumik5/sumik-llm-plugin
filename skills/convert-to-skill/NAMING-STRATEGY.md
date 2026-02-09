@@ -41,7 +41,7 @@
 | コンテナ・インフラ・CI/CD運用 | Docker, k8s, 監視, ログ | `managing-` | managing-docker |
 | 品質ルール・制約の強制 | 「禁止」「必須」「strict」が頻出 | `enforcing-` | enforcing-type-safety |
 | ライブラリ・技術の調査・評価 | 比較表、pros/cons、選定基準 | `researching-` | researching-libraries |
-| ファイル・ドキュメント・設定の生成 | テンプレート、生成手順、フォーマット | `writing-` | writing-dockerfiles, writing-latex, writing-technical-docs |
+| ファイル・ドキュメント・設定の生成 | テンプレート、生成手順、フォーマット | `writing-` | writing-latex, writing-technical-docs |
 | UI・画面・デザインの作成 | コンポーネント、レイアウト、色、フォント | `designing-` | designing-frontend |
 | テスト戦略・手法 | テストケース、カバレッジ、TDD、モック | `testing` / `testing-` | testing |
 | セキュリティ対策 | 脆弱性、認証、暗号化、OWASP | `securing-` | securing-code |
@@ -50,7 +50,7 @@
 | データ変換・処理 | 入出力変換、パース、マイグレーション | `converting-` / `processing-` | convert-to-skill |
 | Web検索・情報収集 | 検索クエリ、情報源、調査手法 | `searching-` | searching-web |
 | ベストプラクティス集 | パターン集、アンチパターン、最適化Tips | `[topic]-best-practices` | react-best-practices |
-| ガイドライン・原則集 | 設計原則、コーディング規約 | `applying-` / `[topic]-guidelines` | applying-solid-principles, design-guidelines, storybook-guidelines |
+| ガイドライン・原則集 | 設計原則、コーディング規約 | `applying-` / `[topic]-guidelines` | design-guidelines, storybook-guidelines |
 | ブラウザ自動化 | スクレイピング、E2Eテスト、操作自動化 | `[tool-name]` / `agent-` | playwright, agent-browser |
 | Git・バージョン管理 | ブランチ戦略、ワークフロー | `managing-git-` | managing-git-worktrees |
 | レビュー・分析 | コードレビュー、品質分析 | `reviewing-` / `analyzing-` | coderabbit |
@@ -114,7 +114,7 @@
 
 | ソースファイル | 主要コンテンツ | 候補1（ファイル名ベース） | 候補2（コンテンツベース） | 候補3（既存パターンベース） |
 |-------------|-------------|----------------------|---------------------|--------------------------|
-| `docker-optimization.md` | Docker イメージ最適化 | `optimizing-docker` | `writing-dockerfiles` ※既存 | `managing-docker` ※既存に追記 |
+| `terraform-patterns.md` | Terraform設計パターン | `designing-terraform` | `implementing-terraform-patterns` | `developing-terraform` ※既存に追記 |
 | `react-hooks-patterns.md` | React Hooks設計パターン | `designing-react-hooks` | `implementing-react-hooks` | `react-best-practices` ※既存に追記 |
 | `rust-intro.md` | Rust言語入門 | `developing-rust` | `developing-rust` | `developing-rust`（新規） |
 | `api-auth-guide.md` | API認証実装ガイド | `implementing-api-auth` | `securing-api-auth` | `securing-code` ※既存に追記の可能性 |

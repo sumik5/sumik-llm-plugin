@@ -488,7 +488,7 @@ find . -name "*.temp" -delete
 ### 品質基準
 
 **詳細は関連スキルを参照してください:**
-- **SOLID原則**: `applying-solid-principles`スキル
+- **SOLID原則**: `writing-clean-code`スキル
 - **型安全性**: `enforcing-type-safety`スキル
 - **テスト**: `testing`スキル
 - **セキュリティ**: `securing-code`スキル
@@ -522,7 +522,7 @@ find . -name "*.temp" -delete
 詳細については、以下のスキルを参照してください：
 
 - **managing-git-worktrees** - Worktree管理の詳細
-- **applying-solid-principles** - コード品質基準
+- **writing-clean-code** - SOLID原則・コード品質基準
 - **enforcing-type-safety** - 型安全性の原則
 - **testing** - テスト戦略
 - **securing-code** - セキュリティ基準

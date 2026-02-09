@@ -361,7 +361,7 @@ mcp__nextjs_docs__search(query="Server Components")
 
 ### SOLID原則とクリーンコード
 
-**詳細は`applying-solid-principles`スキルを参照してください。**
+**詳細は`writing-clean-code`スキルを参照してください。**
 
 主な原則：
 - 単一責任の原則（SRP）
@@ -474,7 +474,7 @@ Skill tool: /codeguard-security:software-security
 - **using-next-devtools** - Next.js開発の詳細
 - **using-shadcn** - UIコンポーネント管理
 - **mcp-search** - 情報検索戦略
-- **applying-solid-principles** - SOLID原則とクリーンコード
+- **writing-clean-code** - SOLID原則とクリーンコード
 - **enforcing-type-safety** - 型安全性の徹底
 - **testing** - テストファーストアプローチ
 - **securing-code** - セキュアコーディング

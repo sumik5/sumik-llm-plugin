@@ -148,6 +148,6 @@ Developer Agentは並列実行時に4つの専門性を持ちます：
 - **managing-git-worktrees**: Worktree作業の詳細
 - **using-serena**: serena MCPの詳細使用法
 - **securing-code**: CodeGuard実行の詳細
-- **applying-solid-principles**: コード品質基準
+- **writing-clean-code**: SOLID原則・コード品質基準
 - **enforcing-type-safety**: 型安全性の遵守
 - **testing**: テストファーストアプローチ

@@ -119,13 +119,13 @@ unsafe.Sizeof/Alignof/Offsetofによるメモリ検査、構造体パディン�
 ## 🔗 関連スキル
 
 ### 前提知識
-- **developing-go**: Go開発の基礎（命名規則、エラーハンドリング、並行処理の基本、テスト戦略）
-- **writing-clean-go**: クリーンコード実践（関数設計、リファクタリング）
+- **developing-go**: Go開発の基礎・クリーンコード実践（命名規則、エラーハンドリング、並行処理の基本、テスト戦略、関数設計、リファクタリング）
 
 ### 併用推奨
 - **applying-go-design-patterns**: GoFパターン、並行処理パターン（本スキルで得た内部知識を設計に活用）
 - **enforcing-type-safety**: 型安全性の強制（unsafeやreflectionを使う際の代替策を検討）
 - **testing**: テストファースト開発（内部構造を理解したうえでのテスト設計）
+- **writing-clean-code**: SOLID原則・クリーンコード原則（言語非依存の設計原則）
 
 ### 専門領域
 - **developing-nextjs**: （Go以外）Goバックエンドと連携するフロントエンド実装

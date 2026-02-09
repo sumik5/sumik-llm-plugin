@@ -54,7 +54,7 @@ description: Deep React internals covering rendering mechanisms, advanced patter
 | **developing-nextjs** | 特化 vs 汎用 | Next.js特化（RSC、App Router）vs React全般の深い理解。Next.js開発時は両方参照 |
 | **enforcing-type-safety** | ルール vs 実践 | any禁止の絶対ルール vs React×TypeScript実践パターン。型安全性の具体的適用例 |
 | **testing** | 汎用 vs 特化 | TDD全般（AAAパターン、カバレッジ）vs Reactテスト特化手法（Testing Library、フック） |
-| **applying-solid-principles** | 原則 vs 実装 | SOLID原則（抽象的原則）vs Reactコンポーネントでの具体的実装例 |
+| **writing-clean-code** | 原則 vs 実装 | SOLID原則・クリーンコード原則（抽象的原則）vs Reactコンポーネントでの具体的実装例 |
 
 ---
 

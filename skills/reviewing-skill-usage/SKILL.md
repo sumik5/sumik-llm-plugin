@@ -243,26 +243,50 @@ AskUserQuestion(
 ```python
 AskUserQuestion(
     questions=[{
-        "question": "'developing-go' と 'writing-clean-go' の統合を検討しています。統合先を選択してください。",
+        "question": "'playwright' と 'agent-browser' の統合を検討しています。統合先を選択してください。",
         "header": "スキル統合",
         "options": [
             {
-                "label": "developing-go に統合",
-                "description": "より一般的な名前で、利用頻度も高い"
+                "label": "agent-browser に統合",
+                "description": "より高機能で、playwrightの用途をカバー可能"
             },
             {
-                "label": "writing-clean-go に統合",
-                "description": "コード品質に特化した名前が明確"
+                "label": "playwright に統合",
+                "description": "軽量なユースケース向けとして保持"
             },
             {
                 "label": "統合しない",
-                "description": "現状維持。descriptionで差別化を強化"
+                "description": "現状維持。descriptionで差別化を強化（軽量 vs 高機能）"
             }
         ],
         "multiSelect": False
     }]
 )
 ```
+
+---
+
+## Hook-Based Auto-Triggering レビュー
+
+### SessionStart Hook 監査
+
+1. **`detect-project-skills.sh` の検出ロジック確認**:
+   - 検出条件が正しく動作しているか
+   - 新しいスキルが追加漏れしていないか
+
+2. **Auto-detected Skills の利用状況**:
+   - `analyze-skill-usage.sh` の出力と照合
+   - 自動検出されているはずのスキルが実際に使われているか
+   - 未使用の自動検出スキル → 検出条件の見直し
+
+3. **REQUIRED/MUST スキルの遵守状況**:
+   - descriptionに「REQUIRED」を含むスキルが適切にロードされているか
+
+### Hook 監査チェックリスト
+
+- [ ] `detect-project-skills.sh` のスキルリストが最新
+- [ ] 高頻度スキルで自動検出対象外のものを確認
+- [ ] REQUIRED/MUST スキルの利用頻度が基準を満たしているか
 
 ---
 
