@@ -1,6 +1,6 @@
 ---
 name: developing-nextjs
-description: Guides Next.js 16 / React 19 development. Use when package.json contains 'next' or next.config.* is detected. Supports App Router, Server Components, Cache Components, strict TypeScript, Tailwind CSS (latest), Prisma ORM, and Vitest.
+description: "Guides Next.js 16 / React 19 development. Use when package.json contains 'next' or next.config.* is detected. Supports App Router, Server Components, Cache Components, strict TypeScript, Tailwind CSS (latest), Prisma ORM, and Vitest. For SaaS-specific patterns (authentication, payments, AI API integration), use building-nextjs-saas instead."
 ---
 
 # Next.js 16 / React 19 Modern Web Development Skill
