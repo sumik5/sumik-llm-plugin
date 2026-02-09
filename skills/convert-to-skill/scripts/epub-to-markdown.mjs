@@ -10,6 +10,7 @@ import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import os from "os";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -76,11 +77,11 @@ function cleanupMarkdown(content) {
  */
 function parseTable(tableElement) {
   const rows = [];
-  const tableRows = tableElement.querySelectorAll("tr");
+  const tableRows = Array.from(tableElement.querySelectorAll("tr"));
 
   tableRows.forEach((row) => {
     const cells = [];
-    const cellElements = row.querySelectorAll("td, th");
+    const cellElements = Array.from(row.querySelectorAll("td, th"));
 
     cellElements.forEach((cell) => {
       cells.push(cell.textContent?.trim() || "");
@@ -258,7 +259,8 @@ async function convertEpubToMarkdown(inputPath, outputPath) {
   const { parseHTML } = await import("linkedom");
 
   // EPUBをパース
-  const epub = await initEpubFile(arrayBuffer);
+  const tmpImageDir = path.join(os.tmpdir(), `epub-images-${Date.now()}`);
+  const epub = await initEpubFile(arrayBuffer, tmpImageDir);
 
   // メタデータを取得
   const rawMetadata = epub.getMetadata();
@@ -340,6 +342,11 @@ async function convertEpubToMarkdown(inputPath, outputPath) {
 
   // Markdownファイルに書き込み
   await fs.writeFile(outputPath, content, "utf-8");
+
+  // 一時画像ディレクトリをクリーンアップ
+  try {
+    await fs.rm(tmpImageDir, { recursive: true, force: true });
+  } catch {}
 
   // 変換情報を stderr に JSON で出力（検証用）
   const info = {
