@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (3個)
 ├── scripts/            # ヘルパースクリプト
-└── skills/             # ナレッジスキル (46個)
+└── skills/             # ナレッジスキル (47個)
 ```
 
 ---
@@ -135,6 +135,7 @@ sumik-claude-plugin/
 |--------|------|
 | `writing-technical-docs` | 技術ドキュメント（7つのC原則） |
 | `removing-ai-smell` | AI臭除去（コード・文章の自然化） |
+| `crafting-ai-copywriting` | AIコピーライティング（15の心理的プロンプト技法） |
 | `writing-latex` | LaTeX文書作成 |
 | `authoring-skills` | スキル作成ガイド |
 | `convert-to-skill` | ソースファイル（Markdown/PDF/EPUB）、URL→スキル変換 |
