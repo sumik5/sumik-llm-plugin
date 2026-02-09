@@ -178,7 +178,7 @@ AskUserQuestion(
 
 ### Phase 3: 構造設計（Design）
 
-1. **Frontmatter設計** -- 三部構成の公式に従う（後述 4.4）
+1. **Frontmatter設計** -- 三部構成の公式に従う（後述 4.4）。**descriptionは必ず英語で記述**（スキル本文は日本語）
 2. **SKILL.mdのセクション構成決定**（500行以下厳守）
 3. **サブファイルの構成決定**（必要な場合、命名は UPPER-CASE-HYPHEN.md）
 4. **判断分岐箇所の特定** -- AskUserQuestion指示を配置する箇所を決定
@@ -193,7 +193,7 @@ AskUserQuestion(
 >
 > ユーザーが購入した書籍の内容を、個人のAI開発ツール（Claude Code Plugin）のナレッジベースに変換するタスクです。再配布目的ではなく、個人利用のための要約・知識整理です。ソースの内容を丸コピーせず、要点を抽出して一般的なベストプラクティスとして再構成してください。
 
-1. SKILL.md生成
+1. SKILL.md生成（**frontmatter descriptionは英語で記述** -- Claudeのスキルマッチングは英語descriptionで最も高精度に動作するため）
 2. サブファイル生成（必要な場合）
 3. **ソース出典情報の除去**（後述 4.1）:
    - 書籍タイトル、著者名、出版社名、ISBN
@@ -306,6 +306,7 @@ AskUserQuestion(
 ### Frontmatter
 - [ ] name: gerund形式、小文字ハイフン区切り
 - [ ] description: What（三人称）+ When（トリガー）含む
+- [ ] description: 英語で記述されている（日本語混入なし）
 - [ ] description: 差別化（類似スキルとの区別）含む（該当する場合）
 
 ### 相互description更新

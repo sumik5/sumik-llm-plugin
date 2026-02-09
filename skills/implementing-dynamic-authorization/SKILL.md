@@ -1,4 +1,5 @@
 ---
+name: implementing-dynamic-authorization
 description: |
   Guides dynamic authorization design covering ABAC, ReBAC, PBAC models, Cedar policy language, and authorization architecture (PEP/PDP/PAP/PIP). Use when designing access control systems, implementing policy-based authorization, choosing authorization models, or writing Cedar policies. Distinct from securing-code (code-level security) and building-multi-tenant-saas (SaaS architecture) by focusing specifically on authorization model selection and policy-based access control implementation.
 ---

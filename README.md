@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (3個)
 ├── scripts/            # ヘルパースクリプト
-└── skills/             # ナレッジスキル (44個)
+└── skills/             # ナレッジスキル (45個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (44個)
+### Skills (45個)
 
 #### コア開発
 
@@ -97,6 +97,7 @@ sumik-claude-plugin/
 | `mastering-react-internals` | React内部メカニズム・高度パターン・データ管理 |
 | `mastering-typescript` | TypeScript包括的マスターガイド |
 | `writing-effective-typescript` | TypeScript実装判断基準ガイド（83項目） |
+| `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド |
 
 #### フロントエンド・デザイン
 
