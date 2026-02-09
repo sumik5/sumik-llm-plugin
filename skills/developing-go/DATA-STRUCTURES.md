@@ -956,3 +956,595 @@ level3 := GetLevel3(level2.Level3ID)
 5. **フラット構造**: IDで参照し、深いネストを避ける
 
 これらの原則を守ることで、保守性・テスタビリティ・パフォーマンスの高いGoコードが実現できます。
+
+---
+
+## 7. 構造体の初期化方法（3つの方法と使い分け）
+
+Goでは構造体をインスタンス化する方法が3つあります。それぞれの特徴を理解して使い分けます。
+
+### 1. new()関数で作成
+
+```go
+// new()はポインタを返す
+type Person struct {
+    Name string
+    Age  int
+}
+
+p := new(Person)
+// *Person型、全フィールドはゼロ値で初期化
+// p.Name == ""
+// p.Age == 0
+
+// フィールドを個別に設定
+p.Name = "Alice"
+p.Age = 30
+```
+
+**使用場面**: あまり使わない（複合リテラルの方が一般的）
+
+### 2. var変数宣言で作成
+
+```go
+// var宣言は値型を生成
+var p Person
+// Person型（ポインタではない）、全フィールドはゼロ値
+// p.Name == ""
+// p.Age == 0
+
+// ポインタ型のvar宣言
+var pp *Person
+// *Person型だが、ppは nil（インスタンスは作成されない）
+```
+
+**使用場面**: ゼロ値で初期化したい場合、関数内の一時変数
+
+### 3. 複合リテラル（composite literal）で作成
+
+```go
+// 値型を生成
+p1 := Person{
+    Name: "Alice",
+    Age:  30,
+}
+// Person型（値型）
+
+// ポインタ型を生成
+p2 := &Person{
+    Name: "Bob",
+    Age:  25,
+}
+// *Person型（ポインタ）
+
+// フィールド名省略も可能（非推奨）
+p3 := Person{"Charlie", 28}
+// 構造体定義の順序に依存（壊れやすい）
+```
+
+**使用場面**: 最も一般的。初期値を設定したい場合に使用
+
+### 使い分けの基準
+
+| 方法 | 生成される型 | フィールド初期値 | 使用場面 |
+|-----|------------|----------------|---------|
+| `new(T)` | `*T` | ゼロ値のみ | ほぼ使わない |
+| `var t T` | `T` | ゼロ値のみ | ゼロ値初期化、一時変数 |
+| `var t *T` | `*T` (nil) | なし | ポインタ変数の宣言 |
+| `T{...}` | `T` | 初期値設定可 | 値型で初期化 |
+| `&T{...}` | `*T` | 初期値設定可 | **最も一般的** |
+
+### ファクトリー関数パターン（推奨）
+
+外部に公開する構造体には、ファクトリー関数を用意します。
+
+```go
+type Database struct {
+    host     string
+    port     int
+    user     string
+    password string
+    timeout  time.Duration
+}
+
+// ✅ ファクトリー関数を提供
+func NewDatabase(host, user, password string) *Database {
+    return &Database{
+        host:     host,
+        port:     5432,  // デフォルト値
+        user:     user,
+        password: password,
+        timeout:  30 * time.Second,  // デフォルト値
+    }
+}
+
+// 使用例
+db := NewDatabase("localhost", "admin", "secret")
+// デフォルト値が設定済み
+```
+
+**ファクトリー関数のメリット**:
+- ゼロ値以外の初期値を設定可能
+- バリデーション実行可能
+- 複数の初期化パターンを提供可能
+- GoDoc上で使い方が明確
+
+```go
+// 複数のファクトリー関数の例
+func NewDatabase(host, user, password string) *Database { ... }
+func NewDatabaseWithTimeout(host, user, password string, timeout time.Duration) *Database { ... }
+func NewDatabaseFromConfig(cfg Config) *Database { ... }
+```
+
+## 8. 値レシーバー vs ポインタレシーバーの選択基準
+
+メソッドのレシーバーは値型またはポインタ型を選択できます。
+
+### 値レシーバー（Value Receiver）
+
+```go
+type Point struct {
+    X, Y int
+}
+
+// 値レシーバー: 構造体をコピーして渡す
+func (p Point) Distance() float64 {
+    return math.Sqrt(float64(p.X*p.X + p.Y*p.Y))
+}
+
+// 値を変更しても元のインスタンスは変わらない
+func (p Point) Move(dx, dy int) {
+    p.X += dx  // pはコピーなので元のインスタンスは変わらない
+    p.Y += dy
+}
+```
+
+**使用場面**:
+- **イミュータブル（不変）** にしたい場合
+- フィールドを変更しないメソッド
+- 小さな構造体（数フィールド程度）
+
+### ポインタレシーバー（Pointer Receiver）
+
+```go
+type Account struct {
+    balance int
+}
+
+// ポインタレシーバー: 元のインスタンスを直接操作
+func (a *Account) Deposit(amount int) {
+    a.balance += amount  // 元のインスタンスが変更される
+}
+
+func (a *Account) Balance() int {
+    return a.balance
+}
+```
+
+**使用場面**:
+- フィールドを変更するメソッド
+- 大きな構造体（コピーコストが高い）
+- **nilレシーバーでも動作させたい場合**
+
+### 選択基準の表
+
+| 条件 | レシーバー型 |
+|-----|------------|
+| フィールドを変更する | ポインタ |
+| フィールドを変更しない（読み取りのみ） | 値またはポインタ |
+| 構造体が大きい（10フィールド以上） | ポインタ |
+| 構造体が小さい（数フィールド） | 値またはポインタ |
+| インターフェースを実装する | **一貫してどちらか** |
+| 並行アクセスされる | 値（イミュータブル） |
+
+### nilレシーバーでもメソッド呼び出し可能
+
+Goでは、レシーバーが`nil`でもメソッドを呼び出せます。
+
+```go
+type Tree struct {
+    value int
+    left  *Tree
+    right *Tree
+}
+
+// nilレシーバーでも動作
+func (t *Tree) Sum() int {
+    if t == nil {
+        return 0  // nilの場合は0を返す
+    }
+    return t.value + t.left.Sum() + t.right.Sum()
+}
+
+// 使用例
+var tree *Tree  // nil
+sum := tree.Sum()  // panic しない（0が返る）
+```
+
+### 値型とポインタ型の混在は避ける
+
+同じ型のメソッドでは、値レシーバーとポインタレシーバーを混在させないようにします。
+
+```go
+// ❌ Bad: 混在
+type User struct {
+    Name string
+    Age  int
+}
+
+func (u User) GetName() string {  // 値レシーバー
+    return u.Name
+}
+
+func (u *User) SetAge(age int) {  // ポインタレシーバー
+    u.Age = age
+}
+
+// ✅ Good: 統一（すべてポインタレシーバー）
+func (u *User) GetName() string {
+    return u.Name
+}
+
+func (u *User) SetAge(age int) {
+    u.Age = age
+}
+```
+
+## 9. 埋め込み（Embedding）の詳細
+
+Goの埋め込みは継承に似ていますが、アップキャスト/ダウンキャストはできません。
+
+### メソッドの自動マージ
+
+埋め込んだ構造体のメソッドは、外側の構造体に自動的にマージされます。
+
+```go
+type Person struct {
+    Name string
+    Age  int
+}
+
+func (p *Person) Introduce() string {
+    return fmt.Sprintf("My name is %s, I'm %d years old", p.Name, p.Age)
+}
+
+// Personを埋め込む
+type Employee struct {
+    Person     // 埋め込み
+    Company string
+    Salary  int
+}
+
+func (e *Employee) Work() string {
+    return fmt.Sprintf("%s works at %s", e.Name, e.Company)
+}
+
+// 使用例
+emp := Employee{
+    Person:  Person{Name: "Alice", Age: 30},
+    Company: "ACME Corp",
+    Salary:  50000,
+}
+
+// Personのメソッドが自動的に利用可能
+fmt.Println(emp.Introduce())  // "My name is Alice, I'm 30 years old"
+fmt.Println(emp.Work())        // "Alice works at ACME Corp"
+
+// フィールドにも直接アクセス可能
+fmt.Println(emp.Name)  // "Alice"（emp.Person.Nameと同じ）
+```
+
+### 複数の埋め込みと同名フィールドの解決
+
+複数の構造体を埋め込むと、同名フィールドが衝突する可能性があります。
+
+```go
+type Address struct {
+    City    string
+    Country string
+}
+
+type Contact struct {
+    Email string
+    Phone string
+}
+
+type Person struct {
+    Name string
+}
+
+type User struct {
+    Person  // 埋め込み1
+    Address // 埋め込み2
+    Contact // 埋め込み3
+}
+
+user := User{
+    Person:  Person{Name: "Alice"},
+    Address: Address{City: "Tokyo", Country: "Japan"},
+    Contact: Contact{Email: "alice@example.com", Phone: "123-456"},
+}
+
+// すべてのフィールドに直接アクセス可能
+fmt.Println(user.Name)    // "Alice"
+fmt.Println(user.City)    // "Tokyo"
+fmt.Println(user.Email)   // "alice@example.com"
+```
+
+**同名フィールドの場合**:
+
+```go
+type A struct {
+    Value int
+}
+
+type B struct {
+    Value int
+}
+
+type C struct {
+    A
+    B
+}
+
+c := C{
+    A: A{Value: 10},
+    B: B{Value: 20},
+}
+
+// ❌ コンパイルエラー: どちらのValueか曖昧
+// fmt.Println(c.Value)
+
+// ✅ 明示的に指定
+fmt.Println(c.A.Value)  // 10
+fmt.Println(c.B.Value)  // 20
+```
+
+### インターフェース実装の委譲
+
+埋め込みを使ってインターフェースの実装を委譲できます。
+
+```go
+type Writer interface {
+    Write(p []byte) (n int, err error)
+}
+
+// bytes.Bufferを埋め込む
+type LogWriter struct {
+    *bytes.Buffer  // Writerインターフェースを実装済み
+    prefix        string
+}
+
+// LogWriter独自のメソッド
+func (lw *LogWriter) WriteLog(message string) error {
+    _, err := lw.Write([]byte(lw.prefix + message + "\n"))
+    return err
+}
+
+// 使用例
+lw := &LogWriter{
+    Buffer: new(bytes.Buffer),
+    prefix: "[LOG] ",
+}
+
+// bytes.BufferのWriteメソッドを継承
+lw.Write([]byte("direct write\n"))
+
+// LogWriter独自のメソッド
+lw.WriteLog("custom log")
+
+fmt.Println(lw.String())
+// Output:
+// direct write
+// [LOG] custom log
+```
+
+## 10. 構造体タグの活用
+
+構造体タグはメタデータとして、JSON/XML/DBマッピング、バリデーション等に活用されます。
+
+### JSONシリアライズ
+
+```go
+type User struct {
+    ID        int       `json:"id"`
+    Name      string    `json:"name"`
+    Email     string    `json:"email,omitempty"`  // 空なら省略
+    Password  string    `json:"-"`                // JSONに含めない
+    CreatedAt time.Time `json:"created_at"`
+}
+
+user := User{
+    ID:        1,
+    Name:      "Alice",
+    Password:  "secret",
+    CreatedAt: time.Now(),
+}
+
+data, _ := json.Marshal(user)
+fmt.Println(string(data))
+// Output: {"id":1,"name":"Alice","created_at":"2026-02-10T..."}
+// Passwordは含まれない
+```
+
+### データベースマッピング
+
+```go
+type Product struct {
+    ID          int       `db:"product_id"`
+    Name        string    `db:"name"`
+    Price       float64   `db:"price"`
+    Description string    `db:"description"`
+    CreatedAt   time.Time `db:"created_at"`
+}
+
+// sqlxなどのライブラリで使用
+var products []Product
+db.Select(&products, "SELECT * FROM products")
+```
+
+### バリデーション
+
+```go
+import "github.com/go-playground/validator/v10"
+
+type SignupRequest struct {
+    Email    string `json:"email" validate:"required,email"`
+    Password string `json:"password" validate:"required,min=8"`
+    Age      int    `json:"age" validate:"required,gte=18"`
+}
+
+validate := validator.New()
+req := SignupRequest{
+    Email:    "user@example.com",
+    Password: "short",  // 8文字未満
+    Age:      16,       // 18歳未満
+}
+
+err := validate.Struct(req)
+if err != nil {
+    for _, err := range err.(validator.ValidationErrors) {
+        fmt.Println(err.Field(), err.Tag())
+    }
+}
+// Output:
+// Password min
+// Age gte
+```
+
+### reflectでタグを読み取る
+
+```go
+import "reflect"
+
+type Config struct {
+    Host string `env:"DB_HOST" default:"localhost"`
+    Port int    `env:"DB_PORT" default:"5432"`
+}
+
+func LoadConfig(cfg interface{}) {
+    v := reflect.ValueOf(cfg).Elem()
+    t := v.Type()
+
+    for i := 0; i < t.NumField(); i++ {
+        field := t.Field(i)
+        envKey := field.Tag.Get("env")
+        defaultValue := field.Tag.Get("default")
+
+        fmt.Printf("Field: %s, Env: %s, Default: %s\n",
+            field.Name, envKey, defaultValue)
+    }
+}
+
+// Output:
+// Field: Host, Env: DB_HOST, Default: localhost
+// Field: Port, Env: DB_PORT, Default: 5432
+```
+
+## 11. 機密情報のマスキング（Stringer/GoStringer）
+
+機密情報を含む構造体を出力する際、`fmt.Stringer` や `fmt.GoStringer` を実装してマスキングします。
+
+### fmt.Stringer インターフェース
+
+```go
+type User struct {
+    Username string
+    Password string
+}
+
+// String()メソッドを実装してパスワードをマスク
+func (u User) String() string {
+    return fmt.Sprintf("User{Username: %s, Password: ***}", u.Username)
+}
+
+user := User{Username: "alice", Password: "secret123"}
+fmt.Println(user)
+// Output: User{Username: alice, Password: ***}
+```
+
+### fmt.GoStringer インターフェース
+
+`%#v` フォーマット（Go構文形式）でもマスキングしたい場合に実装します。
+
+```go
+type APIKey struct {
+    Key       string
+    ExpiresAt time.Time
+}
+
+// GoString()メソッドを実装
+func (a APIKey) GoString() string {
+    return fmt.Sprintf("APIKey{Key: %s..., ExpiresAt: %v}",
+        a.Key[:8], a.ExpiresAt)
+}
+
+key := APIKey{
+    Key:       "sk_live_EXAMPLE_KEY_DO_NOT_USE_xxxxxxxxx",
+    ExpiresAt: time.Now().Add(24 * time.Hour),
+}
+
+fmt.Printf("%#v\n", key)
+// Output: APIKey{Key: sk_live_..., ExpiresAt: 2026-02-11 ...}
+```
+
+### 両方を実装する例
+
+```go
+type CreditCard struct {
+    Number    string
+    CVV       string
+    ExpiryMM  int
+    ExpiryYY  int
+}
+
+func (c CreditCard) String() string {
+    masked := "****-****-****-" + c.Number[len(c.Number)-4:]
+    return fmt.Sprintf("CreditCard{Number: %s, Expiry: %02d/%02d}",
+        masked, c.ExpiryMM, c.ExpiryYY)
+}
+
+func (c CreditCard) GoString() string {
+    return c.String()  // 同じマスキングを適用
+}
+
+card := CreditCard{
+    Number:   "1234567812345678",
+    CVV:      "123",
+    ExpiryMM: 12,
+    ExpiryYY: 25,
+}
+
+fmt.Println(card)      // String()を使用
+fmt.Printf("%#v\n", card)  // GoString()を使用
+// Output:
+// CreditCard{Number: ****-****-****-5678, Expiry: 12/25}
+// CreditCard{Number: ****-****-****-5678, Expiry: 12/25}
+```
+
+### ログ出力での活用
+
+```go
+type Session struct {
+    ID        string
+    UserID    int
+    Token     string
+    CreatedAt time.Time
+}
+
+func (s Session) String() string {
+    return fmt.Sprintf("Session{ID: %s, UserID: %d, Token: [REDACTED]}",
+        s.ID, s.UserID)
+}
+
+session := Session{
+    ID:        "sess_123",
+    UserID:    42,
+    Token:     "very_secret_token_1234567890",
+    CreatedAt: time.Now(),
+}
+
+log.Println("Created session:", session)
+// Output: Created session: Session{ID: sess_123, UserID: 42, Token: [REDACTED]}
+// Tokenは出力されない
+```

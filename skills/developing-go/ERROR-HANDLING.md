@@ -279,3 +279,288 @@ func WriteToFile(path string, data []byte) (err error) {
 | `err.Error() == "not found"` | 文字列比較 | `errors.Is(err, ErrNotFound)` |
 | エラーの無視 | バグの温床 | 必ずチェックまたは明示的に`_`で無視 |
 | ログ後に再度return err | 二重ログ | どちらか一方のみ |
+
+## Unwrap()メソッドによるエラーチェーン対応
+
+### カスタムエラー型にUnwrap()を実装
+
+`errors.Is()` や `errors.As()` で検査可能にするには、`Unwrap()` メソッドを実装します。
+
+```go
+// カスタムエラー型
+type LoadConfigError struct {
+    Path string
+    Err  error
+}
+
+func (e *LoadConfigError) Error() string {
+    return fmt.Sprintf("failed to load config from %s: %v", e.Path, e.Err)
+}
+
+// Unwrap()を実装してエラーチェーンに対応
+func (e *LoadConfigError) Unwrap() error {
+    return e.Err
+}
+
+// 使用例
+func LoadConfig(path string) (*Config, error) {
+    data, err := os.ReadFile(path)
+    if err != nil {
+        return nil, &LoadConfigError{
+            Path: path,
+            Err:  err,
+        }
+    }
+    // ...
+    return cfg, nil
+}
+
+// errors.Is()で元のエラーを検査可能
+if err := LoadConfig("config.json"); err != nil {
+    if errors.Is(err, os.ErrNotExist) {
+        // ファイルが存在しない場合の処理
+        fmt.Println("Config file not found")
+    }
+}
+
+// errors.As()でカスタムエラー型を取得
+var loadErr *LoadConfigError
+if errors.As(err, &loadErr) {
+    fmt.Printf("Failed to load config: %s\n", loadErr.Path)
+}
+```
+
+### 複数のエラーをラップする場合（Go 1.20+）
+
+```go
+type MultiError struct {
+    Errors []error
+}
+
+func (e *MultiError) Error() string {
+    var msgs []string
+    for _, err := range e.Errors {
+        msgs = append(msgs, err.Error())
+    }
+    return strings.Join(msgs, "; ")
+}
+
+// Unwrap() は最初のエラーを返す
+func (e *MultiError) Unwrap() error {
+    if len(e.Errors) == 0 {
+        return nil
+    }
+    return e.Errors[0]
+}
+
+// または errors.Join() を使用（Go 1.20+）
+func ValidateUser(u *User) error {
+    var errs []error
+    if u.Name == "" {
+        errs = append(errs, errors.New("name is required"))
+    }
+    if u.Email == "" {
+        errs = append(errs, errors.New("email is required"))
+    }
+    if len(errs) > 0 {
+        return errors.Join(errs...)  // すべてのエラーをラップ
+    }
+    return nil
+}
+```
+
+## エラー文字列比較のアンチパターンと対策
+
+### 文字列比較は避ける
+
+エラーの文字列を直接比較すると、エラーメッセージの変更で壊れやすいコードになります。
+
+```go
+// ❌ Bad: 文字列比較（壊れやすい）
+func FetchUser(id string) (*User, error) {
+    user, err := db.Query("SELECT * FROM users WHERE id = ?", id)
+    if err != nil {
+        // エラーメッセージの文字列で判定（危険）
+        if strings.Contains(err.Error(), "not found") {
+            return nil, fmt.Errorf("user not found: %s", id)
+        }
+        return nil, err
+    }
+    return user, nil
+}
+
+// ✅ Good: センチネルエラーで比較
+var ErrNotFound = errors.New("not found")
+
+func FetchUser(id string) (*User, error) {
+    user, err := db.Query("SELECT * FROM users WHERE id = ?", id)
+    if err != nil {
+        if errors.Is(err, sql.ErrNoRows) {
+            return nil, ErrNotFound
+        }
+        return nil, err
+    }
+    return user, nil
+}
+
+// 使用側
+user, err := FetchUser("123")
+if errors.Is(err, ErrNotFound) {
+    // 見つからなかった場合の処理
+}
+```
+
+### Go 1.16以前の net.ErrClosed 問題
+
+Go 1.15以前は、クローズされたソケットへの読み書きエラーが非公開だったため、やむを得ず文字列比較が必要でした。
+
+```go
+// ❌ Go 1.15以前: 文字列比較が必要だった
+for {
+    buf := make([]byte, 1024)
+    _, err := conn.Read(buf)
+    if err != nil {
+        // 文字列比較でクローズ判定（非推奨だが当時は必須）
+        if strings.Contains(err.Error(), "use of closed network connection") {
+            break
+        }
+        return err
+    }
+    handleRead(buf)
+}
+
+// ✅ Go 1.16以降: net.ErrClosedを使用
+import "net"
+
+for {
+    buf := make([]byte, 1024)
+    _, err := conn.Read(buf)
+    if err != nil {
+        if errors.Is(err, net.ErrClosed) {
+            break
+        }
+        return err
+    }
+    handleRead(buf)
+}
+```
+
+### 非公開エラーへの対処
+
+外部パッケージのエラーが非公開の場合、そのパッケージのバージョンアップを待つか、Issueを提起します。
+
+```go
+// 外部パッケージが公開エラー型を提供していない場合
+// 1. 型アサーションで判定（型が公開されている場合）
+var pathErr *fs.PathError
+if errors.As(err, &pathErr) {
+    fmt.Printf("Path error: %s\n", pathErr.Path)
+}
+
+// 2. エラーをラップして独自のエラー型を提供
+var ErrExternalServiceFailed = errors.New("external service failed")
+
+func CallExternalAPI() error {
+    err := externalLib.Call()
+    if err != nil {
+        return fmt.Errorf("%w: %v", ErrExternalServiceFailed, err)
+    }
+    return nil
+}
+
+// 使用側
+if errors.Is(err, ErrExternalServiceFailed) {
+    // 外部サービスエラーとして処理
+}
+```
+
+## スタックトレースの取得
+
+### 標準ライブラリではサポートなし
+
+Go 1.16時点で、`errors.New()` や `fmt.Errorf()` はスタックトレースを出力しません。
+
+```go
+// ❌ スタックトレースなし
+err := errors.New("something went wrong")
+fmt.Printf("%+v\n", err)
+// Output: something went wrong
+// スタックトレースは含まれない
+```
+
+### golang.org/x/xerrors を使用
+
+`golang.org/x/xerrors` を使うとスタックトレースを取得できます。`pkg/errors` はアーカイブ済みのため非推奨です。
+
+```go
+import (
+    "fmt"
+    "golang.org/x/xerrors"
+)
+
+func ProcessFile(path string) error {
+    if err := validate(path); err != nil {
+        return xerrors.Errorf("validate file: %w", err)
+    }
+    return nil
+}
+
+func validate(path string) error {
+    return xerrors.New("invalid file format")
+}
+
+func main() {
+    err := ProcessFile("/path/to/file")
+    if err != nil {
+        // %+v でスタックトレースを出力
+        fmt.Printf("%+v\n", err)
+    }
+}
+
+// Output:
+// validate file:
+//     main.ProcessFile
+//         /path/to/main.go:10
+// invalid file format:
+//     main.validate
+//         /path/to/main.go:15
+```
+
+### xerrors の主要機能
+
+```go
+// エラー生成
+err := xerrors.New("error message")
+
+// エラーラップ
+return xerrors.Errorf("context: %w", err)
+
+// エラー検査（標準ライブラリと互換）
+xerrors.Is(err, target)
+xerrors.As(err, &target)
+xerrors.Unwrap(err)
+
+// スタックトレース付きフォーマット
+fmt.Printf("%+v\n", err)
+```
+
+### 本番環境での注意
+
+スタックトレースは情報量が多いため、本番環境では以下に注意：
+
+- **ログファイルサイズ**: 長大なスタックトレースでログが肥大化
+- **機密情報**: ファイルパスや変数名から情報漏洩の可能性
+- **パフォーマンス**: スタックトレース生成のオーバーヘッド
+
+```go
+// 開発環境: 詳細出力
+if isDevelopment {
+    log.Printf("%+v", err)
+}
+
+// 本番環境: 簡潔な出力
+if isProduction {
+    log.Printf("error: %v", err)
+    // 必要に応じてモニタリングサービスに送信
+}
+```

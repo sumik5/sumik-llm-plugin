@@ -17,6 +17,16 @@ ALWAYS_SKILLS=(
     "removing-ai-smell"
 )
 
+# 共通開発スキル（言語プロジェクト検出時に適用）
+COMMON_DEV_SKILLS=(
+    "researching-libraries"
+    "architecting-microservices"
+    "modernizing-architecture"
+)
+
+# 言語プロジェクトが検出されたかのフラグ
+HAS_LANGUAGE_PROJECT=false
+
 # プロジェクト固有スキル（検出結果を格納）
 declare -a PROJECT_SKILLS=()
 
@@ -29,6 +39,9 @@ get_skill_description() {
         "testing-code") echo "テスト作成・修正時にロード" ;;
         "securing-code") echo "実装完了後に必ずロード" ;;
         "removing-ai-smell") echo "コメント・ドキュメント記述時にロード" ;;
+        "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
+        "architecting-microservices") echo "マイクロサービス設計パターン" ;;
+        "modernizing-architecture") echo "アーキテクチャモダナイゼーション" ;;
         "developing-nextjs") echo "Next.js 16 / React 19開発" ;;
         "using-next-devtools") echo "Next.js DevTools MCP活用" ;;
         "mastering-typescript") echo "TypeScript型システム・パターン" ;;
@@ -67,6 +80,7 @@ check_package_json() {
     # Next.js チェック
     if echo "$deps" | grep -qx "next"; then
         has_next=true
+        HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("developing-nextjs" "using-next-devtools")
 
         # Next.js SaaS チェック（stripe / next-auth / @auth/core / @clerk/nextjs）
@@ -79,11 +93,13 @@ check_package_json() {
     # developing-nextjs はReact Internals/Performance統合済みなのでReact単独でも有用
     if [[ "$has_next" == "false" ]] && echo "$deps" | grep -qx "react"; then
         has_react=true
+        HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("developing-nextjs")
     fi
 
     # フルスタックJS チェック（express / @nestjs/core / fastify / koa / @hapi/hapi）
     if echo "$deps" | grep -qE '^(express|@nestjs/core|fastify|koa|@hapi/hapi)$'; then
+        HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("developing-fullstack-javascript")
     fi
 
@@ -101,6 +117,7 @@ check_package_json() {
 # TypeScript プロジェクトチェック
 check_typescript() {
     if [[ -f "$WORK_DIR/tsconfig.json" ]]; then
+        HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("mastering-typescript")
     fi
 }
@@ -122,6 +139,7 @@ check_storybook() {
 # Go プロジェクトチェック
 check_go() {
     if [[ -f "$WORK_DIR/go.mod" ]]; then
+        HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("developing-go")
 
         # Terraform provider/plugin 開発チェック
@@ -134,6 +152,7 @@ check_go() {
 # Python プロジェクトチェック
 check_python() {
     if [[ -f "$WORK_DIR/pyproject.toml" ]] || [[ -f "$WORK_DIR/requirements.txt" ]]; then
+        HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("developing-python")
     fi
 }
@@ -240,6 +259,24 @@ done
 
 PROMPT_TEXT+=""
 
+# 🟠 Common Development スキル（言語プロジェクト検出時のみ）
+if [[ "$HAS_LANGUAGE_PROJECT" == "true" ]]; then
+    PROMPT_TEXT+="
+### 🟠 Common Development (言語プロジェクト検出時)
+"
+    for skill in "${COMMON_DEV_SKILLS[@]}"; do
+        desc=$(get_skill_description "$skill")
+        if [[ -n "$desc" ]]; then
+            PROMPT_TEXT+="- \`$skill\` - $desc
+"
+        else
+            PROMPT_TEXT+="- \`$skill\`
+"
+        fi
+    done
+    PROMPT_TEXT+=""
+fi
+
 if [[ ${#PROJECT_SKILLS[@]} -gt 0 ]]; then
     PROMPT_TEXT+="
 ### 🟡 Project-Specific (Auto-detected)
@@ -267,7 +304,6 @@ fi
 
 PROMPT_TEXT+="
 ### 📌 Reminder
-- 新機能実装前は必ず \`researching-libraries\` をロード
 - 上記以外のスキルは \`/skill-name\` で明示的に呼び出し"
 
 # JSON出力（jqでエスケープ）

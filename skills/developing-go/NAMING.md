@@ -225,3 +225,172 @@ func (c *Client) Fetch(ctx context.Context, url string) (*Response, error)
 func (c *Client) Fetch(url string, ctx context.Context) (*Response, error)
 func (c *Client) Fetch(context context.Context, url string) (*Response, error)
 ```
+
+## レシーバー名の一貫性
+
+### 同一型では統一したレシーバー名を使用
+
+同じ型のメソッド間でレシーバー名を統一します。`this`や`self`は使いません。
+
+```go
+// Good: 一貫したレシーバー名
+type Request struct {
+    URL     string
+    Method  string
+    Headers map[string]string
+}
+
+func (r *Request) SetHeader(key, value string) {
+    r.Headers[key] = value
+}
+
+func (r *Request) GetHeader(key string) string {
+    return r.Headers[key]
+}
+
+func (r *Request) Send() error {
+    // すべて "r" で統一
+    return nil
+}
+
+// Bad: レシーバー名がバラバラ
+func (req *Request) SetHeader(key, value string) {
+    req.Headers[key] = value
+}
+
+func (r *Request) GetHeader(key string) string {
+    return r.Headers[key]
+}
+
+func (request *Request) Send() error {
+    return nil
+}
+
+// Bad: this/selfは使わない
+func (this *Request) SetHeader(key, value string) {
+    this.Headers[key] = value
+}
+
+func (self *Request) GetHeader(key string) string {
+    return self.Headers[key]
+}
+```
+
+### レシーバー名の選び方
+
+- **型名の頭文字**: `Request` → `r`, `Client` → `c`
+- **1-2文字**: 短く簡潔に
+- **全メソッドで統一**: プロジェクト内で一貫性を保つ
+
+```go
+// Good: 型に応じた適切なレシーバー名
+type Client struct { ... }
+func (c *Client) Do() { ... }
+
+type Response struct { ... }
+func (r *Response) Body() { ... }
+
+type Regexp struct { ... }
+func (re *Regexp) Match() { ... }
+
+type HTTPServer struct { ... }
+func (s *HTTPServer) Start() { ... }  // HTTPServerでもsでOK
+```
+
+## パッケージ名の詳細ルール
+
+### 汎用名を避ける理由
+
+`util`, `common`, `api`などの汎用パッケージ名は、以下の問題があります：
+
+- **意味が不明確**: パッケージの役割がわからない
+- **何でも入る**: 関連のないコードが集まる
+- **名前空間の汚染**: `util.Parse()`では何をパースするか不明
+
+```go
+// Bad: 汎用パッケージ
+package util
+
+func Parse(s string) interface{} { ... }
+func FormatDate(t time.Time) string { ... }
+func SendEmail(to, body string) error { ... }
+// 関連のないユーティリティが混在
+
+// Good: 目的別パッケージ
+package jsonparser
+func Parse(s string) (map[string]interface{}, error) { ... }
+
+package dateformat
+func Format(t time.Time) string { ... }
+
+package mailer
+func Send(to, body string) error { ... }
+```
+
+### パッケージ名と公開関数名の重複回避
+
+パッケージ名は関数呼び出し時の接頭辞になるため、重複を避けます。
+
+```go
+// Bad: 冗長な命名
+package http
+type HTTPServer struct { ... }
+// 使用時: http.HTTPServer (http.HTTP... で冗長)
+
+package database
+func DatabaseConnect() (*sql.DB, error) { ... }
+// 使用時: database.DatabaseConnect (重複)
+
+// Good: 簡潔な命名
+package http
+type Server struct { ... }
+// 使用時: http.Server (明確で簡潔)
+
+package database
+func Connect() (*sql.DB, error) { ... }
+// 使用時: database.Connect (重複なし)
+
+package zip
+func NewWriter() *Writer { ... }
+// Not: zip.NewZipWriter (zipが重複)
+```
+
+### 具体例
+
+```go
+// Bad: パッケージ名を繰り返す
+import "github.com/user/project/http"
+server := http.NewHTTPServer()  // http.NewHTTPServer は冗長
+
+// Good: パッケージ名を活用
+import "github.com/user/project/http"
+server := http.NewServer()      // http.Server で意味が通じる
+
+// Bad: 汎用的すぎる
+import "github.com/user/project/util"
+result := util.Parse()          // 何をパースするか不明
+
+// Good: 具体的な名前
+import "github.com/user/project/jsonparser"
+result := jsonparser.Parse()    // JSONをパースすることが明確
+```
+
+### パッケージパスと名前の対応
+
+フォルダ階層とパッケージ名を適切に対応させます。
+
+```go
+// Good: 明確な階層
+encoding/json     → package json
+encoding/xml      → package xml
+net/http          → package http
+database/sql      → package sql
+
+// 使用時
+import "encoding/json"
+data, _ := json.Marshal(obj)  // json.Marshal は明確
+
+// Bad: 階層を無視
+encoding/json     → package encodingjson
+// 使用時: encodingjson.Marshal (冗長)
+```

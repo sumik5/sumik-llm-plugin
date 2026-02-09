@@ -1280,6 +1280,520 @@ func TestWorkerPool(t *testing.T) {
 ```
 
 ---
+# 追加セクション（DP-CONCURRENCY.mdに挿入）
+
+## 拘束（Confinement）パターン
+
+並行処理で安全性を保証する方法の一つが**拘束**。データへのアクセスを1つの並行プロセスのみに制限することで、同期が不要になる。
+
+### アドホック拘束 vs レキシカル拘束
+
+**アドホック拘束**: 規約によって達成する拘束（静的解析ツールなしでは維持困難）。
+
+**レキシカル拘束**: レキシカルスコープによってコンパイラレベルで拘束を強制（推奨）。
+
+```go
+// レキシカル拘束の例
+chanOwner := func() <-chan int {
+    results := make(chan int, 5) // 書き込み権限はこのスコープ内に閉じ込める
+    go func() {
+        defer close(results)
+        for i := 0; i <= 5; i++ {
+            results <- i
+        }
+    }()
+    return results // 読み込み専用チャネルとして返す
+}
+
+consumer := func(results <-chan int) {
+    for result := range results {
+        fmt.Printf("Received: %d\n", result)
+    }
+}
+
+results := chanOwner()
+consumer(results)
+```
+
+**利点**:
+- 同期コストがゼロ（クリティカルセクションが不要）
+- 可読性が向上（同期処理の心配が不要）
+- コンパイラがアクセス制御を保証
+
+---
+
+## for-selectループパターン
+
+Goの並行処理でもっとも頻出するイディオム。
+
+```go
+// パターン1: チャネルから繰り返し送出
+for _, s := range []string{"a", "b", "c"} {
+    select {
+    case <-done:
+        return
+    case stringStream <- s:
+    }
+}
+
+// パターン2: 停止シグナルを待つ無限ループ
+for {
+    select {
+    case <-done:
+        return
+    default:
+    }
+    // 割り込みできない処理
+}
+
+// パターン3: default節を使う形式
+for {
+    select {
+    case <-done:
+        return
+    default:
+        // 割り込みできない処理
+    }
+}
+```
+
+---
+
+## or-channelパターン
+
+複数の`done`チャネルを1つに統合し、いずれか1つが閉じたら統合チャネルも閉じる。
+
+```go
+var or func(channels ...<-chan interface{}) <-chan interface{}
+or = func(channels ...<-chan interface{}) <-chan interface{} {
+    switch len(channels) {
+    case 0:
+        return nil
+    case 1:
+        return channels[0]
+    }
+
+    orDone := make(chan interface{})
+    go func() {
+        defer close(orDone)
+
+        switch len(channels) {
+        case 2:
+            select {
+            case <-channels[0]:
+            case <-channels[1]:
+            }
+        default:
+            select {
+            case <-channels[0]:
+            case <-channels[1]:
+            case <-channels[2]:
+            case <-or(append(channels[3:], orDone)...):
+            }
+        }
+    }()
+    return orDone
+}
+
+// 使用例
+sig := func(after time.Duration) <-chan interface{} {
+    c := make(chan interface{})
+    go func() {
+        defer close(c)
+        time.Sleep(after)
+    }()
+    return c
+}
+
+start := time.Now()
+<-or(
+    sig(2*time.Hour),
+    sig(5*time.Minute),
+    sig(1*time.Second),
+    sig(1*time.Hour),
+    sig(1*time.Minute),
+)
+fmt.Printf("done after %v", time.Since(start)) // 約1秒
+```
+
+**利点**: モジュール結合部でキャンセル条件を統合できる。
+
+---
+
+## or-done-channelパターン
+
+外部チャネルのキャンセル対応をカプセル化し、冗長な`select`文を排除。
+
+```go
+orDone := func(done, c <-chan interface{}) <-chan interface{} {
+    valStream := make(chan interface{})
+    go func() {
+        defer close(valStream)
+        for {
+            select {
+            case <-done:
+                return
+            case v, ok := <-c:
+                if !ok {
+                    return
+                }
+                select {
+                case valStream <- v:
+                case <-done:
+                }
+            }
+        }
+    }()
+    return valStream
+}
+
+// 使用例: シンプルなfor-rangeに戻せる
+for val := range orDone(done, myChan) {
+    // valに対して処理
+}
+```
+
+---
+
+## tee-channelパターン
+
+1つのストリームを2つに分岐（Unixの`tee`コマンドに由来）。
+
+```go
+tee := func(
+    done <-chan interface{},
+    in <-chan interface{},
+) (_, _ <-chan interface{}) {
+    out1 := make(chan interface{})
+    out2 := make(chan interface{})
+    go func() {
+        defer close(out1)
+        defer close(out2)
+        for val := range orDone(done, in) {
+            var out1, out2 = out1, out2
+            for i := 0; i < 2; i++ {
+                select {
+                case out1 <- val:
+                    out1 = nil
+                case out2 <- val:
+                    out2 = nil
+                }
+            }
+        }
+    }()
+    return out1, out2
+}
+
+// 使用例
+out1, out2 := tee(done, take(done, repeat(done, 1, 2), 4))
+for val1 := range out1 {
+    fmt.Printf("out1: %v, out2: %v\n", val1, <-out2)
+}
+```
+
+---
+
+## bridge-channelパターン
+
+チャネルのシーケンス（チャネルのチャネル）を単一チャネルに変換。
+
+```go
+bridge := func(
+    done <-chan interface{},
+    chanStream <-chan <-chan interface{},
+) <-chan interface{} {
+    valStream := make(chan interface{})
+    go func() {
+        defer close(valStream)
+        for {
+            var stream <-chan interface{}
+            select {
+            case maybeStream, ok := <-chanStream:
+                if !ok {
+                    return
+                }
+                stream = maybeStream
+            case <-done:
+                return
+            }
+            for val := range orDone(done, stream) {
+                select {
+                case valStream <- val:
+                case <-done:
+                }
+            }
+        }
+    }()
+    return valStream
+}
+
+// 使用例: 10個のチャネルを順次消費
+genVals := func() <-chan <-chan interface{} {
+    chanStream := make(chan (<-chan interface{}))
+    go func() {
+        defer close(chanStream)
+        for i := 0; i < 10; i++ {
+            stream := make(chan interface{}, 1)
+            stream <- i
+            close(stream)
+            chanStream <- stream
+        }
+    }()
+    return chanStream
+}
+
+for v := range bridge(nil, genVals()) {
+    fmt.Printf("%v ", v)
+}
+```
+
+**適用例**: 寿命が断続的なパイプラインステージ（再起動するgoroutineごとに新しいチャネルが作られる場合）。
+
+---
+
+## キューイング戦略
+
+パイプラインにバッファ（キュー）を導入する効果と注意点。
+
+### キューイングが有効なケース
+
+1. **バッチ処理が時間を節約する場合**:
+   - 例: メモリ（高速）→ディスク（低速）のバッファリング
+   - `bufio.Writer`の性能向上
+
+2. **遅延がフィードバックループを生む場合**:
+   - システム飽和時にリクエストをキューに保存
+   - データが古くなる前に処理可能な場合
+
+### 注意点
+
+- **キューはパイプライン全体の実行時間を短縮しない**
+- キューは**ステージのブロック時間を短縮**し、各ステージを独立させる
+- 早すぎるキューイングはデッドロック/ライブロックを隠蔽する
+- 最適化の最終段階で導入すべき
+
+### チャンキング（Chunking）
+
+キューのバッファサイズを調整してパフォーマンスを最適化。
+
+```go
+// 例: バッファサイズ100でチャンクを分割
+buffer := func(done <-chan interface{}, in <-chan int, size int) <-chan int {
+    out := make(chan int, size)
+    go func() {
+        defer close(out)
+        for v := range in {
+            select {
+            case <-done:
+                return
+            case out <- v:
+            }
+        }
+    }()
+    return out
+}
+```
+
+### リトルの法則
+
+キューサイズとスループットの関係を定量化する法則。
+
+```
+L = λ × W
+```
+
+- **L**: システム内の平均リクエスト数
+- **λ**: 単位時間あたりの到着率
+- **W**: リクエストの平均滞在時間
+
+---
+
+## 並行処理エラーハンドリング
+
+並行プロセスからエラーを適切に伝播する方法。
+
+### Result型パターン
+
+```go
+type Result struct {
+    Error    error
+    Response *http.Response
+}
+
+checkStatus := func(done <-chan interface{}, urls ...string) <-chan Result {
+    results := make(chan Result)
+    go func() {
+        defer close(results)
+        for _, url := range urls {
+            var result Result
+            resp, err := http.Get(url)
+            result = Result{Error: err, Response: resp}
+            select {
+            case <-done:
+                return
+            case results <- result:
+            }
+        }
+    }()
+    return results
+}
+
+// 使用例: エラーを呼び出し元で判断
+for result := range checkStatus(done, urls...) {
+    if result.Error != nil {
+        fmt.Printf("error: %v\n", result.Error)
+        errCount++
+        if errCount >= 3 {
+            fmt.Println("Too many errors, breaking!")
+            break
+        }
+        continue
+    }
+    fmt.Printf("Response: %v\n", result.Response.Status)
+}
+```
+
+**原則**: エラーは値として第一級市民として扱い、正常系と同じ経路で伝播させる。
+
+---
+
+## パイプライン詳細
+
+### ジェネレーター（Generator）
+
+データの塊をチャネル上のストリームに変換する関数。
+
+```go
+// repeat: 値を無限に繰り返す
+repeat := func(
+    done <-chan interface{},
+    values ...interface{},
+) <-chan interface{} {
+    valueStream := make(chan interface{})
+    go func() {
+        defer close(valueStream)
+        for {
+            for _, v := range values {
+                select {
+                case <-done:
+                    return
+                case valueStream <- v:
+                }
+            }
+        }
+    }()
+    return valueStream
+}
+
+// repeatFn: 関数を無限に呼び出す
+repeatFn := func(
+    done <-chan interface{},
+    fn func() interface{},
+) <-chan interface{} {
+    valueStream := make(chan interface{})
+    go func() {
+        defer close(valueStream)
+        for {
+            select {
+            case <-done:
+                return
+            case valueStream <- fn():
+            }
+        }
+    }()
+    return valueStream
+}
+
+// take: 最初のnum個だけを取得
+take := func(
+    done <-chan interface{},
+    valueStream <-chan interface{},
+    num int,
+) <-chan interface{} {
+    takeStream := make(chan interface{})
+    go func() {
+        defer close(takeStream)
+        for i := 0; i < num; i++ {
+            select {
+            case <-done:
+                return
+            case takeStream <- <-valueStream:
+            }
+        }
+    }()
+    return takeStream
+}
+
+// 使用例: 無限ストリームから10個だけ取得
+for num := range take(done, repeat(done, 1), 10) {
+    fmt.Printf("%v ", num)
+}
+```
+
+### ステージ所有権
+
+パイプラインの各ステージは以下の責任を持つ：
+
+1. **チャネル所有者**: チャネルを初期化・書き込み・クローズする
+2. **チャネル消費者**: 読み込み専用チャネルから値を受け取る
+
+```go
+// 所有者: 書き込み権限を持つ
+producer := func(done <-chan interface{}) <-chan int {
+    ch := make(chan int)
+    go func() {
+        defer close(ch) // 所有者のみがクローズ
+        for i := 0; i < 10; i++ {
+            select {
+            case <-done:
+                return
+            case ch <- i:
+            }
+        }
+    }()
+    return ch // 読み込み専用として公開
+}
+
+// 消費者: 読み込み専用チャネルを受け取る
+consumer := func(done <-chan interface{}, in <-chan int) <-chan int {
+    out := make(chan int)
+    go func() {
+        defer close(out)
+        for v := range in {
+            select {
+            case <-done:
+                return
+            case out <- v * 2:
+            }
+        }
+    }()
+    return out
+}
+```
+
+### doneチャネルによるキャンセル伝播
+
+パイプライン全体に`done`チャネルを渡すことで、いずれかのステージでキャンセルが発生すると全体が終了する。
+
+```go
+done := make(chan interface{})
+defer close(done)
+
+intStream := generator(done, 1, 2, 3, 4)
+pipeline := multiply(done, add(done, multiply(done, intStream, 2), 1), 2)
+
+for v := range pipeline {
+    fmt.Println(v)
+}
+```
+
+**割り込み可能性の保証**:
+- パイプライン先頭: 生成処理とチャネル送信が`done`に対応
+- パイプライン末尾: `range`ループにより自動的に割り込み可能
+- パイプライン中間: `select`文で`done`を確認
+
+---
+
 
 ## ベストプラクティスまとめ
 

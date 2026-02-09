@@ -9,7 +9,7 @@
 | 形式 | 拡張子 | 前処理 |
 |------|--------|--------|
 | Markdown | `.md` | なし（直接処理） |
-| PDF | `.pdf` | MCP Pandoc (`mcp-pandoc`) でMarkdown変換 |
+| PDF | `.pdf` | 専用スクリプト (`pdf-to-markdown.mjs`) でMarkdown変換 |
 | EPUB | `.epub` | MCP Pandoc (`mcp-pandoc`) でMarkdown変換 |
 | URL | `https://...` | WebFetch ツールでMarkdown変換 |
 | フォルダ | ディレクトリ | 上記形式のファイルを再帰的に列挙 |
@@ -55,13 +55,25 @@
 
 #### 0.2 PDF/EPUB/URL → Markdown変換
 
-**PDF変換（MCP Pandoc）:**
+**PDF変換（pdfjs-dist スクリプト）:**
 
-MCP Pandoc の `convert-contents` ツールを使用:
-- `input_file`: 入力PDFのフルパス
-- `input_format`: `"pdf"`
-- `output_format`: `"markdown"`
-- `output_file`: 出力Markdownのフルパス
+専用スクリプトを使用してPDFからMarkdownに変換する（MCP Pandocでは見出し・リスト等のレイアウト解析精度が不十分なため）:
+
+```bash
+# 依存関係のインストール（初回のみ）
+cd skills/authoring-skills/scripts && npm install
+
+# PDF → Markdown 変換
+node skills/authoring-skills/scripts/pdf-to-markdown.mjs <input.pdf> <output.md>
+```
+
+スクリプトの機能:
+- `pdfjs-dist` によるテキスト抽出
+- フォントサイズ・太字判定による見出し検出（H1-H3）
+- 箇条書き・番号付きリストの自動検出
+- インデントレベルの推定
+- PDFメタデータ（タイトル、著者等）の抽出
+- アウトライン（目次）の抽出
 
 **EPUB変換（MCP Pandoc）:**
 

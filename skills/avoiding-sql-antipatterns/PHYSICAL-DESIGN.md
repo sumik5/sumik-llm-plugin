@@ -186,6 +186,44 @@ CREATE TABLE BugStatus (
 - 表示順序や説明など、追加属性を持てる
 - クエリで値のリストを動的に取得できる
 
+#### ミニ・アンチパターン: 予約語
+
+SQL予約語をテーブル名や列名に使用すると構文エラーが発生します。
+
+**問題の例**:
+```sql
+-- ❌ 予約語を列名に使用
+SELECT * FROM Bugs WHERE order = 123;
+-- エラー: You have an error in your SQL syntax near 'order'
+```
+
+**原因**: `ORDER`は`ORDER BY`句のSQLキーワードであり、識別子として使用すると曖昧になります。
+
+**解決策**:
+
+1. **予約語を避ける**（最善）:
+```sql
+-- ✅ より適切な列名を使用
+SELECT * FROM Bugs WHERE order_number = 123;
+SELECT * FROM Bugs WHERE sort_order = 123;
+```
+
+2. **区切り文字で囲む**:
+```sql
+-- ✅ 標準SQL（二重引用符）
+SELECT * FROM Bugs WHERE "order" = 123;
+
+-- ✅ MySQL（バッククオート）
+SELECT * FROM Bugs WHERE `order` = 123;
+```
+
+**よくある予約語**:
+- `ORDER`, `SELECT`, `FROM`, `WHERE`, `AND`, `OR`, `NOT`, `IN`, `AS`, `JOIN`
+- `INDEX`, `KEY`, `TABLE`, `GROUP`, `HAVING`, `LIMIT`
+- `USER`, `SESSION`, `DATE`, `TIME`, `TIMESTAMP`, `INTERVAL`
+
+区切り文字はエスケープの手間が増えるため、予約語の使用を避ける命名規則を確立することを推奨します。
+
 ---
 
 ## 11. ファントムファイル（Phantom Files）
@@ -430,6 +468,52 @@ SELECT schemaname, tablename, indexname
 FROM pg_stat_user_indexes
 WHERE idx_scan = 0 AND indexrelname NOT LIKE 'pg_toast%';
 ```
+
+#### ミニ・アンチパターン: すべての列にインデックスを作成する
+
+どのインデックスが必要か分からない場合、すべての列にインデックスを作成する人がいますが、これは逆効果です。
+
+**問題**: クエリによっては複合インデックス、カバーリングインデックス、列順序の最適化が必要。すべての列にインデックスを作成しただけでは不十分で、すべての**順列**が必要になります。
+
+```sql
+-- ❌ すべての順列を作成しようとする
+CREATE TABLE Bugs (
+  bug_id        SERIAL PRIMARY KEY,
+  date_reported DATE NOT NULL,
+  summary       VARCHAR(80) NOT NULL,
+  status        VARCHAR(10) NOT NULL,
+  INDEX (bug_id, date_reported, summary, status),
+  INDEX (date_reported, bug_id, summary, status),
+  INDEX (summary, date_reported, bug_id, status),
+  INDEX (bug_id, date_reported, status, summary),
+  INDEX (summary, bug_id, date_reported, status),
+  INDEX (bug_id, summary, date_reported, status),
+  INDEX (date_reported, bug_id, status, summary),
+  INDEX (summary, date_reported, status, bug_id),
+  INDEX (status, date_reported, bug_id, summary),
+  INDEX (date_reported, status, bug_id, summary),
+  ...  -- 4列で24個、5列で120個のインデックス！
+);
+```
+
+**階乗の爆発**:
+- 4列 → 4! = 24個のインデックス
+- 5列 → 5! = 120個のインデックス
+- 10列 → 10! = 3,628,800個のインデックス（非現実的）
+
+**問題点**:
+- ストレージを大幅に消費
+- 書き込み（INSERT/UPDATE/DELETE）のコストが増大
+- インデックスメンテナンスの負荷増
+- 多くのインデックスが使用されない
+
+**✅ 正しいアプローチ**:
+1. 現在のクエリをMENTOR原則で分析
+2. 必要なインデックスのみを作成
+3. 使用状況を定期的に監視
+4. 新しいクエリが追加された際に再評価
+
+現在使用されているクエリをサポートするインデックスのみを作成し、将来必要になったら追加します。
 
 ---
 

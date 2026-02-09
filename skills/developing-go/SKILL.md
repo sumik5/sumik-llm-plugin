@@ -308,9 +308,23 @@ GoFデザインパターン、Go並行処理パターン、アーキテクチャ
 | [DP-ANTI-PATTERNS.md](./DP-ANTI-PATTERNS.md) | アンチパターンと回避策 |
 | [DP-TESTING.md](./DP-TESTING.md) | パターンのテスト手法 |
 
+## 実践パターン
+
+本番環境で頻出する実践的知識（HTTP通信、データフォーマット、DB操作、ログ、クラウドデプロイ）。
+
+| ファイル | 内容 |
+|---------|------|
+| [PRACTICAL-PATTERNS.md](./PRACTICAL-PATTERNS.md) | 定数/iota、Functional Option、ドメイン型、メモリ最適化、文字列結合、日時処理 |
+| [DATA-FORMATS.md](./DATA-FORMATS.md) | JSON/CSV/Excel/固定長データ処理（カスタムマーシャラー、BOM対応、巨大ファイル） |
+| [DATABASE.md](./DATABASE.md) | database/sql、トランザクション、コネクションプール、バッチインサート、sqlc/sqlboiler/GORM |
+| [HTTP-SERVER.md](./HTTP-SERVER.md) | net/http、ルーター（chi）、Middleware、SPA配信、oapi-codegen |
+| [HTTP-CLIENT.md](./HTTP-CLIENT.md) | RoundTripperパターン、リトライ（Exponential Backoff/Jitter）、プロキシ対応 |
+| [LOGGING.md](./LOGGING.md) | 構造化ログ（zerolog/zap/slog）、ログレベル戦略、net/httpエラーログカスタマイズ |
+| [CLOUD-CONTAINER.md](./CLOUD-CONTAINER.md) | Graceful Shutdown、コンテナイメージ（distroless/scratch）、ヘルスチェック、設定管理 |
+
 ## Go Internals
 
-型システム、メモリレイアウト、スライス/マップ内部構造、interfaceの表現、リフレクション。
+型システム、メモリレイアウト、スライス/マップ内部構造、interfaceの表現、リフレクション、Goスケジューラー。
 
 | ファイル | 内容 |
 |---------|------|
@@ -319,6 +333,8 @@ GoFデザインパターン、Go並行処理パターン、アーキテクチャ
 | [INT-INTERFACE-INTERNALS.md](./INT-INTERFACE-INTERNALS.md) | interfaceの実装とディスパッチ |
 | [INT-REFLECTION.md](./INT-REFLECTION.md) | reflectパッケージとコード生成 |
 | [INT-LOW-LEVEL.md](./INT-LOW-LEVEL.md) | unsafe/cgo/メモリ管理 |
+| [INT-SCHEDULER.md](./INT-SCHEDULER.md) | Goスケジューラーの内部構造（G-M-Pモデル、ワークスティーリング） |
+| [CONCURRENCY-SCALE.md](./CONCURRENCY-SCALE.md) | 大規模開発での並行処理（エラー伝播、タイムアウト、ハートビート、流量制限、Healingパターン） |
 
 ## 📖 次のステップ
 

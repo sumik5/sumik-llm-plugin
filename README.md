@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (36個)
+└── skills/             # ナレッジスキル (38個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (36個)
+### Skills (38個)
 
 #### コア開発
 
@@ -88,7 +88,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `developing-nextjs` | Next.js 16 / React 19（React性能最適化・内部メカニズム含む） |
-| `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・内部構造） |
+| `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野） |
 | `developing-python` | Python 3.13開発（Effective Python 125項目含む） |
 | `developing-fullstack-javascript` | フルスタックJS |
 | `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準含む） |

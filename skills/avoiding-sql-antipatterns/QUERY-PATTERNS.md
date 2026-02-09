@@ -38,6 +38,25 @@ SELECT * FROM Bugs WHERE assigned_to IS DISTINCT FROM 1;  -- NULLも含む
 - NOT(NULL) → NULL
 - WHERE句ではTRUEのみが行を返す
 
+#### ミニ・アンチパターン: NOT IN (NULL)
+
+NOT IN述語にNULLが含まれると、どの行にもマッチしなくなる。以下の2つのクエリは等価だが、どちらも結果を返さない:
+
+```sql
+-- ❌ アンチパターン
+SELECT * FROM Bugs WHERE status NOT IN (NULL, 'NEW');
+-- 等価だが、NULLのためどの行もマッチしない
+
+-- 書き換え（ド・モルガンの法則）
+SELECT * FROM Bugs WHERE NOT (status = NULL OR status = 'NEW');
+-- さらに書き換え
+SELECT * FROM Bugs WHERE NOT (status = NULL) AND NOT (status = 'NEW');
+-- NOT (status = NULL) は依然としてNULL（unknown）
+-- AND でunknownと組み合わせると、全体もunknown → マッチしない
+```
+
+`NULL`との比較はunknownであり、unknownの否定も依然としてunknown。AND演算子でunknownを含むとクエリ全体がunknownになり、WHERE句は結果を返さない。
+
 ---
 
 ## 14. アンビギュアスグループ（Ambiguous Groups）
@@ -91,6 +110,28 @@ WHERE b2.bug_id IS NULL;
 
 **単一値の原則（Single-Value Rule）**: SELECT句の各列は、グループごとに単一の値でなければならない
 
+#### ミニ・アンチパターン: ポータブルSQL
+
+データベース製品ごとにGROUP BYの動作が異なる。全てのSQL製品で動作する「ポータブルSQL」を書こうとすると以下の問題が生じる:
+
+1. **独自拡張機能を使えない**: 各ベンダーの便利な拡張機能を利用できなくなる
+2. **標準SQLでも動作が異なる**: 標準機能でさえ製品ごとに解釈・実装が微妙に異なる
+
+**GROUP BYの例（MySQLとPostgreSQL）**:
+
+```sql
+-- ❌ MySQL（ONLY_FULL_GROUP_BY無効時）は許可するが、PostgreSQLはエラー
+SELECT product_id, MAX(date_reported) AS latest, bug_id
+FROM Bugs INNER JOIN BugsProducts USING (bug_id)
+GROUP BY product_id;  -- bug_idは非グループ化列なのでエラーになるべき
+
+-- ✅ 解決策: Adapterデザインパターン
+-- データベース製品ごとに差し替え可能なコードを設計し、
+-- 各製品の強みを活かせるようにする
+```
+
+高い移植性を無理に求めるのではなく、データベース製品に合わせてコードを差し替えられるアーキテクチャを採用すべき。
+
 ---
 
 ## 15. ランダムセレクション（Random Selection）
@@ -139,6 +180,27 @@ SELECT * FROM Bugs TABLESAMPLE (1 ROWS);
 ```
 
 **パフォーマンスの問題**: ランダム関数によるソートはインデックスを利用できず、必ずテーブルスキャンが発生する
+
+#### ミニ・アンチパターン: クエリでランダムに複数行を取得する
+
+ランダムに複数行を取得する場合、以下のトレードオフがある:
+
+```sql
+-- ❌ 素朴な解決策（コストが高い）
+SELECT * FROM Bugs ORDER BY RAND() LIMIT 5;
+-- シンプルだが、大量データに対してはテーブルスキャンが発生
+
+-- ✅ 最適化された解決策（複雑）
+-- 単一行のランダム選択を5回繰り返す
+-- → 重複チェック + リトライロジックが必要
+-- → 行数が少ないと無限ループのリスク（4行のテーブルから5行取得など）
+```
+
+**選択基準**:
+- **高パフォーマンス重視**: 最適化クエリを複数回実行 + 重複チェックロジック
+- **シンプルなコード重視**: `ORDER BY RAND() LIMIT N`（データ量が少ない場合）
+
+データセットが小さく性能が問題にならない場合は、素朴な解決策が実用的。
 
 ---
 

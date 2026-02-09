@@ -56,6 +56,45 @@ WHERE c.account_id = 12;
 - 外部キー制約でデータ整合性を保証できる
 - リスト長の制限がなくなる
 
+#### ミニ・アンチパターン: CSV列を複数の行に分割する
+
+レガシーデータでCSV形式の文字列が既に存在する場合、これを複数行に変換する必要が生じることがあります。
+
+**PostgreSQL**:
+```sql
+-- string_to_array + unnest
+SELECT a FROM Products
+CROSS JOIN unnest(string_to_array(account_id, ',')) AS a;
+```
+
+**MySQL**:
+```sql
+-- SUBSTRING_INDEX + 連番テーブル
+SELECT p.product_id, p.product_name,
+  SUBSTRING_INDEX(SUBSTRING_INDEX(p.account_id, ',', n.n), ',', -1) AS account_id
+FROM Products AS p
+JOIN (SELECT 1 AS n UNION SELECT 2 UNION SELECT 3) AS n
+  ON n.n <= LENGTH(p.account_id) - LENGTH(REPLACE(p.account_id, ',', ''));
+```
+
+**再帰CTE**（MySQL 8.0+）:
+```sql
+WITH RECURSIVE cte AS (
+  SELECT product_id, product_name,
+    SUBSTRING_INDEX(account_id, ',', 1) AS account_id,
+    SUBSTRING(account_id, LENGTH(SUBSTRING_INDEX(account_id, ',', 1))+2) AS remainder
+  FROM Products
+  UNION ALL
+  SELECT product_id, product_name, SUBSTRING_INDEX(remainder, ',', 1),
+    SUBSTRING(remainder, LENGTH(SUBSTRING_INDEX(remainder, ',', 1))+2)
+  FROM cte
+  WHERE LENGTH(remainder) > 0
+)
+SELECT product_id, product_name, account_id FROM cte;
+```
+
+これらの解決策は複雑で製品固有です。最善の方法は最初から適切にデータを格納することです。
+
 ---
 
 ## 2. ナイーブツリー（Naive Trees）
@@ -127,6 +166,33 @@ WHERE t.ancestor = 4;
 | 入れ子集合 | サブツリー取得が高速 | 挿入・更新のコストが高い | 読み取り専用、頻繁な再編成が不要 |
 | 閉包テーブル | 柔軟性が高い、整合性保証が容易 | ストレージ使用量が多い | 頻繁な更新、複雑なクエリが必要 |
 
+#### ミニ・アンチパターン: 開発環境と本番環境の差異
+
+開発環境で新しいデータベースバージョンを使用している場合、本番環境にデプロイしたときだけコードが動作しないことがあります。
+
+**問題の例**:
+```sql
+-- MySQL 8.0+のCTEを使用
+WITH RECURSIVE cte AS (
+  SELECT comment_id, parent_id, 1 AS depth FROM Comments WHERE parent_id IS NULL
+  UNION ALL
+  SELECT c.comment_id, c.parent_id, cte.depth+1
+  FROM Comments c JOIN cte ON c.parent_id = cte.comment_id
+)
+SELECT * FROM cte;
+```
+
+MySQL 7.x本番環境にデプロイすると：
+```
+Error: 1064 You have an error in your SQL syntax near 'WITH'
+```
+
+**解決策**:
+- 開発環境のDBバージョンを本番と一致させる（マイナーバージョンまで）
+- データベース設定オプションも一致させる
+- コンテナ化（Docker）で環境の一貫性を保証する
+- バージョン固有の新機能に依存する前に本番環境の対応を確認する
+
 ---
 
 ## 3. IDリクワイアド（ID Required）
@@ -183,6 +249,21 @@ CREATE TABLE BugsProducts (
 - 主キー名はテーブルの種類を表す（`bug_id`、`account_id`など）
 - 外部キーも同じ命名規則を使う（参照整合性が明確になる）
 - ISO/IEC 11179の命名規則を参照
+
+#### ミニ・アンチパターン: BIGINTは十分に大きい？
+
+自動インクリメントIDが最大値に達することを心配する声がありますが、`BIGINT`の容量は膨大です。
+
+**計算例**（毎分10,000行挿入する場合）:
+
+- **INT（32ビット符号付き）**: 最大値 2,147,483,647
+  - 枯渇まで: 約149日
+- **INT UNSIGNED（32ビット符号なし）**: 最大値 4,294,967,295
+  - 枯渇まで: 約298日
+- **BIGINT（64ビット符号付き）**: 最大値 9,223,372,036,854,775,807
+  - 枯渇まで: 約**17億5千万年**
+
+`BIGINT`は実質的に枯渇しません。通常のアプリケーションで`BIGINT`が不足することはありえないと保証できます。
 
 ---
 
@@ -473,6 +554,55 @@ SELECT tag, COUNT(*) AS bugs_per_tag
 FROM Tags
 GROUP BY tag;
 ```
+
+#### ミニ・アンチパターン: 価格の保存
+
+交差テーブルに「現在の値」を保存すると冗長に見えますが、時系列データでは必要です。
+
+**問題**: 商品価格は変動するため、過去の注文の価格と現在の商品マスタの価格が一致しない。
+
+```sql
+-- ❌ 誤った設計（価格を保存しない）
+CREATE TABLE Orders (
+  order_id SERIAL PRIMARY KEY,
+  order_date DATE NOT NULL,
+  customer_id INT NOT NULL,
+  merchandise_id INT NOT NULL,  -- 外部キーのみ
+  quantity INT NOT NULL
+);
+
+CREATE TABLE Merchandise (
+  merchandise_id SERIAL PRIMARY KEY,
+  product_name VARCHAR(200),
+  price NUMERIC(9,2)  -- 現在の価格
+);
+
+-- 過去の注文の金額が不正確になる
+SELECT SUM(m.price * o.quantity) AS total
+FROM Orders o
+JOIN Merchandise m USING (merchandise_id)
+WHERE order_date = '2024-01-15';
+-- 結果: 現在の価格で計算されてしまう（誤り）
+
+-- ✅ 正しい設計（注文時の価格を保存）
+CREATE TABLE Orders (
+  order_id SERIAL PRIMARY KEY,
+  order_date DATE NOT NULL,
+  customer_id INT NOT NULL,
+  merchandise_id INT NOT NULL,
+  quantity INT NOT NULL,
+  price NUMERIC(9,2) NOT NULL,  -- 注文時の価格を保存
+  FOREIGN KEY (merchandise_id) REFERENCES Merchandise(merchandise_id)
+);
+
+-- 正確な金額計算
+SELECT SUM(price * quantity) AS total
+FROM Orders
+WHERE order_date = '2024-01-15';
+-- 結果: 注文時の価格で正確に計算される
+```
+
+**原則**: 時点データ（注文時価格、試合時のメンバー、映画クレジット時の芸名など）は交差テーブルに保存する。これは冗長ではなく、異なるファクトの記録です。
 
 ---
 
