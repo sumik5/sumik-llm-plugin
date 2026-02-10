@@ -92,7 +92,7 @@ sumik-claude-plugin/
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野） |
 | `developing-python` | Python 3.13開発（Effective Python 125項目含む） |
 | `developing-fullstack-javascript` | フルスタックJS |
-| `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準含む） |
+| `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド） |
 | `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド |
 
 #### フロントエンド・デザイン

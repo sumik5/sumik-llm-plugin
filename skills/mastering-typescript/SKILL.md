@@ -156,3 +156,22 @@ interface UserResponse {
 | [ET-CH08-TYPE-DECLARATIONS.md](./ET-CH08-TYPE-DECLARATIONS.md) | 型宣言 |
 | [ET-CH09-PRACTICAL-TIPS.md](./ET-CH09-PRACTICAL-TIPS.md) | 実践的なTips |
 | [ET-CH10-MIGRATION.md](./ET-CH10-MIGRATION.md) | 移行ガイド |
+
+---
+
+## Programming TypeScript
+
+TypeScriptの型システム・関数・クラス・非同期処理・モジュール・ビルドの包括的ガイド。
+
+| ファイル | 内容 |
+|---------|------|
+| [PT-CH03-TYPES.md](./PT-CH03-TYPES.md) | 型の基礎と階層構造 |
+| [PT-CH04-FUNCTIONS.md](./PT-CH04-FUNCTIONS.md) | 関数の型付けとジェネリクス |
+| [PT-CH05-CLASSES.md](./PT-CH05-CLASSES.md) | クラスとインターフェース |
+| [PT-CH06-ADVANCED-TYPES.md](./PT-CH06-ADVANCED-TYPES.md) | 高度な型（変性・拡大・絞り込み・ブランド型） |
+| [PT-CH07-ERROR-HANDLING.md](./PT-CH07-ERROR-HANDLING.md) | 型安全なエラー処理パターン |
+| [PT-CH08-ASYNC.md](./PT-CH08-ASYNC.md) | 非同期プログラミングの型付け |
+| [PT-CH09-10-MODULES.md](./PT-CH09-10-MODULES.md) | フレームワーク・モジュール・宣言マージ |
+| [PT-CH11-JS-INTEROP.md](./PT-CH11-JS-INTEROP.md) | JavaScript相互運用と漸進的移行 |
+| [PT-CH12-BUILD.md](./PT-CH12-BUILD.md) | ビルド・実行・npm公開 |
+| [PT-APPENDICES.md](./PT-APPENDICES.md) | 型演算子・Utility Types・TSCフラグ等リファレンス |
