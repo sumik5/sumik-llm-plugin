@@ -1,6 +1,6 @@
 ---
 name: implementing-opentelemetry
-description: OpenTelemetry implementation for distributed system observability covering instrumentation API/SDK and Collector deployment. Use when implementing tracing, metrics, or logging with OpenTelemetry. Covers Collector pipelines, semantic conventions, and organizational adoption strategies.
+description: OpenTelemetry implementation for distributed system observability covering instrumentation API/SDK and Collector deployment. Use when implementing tracing, metrics, or logging with OpenTelemetry. Covers Collector pipelines, semantic conventions, and organizational adoption strategies. For monitoring strategy, alerting design, telemetry pipeline architecture, observability concepts, SLOs, and sampling strategies, use designing-monitoring instead.
 ---
 
 # OpenTelemetry実装ガイド

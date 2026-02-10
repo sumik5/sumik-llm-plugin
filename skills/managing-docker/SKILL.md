@@ -1,10 +1,9 @@
 ---
 name: managing-docker
 description: >-
-  Manages Docker development environments and Dockerfile optimization.
+  Comprehensive Docker development and operations guide covering Engine internals, images, containers, Compose, networking, volumes, security, AI (Model Runner), and Wasm.
   MUST load when Dockerfile, docker-compose.yml, docker-compose.yaml, or .dockerignore is detected.
-  Covers container management via Docker MCP, Compose orchestration, multi-stage builds,
-  cache optimization, security hardening, and image size minimization.
+  Covers container management via Docker MCP, multi-stage builds, cache optimization, security hardening, and image size minimization.
   For Terraform IaC, use developing-terraform instead.
 ---
 
@@ -136,6 +135,23 @@ services:
   redis:
     image: redis:alpine
 ```
+
+## 📖 詳細リファレンス
+
+Dockerの各トピックについて、詳細なリファレンスを用意しています:
+
+| トピック | ファイル | 内容 |
+|---------|---------|------|
+| Engine内部構造 | [ENGINE.md](./ENGINE.md) | containerd, runc, shimアーキテクチャ |
+| イメージ管理 | [IMAGES.md](./IMAGES.md) | レイヤー、レジストリ、マニフェスト |
+| コンテナ管理 | [CONTAINERS.md](./CONTAINERS.md) | ライフサイクル、再起動ポリシー |
+| Dockerfile | [DOCKERFILE-BEST-PRACTICES.md](./DOCKERFILE-BEST-PRACTICES.md) | マルチステージビルド、キャッシュ最適化 |
+| Compose | [COMPOSE.md](./COMPOSE.md) | マルチコンテナアプリ管理 |
+| ネットワーク | [NETWORKING.md](./NETWORKING.md) | CNM, bridge, overlay, service discovery |
+| ボリューム | [VOLUMES.md](./VOLUMES.md) | 永続データ管理 |
+| セキュリティ | [SECURITY.md](./SECURITY.md) | namespaces, cgroups, Scout, DCT |
+| AI & Wasm | [AI-WASM.md](./AI-WASM.md) | Docker Model Runner, WebAssembly |
+| Swarm | [SWARM.md](./SWARM.md) | オーケストレーション基礎（軽量版） |
 
 ## 📝 Dockerfileベストプラクティス
 

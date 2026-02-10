@@ -279,6 +279,210 @@ docker run --rm -i hadolint/hadolint < Dockerfile
 - [Hadolint](https://github.com/hadolint/hadolint)
 - [Docker Scout](https://docs.docker.com/scout/)
 
+---
+
+## 9. docker init による自動生成
+
+### 概要
+Docker v23.0以降では、`docker init` コマンドでビルドコンテキストを解析し、ベストプラクティスに基づいたDockerfileを自動生成できます。
+
+### 使い方
+```bash
+# プロジェクトディレクトリで実行
+docker init
+
+# 対話的に以下を選択
+? What application platform does your project use? Node
+? What version of Node do you want to use? 23.3.0
+? Which package manager do you want to use? npm
+? What command do you want to use to start the app? node app.js
+? What port does your server listen on? 8080
+
+# 自動生成されるファイル
+CREATED: .dockerignore
+CREATED: Dockerfile
+CREATED: compose.yaml
+CREATED: README.Docker.md
+```
+
+### 生成されるDockerfileの特徴
+- マルチステージビルド（該当する場合）
+- BuildKitマウントによる依存関係のキャッシュ最適化
+- 非rootユーザーでの実行
+- ベストプラクティスに準拠した構成
+
+### 対応プラットフォーム
+- Node.js
+- Python
+- Go
+- Rust
+- PHP
+- Java/Kotlin
+- ASP.NET
+
+---
+
+## 10. BuildKit と buildx
+
+### BuildKitの特徴
+Dockerの最新ビルドエンジン（Docker v23.0以降はデフォルト）
+
+**主要機能:**
+- 並列ビルドによる高速化
+- マルチステージビルドの並列実行
+- 高度なキャッシュ機構
+- bind mount、cache mount、tmpfs mount
+- Build secrets（機密情報の安全な受け渡し）
+
+### buildxによるマルチアーキテクチャビルド
+
+**基本構文:**
+```bash
+# AMD64 + ARM64のマルチアーキテクチャイメージをビルド
+docker buildx build \
+  --platform=linux/amd64,linux/arm64 \
+  -t myapp:latest \
+  --push .
+```
+
+**ビルダー作成:**
+```bash
+# docker-containerドライバを使用したビルダー作成
+docker buildx create --driver=docker-container --name=container
+
+# デフォルトビルダーとして設定
+docker buildx use container
+
+# ビルダー一覧確認
+docker buildx ls
+```
+
+**対応プラットフォーム例:**
+- linux/amd64
+- linux/arm64
+- linux/arm/v7
+- linux/arm/v6
+- linux/386
+- linux/ppc64le
+- linux/s390x
+- linux/riscv64
+
+### Docker Build Cloud
+有料サブスクリプションで利用可能なクラウドビルドサービス
+
+**メリット:**
+- ネイティブハードウェアによる高速ビルド
+- チーム全体で共有可能なビルドキャッシュ
+- ローカルマシンのリソース消費なし
+
+**使用方法:**
+```bash
+# クラウドビルダー作成
+docker buildx create --driver cloud <org>/<builder-name>
+
+# クラウドビルダーを使用したビルド
+docker buildx build \
+  --builder=cloud-<org>-<name> \
+  --platform=linux/amd64,linux/arm64 \
+  -t myapp:latest --push .
+```
+
+### キャッシュマウント（BuildKit）
+依存関係インストールを劇的に高速化
+
+**例（Node.js）:**
+```dockerfile
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    --mount=type=cache,target=/root/.npm \
+    npm ci --omit=dev
+```
+
+**例（Python）:**
+```dockerfile
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+```
+
+**例（Go）:**
+```dockerfile
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go mod download
+```
+
+---
+
+## 11. マルチステージビルドの実践パターン
+
+### パターン1: ビルドと実行の分離
+```dockerfile
+# ビルドステージ
+FROM golang:1.23 AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o main .
+
+# 実行ステージ
+FROM gcr.io/distroless/static:nonroot
+COPY --from=builder /app/main /main
+USER 65532:65532
+ENTRYPOINT ["/main"]
+```
+
+### パターン2: 並列ビルドステージ
+```dockerfile
+FROM golang:1.23-alpine AS base
+WORKDIR /src
+COPY go.mod go.sum .
+RUN go mod download
+COPY . .
+
+FROM base AS build-client
+RUN go build -o /bin/client ./cmd/client
+
+FROM base AS build-server
+RUN go build -o /bin/server ./cmd/server
+
+FROM scratch AS prod
+COPY --from=build-client /bin/client /bin/
+COPY --from=build-server /bin/server /bin/
+ENTRYPOINT [ "/bin/server" ]
+```
+
+### パターン3: ビルドターゲット指定
+```dockerfile
+FROM node:20-alpine AS base
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+
+FROM base AS development
+ENV NODE_ENV=development
+COPY . .
+CMD ["npm", "run", "dev"]
+
+FROM base AS production
+ENV NODE_ENV=production
+COPY . .
+RUN npm run build
+USER node
+CMD ["node", "dist/index.js"]
+```
+
+**ビルド方法:**
+```bash
+# 開発用イメージ
+docker build --target development -t myapp:dev .
+
+# 本番用イメージ
+docker build --target production -t myapp:prod .
+```
+
+---
+
 ## ユーザー確認の原則（AskUserQuestion）
 
 **判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**

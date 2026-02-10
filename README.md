@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (37個)
+└── skills/             # ナレッジスキル (40個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (37個)
+### Skills (40個)
 
 #### コア開発
 
@@ -82,7 +82,9 @@ sumik-claude-plugin/
 | `building-nextjs-saas` | Next.js AI SaaSアプリ構築パターン（認証・決済・AI API・クレジット課金） |
 | `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
 | `architecting-microservices` | マイクロサービスアーキテクチャパターン設計（CQRS・Event Sourcing・8種のSaga・分散トランザクション・サービス粒度・データ所有権・ワークフロー・コントラクト・メッセージング・レジリエンス・セキュリティ） |
+| `modeling-databases` | データベースモデルの理論・選択・設計ガイド。15+モデル、ストレージ戦略、分散処理をカバー |
 | `avoiding-sql-antipatterns` | SQLアンチパターン回避（論理設計・物理設計・クエリ・アプリ開発の25パターン） |
+| `applying-behavior-design` | 行動変容デザイン（CREATEファネル、3戦略）|
 
 #### フレームワーク
 
@@ -113,7 +115,8 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `managing-docker` | Docker環境管理（Dockerfile最適化含む） |
+| `designing-monitoring` | 監視・オブザーバビリティシステム設計（アンチパターン、デザインパターン、レイヤー別戦略、テレメトリーパイプライン、アラート・オンコール・インシデント管理、オブザーバビリティ概念、SLO、サンプリング戦略、成熟度モデル） |
+| `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm含む） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
 | `developing-terraform` | Terraform IaC開発（HCL構文/モジュール設計/ステート管理/AWS構築） |

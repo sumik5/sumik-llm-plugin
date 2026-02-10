@@ -7,6 +7,7 @@ description: >-
   or implementing database-backed features.
   Covers 25 named antipatterns with detection signals, solutions, and exception cases.
   For code-level security (input validation, XSS, OWASP), use securing-code instead.
+  For database model selection and data architecture decisions, use modeling-databases instead.
 ---
 
 # SQLアンチパターン回避ガイド
