@@ -16,14 +16,14 @@ description: Modern Python development guide covering project setup, tooling, an
 
 このスキルは以下のドキュメントで構成されています：
 
-### 1. [プロジェクト構造](./PROJECT-STRUCTURE.md)
+### 1. [プロジェクト構造](./references/PROJECT-STRUCTURE.md)
 Pythonプロジェクトの推奨ディレクトリ構成：
 - src/パッケージレイアウト
 - tests/ディレクトリの構成
 - 設定ファイルの配置
 - ドキュメント構成
 
-### 2. [FastAPI + FastMCPガイド](./FASTAPI-GUIDE.md)
+### 2. [FastAPI + FastMCPガイド](./references/FASTAPI-GUIDE.md)
 FastAPIとFastMCPを使用したベストプラクティス：
 - FastAPIアプリケーション構成
 - FastMCPサーバー実装パターン
@@ -31,7 +31,7 @@ FastAPIとFastMCPを使用したベストプラクティス：
 - エラーハンドリング戦略
 - Pydanticによるバリデーション
 
-### 3. [テスト戦略](./TESTING.md)
+### 3. [テスト戦略](./references/TESTING.md)
 pytest + カバレッジ80%以上を達成する方法：
 - pytest設定とマーカー
 - 単体テスト/統合テストの分離
@@ -39,7 +39,7 @@ pytest + カバレッジ80%以上を達成する方法：
 - モックとスタブの使い分け
 - カバレッジ最適化戦略
 
-### 4. [開発ツール](./TOOLING.md)
+### 4. [開発ツール](./references/TOOLING.md)
 uv + ruff + mypyの統合開発環境：
 - uvによる高速依存関係管理
 - ruffによるlintとformat
@@ -47,7 +47,7 @@ uv + ruff + mypyの統合開発環境：
 - mise.tomlによるツールバージョン管理
 - pre-commit設定
 
-### 5. [Docker構成](./DOCKER.md)
+### 5. [Docker構成](./references/DOCKER.md)
 uvマルチステージビルドの最適化：
 - マルチステージビルド戦略
 - .venvの効率的なコピー
@@ -55,7 +55,7 @@ uvマルチステージビルドの最適化：
 - ヘルスチェック設定
 - Cloud Run対応
 
-### 6. [実装例](./EXAMPLES.md)
+### 6. [実装例](./references/EXAMPLES.md)
 実際のコード例とパターン：
 - FastMCP基本実装
 - 認証/認可パターン
@@ -174,12 +174,12 @@ uv run pytest
 
 ## 📖 次のステップ
 
-1. **初めての方**: [プロジェクト構造](./PROJECT-STRUCTURE.md)から始めてください
-2. **FastAPI開発**: [FastAPI + FastMCPガイド](./FASTAPI-GUIDE.md)を参照
-3. **テスト作成**: [テスト戦略](./TESTING.md)でpytest設定を確認
-4. **ツール設定**: [開発ツール](./TOOLING.md)でuv/ruff/mypy設定
-5. **Docker化**: [Docker構成](./DOCKER.md)でマルチステージビルド
-6. **コード例**: [実装例](./EXAMPLES.md)で具体的なパターンを確認
+1. **初めての方**: [プロジェクト構造](./references/PROJECT-STRUCTURE.md)から始めてください
+2. **FastAPI開発**: [FastAPI + FastMCPガイド](./references/FASTAPI-GUIDE.md)を参照
+3. **テスト作成**: [テスト戦略](./references/TESTING.md)でpytest設定を確認
+4. **ツール設定**: [開発ツール](./references/TOOLING.md)でuv/ruff/mypy設定
+5. **Docker化**: [Docker構成](./references/DOCKER.md)でマルチステージビルド
+6. **コード例**: [実装例](./references/EXAMPLES.md)で具体的なパターンを確認
 
 ## Effective Python
 
@@ -187,17 +187,17 @@ uv run pytest
 
 | ファイル | 内容 |
 |---------|------|
-| [EP-CH01-PYTHONIC.md](./EP-CH01-PYTHONIC.md) | Pythonicな考え方 |
-| [EP-CH02-STRINGS-SLICES.md](./EP-CH02-STRINGS-SLICES.md) | 文字列とスライス |
-| [EP-CH03-LOOPS-ITERATORS.md](./EP-CH03-LOOPS-ITERATORS.md) | ループとイテレータ |
-| [EP-CH04-DICTIONARIES.md](./EP-CH04-DICTIONARIES.md) | 辞書 |
-| [EP-CH05-FUNCTIONS.md](./EP-CH05-FUNCTIONS.md) | 関数 |
-| [EP-CH06-COMPREHENSIONS.md](./EP-CH06-COMPREHENSIONS.md) | 内包表記とジェネレータ |
-| [EP-CH07-CLASSES.md](./EP-CH07-CLASSES.md) | クラスと継承 |
-| [EP-CH08-METACLASSES.md](./EP-CH08-METACLASSES.md) | メタクラスと属性 |
-| [EP-CH09-CONCURRENCY.md](./EP-CH09-CONCURRENCY.md) | 並行処理と並列処理 |
-| [EP-CH10-ROBUSTNESS.md](./EP-CH10-ROBUSTNESS.md) | 堅牢性と性能 |
-| [EP-CH11-PERFORMANCE.md](./EP-CH11-PERFORMANCE.md) | パフォーマンス |
-| [EP-CH12-DATA-STRUCTURES.md](./EP-CH12-DATA-STRUCTURES.md) | データ構造 |
-| [EP-CH13-TESTING.md](./EP-CH13-TESTING.md) | テストとデバッグ |
-| [EP-CH14-COLLABORATION.md](./EP-CH14-COLLABORATION.md) | コラボレーション |
+| [EP-CH01-PYTHONIC.md](./references/EP-CH01-PYTHONIC.md) | Pythonicな考え方 |
+| [EP-CH02-STRINGS-SLICES.md](./references/EP-CH02-STRINGS-SLICES.md) | 文字列とスライス |
+| [EP-CH03-LOOPS-ITERATORS.md](./references/EP-CH03-LOOPS-ITERATORS.md) | ループとイテレータ |
+| [EP-CH04-DICTIONARIES.md](./references/EP-CH04-DICTIONARIES.md) | 辞書 |
+| [EP-CH05-FUNCTIONS.md](./references/EP-CH05-FUNCTIONS.md) | 関数 |
+| [EP-CH06-COMPREHENSIONS.md](./references/EP-CH06-COMPREHENSIONS.md) | 内包表記とジェネレータ |
+| [EP-CH07-CLASSES.md](./references/EP-CH07-CLASSES.md) | クラスと継承 |
+| [EP-CH08-METACLASSES.md](./references/EP-CH08-METACLASSES.md) | メタクラスと属性 |
+| [EP-CH09-CONCURRENCY.md](./references/EP-CH09-CONCURRENCY.md) | 並行処理と並列処理 |
+| [EP-CH10-ROBUSTNESS.md](./references/EP-CH10-ROBUSTNESS.md) | 堅牢性と性能 |
+| [EP-CH11-PERFORMANCE.md](./references/EP-CH11-PERFORMANCE.md) | パフォーマンス |
+| [EP-CH12-DATA-STRUCTURES.md](./references/EP-CH12-DATA-STRUCTURES.md) | データ構造 |
+| [EP-CH13-TESTING.md](./references/EP-CH13-TESTING.md) | テストとデバッグ |
+| [EP-CH14-COLLABORATION.md](./references/EP-CH14-COLLABORATION.md) | コラボレーション |

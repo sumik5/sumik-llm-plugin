@@ -74,29 +74,29 @@ description: >-
 
 | # | カテゴリ | 検出シグナル | 対処方針 | 詳細 |
 |---|---------|------------|---------|------|
-| 3 | 貧血モデル | ゲッター/セッターだけのクラス、public属性 | リッチオブジェクトに変換、振る舞いを追加 | [OBJECT-DESIGN.md](./OBJECT-DESIGN.md) |
-| 4 | プリミティブ執着 | String/int多用、型システムの未活用 | 小さなオブジェクトに具象化（値オブジェクト） | [OBJECT-DESIGN.md](./OBJECT-DESIGN.md) |
-| 5 | 変更可能性 | 変更可能なオブジェクト、セッター多用 | イミュータブルオブジェクト化 | [OBJECT-DESIGN.md](./OBJECT-DESIGN.md) |
-| 6 | 宣言的でないコード | how（方法）にフォーカス、実装詳細の露出 | what（目的）を表現、宣言的スタイルに変換 | [CODE-READABILITY.md](./CODE-READABILITY.md) |
-| 7 | 不適切な命名 | 曖昧な変数名、略語乱用、意図不明 | 意図を表す名前、ドメイン用語の活用 | [CODE-READABILITY.md](./CODE-READABILITY.md) |
-| 8 | 不要なコメント | コードの内容を繰り返すコメント | 自己文書化コード、必要最小限のコメント | [CODE-READABILITY.md](./CODE-READABILITY.md) |
-| 9 | 規約不統一 | チーム内でスタイルがバラバラ | linter/formatter導入、規約の明文化 | [CODE-READABILITY.md](./CODE-READABILITY.md) |
-| 10 | 過度な複雑さ | 循環的複雑度が高い、ネストが深い | 関数分割、早期リターン、ガード節 | [COMPLEXITY-MANAGEMENT.md](./COMPLEXITY-MANAGEMENT.md) |
-| 11 | 肥大化 | God Class、長すぎる関数/パラメータリスト | 責務の分離、メソッドオブジェクト | [COMPLEXITY-MANAGEMENT.md](./COMPLEXITY-MANAGEMENT.md) |
-| 12 | YAGNI違反 | 将来必要「かもしれない」機能の実装 | 現在必要なものだけを実装 | [COMPLEXITY-MANAGEMENT.md](./COMPLEXITY-MANAGEMENT.md) |
-| 13 | フェイルファスト欠如 | エラーの遅延検出、silent failure | 早期バリデーション、明示的な例外 | [COMPLEXITY-MANAGEMENT.md](./COMPLEXITY-MANAGEMENT.md) |
-| 14 | 偶発的なif文 | ビジネスルールとフロー制御の混在 | ポリモーフィズム、ステートパターン | [CONTROL-FLOW.md](./CONTROL-FLOW.md) |
-| 15 | Null乱用 | null チェックの氾濫、NullPointerException | Nullオブジェクトパターン、Optional型 | [CONTROL-FLOW.md](./CONTROL-FLOW.md) |
-| 16 | 早すぎる最適化 | 根拠のないパフォーマンス改善 | 可読性優先、計測に基づく最適化 | [CONTROL-FLOW.md](./CONTROL-FLOW.md) |
-| 17 | 高結合 | シングルトン乱用、グローバル依存 | 依存性注入、インターフェース分離 | [ARCHITECTURE.md](./ARCHITECTURE.md) |
-| 18 | グローバル状態 | グローバル変数、静的可変状態 | コンテキストオブジェクト、依存性注入 | [ARCHITECTURE.md](./ARCHITECTURE.md) |
-| 19 | 深い継承 | 継承階層が深すぎる、振る舞いの重複 | コンポジション優先、フラット化 | [ARCHITECTURE.md](./ARCHITECTURE.md) |
-| 20 | テスト不足 | カバレッジ不足、テスタビリティ欠如 | TDD、AAAパターン、テストダブル | [QUALITY-ASSURANCE.md](./QUALITY-ASSURANCE.md) |
-| 21 | 技術的負債放置 | TODO放置、リファクタリング先送り | 負債の可視化、定期的な返済 | [QUALITY-ASSURANCE.md](./QUALITY-ASSURANCE.md) |
-| 22 | 例外処理不備 | 例外の握りつぶし、エラー情報の欠如 | 適切な例外設計、エンドユーザー向けエラー | [QUALITY-ASSURANCE.md](./QUALITY-ASSURANCE.md) |
-| 23 | メタプログラミング乱用 | 過度なリフレクション、eval多用 | 明示的コード優先、最小限の使用 | [QUALITY-ASSURANCE.md](./QUALITY-ASSURANCE.md) |
-| 24 | 型の誤用 | any/Any乱用、型安全性の欠如 | 厳密な型定義、ジェネリクス活用 | [QUALITY-ASSURANCE.md](./QUALITY-ASSURANCE.md) |
-| 25 | セキュリティ脆弱性 | 入力検証不足、SQLインジェクション | セキュリティファースト設計 | [QUALITY-ASSURANCE.md](./QUALITY-ASSURANCE.md) |
+| 3 | 貧血モデル | ゲッター/セッターだけのクラス、public属性 | リッチオブジェクトに変換、振る舞いを追加 | [OBJECT-DESIGN.md](./references/OBJECT-DESIGN.md) |
+| 4 | プリミティブ執着 | String/int多用、型システムの未活用 | 小さなオブジェクトに具象化（値オブジェクト） | [OBJECT-DESIGN.md](./references/OBJECT-DESIGN.md) |
+| 5 | 変更可能性 | 変更可能なオブジェクト、セッター多用 | イミュータブルオブジェクト化 | [OBJECT-DESIGN.md](./references/OBJECT-DESIGN.md) |
+| 6 | 宣言的でないコード | how（方法）にフォーカス、実装詳細の露出 | what（目的）を表現、宣言的スタイルに変換 | [CODE-READABILITY.md](./references/CODE-READABILITY.md) |
+| 7 | 不適切な命名 | 曖昧な変数名、略語乱用、意図不明 | 意図を表す名前、ドメイン用語の活用 | [CODE-READABILITY.md](./references/CODE-READABILITY.md) |
+| 8 | 不要なコメント | コードの内容を繰り返すコメント | 自己文書化コード、必要最小限のコメント | [CODE-READABILITY.md](./references/CODE-READABILITY.md) |
+| 9 | 規約不統一 | チーム内でスタイルがバラバラ | linter/formatter導入、規約の明文化 | [CODE-READABILITY.md](./references/CODE-READABILITY.md) |
+| 10 | 過度な複雑さ | 循環的複雑度が高い、ネストが深い | 関数分割、早期リターン、ガード節 | [COMPLEXITY-MANAGEMENT.md](./references/COMPLEXITY-MANAGEMENT.md) |
+| 11 | 肥大化 | God Class、長すぎる関数/パラメータリスト | 責務の分離、メソッドオブジェクト | [COMPLEXITY-MANAGEMENT.md](./references/COMPLEXITY-MANAGEMENT.md) |
+| 12 | YAGNI違反 | 将来必要「かもしれない」機能の実装 | 現在必要なものだけを実装 | [COMPLEXITY-MANAGEMENT.md](./references/COMPLEXITY-MANAGEMENT.md) |
+| 13 | フェイルファスト欠如 | エラーの遅延検出、silent failure | 早期バリデーション、明示的な例外 | [COMPLEXITY-MANAGEMENT.md](./references/COMPLEXITY-MANAGEMENT.md) |
+| 14 | 偶発的なif文 | ビジネスルールとフロー制御の混在 | ポリモーフィズム、ステートパターン | [CONTROL-FLOW.md](./references/CONTROL-FLOW.md) |
+| 15 | Null乱用 | null チェックの氾濫、NullPointerException | Nullオブジェクトパターン、Optional型 | [CONTROL-FLOW.md](./references/CONTROL-FLOW.md) |
+| 16 | 早すぎる最適化 | 根拠のないパフォーマンス改善 | 可読性優先、計測に基づく最適化 | [CONTROL-FLOW.md](./references/CONTROL-FLOW.md) |
+| 17 | 高結合 | シングルトン乱用、グローバル依存 | 依存性注入、インターフェース分離 | [ARCHITECTURE.md](./references/ARCHITECTURE.md) |
+| 18 | グローバル状態 | グローバル変数、静的可変状態 | コンテキストオブジェクト、依存性注入 | [ARCHITECTURE.md](./references/ARCHITECTURE.md) |
+| 19 | 深い継承 | 継承階層が深すぎる、振る舞いの重複 | コンポジション優先、フラット化 | [ARCHITECTURE.md](./references/ARCHITECTURE.md) |
+| 20 | テスト不足 | カバレッジ不足、テスタビリティ欠如 | TDD、AAAパターン、テストダブル | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
+| 21 | 技術的負債放置 | TODO放置、リファクタリング先送り | 負債の可視化、定期的な返済 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
+| 22 | 例外処理不備 | 例外の握りつぶし、エラー情報の欠如 | 適切な例外設計、エンドユーザー向けエラー | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
+| 23 | メタプログラミング乱用 | 過度なリフレクション、eval多用 | 明示的コード優先、最小限の使用 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
+| 24 | 型の誤用 | any/Any乱用、型安全性の欠如 | 厳密な型定義、ジェネリクス活用 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
+| 25 | セキュリティ脆弱性 | 入力検証不足、SQLインジェクション | セキュリティファースト設計 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
 
 ---
 
@@ -131,7 +131,7 @@ description: >-
 - 両者は抽象に依存する
 - 依存性注入（DI）を積極的に活用
 
-**詳細は [SOLID-PRINCIPLES.md](./SOLID-PRINCIPLES.md) を参照してください。**
+**詳細は [SOLID-PRINCIPLES.md](./references/SOLID-PRINCIPLES.md) を参照してください。**
 
 ---
 
@@ -139,7 +139,7 @@ description: >-
 
 レシピは以下の6つのサブファイルに分類されています。
 
-### [SOLID-PRINCIPLES.md](./SOLID-PRINCIPLES.md) - SOLID原則の詳細解説
+### [SOLID-PRINCIPLES.md](./references/SOLID-PRINCIPLES.md) - SOLID原則の詳細解説
 **カバー内容**: 単一責任、開放閉鎖、リスコフ置換、インターフェース分離、依存関係逆転
 
 - 各原則の詳細な解説
@@ -151,7 +151,7 @@ description: >-
 
 ---
 
-### [OBJECT-DESIGN.md](./OBJECT-DESIGN.md) - オブジェクト設計（Ch.3-5）
+### [OBJECT-DESIGN.md](./references/OBJECT-DESIGN.md) - オブジェクト設計（Ch.3-5）
 **カバー内容**: 貧血モデル、プリミティブ執着、変更可能性
 
 - リッチオブジェクトへの変換
@@ -164,7 +164,7 @@ description: >-
 
 ---
 
-### [CODE-READABILITY.md](./CODE-READABILITY.md) - 可読性・命名・規約（Ch.6-9）
+### [CODE-READABILITY.md](./references/CODE-READABILITY.md) - 可読性・命名・規約（Ch.6-9）
 **カバー内容**: 宣言的なコード、命名、コメント、コーディング規約
 
 - 宣言的スタイルへの変換
@@ -177,7 +177,7 @@ description: >-
 
 ---
 
-### [COMPLEXITY-MANAGEMENT.md](./COMPLEXITY-MANAGEMENT.md) - 複雑さ管理（Ch.10-13）
+### [COMPLEXITY-MANAGEMENT.md](./references/COMPLEXITY-MANAGEMENT.md) - 複雑さ管理（Ch.10-13）
 **カバー内容**: 複雑さ、肥大化、YAGNI、フェイルファスト
 
 - 循環的複雑度の削減
@@ -190,7 +190,7 @@ description: >-
 
 ---
 
-### [CONTROL-FLOW.md](./CONTROL-FLOW.md) - 制御フロー改善（Ch.14-16）
+### [CONTROL-FLOW.md](./references/CONTROL-FLOW.md) - 制御フロー改善（Ch.14-16）
 **カバー内容**: if文、Null、早すぎる最適化
 
 - 条件分岐の削減
@@ -203,7 +203,7 @@ description: >-
 
 ---
 
-### [ARCHITECTURE.md](./ARCHITECTURE.md) - アーキテクチャ品質（Ch.17-19）
+### [ARCHITECTURE.md](./references/ARCHITECTURE.md) - アーキテクチャ品質（Ch.17-19）
 **カバー内容**: 結合、グローバル状態、階層構造
 
 - 結合度の低減
@@ -216,7 +216,7 @@ description: >-
 
 ---
 
-### [DESIGN-SIMPLICITY.md](./DESIGN-SIMPLICITY.md) - ソフトウェアデザインの法則と簡潔性
+### [DESIGN-SIMPLICITY.md](./references/DESIGN-SIMPLICITY.md) - ソフトウェアデザインの法則と簡潔性
 **カバー内容**: ソフトウェアの目的、デザインの方程式、不具合発生率の法則、検証の法則
 
 - 6つの普遍的な法則の解説
@@ -228,7 +228,7 @@ description: >-
 
 ---
 
-### [SIMPLICITY-PRACTICE.md](./SIMPLICITY-PRACTICE.md) - 簡潔性の実践
+### [SIMPLICITY-PRACTICE.md](./references/SIMPLICITY-PRACTICE.md) - 簡潔性の実践
 **カバー内容**: 簡潔性の法則、一貫性、読みやすさ、命名、コメント、DRY
 
 - 簡潔性の相対性と文脈依存性
@@ -241,7 +241,7 @@ description: >-
 
 ---
 
-### [COMPLEXITY-PATTERNS.md](./COMPLEXITY-PATTERNS.md) - 複雑性のパターンと対処
+### [COMPLEXITY-PATTERNS.md](./references/COMPLEXITY-PATTERNS.md) - 複雑性のパターンと対処
 **カバー内容**: 変更の法則、3つの間違い、複雑性の7要因、技術選定、書き直し判断
 
 - 変更の法則と時間経過による変更確率の増大
@@ -254,7 +254,7 @@ description: >-
 
 ---
 
-### [QUALITY-ASSURANCE.md](./QUALITY-ASSURANCE.md) - 品質保証（Ch.20-25）
+### [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) - 品質保証（Ch.20-25）
 **カバー内容**: テスト、技術的負債、例外、メタプログラミング、型、セキュリティ
 
 - テスト戦略
@@ -268,7 +268,7 @@ description: >-
 
 ---
 
-### [CLEAN-CODE-BASICS.md](./CLEAN-CODE-BASICS.md) - クリーンコードの基礎
+### [CLEAN-CODE-BASICS.md](./references/CLEAN-CODE-BASICS.md) - クリーンコードの基礎
 **カバー内容**: 日常的なコーディングで適用すべき基本原則
 
 - 意図を明確にする命名規則
@@ -278,7 +278,7 @@ description: >-
 
 ---
 
-### [QUALITY-CHECKLIST.md](./QUALITY-CHECKLIST.md) - 品質チェックリスト
+### [QUALITY-CHECKLIST.md](./references/QUALITY-CHECKLIST.md) - 品質チェックリスト
 **カバー内容**: 実装完了前の確認項目
 
 - 設計原則の遵守チェック
@@ -287,7 +287,7 @@ description: >-
 
 ---
 
-### [QUICK-REFERENCE.md](./QUICK-REFERENCE.md) - クイックリファレンス
+### [QUICK-REFERENCE.md](./references/QUICK-REFERENCE.md) - クイックリファレンス
 **カバー内容**: 素早く参照できる簡潔な情報
 
 - SOLID原則の1行まとめ

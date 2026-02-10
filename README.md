@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (40個)
+└── skills/             # ナレッジスキル (41個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (40個)
+### Skills (41個)
 
 #### コア開発
 
@@ -82,7 +82,7 @@ sumik-claude-plugin/
 | `building-nextjs-saas` | Next.js AI SaaSアプリ構築パターン（認証・決済・AI API・クレジット課金） |
 | `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
 | `architecting-microservices` | マイクロサービスアーキテクチャパターン設計（CQRS・Event Sourcing・8種のSaga・分散トランザクション・サービス粒度・データ所有権・ワークフロー・コントラクト・メッセージング・レジリエンス・セキュリティ） |
-| `modeling-databases` | データベースモデルの理論・選択・設計ガイド。15+モデル、ストレージ戦略、分散処理をカバー |
+| `understanding-database-internals` | データベース内部構造の包括的リファレンス。ストレージエンジン（Bツリー、LSMツリー、トランザクション）、分散システム（合意アルゴリズム、レプリケーション、一貫性モデル）、DB選択・設計ガイドをカバー |
 | `avoiding-sql-antipatterns` | SQLアンチパターン回避（論理設計・物理設計・クエリ・アプリ開発の25パターン） |
 | `applying-behavior-design` | 行動変容デザイン（CREATEファネル、3戦略）|
 
@@ -95,6 +95,7 @@ sumik-claude-plugin/
 | `developing-python` | Python 3.13開発（Effective Python 125項目含む） |
 | `developing-fullstack-javascript` | フルスタックJS |
 | `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド） |
+| `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・コード硬化・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |
 | `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド |
 
 #### フロントエンド・デザイン

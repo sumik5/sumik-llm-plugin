@@ -25,14 +25,14 @@ description: Guides technical documentation and report writing. Applies the 7 Cs
 
 ## 📖 詳細ガイド
 
-### [PRINCIPLES.md](PRINCIPLES.md)
+### [PRINCIPLES.md](./references/PRINCIPLES.md)
 7つのC原則の詳細解説と実践例：
 - 各原則の詳細説明
 - Before/After の実例
 - 実践的なガイドライン
 - よくある間違いと改善例
 
-### [STRUCTURE.md](STRUCTURE.md)
+### [STRUCTURE.md](./references/STRUCTURE.md)
 文章・ドキュメント構造の原則：
 - 文の長さと構造
 - 一文一義の原則
@@ -40,14 +40,14 @@ description: Guides technical documentation and report writing. Applies the 7 Cs
 - README構造例
 - コードコメントのベストプラクティス
 
-### [REPORTS.md](REPORTS.md)
+### [REPORTS.md](./references/REPORTS.md)
 報告書・レポートのフォーマット：
 - 実装完了報告テンプレート
 - 技術調査レポートテンプレート
 - 進捗報告フォーマット
 - 品質チェック項目
 
-### [ANTI-PATTERNS.md](ANTI-PATTERNS.md)
+### [ANTI-PATTERNS.md](./references/ANTI-PATTERNS.md)
 よくある誤りとチェックリスト：
 - 冗長表現の排除
 - 曖昧な表現の改善
@@ -59,12 +59,12 @@ description: Guides technical documentation and report writing. Applies the 7 Cs
 ### 技術文書を書く前に
 1. **読者を特定**: 誰が読むか、技術レベルは？
 2. **目的を明確化**: 何を伝えたいか、行動を促すか？
-3. **7つのCを確認**: [PRINCIPLES.md](PRINCIPLES.md)を参照
+3. **7つのCを確認**: [PRINCIPLES.md](./references/PRINCIPLES.md)を参照
 
 ### 報告書を書く前に
-1. **フォーマット選択**: [REPORTS.md](REPORTS.md)からテンプレート選択
+1. **フォーマット選択**: [REPORTS.md](./references/REPORTS.md)からテンプレート選択
 2. **必須項目確認**: 各テンプレートの必須項目を確認
-3. **チェックリスト活用**: [ANTI-PATTERNS.md](ANTI-PATTERNS.md)で最終確認
+3. **チェックリスト活用**: [ANTI-PATTERNS.md](./references/ANTI-PATTERNS.md)で最終確認
 
 ## 💡 実践のポイント
 
@@ -130,4 +130,4 @@ description: Guides technical documentation and report writing. Applies the 7 Cs
 | 高速なパフォーマンス | 50ms未満の応答時間 |
 | データの処理が行われます | システムがデータを処理します |
 
-詳細は [ANTI-PATTERNS.md](ANTI-PATTERNS.md) を参照してください。
+詳細は [ANTI-PATTERNS.md](./references/ANTI-PATTERNS.md) を参照してください。

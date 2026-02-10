@@ -469,18 +469,18 @@ Referrer-Policy: strict-origin-when-cross-origin
 
 | ファイル | 内容 |
 |---------|------|
-| [ENDPOINT-DESIGN.md](ENDPOINT-DESIGN.md) | エンドポイント設計詳細・HTTPメソッド・URI設計原則・検索とページネーション |
-| [RESPONSE-DESIGN.md](RESPONSE-DESIGN.md) | レスポンスデータ構造・JSON設計・エラー表現・ページネーション形式 |
-| [HTTP-SPEC.md](HTTP-SPEC.md) | HTTPステータスコード詳細・キャッシュ戦略・CORS・メディアタイプ |
-| [VERSIONING.md](VERSIONING.md) | バージョン管理戦略・セマンティックバージョニング・API廃止プロセス |
-| [SECURITY.md](SECURITY.md) | HTTPS設定・OAuth 2.0詳細・XSRF対策・レートリミット・セキュリティヘッダ |
-| [CHECKLIST.md](CHECKLIST.md) | Web API設計チェックリスト（完全版） |
+| [ENDPOINT-DESIGN.md](./references/ENDPOINT-DESIGN.md) | エンドポイント設計詳細・HTTPメソッド・URI設計原則・検索とページネーション |
+| [RESPONSE-DESIGN.md](./references/RESPONSE-DESIGN.md) | レスポンスデータ構造・JSON設計・エラー表現・ページネーション形式 |
+| [HTTP-SPEC.md](./references/HTTP-SPEC.md) | HTTPステータスコード詳細・キャッシュ戦略・CORS・メディアタイプ |
+| [VERSIONING.md](./references/VERSIONING.md) | バージョン管理戦略・セマンティックバージョニング・API廃止プロセス |
+| [SECURITY.md](./references/SECURITY.md) | HTTPS設定・OAuth 2.0詳細・XSRF対策・レートリミット・セキュリティヘッダ |
+| [CHECKLIST.md](./references/CHECKLIST.md) | Web API設計チェックリスト（完全版） |
 
 ---
 
 ## Web API設計チェックリスト（コンパクト版）
 
-設計時に最低限確認すべき項目をカテゴリ別にまとめました。完全版は [CHECKLIST.md](CHECKLIST.md) を参照してください。
+設計時に最低限確認すべき項目をカテゴリ別にまとめました。完全版は [CHECKLIST.md](./references/CHECKLIST.md) を参照してください。
 
 ### URI設計
 
@@ -552,4 +552,4 @@ Referrer-Policy: strict-origin-when-cross-origin
 - **高速**: 適切なキャッシュ活用、効率的なデータ構造
 - **安全**: HTTPS、認証、入力検証、レート制限
 
-詳細なガイドラインは各サブファイルを参照し、設計前に[CHECKLIST.md](CHECKLIST.md)で漏れがないか確認してください。
+詳細なガイドラインは各サブファイルを参照し、設計前に[CHECKLIST.md](./references/CHECKLIST.md)で漏れがないか確認してください。

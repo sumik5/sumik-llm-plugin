@@ -9,7 +9,7 @@
 
 import fs from "fs/promises";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -217,11 +217,22 @@ async function convertPdfToMarkdown(inputPath, outputPath) {
   // pdfjs-distをインポート（Node.js環境）
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
+  // CMapと標準フォントのパスを解決
+  const pdfjsDistPath = path.dirname(
+    fileURLToPath(import.meta.resolve("pdfjs-dist/package.json")),
+  );
+  const cMapUrl = pathToFileURL(path.join(pdfjsDistPath, "cmaps/")).href;
+  const standardFontDataUrl = pathToFileURL(
+    path.join(pdfjsDistPath, "standard_fonts/"),
+  ).href;
+
   // Node.js環境向けの設定
   const loadingTask = pdfjsLib.getDocument({
     data: arrayBuffer,
     disableWorker: true,
-    standardFontDataUrl: null,
+    cMapUrl,
+    cMapPacked: true,
+    standardFontDataUrl,
     useSystemFonts: true,
   });
 

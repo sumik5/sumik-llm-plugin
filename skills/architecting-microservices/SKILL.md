@@ -272,16 +272,16 @@ AskUserQuestion(
 
 | # | ファイル | 内容 |
 |---|---------|------|
-| 1 | [GRANULARITY-DECISIONS.md](GRANULARITY-DECISIONS.md) | サービス粒度、コンポーネント分解パターン、分解vs統合ドライバー |
-| 2 | [DATA-OWNERSHIP.md](DATA-OWNERSHIP.md) | データ所有権モデル、再利用パターン、分散データアクセス |
-| 3 | [WORKFLOW-CONTRACTS.md](WORKFLOW-CONTRACTS.md) | オーケストレーション vs コレオグラフィ、コントラクト設計、スタンプ結合 |
-| 4 | [DISTRIBUTED-TRANSACTIONS.md](DISTRIBUTED-TRANSACTIONS.md) | XA/2PC、Saga 8パターンマトリクス、BASE、冪等性設計 |
-| 5 | [CQRS-EVENT-SOURCING.md](CQRS-EVENT-SOURCING.md) | CQRSメタモデル、Event Sourcing、Look-to-Book比率 |
-| 6 | [MESSAGING-PATTERNS.md](MESSAGING-PATTERNS.md) | 同期vs非同期、メッセージ永続性、Pub/Sub、相関ID |
-| 7 | [RESILIENCE-PATTERNS.md](RESILIENCE-PATTERNS.md) | Circuit Breaker、Retry、Bulkhead、Fallback |
-| 8 | [SERVICE-COMMUNICATION.md](SERVICE-COMMUNICATION.md) | Service Discovery、API Gateway、REST vs gRPC |
-| 9 | [HIGH-AVAILABILITY.md](HIGH-AVAILABILITY.md) | スケーリングテンプレート、Primary/Standby、楽観的ロック |
-| 10 | [SECURITY-PATTERNS.md](SECURITY-PATTERNS.md) | OAuth 2.0、JWT、API Gateway認証、トークン伝播 |
+| 1 | [GRANULARITY-DECISIONS.md](references/GRANULARITY-DECISIONS.md) | サービス粒度、コンポーネント分解パターン、分解vs統合ドライバー |
+| 2 | [DATA-OWNERSHIP.md](references/DATA-OWNERSHIP.md) | データ所有権モデル、再利用パターン、分散データアクセス |
+| 3 | [WORKFLOW-CONTRACTS.md](references/WORKFLOW-CONTRACTS.md) | オーケストレーション vs コレオグラフィ、コントラクト設計、スタンプ結合 |
+| 4 | [DISTRIBUTED-TRANSACTIONS.md](references/DISTRIBUTED-TRANSACTIONS.md) | XA/2PC、Saga 8パターンマトリクス、BASE、冪等性設計 |
+| 5 | [CQRS-EVENT-SOURCING.md](references/CQRS-EVENT-SOURCING.md) | CQRSメタモデル、Event Sourcing、Look-to-Book比率 |
+| 6 | [MESSAGING-PATTERNS.md](references/MESSAGING-PATTERNS.md) | 同期vs非同期、メッセージ永続性、Pub/Sub、相関ID |
+| 7 | [RESILIENCE-PATTERNS.md](references/RESILIENCE-PATTERNS.md) | Circuit Breaker、Retry、Bulkhead、Fallback |
+| 8 | [SERVICE-COMMUNICATION.md](references/SERVICE-COMMUNICATION.md) | Service Discovery、API Gateway、REST vs gRPC |
+| 9 | [HIGH-AVAILABILITY.md](references/HIGH-AVAILABILITY.md) | スケーリングテンプレート、Primary/Standby、楽観的ロック |
+| 10 | [SECURITY-PATTERNS.md](references/SECURITY-PATTERNS.md) | OAuth 2.0、JWT、API Gateway認証、トークン伝播 |
 
 ---
 

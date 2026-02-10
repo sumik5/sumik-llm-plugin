@@ -207,7 +207,7 @@ latexmk -pdfdvi -shell-escape document.tex
 
 ## 数式
 
-詳細パターンは [REFERENCE.md](REFERENCE.md) を参照。
+詳細パターンは [REFERENCE.md](./references/REFERENCE.md) を参照。
 
 ### 基本パターン
 
@@ -339,7 +339,7 @@ latexmk -pdfdvi -shell-escape document.tex
 
 ## 詳細リファレンス
 
-- **[REFERENCE.md](REFERENCE.md)**: パッケージ詳細、listings設定、数式応用パターン、TikZ/circuitikz、コンパイル設定
+- **[REFERENCE.md](./references/REFERENCE.md)**: パッケージ詳細、listings設定、数式応用パターン、TikZ/circuitikz、コンパイル設定
 
 ## 関連スキル
 

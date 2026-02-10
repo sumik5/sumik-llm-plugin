@@ -599,10 +599,10 @@ const dbPassword = process.env.DB_PASSWORD;
 
 このSKILL.mdはクイックリファレンスです。詳細な実装ガイドは以下を参照してください：
 
-- **[バックエンド戦略](BACKEND-STRATEGIES.md)**: NestJS/Express、API設計、データベース、キャッシュ、認証・認可
-- **[フロントエンド戦略](FRONTEND-STRATEGIES.md)**: React、コンポーネント設計、状態管理、データフェッチ、パフォーマンス最適化
-- **[デプロイ戦略](DEPLOYMENT-STRATEGIES.md)**: CI/CD、Blue-Green/Canaryデプロイ、ロールバック、監視・ログ
-- **[品質チェックリスト](QUALITY-CHECKLIST.md)**: テスト、セキュリティ、パフォーマンス、デバッグの実践チェックリスト
+- **[バックエンド戦略](./references/BACKEND-STRATEGIES.md)**: NestJS/Express、API設計、データベース、キャッシュ、認証・認可
+- **[フロントエンド戦略](./references/FRONTEND-STRATEGIES.md)**: React、コンポーネント設計、状態管理、データフェッチ、パフォーマンス最適化
+- **[デプロイ戦略](./references/DEPLOYMENT-STRATEGIES.md)**: CI/CD、Blue-Green/Canaryデプロイ、ロールバック、監視・ログ
+- **[品質チェックリスト](./references/QUALITY-CHECKLIST.md)**: テスト、セキュリティ、パフォーマンス、デバッグの実践チェックリスト
 
 ---
 

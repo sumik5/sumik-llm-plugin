@@ -175,7 +175,7 @@ description: Behavioral design methodology for products that change user behavio
 - 認知バイアスとヒューリスティクス
 - 習慣の心理メカニズム
 
-→ 詳細は [PSYCHOLOGY.md](PSYCHOLOGY.md) を参照
+→ 詳細は [PSYCHOLOGY.md](./references/PSYCHOLOGY.md) を参照
 
 ### 2. 適切な成果・行動を見つける
 
@@ -187,7 +187,7 @@ description: Behavioral design methodology for products that change user behavio
 - 行動ペルソナの作成
 - ターゲットアクション選択
 
-→ 詳細は [DISCOVERY.md](DISCOVERY.md) を参照
+→ 詳細は [DISCOVERY.md](./references/DISCOVERY.md) を参照
 
 ### 3. コンセプトデザイン
 
@@ -197,7 +197,7 @@ description: Behavioral design methodology for products that change user behavio
 - 環境の構築（動機づけ、キュー、フィードバック、気が散るものの排除）
 - ユーザーの準備（セルフナラティブ、自己効力感、教育）
 
-→ 詳細は [BEHAVIOR-PLANS.md](BEHAVIOR-PLANS.md) を参照
+→ 詳細は [BEHAVIOR-PLANS.md](./references/BEHAVIOR-PLANS.md) を参照
 
 ### 4. インターフェースデザイン
 
@@ -209,7 +209,7 @@ description: Behavioral design methodology for products that change user behavio
 - アビリティの戦術（自己効力感、デフォルト、実行意図）
 - タイミングの戦術（緊急性、コミットメント、リマインダー）
 
-→ 詳細は [INTERFACE-TACTICS.md](INTERFACE-TACTICS.md) を参照
+→ 詳細は [INTERFACE-TACTICS.md](./references/INTERFACE-TACTICS.md) を参照
 
 ### 5. 測定と改善
 
@@ -221,7 +221,7 @@ description: Behavioral design methodology for products that change user behavio
 - CREATEファネルを使った仮説検証
 - 改善サイクルの実践
 
-→ 詳細は [MEASUREMENT.md](MEASUREMENT.md) を参照
+→ 詳細は [MEASUREMENT.md](./references/MEASUREMENT.md) を参照
 
 ---
 

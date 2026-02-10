@@ -142,16 +142,16 @@ Dockerの各トピックについて、詳細なリファレンスを用意し�
 
 | トピック | ファイル | 内容 |
 |---------|---------|------|
-| Engine内部構造 | [ENGINE.md](./ENGINE.md) | containerd, runc, shimアーキテクチャ |
-| イメージ管理 | [IMAGES.md](./IMAGES.md) | レイヤー、レジストリ、マニフェスト |
-| コンテナ管理 | [CONTAINERS.md](./CONTAINERS.md) | ライフサイクル、再起動ポリシー |
-| Dockerfile | [DOCKERFILE-BEST-PRACTICES.md](./DOCKERFILE-BEST-PRACTICES.md) | マルチステージビルド、キャッシュ最適化 |
-| Compose | [COMPOSE.md](./COMPOSE.md) | マルチコンテナアプリ管理 |
-| ネットワーク | [NETWORKING.md](./NETWORKING.md) | CNM, bridge, overlay, service discovery |
-| ボリューム | [VOLUMES.md](./VOLUMES.md) | 永続データ管理 |
-| セキュリティ | [SECURITY.md](./SECURITY.md) | namespaces, cgroups, Scout, DCT |
-| AI & Wasm | [AI-WASM.md](./AI-WASM.md) | Docker Model Runner, WebAssembly |
-| Swarm | [SWARM.md](./SWARM.md) | オーケストレーション基礎（軽量版） |
+| Engine内部構造 | [ENGINE.md](./references/ENGINE.md) | containerd, runc, shimアーキテクチャ |
+| イメージ管理 | [IMAGES.md](./references/IMAGES.md) | レイヤー、レジストリ、マニフェスト |
+| コンテナ管理 | [CONTAINERS.md](./references/CONTAINERS.md) | ライフサイクル、再起動ポリシー |
+| Dockerfile | [DOCKERFILE-BEST-PRACTICES.md](./references/DOCKERFILE-BEST-PRACTICES.md) | マルチステージビルド、キャッシュ最適化 |
+| Compose | [COMPOSE.md](./references/COMPOSE.md) | マルチコンテナアプリ管理 |
+| ネットワーク | [NETWORKING.md](./references/NETWORKING.md) | CNM, bridge, overlay, service discovery |
+| ボリューム | [VOLUMES.md](./references/VOLUMES.md) | 永続データ管理 |
+| セキュリティ | [SECURITY.md](./references/SECURITY.md) | namespaces, cgroups, Scout, DCT |
+| AI & Wasm | [AI-WASM.md](./references/AI-WASM.md) | Docker Model Runner, WebAssembly |
+| Swarm | [SWARM.md](./references/SWARM.md) | オーケストレーション基礎（軽量版） |
 
 ## 📝 Dockerfileベストプラクティス
 
@@ -254,7 +254,7 @@ docker run --rm -i hadolint/hadolint < Dockerfile
 - [ ] ENTRYPOINTとCMDを適切に使い分け
 - [ ] バージョンタグを固定（`:latest`を避ける）
 
-**詳細は [DOCKERFILE-BEST-PRACTICES.md](./DOCKERFILE-BEST-PRACTICES.md) を参照してください。**
+**詳細は [DOCKERFILE-BEST-PRACTICES.md](./references/DOCKERFILE-BEST-PRACTICES.md) を参照してください。**
 
 ---
 

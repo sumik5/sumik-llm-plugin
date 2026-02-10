@@ -7,7 +7,7 @@ description: >-
   or implementing database-backed features.
   Covers 25 named antipatterns with detection signals, solutions, and exception cases.
   For code-level security (input validation, XSS, OWASP), use securing-code instead.
-  For database model selection and data architecture decisions, use modeling-databases instead.
+  For database model selection and data architecture decisions, use understanding-database-internals instead.
 ---
 
 # SQLアンチパターン回避ガイド
@@ -218,22 +218,22 @@ AskUserQuestion(
 
 各カテゴリの詳細な解説、コード例、例外ケースについては以下のファイルを参照してください：
 
-- **LOGICAL-DESIGN.md**: 第Ⅰ部 論理設計（パターン1-8）
+- **[LOGICAL-DESIGN.md](./references/LOGICAL-DESIGN.md)**: 第Ⅰ部 論理設計（パターン1-8）
   - データモデリング、正規化、リレーションシップ設計
 
-- **PHYSICAL-DESIGN.md**: 第Ⅱ部 物理設計（パターン9-12）
+- **[PHYSICAL-DESIGN.md](./references/PHYSICAL-DESIGN.md)**: 第Ⅱ部 物理設計（パターン9-12）
   - データ型選択、インデックス戦略、ストレージ設計
 
-- **QUERY-PATTERNS.md**: 第Ⅲ部 クエリ（パターン13-18）
+- **[QUERY-PATTERNS.md](./references/QUERY-PATTERNS.md)**: 第Ⅲ部 クエリ（パターン13-18）
   - SQL文の書き方、パフォーマンス最適化
 
-- **APPLICATION-DEV.md**: 第Ⅳ部 アプリケーション開発（パターン19-25）
+- **[APPLICATION-DEV.md](./references/APPLICATION-DEV.md)**: 第Ⅳ部 アプリケーション開発（パターン19-25）
   - セキュリティ、アーキテクチャ、運用設計
 
-- **NORMALIZATION.md**: 付録 正規化ルール
+- **[NORMALIZATION.md](./references/NORMALIZATION.md)**: 付録 正規化ルール
   - 第1-5正規形、ボイスコッド正規形の詳細解説
 
-- **FOREIGN-KEYS.md**: ボーナス 外部キーのミニ・アンチパターン
+- **[FOREIGN-KEYS.md](./references/FOREIGN-KEYS.md)**: ボーナス 外部キーのミニ・アンチパターン
   - 標準SQL/MySQL固有の外部キー制約の落とし穴集
 
 ## 実践ワークフロー
@@ -333,6 +333,6 @@ CREATE TABLE Products (
 
 ## 参考資料
 
-- **NORMALIZATION.md**: リレーショナル理論と正規形の詳細
+- **[NORMALIZATION.md](./references/NORMALIZATION.md)**: リレーショナル理論と正規形の詳細
 - **securing-code**: アプリケーションレベルのセキュリティ（OWASP Top 10、入力検証、XSS対策）
 - **testing-code**: データベーステストの戦略（トランザクションロールバック、テストデータ管理）

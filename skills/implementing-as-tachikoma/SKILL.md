@@ -10,11 +10,11 @@ description: Operates as Tachikoma Agent (Implementation Worker) performing actu
 このスキルは以下のファイルで構成されています：
 
 - **SKILL.md** (このファイル): 概要と基本ワークフロー
-- **[PARALLEL-EXECUTION.md](./PARALLEL-EXECUTION.md)**: 並列実行の判断基準とパターン（重要）
-- **[TOOLS.md](./TOOLS.md)**: 使用可能なツールの詳細リファレンス
-- **[WORKFLOWS.md](./WORKFLOWS.md)**: 作業手順とWorktree管理の詳細
-- **[SPECIALIZATIONS.md](./SPECIALIZATIONS.md)**: tachikoma1-4の専門性と役割分担
-- **[REFERENCE.md](./REFERENCE.md)**: 完了報告、禁止事項、最適化
+- **[PARALLEL-EXECUTION.md](./references/PARALLEL-EXECUTION.md)**: 並列実行の判断基準とパターン（重要）
+- **[TOOLS.md](./references/TOOLS.md)**: 使用可能なツールの詳細リファレンス
+- **[WORKFLOWS.md](./references/WORKFLOWS.md)**: 作業手順とWorktree管理の詳細
+- **[SPECIALIZATIONS.md](./references/SPECIALIZATIONS.md)**: tachikoma1-4の専門性と役割分担
+- **[REFERENCE.md](./references/REFERENCE.md)**: 完了報告、禁止事項、最適化
 
 ## 使用タイミング
 
@@ -66,7 +66,7 @@ worktree情報の確認
 worktreeへの移動とセットアップ
 ```
 
-**詳細**: [WORKFLOWS.md](./WORKFLOWS.md) を参照
+**詳細**: [WORKFLOWS.md](./references/WORKFLOWS.md) を参照
 
 ### 2. 実装作業
 ```
@@ -81,7 +81,7 @@ CodeGuard実行（必須）
 セキュリティ問題の修正
 ```
 
-**詳細**: [WORKFLOWS.md](./WORKFLOWS.md) を参照
+**詳細**: [WORKFLOWS.md](./references/WORKFLOWS.md) を参照
 
 ### 3. 完了報告
 ```
@@ -92,7 +92,7 @@ CodeGuard実行（必須）
 Claude Codeに報告
 ```
 
-**報告フォーマット**: [REFERENCE.md](./REFERENCE.md) を参照
+**報告フォーマット**: [REFERENCE.md](./references/REFERENCE.md) を参照
 
 ## 使用ツール概要
 
@@ -106,7 +106,7 @@ Developer Agentは全てのツールを使用可能です：
 - **filesystem MCP**: ファイル操作
 - その他多数
 
-**詳細**: [TOOLS.md](./TOOLS.md) を参照
+**詳細**: [TOOLS.md](./references/TOOLS.md) を参照
 
 ## 並列実行（デフォルト推奨）
 
@@ -118,7 +118,7 @@ Claude Code本体は以下の判断基準で並列化を決定:
 - 実装 + テスト → 並列
 - 単一ファイル・単一関心事 → 単体
 
-**詳細**: [PARALLEL-EXECUTION.md](./PARALLEL-EXECUTION.md) を参照
+**詳細**: [PARALLEL-EXECUTION.md](./references/PARALLEL-EXECUTION.md) を参照
 
 ## 専門性（tachikoma1-4）
 
@@ -129,7 +129,7 @@ Developer Agentは並列実行時に4つの専門性を持ちます：
 - **tachikoma3**: テスト・品質保証専門
 - **tachikoma4**: インフラ・DevOps専門
 
-**詳細**: [SPECIALIZATIONS.md](./SPECIALIZATIONS.md) を参照
+**詳細**: [SPECIALIZATIONS.md](./references/SPECIALIZATIONS.md) を参照
 
 ## 必須セキュリティチェック
 
@@ -141,7 +141,7 @@ Developer Agentは並列実行時に4つの専門性を持ちます：
 
 セキュリティ問題が検出された場合は、必ず修正してから完了報告してください。
 
-**詳細**: [WORKFLOWS.md](./WORKFLOWS.md) を参照
+**詳細**: [WORKFLOWS.md](./references/WORKFLOWS.md) を参照
 
 ## 関連スキル
 

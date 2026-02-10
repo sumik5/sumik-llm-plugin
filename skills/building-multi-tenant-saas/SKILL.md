@@ -17,14 +17,14 @@ description: Multi-tenant SaaS architecture covering deployment models, tenant i
 - [実装チェックリスト](#実装チェックリスト)
 
 **詳細ドキュメント:**
-- [FOUNDATIONS.md](FOUNDATIONS.md) - SaaSマインドセット、定義、アーキテクチャ基礎
-- [DEPLOYMENT-MODELS.md](DEPLOYMENT-MODELS.md) - サイロ/プール/ハイブリッド/ポッドモデル
-- [ONBOARDING-AND-IDENTITY.md](ONBOARDING-AND-IDENTITY.md) - オンボーディング、アイデンティティ、テナント管理
-- [SERVICE-DESIGN.md](SERVICE-DESIGN.md) - マルチテナントサービス設計パターン
-- [DATA-PARTITIONING.md](DATA-PARTITIONING.md) - データパーティショニング戦略
-- [TENANT-ISOLATION.md](TENANT-ISOLATION.md) - テナント分離モデルと実装
-- [COMPUTE-PATTERNS.md](COMPUTE-PATTERNS.md) - コンテナ/サーバーレスSaaSパターン
-- [OPERATIONS-AND-STRATEGY.md](OPERATIONS-AND-STRATEGY.md) - 運用、移行、ティアリング、生成AI
+- [FOUNDATIONS.md](./references/FOUNDATIONS.md) - SaaSマインドセット、定義、アーキテクチャ基礎
+- [DEPLOYMENT-MODELS.md](./references/DEPLOYMENT-MODELS.md) - サイロ/プール/ハイブリッド/ポッドモデル
+- [ONBOARDING-AND-IDENTITY.md](./references/ONBOARDING-AND-IDENTITY.md) - オンボーディング、アイデンティティ、テナント管理
+- [SERVICE-DESIGN.md](./references/SERVICE-DESIGN.md) - マルチテナントサービス設計パターン
+- [DATA-PARTITIONING.md](./references/DATA-PARTITIONING.md) - データパーティショニング戦略
+- [TENANT-ISOLATION.md](./references/TENANT-ISOLATION.md) - テナント分離モデルと実装
+- [COMPUTE-PATTERNS.md](./references/COMPUTE-PATTERNS.md) - コンテナ/サーバーレスSaaSパターン
+- [OPERATIONS-AND-STRATEGY.md](./references/OPERATIONS-AND-STRATEGY.md) - 運用、移行、ティアリング、生成AI
 
 ---
 
@@ -283,14 +283,14 @@ AskUserQuestion(
 
 | ファイル | 内容 | 参照タイミング |
 |---------|------|--------------|
-| [FOUNDATIONS.md](FOUNDATIONS.md) | SaaSマインドセット、マルチテナントの定義、コントロール/アプリケーションプレーンの詳細、用語集 | SaaS概念の理解、用語の確認、アーキテクチャ全体像の把握 |
-| [DEPLOYMENT-MODELS.md](DEPLOYMENT-MODELS.md) | サイロ/プール/ハイブリッド/混合モード/ポッドの詳細、選択基準、実装パターン | デプロイ戦略の設計、モデル選択の判断 |
-| [ONBOARDING-AND-IDENTITY.md](ONBOARDING-AND-IDENTITY.md) | オンボーディングフロー、アイデンティティモデル、テナント管理サービス、ベースライン環境 | テナント導入フローの設計、認証・認可の実装 |
-| [SERVICE-DESIGN.md](SERVICE-DESIGN.md) | マルチテナントサービス設計パターン、テナントコンテキストの注入、API設計 | アプリケーション層の設計、マイクロサービスアーキテクチャ |
-| [DATA-PARTITIONING.md](DATA-PARTITIONING.md) | サイロ/プール/ハイブリッドのデータパーティショニング詳細、NoSQL/RDB戦略 | ストレージ設計、データベース選択 |
-| [TENANT-ISOLATION.md](TENANT-ISOLATION.md) | テナント分離の戦略、実装メカニズム、ポリシーベース分離 | セキュリティ設計、分離要件の実装 |
-| [COMPUTE-PATTERNS.md](COMPUTE-PATTERNS.md) | コンテナSaaS、サーバーレスSaaSの実装パターン、選択基準 | コンピューティング技術の選定、スケーリング戦略 |
-| [OPERATIONS-AND-STRATEGY.md](OPERATIONS-AND-STRATEGY.md) | 運用モデル、SaaS移行戦略、ティアリング、生成AI統合、マルチリージョン | 運用設計、移行計画、戦略策定 |
+| [FOUNDATIONS.md](./references/FOUNDATIONS.md) | SaaSマインドセット、マルチテナントの定義、コントロール/アプリケーションプレーンの詳細、用語集 | SaaS概念の理解、用語の確認、アーキテクチャ全体像の把握 |
+| [DEPLOYMENT-MODELS.md](./references/DEPLOYMENT-MODELS.md) | サイロ/プール/ハイブリッド/混合モード/ポッドの詳細、選択基準、実装パターン | デプロイ戦略の設計、モデル選択の判断 |
+| [ONBOARDING-AND-IDENTITY.md](./references/ONBOARDING-AND-IDENTITY.md) | オンボーディングフロー、アイデンティティモデル、テナント管理サービス、ベースライン環境 | テナント導入フローの設計、認証・認可の実装 |
+| [SERVICE-DESIGN.md](./references/SERVICE-DESIGN.md) | マルチテナントサービス設計パターン、テナントコンテキストの注入、API設計 | アプリケーション層の設計、マイクロサービスアーキテクチャ |
+| [DATA-PARTITIONING.md](./references/DATA-PARTITIONING.md) | サイロ/プール/ハイブリッドのデータパーティショニング詳細、NoSQL/RDB戦略 | ストレージ設計、データベース選択 |
+| [TENANT-ISOLATION.md](./references/TENANT-ISOLATION.md) | テナント分離の戦略、実装メカニズム、ポリシーベース分離 | セキュリティ設計、分離要件の実装 |
+| [COMPUTE-PATTERNS.md](./references/COMPUTE-PATTERNS.md) | コンテナSaaS、サーバーレスSaaSの実装パターン、選択基準 | コンピューティング技術の選定、スケーリング戦略 |
+| [OPERATIONS-AND-STRATEGY.md](./references/OPERATIONS-AND-STRATEGY.md) | 運用モデル、SaaS移行戦略、ティアリング、生成AI統合、マルチリージョン | 運用設計、移行計画、戦略策定 |
 
 **参照の流れ**:
 1. **FOUNDATIONS.md** で概念と用語を理解

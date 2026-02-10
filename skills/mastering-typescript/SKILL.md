@@ -113,9 +113,9 @@ interface UserResponse {
 
 トピック別の詳細ガイドは以下を参照:
 
-- **[TYPE-SYSTEM.md](TYPE-SYSTEM.md)**: 基本型、型推論、型アノテーション、変数・関数・モジュール、Interface、Enum
-- **[ADVANCED-PATTERNS.md](ADVANCED-PATTERNS.md)**: Generics、Union Types、Intersections、Type Guards、Conditional Types、エラーハンドリング
-- **[FRAMEWORK-INTEGRATION.md](FRAMEWORK-INTEGRATION.md)**: React、Angular、Vue.js/Nuxt、Node.js/Express統合パターン
+- **[TYPE-SYSTEM.md](./references/TYPE-SYSTEM.md)**: 基本型、型推論、型アノテーション、変数・関数・モジュール、Interface、Enum
+- **[ADVANCED-PATTERNS.md](./references/ADVANCED-PATTERNS.md)**: Generics、Union Types、Intersections、Type Guards、Conditional Types、エラーハンドリング
+- **[FRAMEWORK-INTEGRATION.md](./references/FRAMEWORK-INTEGRATION.md)**: React、Angular、Vue.js/Nuxt、Node.js/Express統合パターン
 
 ---
 
@@ -147,15 +147,15 @@ interface UserResponse {
 
 | ファイル | 内容 |
 |---------|------|
-| [ET-CH01-FUNDAMENTALS.md](./ET-CH01-FUNDAMENTALS.md) | 基礎と設定 |
-| [ET-CH03-TYPE-INFERENCE.md](./ET-CH03-TYPE-INFERENCE.md) | 型推論 |
-| [ET-CH04-TYPE-DESIGN.md](./ET-CH04-TYPE-DESIGN.md) | 型設計 |
-| [ET-CH05-UNSOUNDNESS-AND-ANY.md](./ET-CH05-UNSOUNDNESS-AND-ANY.md) | 型の不健全性とany |
-| [ET-CH06-GENERICS.md](./ET-CH06-GENERICS.md) | ジェネリクス |
-| [ET-CH07-RECIPES.md](./ET-CH07-RECIPES.md) | レシピ集 |
-| [ET-CH08-TYPE-DECLARATIONS.md](./ET-CH08-TYPE-DECLARATIONS.md) | 型宣言 |
-| [ET-CH09-PRACTICAL-TIPS.md](./ET-CH09-PRACTICAL-TIPS.md) | 実践的なTips |
-| [ET-CH10-MIGRATION.md](./ET-CH10-MIGRATION.md) | 移行ガイド |
+| [ET-CH01-FUNDAMENTALS.md](./references/ET-CH01-FUNDAMENTALS.md) | 基礎と設定 |
+| [ET-CH03-TYPE-INFERENCE.md](./references/ET-CH03-TYPE-INFERENCE.md) | 型推論 |
+| [ET-CH04-TYPE-DESIGN.md](./references/ET-CH04-TYPE-DESIGN.md) | 型設計 |
+| [ET-CH05-UNSOUNDNESS-AND-ANY.md](./references/ET-CH05-UNSOUNDNESS-AND-ANY.md) | 型の不健全性とany |
+| [ET-CH06-GENERICS.md](./references/ET-CH06-GENERICS.md) | ジェネリクス |
+| [ET-CH07-RECIPES.md](./references/ET-CH07-RECIPES.md) | レシピ集 |
+| [ET-CH08-TYPE-DECLARATIONS.md](./references/ET-CH08-TYPE-DECLARATIONS.md) | 型宣言 |
+| [ET-CH09-PRACTICAL-TIPS.md](./references/ET-CH09-PRACTICAL-TIPS.md) | 実践的なTips |
+| [ET-CH10-MIGRATION.md](./references/ET-CH10-MIGRATION.md) | 移行ガイド |
 
 ---
 
@@ -165,13 +165,13 @@ TypeScriptの型システム・関数・クラス・非同期処理・モジュ�
 
 | ファイル | 内容 |
 |---------|------|
-| [PT-CH03-TYPES.md](./PT-CH03-TYPES.md) | 型の基礎と階層構造 |
-| [PT-CH04-FUNCTIONS.md](./PT-CH04-FUNCTIONS.md) | 関数の型付けとジェネリクス |
-| [PT-CH05-CLASSES.md](./PT-CH05-CLASSES.md) | クラスとインターフェース |
-| [PT-CH06-ADVANCED-TYPES.md](./PT-CH06-ADVANCED-TYPES.md) | 高度な型（変性・拡大・絞り込み・ブランド型） |
-| [PT-CH07-ERROR-HANDLING.md](./PT-CH07-ERROR-HANDLING.md) | 型安全なエラー処理パターン |
-| [PT-CH08-ASYNC.md](./PT-CH08-ASYNC.md) | 非同期プログラミングの型付け |
-| [PT-CH09-10-MODULES.md](./PT-CH09-10-MODULES.md) | フレームワーク・モジュール・宣言マージ |
-| [PT-CH11-JS-INTEROP.md](./PT-CH11-JS-INTEROP.md) | JavaScript相互運用と漸進的移行 |
-| [PT-CH12-BUILD.md](./PT-CH12-BUILD.md) | ビルド・実行・npm公開 |
-| [PT-APPENDICES.md](./PT-APPENDICES.md) | 型演算子・Utility Types・TSCフラグ等リファレンス |
+| [PT-CH03-TYPES.md](./references/PT-CH03-TYPES.md) | 型の基礎と階層構造 |
+| [PT-CH04-FUNCTIONS.md](./references/PT-CH04-FUNCTIONS.md) | 関数の型付けとジェネリクス |
+| [PT-CH05-CLASSES.md](./references/PT-CH05-CLASSES.md) | クラスとインターフェース |
+| [PT-CH06-ADVANCED-TYPES.md](./references/PT-CH06-ADVANCED-TYPES.md) | 高度な型（変性・拡大・絞り込み・ブランド型） |
+| [PT-CH07-ERROR-HANDLING.md](./references/PT-CH07-ERROR-HANDLING.md) | 型安全なエラー処理パターン |
+| [PT-CH08-ASYNC.md](./references/PT-CH08-ASYNC.md) | 非同期プログラミングの型付け |
+| [PT-CH09-10-MODULES.md](./references/PT-CH09-10-MODULES.md) | フレームワーク・モジュール・宣言マージ |
+| [PT-CH11-JS-INTEROP.md](./references/PT-CH11-JS-INTEROP.md) | JavaScript相互運用と漸進的移行 |
+| [PT-CH12-BUILD.md](./references/PT-CH12-BUILD.md) | ビルド・実行・npm公開 |
+| [PT-APPENDICES.md](./references/PT-APPENDICES.md) | 型演算子・Utility Types・TSCフラグ等リファレンス |

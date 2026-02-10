@@ -10,12 +10,12 @@ description: REQUIRED for all feature implementations. Automatically load when w
 このスキルは以下のファイルで構成されています：
 
 - **SKILL.md** (このファイル): 概要と使用タイミング
-- **[VITEST-RTL-GUIDELINES.md](./VITEST-RTL-GUIDELINES.md)**: Vitest / React Testing Library コード規約 ⭐NEW
-- **[TDD.md](./TDD.md)**: TDDサイクルと実装パターン
-- **[TEST-TYPES.md](./TEST-TYPES.md)**: テストピラミッド（単体、統合、E2E）
-- **[TESTABLE-DESIGN.md](./TESTABLE-DESIGN.md)**: テスタブルな設計原則
-- **[REFERENCE.md](./REFERENCE.md)**: ベストプラクティス、カバレッジ、チェックリスト
-- **[AI-REVIEW-GUIDELINES.md](./AI-REVIEW-GUIDELINES.md)**: AIテストコードレビュー観点
+- **[VITEST-RTL-GUIDELINES.md](./references/VITEST-RTL-GUIDELINES.md)**: Vitest / React Testing Library コード規約 ⭐NEW
+- **[TDD.md](./references/TDD.md)**: TDDサイクルと実装パターン
+- **[TEST-TYPES.md](./references/TEST-TYPES.md)**: テストピラミッド（単体、統合、E2E）
+- **[TESTABLE-DESIGN.md](./references/TESTABLE-DESIGN.md)**: テスタブルな設計原則
+- **[REFERENCE.md](./references/REFERENCE.md)**: ベストプラクティス、カバレッジ、チェックリスト
+- **[AI-REVIEW-GUIDELINES.md](./references/AI-REVIEW-GUIDELINES.md)**: AIテストコードレビュー観点
 
 ## 🎯 使用タイミング
 
@@ -41,7 +41,7 @@ description: REQUIRED for all feature implementations. Automatically load when w
 繰り返し
 ```
 
-詳細は [TDD.md](./TDD.md) を参照してください。
+詳細は [TDD.md](./references/TDD.md) を参照してください。
 
 ### テストピラミッド
 
@@ -57,7 +57,7 @@ description: REQUIRED for all feature implementations. Automatically load when w
 - 統合テストは適度に
 - E2Eテストは最小限に
 
-詳細は [TEST-TYPES.md](./TEST-TYPES.md) を参照してください。
+詳細は [TEST-TYPES.md](./references/TEST-TYPES.md) を参照してください。
 
 ### AAAパターン（必須）
 
@@ -79,7 +79,7 @@ it('有効なデータの時、ユーザーを作成すべき', () => {
 
 ### Vitest / RTL 必須規約
 
-**詳細は [VITEST-RTL-GUIDELINES.md](./VITEST-RTL-GUIDELINES.md) を参照。**
+**詳細は [VITEST-RTL-GUIDELINES.md](./references/VITEST-RTL-GUIDELINES.md) を参照。**
 
 | 規約 | 説明 |
 |------|------|
@@ -101,7 +101,7 @@ it('有効なデータの時、ユーザーを作成すべき', () => {
 - UI コンポーネント: 70%以上
 ```
 
-詳細は [REFERENCE.md](./REFERENCE.md) を参照してください。
+詳細は [REFERENCE.md](./references/REFERENCE.md) を参照してください。
 
 ## 🎨 テスタブルな設計
 
@@ -119,7 +119,7 @@ it('有効なデータの時、ユーザーを作成すべき', () => {
 - 具象クラスではなくインターフェースに依存
 - テスト用モックの作成が容易
 
-詳細は [TESTABLE-DESIGN.md](./TESTABLE-DESIGN.md) を参照してください。
+詳細は [TESTABLE-DESIGN.md](./references/TESTABLE-DESIGN.md) を参照してください。
 
 ## 🤖 AI生成コードの注意点
 
@@ -133,7 +133,7 @@ AIが生成したテストコードは網羅的ですが、以下の観点でレ
 4. **責務混在**: テスト対象外のケース（バリデーション等）まで含む → レイヤー分離
 5. **重複テスト**: 同じ仕様を複数レイヤーでテスト → レイヤー間の重複排除
 
-**詳細は [AI-REVIEW-GUIDELINES.md](./AI-REVIEW-GUIDELINES.md) を参照してください。**
+**詳細は [AI-REVIEW-GUIDELINES.md](./references/AI-REVIEW-GUIDELINES.md) を参照してください。**
 
 ---
 
@@ -224,7 +224,7 @@ test('新規登録フォーム送信時、成功メッセージが表示され�
 - [ ] カバレッジ目標を達成しているか
 - [ ] テストは独立しているか（順序依存なし）
 
-完全なチェックリストは [REFERENCE.md](./REFERENCE.md) を参照してください。
+完全なチェックリストは [REFERENCE.md](./references/REFERENCE.md) を参照してください。
 
 ## ユーザー確認の原則（AskUserQuestion）
 

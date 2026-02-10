@@ -21,7 +21,7 @@ description: Generates Google Slides presentations from unstructured text via Go
 - 会議の議事録をスライドに変換したい
 - 企画書・提案書のプレゼン資料を自動生成したい
 - テキストベースの情報を視覚的に整理したい
-- GASテンプレート（BLUEPRINT.md）と組み合わせてスライドを生成したい
+- GASテンプレート（./references/BLUEPRINT.md）と組み合わせてスライドを生成したい
 
 ### このスキルが対象外とする範囲
 
@@ -94,18 +94,18 @@ description: Generates Google Slides presentations from unstructured text via Go
 
 ### ステップ6: 最終出力
 
-**目的**: BLUEPRINT.mdのテンプレートに `slideData` を埋め込み、実行可能なコードを出力する。
+**目的**: ./references/BLUEPRINT.md のテンプレートに `slideData` を埋め込み、実行可能なコードを出力する。
 
 #### 出力形式
 
 ```javascript
-// BLUEPRINT.md全文のうち、slideData定義ブロックのみを置換
+// ./references/BLUEPRINT.md 全文のうち、slideData定義ブロックのみを置換
 const slideData = [
   // 生成したオブジェクト配列をここに挿入
 ];
 ```
 
-**重要**: BLUEPRINT.md全文を出力し、`slideData` 部分のみを生成内容で置換すること。
+**重要**: ./references/BLUEPRINT.md 全文を出力し、`slideData` 部分のみを生成内容で置換すること。
 
 ---
 
@@ -354,8 +354,8 @@ points: [
 
 より詳細な情報は以下のファイルを参照:
 
-- **[BLUEPRINT.md](BLUEPRINT.md)**: GASテンプレート全文（slideData置換用）
-- **[REFERENCE.md](REFERENCE.md)**: パターン詳細仕様、安全ガイドライン、チェックリスト
+- **[BLUEPRINT.md](./references/BLUEPRINT.md)**: GASテンプレート全文（slideData置換用）
+- **[REFERENCE.md](./references/REFERENCE.md)**: パターン詳細仕様、安全ガイドライン、チェックリスト
 
 ---
 
@@ -468,6 +468,6 @@ const slideData = [
 3. **マッピング**: 各節をスライドタイプに割り当て
 4. **オブジェクト生成**: スキーマ準拠のJavaScript配列を作成
 5. **自己検証**: 制約違反を検出・修正
-6. **最終出力**: BLUEPRINT.mdに埋め込み可能な形式で出力
+6. **最終出力**: ./references/BLUEPRINT.md に埋め込み可能な形式で出力
 
-不明点がある場合は、REFERENCE.mdの詳細仕様とチェックリストを参照してください。
+不明点がある場合は、./references/REFERENCE.md の詳細仕様とチェックリストを参照してください。

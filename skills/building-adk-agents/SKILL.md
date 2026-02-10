@@ -278,11 +278,11 @@ AskUserQuestion(
 
 ### 詳細リファレンス
 
-- **[AGENT-AND-TOOLS.md](./AGENT-AND-TOOLS.md)**: LlmAgent詳細、FunctionTool、OpenAPI/MCP統合
-- **[CODE-EXECUTION-AND-MODELS.md](./CODE-EXECUTION-AND-MODELS.md)**: コード実行、LLMモデル、Flows & Planners
-- **[MULTI-AGENT.md](./MULTI-AGENT.md)**: マルチAgent設計、オーケストレーション、A2A
-- **[RUNTIME-AND-STATE.md](./RUNTIME-AND-STATE.md)**: Runner、Session、Artifact、Memory、評価
-- **[DEPLOYMENT-AND-SECURITY.md](./DEPLOYMENT-AND-SECURITY.md)**: デプロイ、テレメトリ、セキュリティ、CLI参照
+- **[AGENT-AND-TOOLS.md](./references/./AGENT-AND-TOOLS.md)**: LlmAgent詳細、FunctionTool、OpenAPI/MCP統合
+- **[CODE-EXECUTION-AND-MODELS.md](./references/./CODE-EXECUTION-AND-MODELS.md)**: コード実行、LLMモデル、Flows & Planners
+- **[MULTI-AGENT.md](./references/./MULTI-AGENT.md)**: マルチAgent設計、オーケストレーション、A2A
+- **[RUNTIME-AND-STATE.md](./references/./RUNTIME-AND-STATE.md)**: Runner、Session、Artifact、Memory、評価
+- **[DEPLOYMENT-AND-SECURITY.md](./references/./DEPLOYMENT-AND-SECURITY.md)**: デプロイ、テレメトリ、セキュリティ、CLI参照
 
 ---
 

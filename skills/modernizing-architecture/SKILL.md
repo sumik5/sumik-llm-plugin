@@ -28,7 +28,7 @@ description: >-
 
 > アーキテクトが行える最善のデザインとは、**少なくとも最悪でないトレードオフの集合**だ。
 
-すべてのアーキテクチャ決定はトレードオフを伴う。「ベスト」を追い求めるのではなく、競合するすべてのアーキテクチャ特性のバランスを取ることが成功の鍵。詳細は [TRADEOFF-ANALYSIS.md](TRADEOFF-ANALYSIS.md) 参照。
+すべてのアーキテクチャ決定はトレードオフを伴う。「ベスト」を追い求めるのではなく、競合するすべてのアーキテクチャ特性のバランスを取ることが成功の鍵。詳細は [TRADEOFF-ANALYSIS.md](./references/TRADEOFF-ANALYSIS.md) 参照。
 
 ### 2. アーキテクチャは技術以上のもの（Socio-technical）
 
@@ -205,13 +205,13 @@ AskUserQuestion(
 
 | ファイル | 内容 | 対応章 |
 |---------|------|--------|
-| [TRADEOFF-ANALYSIS.md](TRADEOFF-ANALYSIS.md) | トレードオフ分析方法論、Architecture Quantum、ADR、適応度関数、独自分析の構築 | Ch 1-2, 15 |
-| [FOUNDATIONS.md](FOUNDATIONS.md) | ビジネス目的、準備、リスニングツアー | Ch 1-3 |
-| [DISCOVERY-TECHNIQUES.md](DISCOVERY-TECHNIQUES.md) | EventStorming、Wardley Mapping、Domain Storytelling | Ch 4-5, 7-8 |
-| [DOMAIN-DESIGN.md](DOMAIN-DESIGN.md) | Product Taxonomy、ドメイン識別、境界設計ヒューリスティクス | Ch 6, 9 |
-| [STRATEGIC-PORTFOLIO.md](STRATEGIC-PORTFOLIO.md) | Core Domain Chart、Team Topologies、Independent Service Heuristics | Ch 10-11 |
-| [TECHNICAL-MODERNIZATION.md](TECHNICAL-MODERNIZATION.md) | 疎結合設計、Migration Patterns、Internal Developer Platform、Data Mesh | Ch 12-14 |
-| [EXECUTION-STRATEGY.md](EXECUTION-STRATEGY.md) | AMET、Strategy Deck、Roadmap、Learning & Upskilling | Ch 15-17 |
+| [TRADEOFF-ANALYSIS.md](./references/TRADEOFF-ANALYSIS.md) | トレードオフ分析方法論、Architecture Quantum、ADR、適応度関数、独自分析の構築 | Ch 1-2, 15 |
+| [FOUNDATIONS.md](./references/FOUNDATIONS.md) | ビジネス目的、準備、リスニングツアー | Ch 1-3 |
+| [DISCOVERY-TECHNIQUES.md](./references/DISCOVERY-TECHNIQUES.md) | EventStorming、Wardley Mapping、Domain Storytelling | Ch 4-5, 7-8 |
+| [DOMAIN-DESIGN.md](./references/DOMAIN-DESIGN.md) | Product Taxonomy、ドメイン識別、境界設計ヒューリスティクス | Ch 6, 9 |
+| [STRATEGIC-PORTFOLIO.md](./references/STRATEGIC-PORTFOLIO.md) | Core Domain Chart、Team Topologies、Independent Service Heuristics | Ch 10-11 |
+| [TECHNICAL-MODERNIZATION.md](./references/TECHNICAL-MODERNIZATION.md) | 疎結合設計、Migration Patterns、Internal Developer Platform、Data Mesh | Ch 12-14 |
+| [EXECUTION-STRATEGY.md](./references/EXECUTION-STRATEGY.md) | AMET、Strategy Deck、Roadmap、Learning & Upskilling | Ch 15-17 |
 
 ---
 
@@ -219,14 +219,14 @@ AskUserQuestion(
 
 | テクニック | フェーズ | 目的 | 参照先 |
 |-----------|---------|------|--------|
-| Listening & Mapping Tour | 基礎 | ステークホルダーの課題発見 | FOUNDATIONS.md |
-| Wardley Mapping | 基礎 | 戦略的な進化の可視化 | DISCOVERY-TECHNIQUES.md |
-| Big Picture EventStorming | 発見 | ドメイン全体のマッピング | DISCOVERY-TECHNIQUES.md |
-| Process Modeling EventStorming | 発見 | プロセスの詳細設計 | DISCOVERY-TECHNIQUES.md |
-| Domain Storytelling | 発見 | ドメインの物語的理解 | DISCOVERY-TECHNIQUES.md |
-| Product Taxonomy | 設計 | アーキテクチャの言語定義 | DOMAIN-DESIGN.md |
-| Domain Boundary Heuristics | 設計 | ドメイン境界の発見 | DOMAIN-DESIGN.md |
-| Core Domain Chart | 戦略 | ポートフォリオ投資判断 | STRATEGIC-PORTFOLIO.md |
-| Modernization Strategy Selector | 実行 | サブシステム別戦略選択 | TECHNICAL-MODERNIZATION.md |
-| Domain Message Flow Modeling | 実行 | アーキテクチャフローの設計 | TECHNICAL-MODERNIZATION.md |
-| Strategy Deck | 持続 | ナラティブ構築・ステークホルダー説得 | EXECUTION-STRATEGY.md |
+| Listening & Mapping Tour | 基礎 | ステークホルダーの課題発見 | references/FOUNDATIONS.md |
+| Wardley Mapping | 基礎 | 戦略的な進化の可視化 | references/DISCOVERY-TECHNIQUES.md |
+| Big Picture EventStorming | 発見 | ドメイン全体のマッピング | references/DISCOVERY-TECHNIQUES.md |
+| Process Modeling EventStorming | 発見 | プロセスの詳細設計 | references/DISCOVERY-TECHNIQUES.md |
+| Domain Storytelling | 発見 | ドメインの物語的理解 | references/DISCOVERY-TECHNIQUES.md |
+| Product Taxonomy | 設計 | アーキテクチャの言語定義 | references/DOMAIN-DESIGN.md |
+| Domain Boundary Heuristics | 設計 | ドメイン境界の発見 | references/DOMAIN-DESIGN.md |
+| Core Domain Chart | 戦略 | ポートフォリオ投資判断 | references/STRATEGIC-PORTFOLIO.md |
+| Modernization Strategy Selector | 実行 | サブシステム別戦略選択 | references/TECHNICAL-MODERNIZATION.md |
+| Domain Message Flow Modeling | 実行 | アーキテクチャフローの設計 | references/TECHNICAL-MODERNIZATION.md |
+| Strategy Deck | 持続 | ナラティブ構築・ステークホルダー説得 | references/EXECUTION-STRATEGY.md |

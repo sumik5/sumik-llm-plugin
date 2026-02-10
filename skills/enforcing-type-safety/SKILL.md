@@ -10,10 +10,10 @@ description: REQUIRED for all TypeScript/Python code. Automatically load when wr
 このスキルは以下のファイルで構成されています：
 
 - **SKILL.md** (このファイル): 概要と基本原則
-- **[TYPESCRIPT.md](./TYPESCRIPT.md)**: TypeScript型安全性詳細
-- **[PYTHON.md](./PYTHON.md)**: Python型安全性詳細
-- **[ANTI-PATTERNS.md](./ANTI-PATTERNS.md)**: 避けるべきコード規則
-- **[REFERENCE.md](./REFERENCE.md)**: チェックリスト、ツール設定、型チェッカー
+- **[TYPESCRIPT.md](./references/./TYPESCRIPT.md)**: TypeScript型安全性詳細
+- **[PYTHON.md](./references/./PYTHON.md)**: Python型安全性詳細
+- **[ANTI-PATTERNS.md](./references/./ANTI-PATTERNS.md)**: 避けるべきコード規則
+- **[REFERENCE.md](./references/./REFERENCE.md)**: チェックリスト、ツール設定、型チェッカー
 
 ## 🎯 使用タイミング
 

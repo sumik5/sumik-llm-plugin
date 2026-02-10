@@ -15,15 +15,17 @@ description: >-
 
 3つの柱:
 - **Create**: 新規スキルの設計・実装（本ファイル + サブファイル群）
-- **Convert**: 既存ソース → スキル変換（[CONVERTING.md](CONVERTING.md)）
-- **Review**: 利用状況分析・ライフサイクル管理（[USAGE-REVIEW.md](USAGE-REVIEW.md)）
+- **Convert**: 既存ソース → スキル変換（[CONVERTING.md](references/CONVERTING.md)）
+- **Review**: 利用状況分析・ライフサイクル管理（[USAGE-REVIEW.md](references/USAGE-REVIEW.md)）
+
+> **注意**: `.claude/commands/` と `skills/` は現在統合されており、コマンドもスキルも同じ仕組みで動作する。本ガイドの原則は双方に適用される。
 
 ## When to Use
 
 - **Creating new skills**: Before writing a new SKILL.md
 - **Improving existing skills**: When refactoring or enhancing skills
-- **Converting source material**: Transforming Markdown, PDF, EPUB, URLs into skills → 詳細は [CONVERTING.md](CONVERTING.md) 参照
-- **Reviewing skill portfolio**: Analyzing usage patterns and maintaining skill health → 詳細は [USAGE-REVIEW.md](USAGE-REVIEW.md) 参照
+- **Converting source material**: Transforming Markdown, PDF, EPUB, URLs into skills → 詳細は [CONVERTING.md](references/CONVERTING.md) 参照
+- **Reviewing skill portfolio**: Analyzing usage patterns and maintaining skill health → 詳細は [USAGE-REVIEW.md](references/USAGE-REVIEW.md) 参照
 - **Reviewing skill quality**: For code review of skill files
 
 ## Core Principles
@@ -36,6 +38,8 @@ The context window is a shared resource. Challenge each piece of information:
 - "Does this paragraph justify its token cost?"
 
 **Default assumption**: Claude is already very smart. Only add context Claude doesn't already have.
+
+> **注意**: スキルのコンテキスト占有量は環境変数 `SLASH_COMMAND_TOOL_CHAR_BUDGET`（デフォルト15,000文字）で制御される。多数のスキルを使用する場合、この上限を意識してスキルを簡潔に保つ。
 
 ### 2. Progressive Disclosure
 
@@ -60,10 +64,36 @@ Match specificity to task fragility:
 
 ```yaml
 ---
-name: skill-name        # lowercase, hyphens, max 64 chars
-description: Describes what it does and when to use it.  # max 1024 chars
+name: skill-name                      # 省略可（ディレクトリ名を使用）
+description: >-                        # 推奨（省略時は本文最初の段落）
+  What it does. Use when trigger.
+argument-hint: "[issue-number]"        # オートコンプリートで表示
+disable-model-invocation: true         # Claudeの自動ロードを禁止
+user-invocable: false                  # /メニューから非表示
+allowed-tools: Read, Grep, Glob        # 許可ツールの制限
+model: sonnet                          # 使用モデル指定
+context: fork                          # サブエージェント実行
+agent: Explore                         # context: fork時のエージェントタイプ
+hooks:                                 # スキルスコープのライフサイクルフック
+  PreToolUse:
+    - matcher: Write
+      hooks:
+        - command: "validate.sh"
 ---
 ```
+
+| フィールド | 必須 | 説明 |
+|-----------|------|------|
+| `name` | いいえ | 表示名。省略時はディレクトリ名を使用 |
+| `description` | 推奨 | 機能説明+トリガー条件。省略時は本文最初の段落 |
+| `argument-hint` | いいえ | オートコンプリートで表示される引数ヒント |
+| `disable-model-invocation` | いいえ | `true`でClaude自動ロードを禁止。手動`/name`のみ |
+| `user-invocable` | いいえ | `false`で`/`メニューから非表示（バックグラウンド知識用） |
+| `allowed-tools` | いいえ | 許可ツールの制限（カンマ区切り） |
+| `model` | いいえ | 使用モデル指定（例: `sonnet`, `opus`, `haiku`） |
+| `context` | いいえ | `fork`でサブエージェント実行 |
+| `agent` | いいえ | `context: fork`時のエージェントタイプ（`Explore`, `Plan`等） |
+| `hooks` | いいえ | スキルスコープのライフサイクルフック |
 
 **Naming convention**: Use gerund form (verb + -ing)
 - Good: `processing-pdfs`, `analyzing-data`, `testing-code`
@@ -75,7 +105,42 @@ description: Describes what it does and when to use it.  # max 1024 chars
 - Add differentiation when similar skills exist (e.g., "For X, use Y instead.")
 - Be specific and include key terms for discovery
 
-See [NAMING.md](NAMING.md) for detailed naming guidelines.
+See [NAMING.md](references/NAMING.md) for detailed naming guidelines.
+
+### 文字列置換
+
+スキル本文で以下の変数が使用可能:
+
+| 変数 | 説明 | 使用例 |
+|------|------|--------|
+| `$ARGUMENTS` | `/skill-name arg1 arg2` の引数部分 | `Review PR $ARGUMENTS` |
+| `${CLAUDE_SESSION_ID}` | 現在のセッションID | ログファイル名に使用 |
+
+## スキルコンテンツタイプ
+
+スキルの内容は大きく2種類に分類される:
+
+### Reference Content（参照型）
+- **特徴**: スキル発動時にシステムプロンプトに注入される知識・ガイドライン
+- **用途**: コーディング規約、API仕様、ベストプラクティス集
+- **設定**: `user-invocable: false`（バックグラウンド知識として自動ロード）
+- **例**: `writing-clean-code`, `enforcing-type-safety`
+
+### Task Content（タスク型）
+- **特徴**: `/skill-name` で呼び出し、特定のアクションを実行する
+- **用途**: コード生成、レビュー、変換ワークフロー
+- **設定**: `disable-model-invocation: true` + `context: fork`（サブエージェント実行）
+- **例**: スプリント計画スキル、レポート生成スキル
+
+## 呼び出し制御
+
+`disable-model-invocation` と `user-invocable` の組み合わせでスキルの呼び出し方法を制御する:
+
+| パターン | `disable-model-invocation` | `user-invocable` | 挙動 |
+|---------|--------------------------|------------------|------|
+| **自動+手動** | `false`（デフォルト） | `true`（デフォルト） | Claudeが自動ロード + `/name`で手動呼出し可能 |
+| **手動のみ** | `true` | `true` | `/name`でのみ呼出し可能。自動ロード禁止 |
+| **バックグラウンド** | `false` | `false` | Claudeが必要時に自動ロード。`/`メニュー非表示 |
 
 ## スキルトリガー機構
 
@@ -106,13 +171,34 @@ descriptionの「Use when ...」条件に該当する場合に明示的にロー
 ```
 my-skill/
 ├── SKILL.md              # Main instructions (loaded when triggered)
-├── REFERENCE.md          # API reference (loaded as needed)
-├── EXAMPLES.md           # Usage examples (loaded as needed)
+├── references/           # Detailed docs (loaded as needed)
+│   ├── REFERENCE.md      # API reference
+│   └── EXAMPLES.md       # Usage examples
 └── scripts/
     └── utility.py        # Executed, not loaded into context
 ```
 
-See [STRUCTURE.md](STRUCTURE.md) for progressive disclosure patterns.
+### ネストされたディレクトリの自動検出
+
+モノレポ内のサブパッケージからもスキルは自動発見される:
+
+```
+monorepo/
+├── packages/
+│   └── frontend/
+│       └── .claude/
+│           └── skills/
+│               └── my-skill/
+│                   └── SKILL.md
+└── .claude/
+    └── skills/
+        └── shared-skill/
+            └── SKILL.md
+```
+
+各パッケージの `.claude/skills/` ディレクトリが自動的にスキャンされる。
+
+See [STRUCTURE.md](references/STRUCTURE.md) for progressive disclosure patterns.
 
 ## Skill Creation Workflow
 
@@ -126,7 +212,7 @@ See [STRUCTURE.md](STRUCTURE.md) for progressive disclosure patterns.
 | **Workflow Automation** | 一貫した方法論でマルチステッププロセスを自動化（複数MCPサーバー連携含む） | ステップバイステップワークフロー、バリデーションゲート |
 | **MCP Enhancement** | MCPサーバーのツールアクセスにワークフロー知識を付加 | ドメイン専門知識、エラーハンドリング、コンテキスト補完 |
 
-詳細は [TESTING.md](TESTING.md) を参照。
+詳細は [TESTING.md](references/TESTING.md) を参照。
 
 ### Step 1: Identify the Gap
 
@@ -147,7 +233,7 @@ Before writing, scan existing skills for overlap:
    | Full overlap | Extend existing skill instead |
    | Partial overlap | Create new skill with mutual differentiation |
    | No overlap | Create new skill |
-4. If creating new: plan description updates for **both** new and existing similar skills (see [NAMING.md](NAMING.md) Mutual Update Requirement)
+4. If creating new: plan description updates for **both** new and existing similar skills (see [NAMING.md](references/NAMING.md) Mutual Update Requirement)
 
 ### Step 3: Write Minimal Instructions
 
@@ -164,7 +250,7 @@ description: [What it does]. Use when [trigger conditions].
 [Minimal working example]
 
 ## Advanced Features
-See [REFERENCE.md](REFERENCE.md) for details.
+See [REFERENCE.md](references/REFERENCE.md) for details.
 ```
 
 ### Step 4: Test and Iterate
@@ -173,7 +259,7 @@ See [REFERENCE.md](REFERENCE.md) for details.
 2. Observe Claude's navigation patterns
 3. Refine based on failures
 
-See [WORKFLOWS.md](WORKFLOWS.md) for detailed development workflow.
+See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 
 ## Source Conversion Workflow
 
@@ -183,10 +269,10 @@ See [WORKFLOWS.md](WORKFLOWS.md) for detailed development workflow.
 2. 必要に応じてスクリプトでMarkdown変換（`scripts/`配下）
 3. 6フェーズの変換ワークフローを実行
 
-詳細は [CONVERTING.md](CONVERTING.md) を参照。
+詳細は [CONVERTING.md](references/CONVERTING.md) を参照。
 
-命名戦略の自動推定については [NAMING-STRATEGY.md](NAMING-STRATEGY.md) を参照。
-テンプレート集については [TEMPLATES.md](TEMPLATES.md) を参照。
+命名戦略の自動推定については [NAMING-STRATEGY.md](references/NAMING-STRATEGY.md) を参照。
+テンプレート集については [TEMPLATES.md](references/TEMPLATES.md) を参照。
 
 ## Skill Usage Review
 
@@ -196,7 +282,7 @@ See [WORKFLOWS.md](WORKFLOWS.md) for detailed development workflow.
 2. 判断基準テーブルに基づき棚卸し
 3. 維持 / description改善 / 統合 / 廃止 を決定
 
-詳細は [USAGE-REVIEW.md](USAGE-REVIEW.md) を参照。
+詳細は [USAGE-REVIEW.md](references/USAGE-REVIEW.md) を参照。
 
 ## Common Patterns
 
@@ -297,21 +383,25 @@ AskUserQuestion(
 ## Detailed Documentation
 
 ### スキル作成
-- **[NAMING.md](NAMING.md)**: 命名規則、description三部構成、統一ネーミングルール
-- **[STRUCTURE.md](STRUCTURE.md)**: ファイル構造と Progressive Disclosure
-- **[WORKFLOWS.md](WORKFLOWS.md)**: 開発ワークフローとイテレーション
-- **[CHECKLIST.md](CHECKLIST.md)**: 品質チェックリスト
-- **[PATTERNS.md](PATTERNS.md)**: ワークフローパターン集
-- **[TESTING.md](TESTING.md)**: テスト・評価フレームワーク
-- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**: トラブルシューティング
+- **[NAMING.md](references/NAMING.md)**: 命名規則、description三部構成、統一ネーミングルール
+- **[STRUCTURE.md](references/STRUCTURE.md)**: ファイル構造と Progressive Disclosure
+- **[WORKFLOWS.md](references/WORKFLOWS.md)**: 開発ワークフローとイテレーション
+- **[CHECKLIST.md](references/CHECKLIST.md)**: 品質チェックリスト
+- **[PATTERNS.md](references/PATTERNS.md)**: ワークフローパターン集
+- **[TESTING.md](references/TESTING.md)**: テスト・評価フレームワーク
+- **[TROUBLESHOOTING.md](references/TROUBLESHOOTING.md)**: トラブルシューティング
 
 ### ソース変換
-- **[CONVERTING.md](CONVERTING.md)**: ソース → スキル変換ワークフロー（6フェーズ）
-- **[NAMING-STRATEGY.md](NAMING-STRATEGY.md)**: 命名自動推定ロジック
-- **[TEMPLATES.md](TEMPLATES.md)**: テンプレート集
+- **[CONVERTING.md](references/CONVERTING.md)**: ソース → スキル変換ワークフロー（6フェーズ）
+- **[NAMING-STRATEGY.md](references/NAMING-STRATEGY.md)**: 命名自動推定ロジック
+- **[TEMPLATES.md](references/TEMPLATES.md)**: テンプレート集
 
 ### 利用状況レビュー
-- **[USAGE-REVIEW.md](USAGE-REVIEW.md)**: スキル利用状況レビュー・棚卸しガイド
+- **[USAGE-REVIEW.md](references/USAGE-REVIEW.md)**: スキル利用状況レビュー・棚卸しガイド
+
+## オープンスタンダード
+
+スキルのフォーマットは [Agent Skills](https://agentskills.io) オープンスタンダードに準拠しており、Claude Code以外のツールからも利用可能な互換性を持つ。
 
 ## Related Skills
 

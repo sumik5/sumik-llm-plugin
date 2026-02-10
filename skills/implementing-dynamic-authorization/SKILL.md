@@ -44,10 +44,10 @@ description: Dynamic authorization design covering ABAC, ReBAC, PBAC models and 
    - 複数要件の組み合わせ → PBAC
 
 2. **ポリシー言語の選定**: Cedar vs OPA/Rego vs OpenFGA
-   - 詳細は [POLICY-LANGUAGES.md](POLICY-LANGUAGES.md) 参照
+   - 詳細は [POLICY-LANGUAGES.md](./references/POLICY-LANGUAGES.md) 参照
 
 3. **アーキテクチャパターン**: PEPの配置方法（Embedded/Gateway/Sidecar）、PDP集中型 vs 分散型
-   - 詳細は [ARCHITECTURE-PATTERNS.md](ARCHITECTURE-PATTERNS.md) 参照
+   - 詳細は [ARCHITECTURE-PATTERNS.md](./references/ARCHITECTURE-PATTERNS.md) 参照
 
 ---
 
@@ -114,7 +114,7 @@ description: Dynamic authorization design covering ABAC, ReBAC, PBAC models and 
 - **透明性**: 決定根拠をポリシーとログで追跡
 - **スケーラビリティ**: PDP分散配置でボトルネック回避
 
-詳細は [ARCHITECTURE-PATTERNS.md](ARCHITECTURE-PATTERNS.md) 参照。
+詳細は [ARCHITECTURE-PATTERNS.md](./references/ARCHITECTURE-PATTERNS.md) 参照。
 
 ---
 
@@ -174,7 +174,7 @@ when {                                     // Conditions: 条件
 | Entity | `is`, 型修飾子 | エンティティ型チェック |
 | Tag | `.hasTag()`, `.getTag()` | タグベース制御 |
 
-詳細は [CEDAR-POLICIES.md](CEDAR-POLICIES.md) 参照。
+詳細は [CEDAR-POLICIES.md](./references/CEDAR-POLICIES.md) 参照。
 
 ---
 
@@ -210,7 +210,7 @@ when {                                     // Conditions: 条件
    - Kubernetes → OPA（実績豊富）
    - AWS中心 → Cedar（Verified Permissions統合）
 
-詳細な選定基準とPARCマッピングは [POLICY-LANGUAGES.md](POLICY-LANGUAGES.md) 参照。
+詳細な選定基準とPARCマッピングは [POLICY-LANGUAGES.md](./references/POLICY-LANGUAGES.md) 参照。
 
 ---
 
@@ -301,10 +301,10 @@ AskUserQuestion(
 
 **詳細情報は以下のファイルを参照してください：**
 
-- **[AUTHORIZATION-MODELS.md](AUTHORIZATION-MODELS.md)**: ACL/RBAC/ReBAC/ABAC/PBACの詳細比較、strengths/limitations、適用場面
-- **[CEDAR-POLICIES.md](CEDAR-POLICIES.md)**: Cedarポリシー構造、型システム、オペレータ、パターン、スキーマ設計、解析手法
-- **[ARCHITECTURE-PATTERNS.md](ARCHITECTURE-PATTERNS.md)**: PEP/PDP/PAP/PIPの詳細、デプロイパターン、集中型vs分散型、ガバナンス
-- **[POLICY-LANGUAGES.md](POLICY-LANGUAGES.md)**: XACML/OPA/OpenFGA/AWS IAM/Cedarの詳細比較、PARCマッピング、選定基準
+- **[AUTHORIZATION-MODELS.md](./references/AUTHORIZATION-MODELS.md)**: ACL/RBAC/ReBAC/ABAC/PBACの詳細比較、strengths/limitations、適用場面
+- **[CEDAR-POLICIES.md](./references/CEDAR-POLICIES.md)**: Cedarポリシー構造、型システム、オペレータ、パターン、スキーマ設計、解析手法
+- **[ARCHITECTURE-PATTERNS.md](./references/ARCHITECTURE-PATTERNS.md)**: PEP/PDP/PAP/PIPの詳細、デプロイパターン、集中型vs分散型、ガバナンス
+- **[POLICY-LANGUAGES.md](./references/POLICY-LANGUAGES.md)**: XACML/OPA/OpenFGA/AWS IAM/Cedarの詳細比較、PARCマッピング、選定基準
 
 ---
 
@@ -316,4 +316,4 @@ AskUserQuestion(
 4. **テストファースト**: ポリシーは必ずテスト・静的解析を実施
 5. **ポリシーをコードとして管理**: バージョン管理・CI/CD・レビュー・ロールバック
 
-詳細な実装パターンは [CEDAR-POLICIES.md](CEDAR-POLICIES.md) を参照してください。
+詳細な実装パターンは [CEDAR-POLICIES.md](./references/CEDAR-POLICIES.md) を参照してください。

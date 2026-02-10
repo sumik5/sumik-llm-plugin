@@ -62,7 +62,7 @@ TerraformはHCL（HashiCorp Configuration Language）による宣言的IaCツー
 
 ### 主要ブロック
 
-詳細は[COMMANDS.md](./COMMANDS.md)参照。
+詳細は[COMMANDS.md](./references/COMMANDS.md)参照。
 
 ```hcl
 # provider
@@ -270,7 +270,7 @@ removed {
 }
 ```
 
-詳細は[COMMANDS.md](./COMMANDS.md)参照。
+詳細は[COMMANDS.md](./references/COMMANDS.md)参照。
 
 ---
 
@@ -316,7 +316,7 @@ terraform state mv aws_instance.old_name aws_instance.new_name
 terraform state rm aws_instance.example
 ```
 
-詳細は[COMMANDS.md](./COMMANDS.md)参照。
+詳細は[COMMANDS.md](./references/COMMANDS.md)参照。
 
 ---
 
@@ -391,10 +391,10 @@ resource "aws_vpc" "main" {
 
 詳細情報は以下参照:
 
-- **[COMMANDS.md](./COMMANDS.md)** - Terraformコマンドの包括的リファレンス
-- **[MODULES.md](./MODULES.md)** - モジュール設計パターンと実践例
-- **[AWS-PRACTICE.md](./AWS-PRACTICE.md)** - AWS環境での実践的な構築ガイド
-- **[TESTING.md](./TESTING.md)** - テスト、ツール、ドキュメンテーション
+- **[COMMANDS.md](./references/COMMANDS.md)** - Terraformコマンドの包括的リファレンス
+- **[MODULES.md](./references/MODULES.md)** - モジュール設計パターンと実践例
+- **[AWS-PRACTICE.md](./references/AWS-PRACTICE.md)** - AWS環境での実践的な構築ガイド
+- **[TESTING.md](./references/TESTING.md)** - テスト、ツール、ドキュメンテーション
 
 ---
 
@@ -410,4 +410,4 @@ resource "aws_vpc" "main" {
 8. **ワークスペース**: 環境分離の選択肢と使い分け
 9. **ユーザー確認**: 判断分岐では必ずAskUserQuestion
 
-次のステップ: [COMMANDS.md](./COMMANDS.md)でコマンド詳細を学び、[MODULES.md](./MODULES.md)でモジュール設計を実践し、[AWS-PRACTICE.md](./AWS-PRACTICE.md)で実際のインフラを構築してください。
+次のステップ: [COMMANDS.md](./references/COMMANDS.md)でコマンド詳細を学び、[MODULES.md](./references/MODULES.md)でモジュール設計を実践し、[AWS-PRACTICE.md](./references/AWS-PRACTICE.md)で実際のインフラを構築してください。

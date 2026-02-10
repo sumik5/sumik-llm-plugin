@@ -20,21 +20,21 @@ description: >-
 
 このスキルは以下のドキュメントで構成されています：
 
-### 1. [命名規則](./NAMING.md)
+### 1. [命名規則](./references/NAMING.md)
 Goの命名ベストプラクティス：
 - パッケージ名の付け方
 - 変数・関数名の規則
 - インターフェース命名（-erサフィックス）
 - エクスポート名の考え方
 
-### 2. [エラーハンドリング](./ERROR-HANDLING.md)
+### 2. [エラーハンドリング](./references/ERROR-HANDLING.md)
 堅牢なエラー処理パターン：
 - エラーは値として扱う
 - エラーラッピング（%w vs %v）
 - センチネルエラーとカスタムエラー型
 - panic/recoverの適切な使用
 
-### 3. [並行処理](./CONCURRENCY.md)
+### 3. [並行処理](./references/CONCURRENCY.md)
 Goの強力な並行処理パターン：
 - goroutineの基本
 - チャネルによる通信
@@ -42,7 +42,7 @@ Goの強力な並行処理パターン：
 - 同期プリミティブ（sync.Mutex等）
 - コンテキストによるキャンセル
 
-### 4. [テスト戦略](./TESTING.md)
+### 4. [テスト戦略](./references/TESTING.md)
 効果的なGoテストの書き方：
 - テーブル駆動テスト
 - t.Errorとt.Fatalの使い分け
@@ -50,14 +50,14 @@ Goの強力な並行処理パターン：
 - ベンチマークテスト
 - テストヘルパーの作成
 
-### 5. [プロジェクト構造](./PROJECT-STRUCTURE.md)
+### 5. [プロジェクト構造](./references/PROJECT-STRUCTURE.md)
 推奨ディレクトリレイアウト：
 - cmd/とinternal/の使い分け
 - pkg/の適切な使用
 - go.modの管理
 - モジュール設計
 
-### 6. [開発ツール](./TOOLING.md)
+### 6. [開発ツール](./references/TOOLING.md)
 Goエコシステムのツール活用：
 - gofmt/goimports
 - golangci-lint
@@ -65,24 +65,24 @@ Goエコシステムのツール活用：
 - delve（デバッガ）
 - Makefileパターン
 
-### 7. [クリーンな関数設計](./CLEAN-FUNCTIONS.md)
+### 7. [クリーンな関数設計](./references/CLEAN-FUNCTIONS.md)
 関数設計とリファクタリング：
 - 命名、引数、早期リターン
 - DRY/KISS/YAGNIの適用
 - 小さく焦点を絞った関数
 
-### 8. [データ構造設計](./DATA-STRUCTURES.md)
+### 8. [データ構造設計](./references/DATA-STRUCTURES.md)
 構造体とインターフェースの設計：
 - struct、interface、ゼロ値
 - カプセル化の強化
 
-### 9. [クリーンなエラーハンドリング](./ERROR-HANDLING-CLEAN.md)
+### 9. [クリーンなエラーハンドリング](./references/ERROR-HANDLING-CLEAN.md)
 エラーハンドリングパターンの詳細：
 - 明示的チェック、ラップ
 - カスタムエラー型の設計
 - センチネルエラーとエラーチェーン
 
-### 10. [並行処理とテスト](./CONCURRENCY-AND-TESTING.md)
+### 10. [並行処理とテスト](./references/CONCURRENCY-AND-TESTING.md)
 並行処理・テスト・リファクタリング：
 - context、channel
 - テーブル駆動テスト
@@ -300,13 +300,13 @@ GoFデザインパターン、Go並行処理パターン、アーキテクチャ
 
 | ファイル | 内容 |
 |---------|------|
-| [DP-CREATIONAL.md](./DP-CREATIONAL.md) | 生成パターン（Factory, Builder, Singleton等） |
-| [DP-STRUCTURAL.md](./DP-STRUCTURAL.md) | 構造パターン（Adapter, Decorator, Proxy等） |
-| [DP-BEHAVIORAL.md](./DP-BEHAVIORAL.md) | 振る舞いパターン（Strategy, Observer, Command等） |
-| [DP-CONCURRENCY.md](./DP-CONCURRENCY.md) | 並行処理パターン（Pipeline, Fan-out/Fan-in等） |
-| [DP-ADVANCED.md](./DP-ADVANCED.md) | 高度なパターン（DDD, CQRS, Event Sourcing） |
-| [DP-ANTI-PATTERNS.md](./DP-ANTI-PATTERNS.md) | アンチパターンと回避策 |
-| [DP-TESTING.md](./DP-TESTING.md) | パターンのテスト手法 |
+| [DP-CREATIONAL.md](./references/DP-CREATIONAL.md) | 生成パターン（Factory, Builder, Singleton等） |
+| [DP-STRUCTURAL.md](./references/DP-STRUCTURAL.md) | 構造パターン（Adapter, Decorator, Proxy等） |
+| [DP-BEHAVIORAL.md](./references/DP-BEHAVIORAL.md) | 振る舞いパターン（Strategy, Observer, Command等） |
+| [DP-CONCURRENCY.md](./references/DP-CONCURRENCY.md) | 並行処理パターン（Pipeline, Fan-out/Fan-in等） |
+| [DP-ADVANCED.md](./references/DP-ADVANCED.md) | 高度なパターン（DDD, CQRS, Event Sourcing） |
+| [DP-ANTI-PATTERNS.md](./references/DP-ANTI-PATTERNS.md) | アンチパターンと回避策 |
+| [DP-TESTING.md](./references/DP-TESTING.md) | パターンのテスト手法 |
 
 ## 実践パターン
 
@@ -314,13 +314,13 @@ GoFデザインパターン、Go並行処理パターン、アーキテクチャ
 
 | ファイル | 内容 |
 |---------|------|
-| [PRACTICAL-PATTERNS.md](./PRACTICAL-PATTERNS.md) | 定数/iota、Functional Option、ドメイン型、メモリ最適化、文字列結合、日時処理 |
-| [DATA-FORMATS.md](./DATA-FORMATS.md) | JSON/CSV/Excel/固定長データ処理（カスタムマーシャラー、BOM対応、巨大ファイル） |
-| [DATABASE.md](./DATABASE.md) | database/sql、トランザクション、コネクションプール、バッチインサート、sqlc/sqlboiler/GORM |
-| [HTTP-SERVER.md](./HTTP-SERVER.md) | net/http、ルーター（chi）、Middleware、SPA配信、oapi-codegen |
-| [HTTP-CLIENT.md](./HTTP-CLIENT.md) | RoundTripperパターン、リトライ（Exponential Backoff/Jitter）、プロキシ対応 |
-| [LOGGING.md](./LOGGING.md) | 構造化ログ（zerolog/zap/slog）、ログレベル戦略、net/httpエラーログカスタマイズ |
-| [CLOUD-CONTAINER.md](./CLOUD-CONTAINER.md) | Graceful Shutdown、コンテナイメージ（distroless/scratch）、ヘルスチェック、設定管理 |
+| [PRACTICAL-PATTERNS.md](./references/PRACTICAL-PATTERNS.md) | 定数/iota、Functional Option、ドメイン型、メモリ最適化、文字列結合、日時処理 |
+| [DATA-FORMATS.md](./references/DATA-FORMATS.md) | JSON/CSV/Excel/固定長データ処理（カスタムマーシャラー、BOM対応、巨大ファイル） |
+| [DATABASE.md](./references/DATABASE.md) | database/sql、トランザクション、コネクションプール、バッチインサート、sqlc/sqlboiler/GORM |
+| [HTTP-SERVER.md](./references/HTTP-SERVER.md) | net/http、ルーター（chi）、Middleware、SPA配信、oapi-codegen |
+| [HTTP-CLIENT.md](./references/HTTP-CLIENT.md) | RoundTripperパターン、リトライ（Exponential Backoff/Jitter）、プロキシ対応 |
+| [LOGGING.md](./references/LOGGING.md) | 構造化ログ（zerolog/zap/slog）、ログレベル戦略、net/httpエラーログカスタマイズ |
+| [CLOUD-CONTAINER.md](./references/CLOUD-CONTAINER.md) | Graceful Shutdown、コンテナイメージ（distroless/scratch）、ヘルスチェック、設定管理 |
 
 ## Go Internals
 
@@ -328,21 +328,21 @@ GoFデザインパターン、Go並行処理パターン、アーキテクチャ
 
 | ファイル | 内容 |
 |---------|------|
-| [INT-TYPE-SYSTEM.md](./INT-TYPE-SYSTEM.md) | 型システムと基本型のメモリレイアウト |
-| [INT-COMPOSITE-INTERNALS.md](./INT-COMPOSITE-INTERNALS.md) | スライス・マップ・チャネルの内部構造 |
-| [INT-INTERFACE-INTERNALS.md](./INT-INTERFACE-INTERNALS.md) | interfaceの実装とディスパッチ |
-| [INT-REFLECTION.md](./INT-REFLECTION.md) | reflectパッケージとコード生成 |
-| [INT-LOW-LEVEL.md](./INT-LOW-LEVEL.md) | unsafe/cgo/メモリ管理 |
-| [INT-SCHEDULER.md](./INT-SCHEDULER.md) | Goスケジューラーの内部構造（G-M-Pモデル、ワークスティーリング） |
-| [CONCURRENCY-SCALE.md](./CONCURRENCY-SCALE.md) | 大規模開発での並行処理（エラー伝播、タイムアウト、ハートビート、流量制限、Healingパターン） |
+| [INT-TYPE-SYSTEM.md](./references/INT-TYPE-SYSTEM.md) | 型システムと基本型のメモリレイアウト |
+| [INT-COMPOSITE-INTERNALS.md](./references/INT-COMPOSITE-INTERNALS.md) | スライス・マップ・チャネルの内部構造 |
+| [INT-INTERFACE-INTERNALS.md](./references/INT-INTERFACE-INTERNALS.md) | interfaceの実装とディスパッチ |
+| [INT-REFLECTION.md](./references/INT-REFLECTION.md) | reflectパッケージとコード生成 |
+| [INT-LOW-LEVEL.md](./references/INT-LOW-LEVEL.md) | unsafe/cgo/メモリ管理 |
+| [INT-SCHEDULER.md](./references/INT-SCHEDULER.md) | Goスケジューラーの内部構造（G-M-Pモデル、ワークスティーリング） |
+| [CONCURRENCY-SCALE.md](./references/CONCURRENCY-SCALE.md) | 大規模開発での並行処理（エラー伝播、タイムアウト、ハートビート、流量制限、Healingパターン） |
 
 ## 📖 次のステップ
 
-1. **初めての方**: [プロジェクト構造](./PROJECT-STRUCTURE.md)から始めてください
-2. **命名に迷ったら**: [命名規則](./NAMING.md)を参照
-3. **エラー処理**: [エラーハンドリング](./ERROR-HANDLING.md)でパターン確認
-4. **並行処理**: [並行処理](./CONCURRENCY.md)でgoroutine/channel学習
-5. **テスト作成**: [テスト戦略](./TESTING.md)でテーブル駆動テスト
-6. **ツール設定**: [開発ツール](./TOOLING.md)でlint設定
-7. **デザインパターン**: [DP-CREATIONAL.md](./DP-CREATIONAL.md)からパターン学習
-8. **内部構造理解**: [INT-TYPE-SYSTEM.md](./INT-TYPE-SYSTEM.md)から型システム学習
+1. **初めての方**: [プロジェクト構造](./references/PROJECT-STRUCTURE.md)から始めてください
+2. **命名に迷ったら**: [命名規則](./references/NAMING.md)を参照
+3. **エラー処理**: [エラーハンドリング](./references/ERROR-HANDLING.md)でパターン確認
+4. **並行処理**: [並行処理](./references/CONCURRENCY.md)でgoroutine/channel学習
+5. **テスト作成**: [テスト戦略](./references/TESTING.md)でテーブル駆動テスト
+6. **ツール設定**: [開発ツール](./references/TOOLING.md)でlint設定
+7. **デザインパターン**: [DP-CREATIONAL.md](./references/DP-CREATIONAL.md)からパターン学習
+8. **内部構造理解**: [INT-TYPE-SYSTEM.md](./references/INT-TYPE-SYSTEM.md)から型システム学習

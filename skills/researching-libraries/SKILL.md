@@ -27,7 +27,7 @@ description: Researches existing libraries before implementation to prevent rein
 
 ## 📚 ドキュメント構成
 
-### 1. [言語別検索方法](./SEARCH-METHODS.md)
+### 1. [言語別検索方法](./references/SEARCH-METHODS.md)
 各言語のパッケージ検索コマンドとMCP活用法：
 - JavaScript/TypeScript (npm)
 - Python (PyPI)
@@ -35,7 +35,7 @@ description: Researches existing libraries before implementation to prevent rein
 - Rust (crates.io)
 - Ruby (RubyGems)
 
-### 2. [評価基準](./EVALUATION-CRITERIA.md)
+### 2. [評価基準](./references/EVALUATION-CRITERIA.md)
 ライブラリ採用の判断基準：
 - 信頼性指標（Stars、ダウンロード数）
 - メンテナンス状況
@@ -203,6 +203,6 @@ Object.keys(obj).length === 0;
 
 ## 📖 次のステップ
 
-1. **検索方法を知りたい**: [言語別検索方法](./SEARCH-METHODS.md)
-2. **評価基準を確認**: [評価基準](./EVALUATION-CRITERIA.md)
+1. **検索方法を知りたい**: [言語別検索方法](./references/SEARCH-METHODS.md)
+2. **評価基準を確認**: [評価基準](./references/EVALUATION-CRITERIA.md)
 3. **すぐに探したい**: 上の「よくある実装とライブラリ対応」表を参照

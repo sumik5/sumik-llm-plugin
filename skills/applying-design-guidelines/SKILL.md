@@ -39,11 +39,11 @@ User experience principles based on cognitive psychology and HCI:
 
 具体的なUIコンポーネント別のDo/Don'tルール:
 
-- **[TYPOGRAPHY-RULES.md](TYPOGRAPHY-RULES.md)**: 書体、フォントサイズ、コントラスト、用語統一のルール（ルール002-013）
-- **[CONTROLS-RULES.md](CONTROLS-RULES.md)**: アイコン、ボタン、ドロップダウン、スライダー、リンクのルール（ルール014-035）
-- **[FORMS-RULES.md](FORMS-RULES.md)**: 検索、バリデーション、パスワード、決済フォームのルール（ルール036-054）
-- **[NAVIGATION-RULES.md](NAVIGATION-RULES.md)**: ナビゲーション、ジャーニー、プログレスバー、通知のルール（ルール055-084）
-- **[ACCESSIBILITY-UX-RULES.md](ACCESSIBILITY-UX-RULES.md)**: アクセシビリティ、デフォルト設定、ダークパターン回避のルール（ルール085-101）
+- **[TYPOGRAPHY-RULES.md](./references/TYPOGRAPHY-RULES.md)**: 書体、フォントサイズ、コントラスト、用語統一のルール（ルール002-013）
+- **[CONTROLS-RULES.md](./references/CONTROLS-RULES.md)**: アイコン、ボタン、ドロップダウン、スライダー、リンクのルール（ルール014-035）
+- **[FORMS-RULES.md](./references/FORMS-RULES.md)**: 検索、バリデーション、パスワード、決済フォームのルール（ルール036-054）
+- **[NAVIGATION-RULES.md](./references/NAVIGATION-RULES.md)**: ナビゲーション、ジャーニー、プログレスバー、通知のルール（ルール055-084）
+- **[ACCESSIBILITY-UX-RULES.md](./references/ACCESSIBILITY-UX-RULES.md)**: アクセシビリティ、デフォルト設定、ダークパターン回避のルール（ルール085-101）
 
 **IMPORTANT**: Great design requires all three perspectives. Visual beauty without usability is frustrating. Usability without aesthetics is forgettable. Practical rules without principles are fragile. Use all documents together for complete design guidance.
 

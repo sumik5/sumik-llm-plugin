@@ -28,23 +28,23 @@ DDDは以下の4段階で構成されます：
 
 ### 1. 戦略的設計（Strategic Design）
 事業領域（Business Domain）を分析し、適切なモデル境界（Bounded Context）を定義します。
-→ 詳細は [STRATEGIC-DESIGN.md](./STRATEGIC-DESIGN.md) 参照
+→ 詳細は [STRATEGIC-DESIGN.md](./references/./STRATEGIC-DESIGN.md) 参照
 
 ### 2. 戦術的パターン（Tactical Patterns）
 業務ロジックの複雑さに応じた実装方法を選択します。
-→ 詳細は [TACTICAL-PATTERNS.md](./TACTICAL-PATTERNS.md) 参照
+→ 詳細は [TACTICAL-PATTERNS.md](./references/./TACTICAL-PATTERNS.md) 参照
 
 ### 3. 実践の経験則（Practice and Heuristics）
 設計判断、テスト方針、イベントストーミングなどの実践技法。
-→ 詳細は [PRACTICE.md](./PRACTICE.md) 参照
+→ 詳細は [PRACTICE.md](./references/./PRACTICE.md) 参照
 
 ### 4. 業務データの分解（Data Decomposition）
 モノリシックなデータベースを境界づけられたコンテキストに基づいて分解する手法。データ分解の推進要因、5段階プロセス、ポリグロットデータベース選択基準を含む。
-→ 詳細は [DATA-DECOMPOSITION.md](./DATA-DECOMPOSITION.md) 参照
+→ 詳細は [DATA-DECOMPOSITION.md](./references/./DATA-DECOMPOSITION.md) 参照
 
 ### 5. 他技法との関係（Integration）
 Microservices、Event-Driven Architecture、Data Meshとの統合。
-→ 詳細は [INTEGRATION.md](./INTEGRATION.md) 参照
+→ 詳細は [INTEGRATION.md](./references/./INTEGRATION.md) 参照
 
 ---
 
@@ -140,7 +140,7 @@ Microservices、Event-Driven Architecture、Data Meshとの統合。
 
 ### 4. Context Mapping（文脈間の連係）
 
-Bounded Context間の関係を定義するパターン群。詳細は [STRATEGIC-DESIGN.md](./STRATEGIC-DESIGN.md) の「文脈間の連係パターン」を参照。
+Bounded Context間の関係を定義するパターン群。詳細は [STRATEGIC-DESIGN.md](./references/./STRATEGIC-DESIGN.md) の「文脈間の連係パターン」を参照。
 
 ---
 
@@ -179,7 +179,7 @@ Bounded Context間の関係を定義するパターン群。詳細は [STRATEGIC
 - **適用**: 時系列分析、監査要件、複雑な状態遷移
 - **特徴**: イベントの履歴を保存、状態を再構築
 
-詳細は [TACTICAL-PATTERNS.md](./TACTICAL-PATTERNS.md) 参照。
+詳細は [TACTICAL-PATTERNS.md](./references/./TACTICAL-PATTERNS.md) 参照。
 
 ---
 
@@ -191,23 +191,23 @@ Bounded Context間の関係を定義するパターン群。詳細は [STRATEGIC
 - **テストファースト**: ビジネスロジックは必ずテストを書く
 
 ### イベントストーミング
-業務フローとイベントを可視化するワークショップ技法。詳細は [PRACTICE.md](./PRACTICE.md) 参照。
+業務フローとイベントを可視化するワークショップ技法。詳細は [PRACTICE.md](./references/./PRACTICE.md) 参照。
 
 ### 既存システムへのDDD導入
-レガシーシステムへの段階的な適用方法。詳細は [PRACTICE.md](./PRACTICE.md) 参照。
+レガシーシステムへの段階的な適用方法。詳細は [PRACTICE.md](./references/./PRACTICE.md) 参照。
 
 ---
 
 ## 他技法との関係（概要）
 
 ### Microservices
-Bounded Contextをマイクロサービスにマッピングするパターン。詳細は [INTEGRATION.md](./INTEGRATION.md) 参照。
+Bounded Contextをマイクロサービスにマッピングするパターン。詳細は [INTEGRATION.md](./references/./INTEGRATION.md) 参照。
 
 ### Event-Driven Architecture
-Bounded Context間のイベント駆動連携。詳細は [INTEGRATION.md](./INTEGRATION.md) 参照。
+Bounded Context間のイベント駆動連携。詳細は [INTEGRATION.md](./references/./INTEGRATION.md) 参照。
 
 ### Data Mesh
-Bounded Contextをデータドメインにマッピング。詳細は [INTEGRATION.md](./INTEGRATION.md) 参照。
+Bounded Contextをデータドメインにマッピング。詳細は [INTEGRATION.md](./references/./INTEGRATION.md) 参照。
 
 ---
 

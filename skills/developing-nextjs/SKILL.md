@@ -26,7 +26,7 @@ description: Next.js 16 / React 19 development guide covering App Router, Server
 - **TypeScript**: 5.9.3（strict mode、厳格な型チェック）
 - **Tailwind CSS**: 最新版 + shadcn/ui 3.4.2
 
-> **重要**: Tailwind CSS最新版はCSS-first設定。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。詳細は[STYLING.md](./STYLING.md)参照。
+> **重要**: Tailwind CSS最新版はCSS-first設定。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。詳細は[STYLING.md](./references/STYLING.md)参照。
 - **Prisma ORM**: 6.18.0（PostgreSQL）
 - **Vitest + MSW**: テスト環境
 - **Docker**: マルチステージビルド、GCPデプロイ対応
@@ -37,25 +37,25 @@ description: Next.js 16 / React 19 development guide covering App Router, Server
 このスキルは、必要な情報に素早くアクセスできるよう、以下のファイルに分割されています：
 
 ### 🏗️ プロジェクト構成とセットアップ
-- **[PROJECT-STRUCTURE.md](./PROJECT-STRUCTURE.md)**: プロジェクト全体のフォルダ構成、命名規則、推奨構造
-- **[TOOLING.md](./TOOLING.md)**: mise.toml、pnpm、ESLint、TypeScript、Prettier等の開発ツール設定
+- **[PROJECT-STRUCTURE.md](./references/PROJECT-STRUCTURE.md)**: プロジェクト全体のフォルダ構成、命名規則、推奨構造
+- **[TOOLING.md](./references/TOOLING.md)**: mise.toml、pnpm、ESLint、TypeScript、Prettier等の開発ツール設定
 
 ### ⚛️ フレームワーク固有ガイド
-- **[NEXTJS-GUIDE.md](./NEXTJS-GUIDE.md)**: App Router、Server Components、Cache Components、動的ルーティング等
-- **[REACT-GUIDE.md](./REACT-GUIDE.md)**: React 19新機能（Actions、useActionState、ref as prop等）
+- **[NEXTJS-GUIDE.md](./references/NEXTJS-GUIDE.md)**: App Router、Server Components、Cache Components、動的ルーティング等
+- **[REACT-GUIDE.md](./references/REACT-GUIDE.md)**: React 19新機能（Actions、useActionState、ref as prop等）
 
 ### 🎨 UI・スタイリング
-- **[STYLING.md](./STYLING.md)**: Tailwind CSS（最新版）設定、shadcn/ui使用方法、カスタムコンポーネント作成
+- **[STYLING.md](./references/STYLING.md)**: Tailwind CSS（最新版）設定、shadcn/ui使用方法、カスタムコンポーネント作成
 
 ### 🗄️ データ管理とテスト
-- **[DATABASE.md](./DATABASE.md)**: Prisma ORM設定、マイグレーション、型安全なクエリ
-- **[TESTING.md](./TESTING.md)**: Vitest設定、MSWモック、テスト戦略、カバレッジ
+- **[DATABASE.md](./references/DATABASE.md)**: Prisma ORM設定、マイグレーション、型安全なクエリ
+- **[TESTING.md](./references/TESTING.md)**: Vitest設定、MSWモック、テスト戦略、カバレッジ
 
 ### 🐳 デプロイと運用
-- **[DOCKER.md](./DOCKER.md)**: マルチステージビルド、Next.js standalone出力、GCP Cloud Run対応
+- **[DOCKER.md](./references/DOCKER.md)**: マルチステージビルド、Next.js standalone出力、GCP Cloud Run対応
 
 ### 📖 実装例
-- **[EXAMPLES.md](./EXAMPLES.md)**: page.tsx、layout.tsx、Server Actions、API routes等の実装サンプル
+- **[EXAMPLES.md](./references/EXAMPLES.md)**: page.tsx、layout.tsx、Server Actions、API routes等の実装サンプル
 
 ## 他のスキルとの連携
 
@@ -77,18 +77,18 @@ description: Next.js 16 / React 19 development guide covering App Router, Server
 ## 学習パス
 
 ### 初心者向け
-1. **[PROJECT-STRUCTURE.md](./PROJECT-STRUCTURE.md)** - プロジェクト全体像を把握
-2. **[NEXTJS-GUIDE.md](./NEXTJS-GUIDE.md)** - Next.js基本概念（App Router、Server Components）
-3. **[EXAMPLES.md](./EXAMPLES.md)** - 実装例で学ぶ
+1. **[PROJECT-STRUCTURE.md](./references/PROJECT-STRUCTURE.md)** - プロジェクト全体像を把握
+2. **[NEXTJS-GUIDE.md](./references/NEXTJS-GUIDE.md)** - Next.js基本概念（App Router、Server Components）
+3. **[EXAMPLES.md](./references/EXAMPLES.md)** - 実装例で学ぶ
 
 ### 中級者向け
-1. **[REACT-GUIDE.md](./REACT-GUIDE.md)** - React 19新機能を活用
-2. **[DATABASE.md](./DATABASE.md)** - Prisma ORMでデータ層を構築
-3. **[TESTING.md](./TESTING.md)** - テスト戦略を学ぶ
+1. **[REACT-GUIDE.md](./references/REACT-GUIDE.md)** - React 19新機能を活用
+2. **[DATABASE.md](./references/DATABASE.md)** - Prisma ORMでデータ層を構築
+3. **[TESTING.md](./references/TESTING.md)** - テスト戦略を学ぶ
 
 ### 上級者向け
-1. **[TOOLING.md](./TOOLING.md)** - 開発ツールの最適化
-2. **[DOCKER.md](./DOCKER.md)** - 本番環境デプロイ
+1. **[TOOLING.md](./references/TOOLING.md)** - 開発ツールの最適化
+2. **[DOCKER.md](./references/DOCKER.md)** - 本番環境デプロイ
 3. `writing-clean-code`、`enforcing-type-safety`、`securing-code` - コード品質向上
 
 ## クイックスタート
@@ -175,9 +175,9 @@ Vercel Engineeringによるパフォーマンス最適化ルール集。
 
 | ファイル | 内容 |
 |---------|------|
-| [RP-AGENTS.md](./RP-AGENTS.md) | Vercel AIエージェント向けルール |
-| [RP-README.md](./RP-README.md) | ルール概要 |
-| [RP-rules/](./RP-rules/) | 50+の個別パフォーマンスルール |
+| [RP-AGENTS.md](./references/RP-AGENTS.md) | Vercel AIエージェント向けルール |
+| [RP-README.md](./references/RP-README.md) | ルール概要 |
+| [RP-rules/](./references/RP-rules/) | 50+の個別パフォーマンスルール |
 
 ## React Internals
 
@@ -185,11 +185,11 @@ Reactの内部メカニズム、高度パターン、データ管理。
 
 | ファイル | 内容 |
 |---------|------|
-| [RI-PATTERNS.md](./RI-PATTERNS.md) | 高度なReactパターン |
-| [RI-PERFORMANCE.md](./RI-PERFORMANCE.md) | レンダリングと最適化の内部構造 |
-| [RI-DATA-MANAGEMENT.md](./RI-DATA-MANAGEMENT.md) | 状態管理とデータフロー |
-| [RI-TYPESCRIPT-REACT.md](./RI-TYPESCRIPT-REACT.md) | TypeScript + React統合 |
-| [RI-TESTING-AND-TOOLING.md](./RI-TESTING-AND-TOOLING.md) | テストとツール |
+| [RI-PATTERNS.md](./references/RI-PATTERNS.md) | 高度なReactパターン |
+| [RI-PERFORMANCE.md](./references/RI-PERFORMANCE.md) | レンダリングと最適化の内部構造 |
+| [RI-DATA-MANAGEMENT.md](./references/RI-DATA-MANAGEMENT.md) | 状態管理とデータフロー |
+| [RI-TYPESCRIPT-REACT.md](./references/RI-TYPESCRIPT-REACT.md) | TypeScript + React統合 |
+| [RI-TESTING-AND-TOOLING.md](./references/RI-TESTING-AND-TOOLING.md) | テストとツール |
 
 ---
 

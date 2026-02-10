@@ -32,7 +32,7 @@ description: >
 
 オブザーバビリティ（可観測性）は、モニタリングを補完する概念です。モニタリングが「既知の問題を検知する」のに対し、オブザーバビリティは「未知の問題を探索・解明する」能力を提供します。構造化イベント、コア分析ループ、SLOベースの信頼性設計など、現代の分散システムに不可欠な実践を含みます。
 
-詳細は [OBSERVABILITY.md](./OBSERVABILITY.md) を参照してください。
+詳細は [OBSERVABILITY.md](./references/OBSERVABILITY.md) を参照してください。
 
 ---
 
@@ -240,7 +240,7 @@ description: >
 | **5. ネットワーク監視** | SNMP、フロー監視、キャパシティプランニング | ネットワークの可用性、帯域幅使用率 |
 | **6. セキュリティ監視** | auditd、HIDS/NIDS、コンプライアンス | 侵入検知、監査対応 |
 
-**各レイヤーの詳細は [STRATEGY.md](./STRATEGY.md) を参照してください。**
+**各レイヤーの詳細は [STRATEGY.md](./references/STRATEGY.md) を参照してください。**
 
 ---
 
@@ -281,7 +281,7 @@ description: >
 - **Shipping**: 受け取ったテレメトリーを変換・加工し、ストレージに保存
 - **Presentation**: 保存されたテレメトリーを検索・可視化し、意思決定を支援
 
-**詳細は [TELEMETRY-PIPELINE.md](./TELEMETRY-PIPELINE.md) を参照してください。**
+**詳細は [TELEMETRY-PIPELINE.md](./references/TELEMETRY-PIPELINE.md) を参照してください。**
 
 ---
 
@@ -340,19 +340,19 @@ description: >
 
 ## サブファイル参照一覧
 
-- [STRATEGY.md](./STRATEGY.md) — レイヤー別監視戦略（ビジネス、フロントエンド、アプリケーション、サーバ、ネットワーク、セキュリティ）
-- [OPERATIONS.md](./OPERATIONS.md) — アラート設計、オンコール運用、インシデント管理、統計入門
-- [TELEMETRY-PIPELINE.md](./TELEMETRY-PIPELINE.md) — Emit/Ship/Presentステージの詳細設計
-- [STORAGE-SYSTEMS.md](./STORAGE-SYSTEMS.md) — ストレージシステム比較（Elasticsearch, Prometheus等）
-- [DATA-LIFECYCLE.md](./DATA-LIFECYCLE.md) — 保持ポリシー、集約、サンプリング、法的対応
-- [TECHNIQUES.md](./TECHNIQUES.md) — 正規表現最適化、構造化ログ、カーディナリティ管理
-- [USE-CASES.md](./USE-CASES.md) — 組織規模別のテレメトリーシステム設計
-- [CHECKLIST.md](./CHECKLIST.md) — 監視アセスメント実施ガイド
-- [OBSERVABILITY.md](./OBSERVABILITY.md) — オブザーバビリティの定義・哲学、構造化イベント、コア分析ループ
-- [SLO-RELIABILITY.md](./SLO-RELIABILITY.md) — SLI/SLO/SLA、エラーバジェット、SLOベースアラート
-- [OBSERVABILITY-PRACTICES.md](./OBSERVABILITY-PRACTICES.md) — ODD、計装イテレーション、ビジネス事例、利害関係者
-- [SAMPLING-STRATEGIES.md](./SAMPLING-STRATEGIES.md) — ヘッド/テール/動的サンプリング戦略
-- [MATURITY-MODEL.md](./MATURITY-MODEL.md) — オブザーバビリティ成熟度モデル（OMM）
+- [STRATEGY.md](./references/STRATEGY.md) — レイヤー別監視戦略（ビジネス、フロントエンド、アプリケーション、サーバ、ネットワーク、セキュリティ）
+- [OPERATIONS.md](./references/OPERATIONS.md) — アラート設計、オンコール運用、インシデント管理、統計入門
+- [TELEMETRY-PIPELINE.md](./references/TELEMETRY-PIPELINE.md) — Emit/Ship/Presentステージの詳細設計
+- [STORAGE-SYSTEMS.md](./references/STORAGE-SYSTEMS.md) — ストレージシステム比較（Elasticsearch, Prometheus等）
+- [DATA-LIFECYCLE.md](./references/DATA-LIFECYCLE.md) — 保持ポリシー、集約、サンプリング、法的対応
+- [TECHNIQUES.md](./references/TECHNIQUES.md) — 正規表現最適化、構造化ログ、カーディナリティ管理
+- [USE-CASES.md](./references/USE-CASES.md) — 組織規模別のテレメトリーシステム設計
+- [CHECKLIST.md](./references/CHECKLIST.md) — 監視アセスメント実施ガイド
+- [OBSERVABILITY.md](./references/OBSERVABILITY.md) — オブザーバビリティの定義・哲学、構造化イベント、コア分析ループ
+- [SLO-RELIABILITY.md](./references/SLO-RELIABILITY.md) — SLI/SLO/SLA、エラーバジェット、SLOベースアラート
+- [OBSERVABILITY-PRACTICES.md](./references/OBSERVABILITY-PRACTICES.md) — ODD、計装イテレーション、ビジネス事例、利害関係者
+- [SAMPLING-STRATEGIES.md](./references/SAMPLING-STRATEGIES.md) — ヘッド/テール/動的サンプリング戦略
+- [MATURITY-MODEL.md](./references/MATURITY-MODEL.md) — オブザーバビリティ成熟度モデル（OMM）
 
 ---
 

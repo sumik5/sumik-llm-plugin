@@ -8,8 +8,8 @@ description: Token-efficient structured development via /serena command. Use for
 ## 📑 目次
 
 - **SKILL.md** (このファイル): 概要と使用タイミング
-- **[COMMANDS.md](./COMMANDS.md)**: /serenaコマンドの詳細使用法
-- **[PATTERNS.md](./PATTERNS.md)**: 問題タイプ別の自動選択パターン
+- **[COMMANDS.md](./references/COMMANDS.md)**: /serenaコマンドの詳細使用法
+- **[PATTERNS.md](./references/PATTERNS.md)**: 問題タイプ別の自動選択パターン
 
 ## 🎯 概要
 
@@ -34,7 +34,7 @@ description: Token-efficient structured development via /serena command. Use for
 /serena "認証システム設計" -d -r     # 詳細分析+リサーチ
 ```
 
-詳細: [COMMANDS.md](./COMMANDS.md) 参照
+詳細: [COMMANDS.md](./references/COMMANDS.md) 参照
 
 ## 🎯 活用推奨
 
