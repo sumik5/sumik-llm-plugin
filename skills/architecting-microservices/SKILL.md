@@ -1,6 +1,11 @@
 ---
 name: architecting-microservices
-description: Microservices architectural patterns covering CQRS, Event Sourcing, Saga, and distributed transactions. Use when designing microservices architecture or choosing transaction strategies. Covers messaging, resilience, and security patterns. For migration strategy, use modernizing-architecture instead. For DDD bounded context design and domain modeling methodology, use applying-domain-driven-design instead.
+description: >-
+  Microservices architectural patterns covering CQRS, Event Sourcing, 8 Saga pattern variants, distributed transactions, service granularity decisions, data ownership, workflow orchestration, and contract design.
+  Use when designing microservices architecture, choosing transaction strategies, or deciding service granularity.
+  Covers messaging, resilience, security, reuse, and data access patterns.
+  For migration strategy and trade-off analysis methodology, use modernizing-architecture instead.
+  For DDD domain modeling, use applying-domain-driven-design instead.
 ---
 
 # Architecting Microservices
@@ -267,13 +272,16 @@ AskUserQuestion(
 
 | # | ファイル | 内容 |
 |---|---------|------|
-| 1 | [CQRS-EVENT-SOURCING.md](CQRS-EVENT-SOURCING.md) | CQRSメタモデル、Event Sourcing、Look-to-Book比率、Command-Event-Commandサイクル |
-| 2 | [DISTRIBUTED-TRANSACTIONS.md](DISTRIBUTED-TRANSACTIONS.md) | XA/2PC、Saga、BASE、冪等性設計、重複・順序外れメッセージ対処 |
-| 3 | [MESSAGING-PATTERNS.md](MESSAGING-PATTERNS.md) | 同期vs非同期、メッセージ永続性、Pub/Sub、相関ID、メッセージブローカークラスタリング |
-| 4 | [RESILIENCE-PATTERNS.md](RESILIENCE-PATTERNS.md) | Circuit Breaker、Retry、Bulkhead、Fallback、Fail-Safeマイクロサービス |
-| 5 | [SERVICE-COMMUNICATION.md](SERVICE-COMMUNICATION.md) | Service Discovery、API Gateway、REST vs gRPC、ロードバランシング |
-| 6 | [HIGH-AVAILABILITY.md](HIGH-AVAILABILITY.md) | スケーリングテンプレート、Primary/Standby、楽観的ロック、CQRS HA、Auto-Scaling |
-| 7 | [SECURITY-PATTERNS.md](SECURITY-PATTERNS.md) | OAuth 2.0、JWT、API Gateway認証、マイクロサービス間トークン伝播、DMZ/Trust Zone |
+| 1 | [GRANULARITY-DECISIONS.md](GRANULARITY-DECISIONS.md) | サービス粒度、コンポーネント分解パターン、分解vs統合ドライバー |
+| 2 | [DATA-OWNERSHIP.md](DATA-OWNERSHIP.md) | データ所有権モデル、再利用パターン、分散データアクセス |
+| 3 | [WORKFLOW-CONTRACTS.md](WORKFLOW-CONTRACTS.md) | オーケストレーション vs コレオグラフィ、コントラクト設計、スタンプ結合 |
+| 4 | [DISTRIBUTED-TRANSACTIONS.md](DISTRIBUTED-TRANSACTIONS.md) | XA/2PC、Saga 8パターンマトリクス、BASE、冪等性設計 |
+| 5 | [CQRS-EVENT-SOURCING.md](CQRS-EVENT-SOURCING.md) | CQRSメタモデル、Event Sourcing、Look-to-Book比率 |
+| 6 | [MESSAGING-PATTERNS.md](MESSAGING-PATTERNS.md) | 同期vs非同期、メッセージ永続性、Pub/Sub、相関ID |
+| 7 | [RESILIENCE-PATTERNS.md](RESILIENCE-PATTERNS.md) | Circuit Breaker、Retry、Bulkhead、Fallback |
+| 8 | [SERVICE-COMMUNICATION.md](SERVICE-COMMUNICATION.md) | Service Discovery、API Gateway、REST vs gRPC |
+| 9 | [HIGH-AVAILABILITY.md](HIGH-AVAILABILITY.md) | スケーリングテンプレート、Primary/Standby、楽観的ロック |
+| 10 | [SECURITY-PATTERNS.md](SECURITY-PATTERNS.md) | OAuth 2.0、JWT、API Gateway認証、トークン伝播 |
 
 ---
 

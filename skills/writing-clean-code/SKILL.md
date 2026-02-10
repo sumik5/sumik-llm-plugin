@@ -3,7 +3,8 @@ name: writing-clean-code
 description: >-
   REQUIRED for all code implementations. Automatically load when writing or reviewing any code.
   Covers SOLID principles (SRP, OCP, LSP, ISP, DIP), 25 code smell categories with MAPPER principles,
-  and practical refactoring recipes. Language-agnostic clean code guide.
+  practical refactoring recipes, and software design laws (simplicity, change, defect probability, testing).
+  Language-agnostic clean code guide.
   For language-specific practices, use developing-go, mastering-typescript, or developing-python.
 ---
 
@@ -212,6 +213,44 @@ description: >-
 - 依存性注入
 
 **主要レシピ**: 依存性逆転、グローバル状態の排除、継承階層のフラット化
+
+---
+
+### [DESIGN-SIMPLICITY.md](./DESIGN-SIMPLICITY.md) - ソフトウェアデザインの法則と簡潔性
+**カバー内容**: ソフトウェアの目的、デザインの方程式、不具合発生率の法則、検証の法則
+
+- 6つの普遍的な法則の解説
+- デザインの方程式 D = (Vn + Vf) / (Ei + Em)
+- 「管理にかかる作業量を減らすことが最重要」の原則
+- 最高のデザインの定義
+
+**主要原則**: デザインの方程式、不具合発生率の法則、検証の法則、DRY原則
+
+---
+
+### [SIMPLICITY-PRACTICE.md](./SIMPLICITY-PRACTICE.md) - 簡潔性の実践
+**カバー内容**: 簡潔性の法則、一貫性、読みやすさ、命名、コメント、DRY
+
+- 簡潔性の相対性と文脈依存性
+- 一貫性による管理容易性の向上
+- スペースの取り方によるコード構造の可視化
+- 命名の長さと明確さのバランス
+- コメントの「なぜ」の説明
+
+**主要原則**: 簡潔性の法則、一貫性、読みやすさ、DRY原則
+
+---
+
+### [COMPLEXITY-PATTERNS.md](./COMPLEXITY-PATTERNS.md) - 複雑性のパターンと対処
+**カバー内容**: 変更の法則、3つの間違い、複雑性の7要因、技術選定、書き直し判断
+
+- 変更の法則と時間経過による変更確率の増大
+- YAGNI拡張版、硬直設計、オーバーエンジニアリングの検出と対処
+- インクリメンタルな開発とデザイン
+- 技術選定の3基準（生き残る確率、相互運用性、品質へのこだわり）
+- 書き直しの5条件と判断フローチャート
+
+**主要原則**: 変更の法則、インクリメンタルデザイン、段階的リデザイン
 
 ---
 

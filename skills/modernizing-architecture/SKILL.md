@@ -1,11 +1,16 @@
 ---
 name: modernizing-architecture
-description: Socio-technical architecture modernization covering strategy, domain design, and team organization. Use when modernizing legacy systems, redesigning domain boundaries, or planning migration strategies. Differs from writing-clean-code (code-level SOLID principles) by focusing on system-level decisions. For microservices patterns, use architecting-microservices instead. For DDD strategic/tactical patterns and domain modeling, use applying-domain-driven-design instead.
+description: >-
+  Socio-technical architecture modernization covering strategy, domain design, team organization, and trade-off analysis methodology.
+  Use when modernizing legacy systems, redesigning domain boundaries, planning migration strategies, or building custom trade-off analysis frameworks.
+  Differs from writing-clean-code (code-level) by focusing on system-level decisions.
+  For microservices patterns (Saga, granularity), use architecting-microservices instead.
+  For DDD domain modeling, use applying-domain-driven-design instead.
 ---
 
 # アーキテクチャモダナイゼーション
 
-レガシーシステムを現代的なアーキテクチャに進化させるための包括的ガイド。技術パターンだけでなく、戦略・組織・ドメイン設計を含む **Socio-technical** アプローチを提供する。
+レガシーシステムを現代的なアーキテクチャに進化させるための包括的ガイド。技術パターンだけでなく、戦略・組織・ドメイン設計・**トレードオフ分析**を含む **Socio-technical** アプローチを提供する。
 
 ## 目次
 
@@ -19,13 +24,19 @@ description: Socio-technical architecture modernization covering strategy, domai
 
 ## 核心原則
 
-### 1. アーキテクチャは技術以上のもの（Socio-technical）
+### 1. 「最悪でない」トレードオフを選択する
+
+> アーキテクトが行える最善のデザインとは、**少なくとも最悪でないトレードオフの集合**だ。
+
+すべてのアーキテクチャ決定はトレードオフを伴う。「ベスト」を追い求めるのではなく、競合するすべてのアーキテクチャ特性のバランスを取ることが成功の鍵。詳細は [TRADEOFF-ANALYSIS.md](TRADEOFF-ANALYSIS.md) 参照。
+
+### 2. アーキテクチャは技術以上のもの（Socio-technical）
 
 モダナイゼーションは技術的な変更だけでは不十分。ソフトウェア・組織構造・ビジネス戦略の **三位一体** で最適化する必要がある。
 
 > アーキテクチャの負債は、技術的負債だけでなく、組織構造の不整合やビジネス戦略との乖離からも生まれる。
 
-### 2. Independent Value Streams（独立バリューストリーム）
+### 3. Independent Value Streams（独立バリューストリーム）
 
 現代的アーキテクチャの構成要素。ビジネス・ドメイン・組織・技術の関心を接続し、持続可能な高速フローを実現する。
 
@@ -34,17 +45,17 @@ description: Socio-technical architecture modernization covering strategy, domai
         └── 1つのチームが全工程を担当（独立性の鍵）──┘
 ```
 
-### 3. ポートフォリオ駆動の進化的旅路
+### 4. ポートフォリオ駆動の進化的旅路
 
 モダナイゼーションは「ターゲットアーキテクチャを設計し、そこへ向かう」ものではない。**進化的・ポートフォリオ的アプローチ** で、各領域に最適な投資レベルを決定する。
 
-### 4. Conway の法則を活用する
+### 5. Conway の法則を活用する
 
 > 組織構造がシステム設計を制約する。
 
 これを抵抗するのではなく、**意図的に活用する**。理想的なアーキテクチャに合わせて組織を設計する（Inverse Conway Maneuver）。
 
-### 5. Nail It Then Scale It
+### 6. Nail It Then Scale It
 
 小さなスライスで3-6ヶ月以内に価値を届け、検証してからスケールアップする。大規模なビッグバン・リライトは避ける。
 
@@ -194,6 +205,7 @@ AskUserQuestion(
 
 | ファイル | 内容 | 対応章 |
 |---------|------|--------|
+| [TRADEOFF-ANALYSIS.md](TRADEOFF-ANALYSIS.md) | トレードオフ分析方法論、Architecture Quantum、ADR、適応度関数、独自分析の構築 | Ch 1-2, 15 |
 | [FOUNDATIONS.md](FOUNDATIONS.md) | ビジネス目的、準備、リスニングツアー | Ch 1-3 |
 | [DISCOVERY-TECHNIQUES.md](DISCOVERY-TECHNIQUES.md) | EventStorming、Wardley Mapping、Domain Storytelling | Ch 4-5, 7-8 |
 | [DOMAIN-DESIGN.md](DOMAIN-DESIGN.md) | Product Taxonomy、ドメイン識別、境界設計ヒューリスティクス | Ch 6, 9 |

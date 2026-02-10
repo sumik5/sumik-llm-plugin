@@ -2,10 +2,10 @@
 name: applying-domain-driven-design
 description: >-
   Domain-Driven Design methodology covering strategic design (Bounded Context, Ubiquitous Language, Context Mapping),
-  tactical patterns (Domain Model, Event Sourcing, CQRS), and practical adoption (heuristics, EventStorming).
-  Use when designing domain boundaries, choosing business logic implementation patterns, or aligning software architecture with business strategy.
-  For socio-technical architecture modernization, use modernizing-architecture instead.
-  For microservices distributed patterns (Saga, messaging), use architecting-microservices instead.
+  tactical patterns (Domain Model, Event Sourcing, CQRS), practical adoption (heuristics, EventStorming), and operational data decomposition with polyglot database selection.
+  Use when designing domain boundaries, choosing business logic implementation patterns, decomposing monolithic data, or aligning software architecture with business strategy.
+  For socio-technical architecture modernization and trade-off analysis, use modernizing-architecture instead.
+  For microservices distributed patterns (Saga, messaging, granularity), use architecting-microservices instead.
 ---
 
 # Domain-Driven Design (ドメイン駆動設計)
@@ -38,7 +38,11 @@ DDDは以下の4段階で構成されます：
 設計判断、テスト方針、イベントストーミングなどの実践技法。
 → 詳細は [PRACTICE.md](./PRACTICE.md) 参照
 
-### 4. 他技法との関係（Integration）
+### 4. 業務データの分解（Data Decomposition）
+モノリシックなデータベースを境界づけられたコンテキストに基づいて分解する手法。データ分解の推進要因、5段階プロセス、ポリグロットデータベース選択基準を含む。
+→ 詳細は [DATA-DECOMPOSITION.md](./DATA-DECOMPOSITION.md) 参照
+
+### 5. 他技法との関係（Integration）
 Microservices、Event-Driven Architecture、Data Meshとの統合。
 → 詳細は [INTEGRATION.md](./INTEGRATION.md) 参照
 

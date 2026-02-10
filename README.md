@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (39個)
+└── skills/             # ナレッジスキル (37個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (39個)
+### Skills (37個)
 
 #### コア開発
 
@@ -65,7 +65,7 @@ sumik-claude-plugin/
 |--------|------|
 | `implementing-as-tachikoma` | タチコマAgent運用ガイド |
 | `using-serena` | Serena MCP活用 |
-| `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則含む25カテゴリのコードスメル検出・リファクタリング） |
+| `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・ソフトウェアデザインの法則含む25カテゴリのコードスメル検出・リファクタリング） |
 | `enforcing-type-safety` | 型安全性強制（any禁止） |
 | `testing-code` | テストファースト（Vitest/RTL/Playwright） |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
@@ -75,13 +75,13 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `applying-domain-driven-design` | DDD実践ガイド（設計ヒューリスティックス・イベントストーミング・レガシーシステム導入戦略） |
-| `modernizing-architecture` | Socio-technicalアーキテクチャモダナイゼーション |
+| `applying-domain-driven-design` | DDD実践ガイド（戦略的設計・戦術的パターン・イベントストーミング・業務データ分解・ポリグロットDB選択） |
+| `modernizing-architecture` | Socio-technicalアーキテクチャモダナイゼーション（戦略・ドメイン設計・チーム組織・トレードオフ分析方法論） |
 | `designing-web-apis` | Web API設計ベストプラクティス |
 | `building-multi-tenant-saas` | マルチテナントSaaSアーキテクチャ設計ガイド |
 | `building-nextjs-saas` | Next.js AI SaaSアプリ構築パターン（認証・決済・AI API・クレジット課金） |
 | `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
-| `architecting-microservices` | マイクロサービスアーキテクチャパターン設計（CQRS、Saga、分散トランザクション、メッセージング、レジリエンス、セキュリティ） |
+| `architecting-microservices` | マイクロサービスアーキテクチャパターン設計（CQRS・Event Sourcing・8種のSaga・分散トランザクション・サービス粒度・データ所有権・ワークフロー・コントラクト・メッセージング・レジリエンス・セキュリティ） |
 | `avoiding-sql-antipatterns` | SQLアンチパターン回避（論理設計・物理設計・クエリ・アプリ開発の25パターン） |
 
 #### フレームワーク

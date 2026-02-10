@@ -40,8 +40,9 @@ get_skill_description() {
         "securing-code") echo "実装完了後に必ずロード" ;;
         "removing-ai-smell") echo "コメント・ドキュメント記述時にロード" ;;
         "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
-        "architecting-microservices") echo "マイクロサービス設計パターン" ;;
-        "modernizing-architecture") echo "アーキテクチャモダナイゼーション" ;;
+        "architecting-microservices") echo "CQRS/Saga/粒度決定/データ所有権/ワークフロー・コントラクト" ;;
+        "modernizing-architecture") echo "社会技術的モダナイゼーション・トレードオフ分析手法" ;;
+        "applying-domain-driven-design") echo "DDD戦略/戦術パターン・データ分解・データメッシュ" ;;
         "developing-nextjs") echo "Next.js 16 / React 19開発" ;;
         "using-next-devtools") echo "Next.js DevTools MCP活用" ;;
         "mastering-typescript") echo "TypeScript型システム・パターン" ;;
