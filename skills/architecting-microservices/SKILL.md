@@ -6,6 +6,7 @@ description: >-
   Covers messaging, resilience, security, reuse, and data access patterns.
   For migration strategy and trade-off analysis methodology, use modernizing-architecture instead.
   For DDD domain modeling, use applying-domain-driven-design instead.
+  For frontend decomposition patterns (micro-frontends), use architecting-micro-frontends instead.
 ---
 
 # Architecting Microservices

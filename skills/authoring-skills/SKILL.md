@@ -154,12 +154,43 @@ descriptionに「REQUIRED」「MUST」を含むスキルは、該当タスク実
 ### 2. SessionStart Hook（自動検出）
 `hooks/detect-project-skills.sh` がプロジェクトのファイル構成を解析し、関連スキルを自動推奨する。
 
-検出条件例:
-- `package.json` に `next` → `developing-nextjs` を推奨
-- `go.mod` 存在 → `developing-go` を推奨
-- `tsconfig.json` 存在 → `mastering-typescript` を推奨
+#### 検出グループ
 
-**新スキル追加時、自動検出対象にすべきか検討し、必要なら `detect-project-skills.sh` にも追加する。**
+detect-project-skills.sh は以下のスキルグループで構成される:
+
+| グループ | 検出条件 | 含まれるスキル |
+|---------|---------|--------------|
+| ALWAYS_SKILLS | 常時 | writing-clean-code, enforcing-type-safety, testing-code, securing-code, removing-ai-smell |
+| COMMON_DEV_SKILLS | 言語プロジェクト検出時 | researching-libraries, architecting-microservices, modernizing-architecture |
+| 個別検出 | ファイル・依存関係 | developing-nextjs, developing-go 等（ファイルベースで1対1検出） |
+| WRITING_SKILLS | .tex 検出時 | writing-latex, writing-technical-docs, writing-academic-papers, searching-web |
+| DESIGN_SKILLS | components.json/.stories.*/tailwind.config.* 検出時 | applying-design-guidelines, applying-behavior-design, implementing-design |
+| DATABASE_SKILLS | schema.prisma/.sql/DB関連パッケージ検出時 | avoiding-sql-antipatterns, understanding-database-internals |
+| OBSERVABILITY_SKILLS | @opentelemetry/*/prometheus.yml 検出時 | designing-monitoring |
+| MCP_DEV_SKILLS | @modelcontextprotocol/sdk/fastmcp 検出時 | developing-mcp |
+
+#### detect-project-skills.sh 更新の判断基準
+
+新スキル作成時、以下の判断基準に基づいて detect-project-skills.sh を更新する:
+
+| 条件 | アクション | 例 |
+|------|----------|-----|
+| **特定ファイル/依存関係で確実にトリガーすべき** | 個別検出関数を追加 | .cedar → implementing-dynamic-authorization |
+| **既存のスキルグループに属する** | 該当グループの配列にスキルを追加 | DB関連スキル → DATABASE_SKILLS に追加 |
+| **新しいスキルグループが必要** | グループ変数・フラグ・検出関数・出力セクションを追加 | 新ドメインのスキル群 |
+| **ユーザー要求でのみ使用** | detect-project-skills.sh は変更不要 | crafting-ai-copywriting |
+| **内部Agent用** | detect-project-skills.sh は変更不要 | implementing-as-tachikoma |
+
+#### 更新時の必須手順（チェックリスト）
+
+新スキルを detect-project-skills.sh に追加する場合:
+- [ ] スキルグループの選定（既存 or 新規）
+- [ ] 検出条件の定義（ファイル名、依存関係名）
+- [ ] get_skill_description() にスキル説明を追加
+- [ ] 個別検出の場合: 検出関数にPROJECT_SKILLS追加コードを記述
+- [ ] グループ検出の場合: グループ配列にスキルを追加
+- [ ] `bash -n hooks/detect-project-skills.sh` で構文チェック
+- [ ] `$HOME/dotfiles/claude-code/rules/skill-triggers.md` の 🟡 自動検出セクションを同期更新
 
 ### 3. Use when パターン（条件トリガー）
 descriptionの「Use when ...」条件に該当する場合に明示的にロードされる。

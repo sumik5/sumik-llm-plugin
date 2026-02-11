@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (43個)
+└── skills/             # ナレッジスキル (45個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (43個)
+### Skills (45個)
 
 #### コア開発
 
@@ -82,6 +82,7 @@ sumik-claude-plugin/
 | `building-nextjs-saas` | Next.js AI SaaSアプリ構築パターン（認証・決済・AI API・クレジット課金） |
 | `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
 | `architecting-microservices` | マイクロサービスアーキテクチャパターン設計（CQRS・Event Sourcing・8種のSaga・分散トランザクション・サービス粒度・データ所有権・ワークフロー・コントラクト・メッセージング・レジリエンス・セキュリティ） |
+| `architecting-micro-frontends` | マイクロフロントエンドアーキテクチャ（垂直/水平分割、Module Federation/iframe/Web Components/SSR/ESI構成パターン、意思決定フレームワーク、組織導入） |
 | `understanding-database-internals` | データベース内部構造の包括的リファレンス。ストレージエンジン（Bツリー、LSMツリー、トランザクション）、分散システム（合意アルゴリズム、レプリケーション、一貫性モデル）、DB選択・設計ガイドをカバー |
 | `avoiding-sql-antipatterns` | SQLアンチパターン回避（論理設計・物理設計・クエリ・アプリ開発の25パターン） |
 | `applying-behavior-design` | 行動変容デザイン（CREATEファネル、3戦略）|
@@ -127,6 +128,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `writing-technical-docs` | 技術ドキュメント（7つのC原則） |
+| `writing-academic-papers` | アカデミックライティング（エッセイ・論文・dissertation・リフレクティブジャーナル、Harvard参照、批判的思考） |
 | `removing-ai-smell` | AI臭除去（コード・文章の自然化） |
 | `crafting-ai-copywriting` | AIコピーライティング（15の心理的プロンプト技法） |
 | `writing-latex` | LaTeX文書作成 |

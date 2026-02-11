@@ -1,6 +1,6 @@
 ---
 name: writing-technical-docs
-description: Guides technical documentation and report writing. Applies the 7 Cs principle (Clear, Concise, Correct, Coherent, Concrete, Complete, Courteous). Use for writing technical documents, reports, and code comments.
+description: Guides technical documentation and report writing. Applies the 7 Cs principle (Clear, Concise, Correct, Coherent, Concrete, Complete, Courteous). Use for writing technical documents, reports, and code comments. For academic writing (essays, papers, dissertations), use writing-academic-papers instead.
 ---
 
 # テクニカルライティング

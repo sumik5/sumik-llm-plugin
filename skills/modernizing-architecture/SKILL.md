@@ -6,6 +6,7 @@ description: >-
   Differs from writing-clean-code (code-level) by focusing on system-level decisions.
   For microservices patterns (Saga, granularity), use architecting-microservices instead.
   For DDD domain modeling, use applying-domain-driven-design instead.
+  For micro-frontend architecture patterns, use architecting-micro-frontends instead.
 ---
 
 # アーキテクチャモダナイゼーション
