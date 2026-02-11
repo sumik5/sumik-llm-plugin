@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (41個)
+└── skills/             # ナレッジスキル (43個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (41個)
+### Skills (43個)
 
 #### コア開発
 
@@ -69,7 +69,7 @@ sumik-claude-plugin/
 | `enforcing-type-safety` | 型安全性強制（any禁止） |
 | `testing-code` | テストファースト（Vitest/RTL/Playwright） |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
-| `securing-code` | セキュアコーディング |
+| `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 
 #### アーキテクチャ
 
@@ -131,6 +131,8 @@ sumik-claude-plugin/
 | `crafting-ai-copywriting` | AIコピーライティング（15の心理的プロンプト技法） |
 | `writing-latex` | LaTeX文書作成 |
 | `generating-google-slides` | Google Slides自動生成（GAS slideDataオブジェクト生成） |
+| `slidekit-create` | HTMLスライドプレゼンテーション生成（1スライド=1HTML、Tailwind CSS、15レイアウトパターン、5スタイル×5テーマ） |
+| `slidekit-templ` | PDFプレゼンテーション→HTMLスライドテンプレート変換（視覚再現アプローチ） |
 | `authoring-skills` | スキル作成・ソース変換・利用状況レビュー統合ガイド |
 | `searching-web` | Web検索（gemini） |
 | `reviewing-with-coderabbit` | CodeRabbitコードレビュー |

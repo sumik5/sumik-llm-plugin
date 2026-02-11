@@ -1,6 +1,6 @@
 ---
 name: securing-code
-description: REQUIRED after all code implementations. Automatically load when implementation is complete to run CodeGuard security check. Covers input validation, secrets management, OWASP top 10 countermeasures, and authentication/authorization patterns.
+description: REQUIRED after all code implementations. Automatically load when implementation is complete to run CodeGuard security check. Covers input validation, secrets management, OWASP top 10 countermeasures, authentication/authorization patterns, and web penetration testing knowledge (reconnaissance, attack techniques, bypass methods). For dynamic authorization model design (ABAC/ReBAC/Cedar), use implementing-dynamic-authorization instead.
 ---
 
 # セキュアコーディング
@@ -17,6 +17,11 @@ description: REQUIRED after all code implementations. Automatically load when im
 - [入力検証とインジェクション対策](./references/INPUT-VALIDATION.md) - 入力検証、サニタイゼーション、SQLインジェクション、XSS、CSRF対策
 - [認証・認可と機密情報管理](./references/AUTH-SECRETS.md) - 認証、認可、パスワード管理、環境変数、暗号化
 - [セキュアヘッダーとその他の対策](./references/SECURE-HEADERS.md) - HTTPヘッダー、ファイルアップロード、レート制限、ログ管理
+
+### ペネトレーションテスト知識（攻撃者の視点）
+- [偵察活動](./references/RECONNAISSANCE.md) - アタックサーフェスの調査、OSINT、ドメイン探索、エンドポイント発見
+- [攻撃手法](./references/ATTACK-TECHNIQUES.md) - 認証突破、認可不備、SQLi、XSS、SSRF、コマンドインジェクション、攻撃シナリオ
+- [発展的トピック](./references/ADVANCED-TOPICS.md) - ソースコード解析、クラウドセキュリティ調査、WAF回避、暗号攻撃
 
 ## 🎯 使用タイミング
 
@@ -183,6 +188,24 @@ HTTPヘッダー、ファイルアップロード、その他のセキュリテ�
 - レート制限の実装
 - セキュアなログ管理
 - 依存関係のセキュリティ管理
+
+### [偵察活動](./references/RECONNAISSANCE.md)
+攻撃者の視点でのアタックサーフェス調査手法：
+- パッシブ偵察（OSINT、ドメイン探索、CTログ）
+- アクティブ偵察（エンドポイント探索、ポートスキャン）
+- サードパーティサービス調査（GitHub、Docker Hub）
+
+### [攻撃手法](./references/ATTACK-TECHNIQUES.md)
+Webアプリケーションに対する代表的な攻撃手法：
+- 認証突破・認可制御の不備
+- インジェクション系攻撃（SQLi、XSS、SSRF、コマンドインジェクション等）
+- 攻撃シナリオの組み立て（MITRE ATT&CK）
+
+### [発展的トピック](./references/ADVANCED-TOPICS.md)
+より高度な調査・攻撃手法：
+- ソースコード解析（Source-Sink分析、SAST）
+- クラウドサービス調査（AWS IAM、Cognito、S3）
+- セキュリティ制限の回避（WAF、アクセス制御、暗号攻撃）
 
 ## ユーザー確認の原則（AskUserQuestion）
 
