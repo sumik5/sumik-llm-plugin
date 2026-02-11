@@ -3,8 +3,9 @@ name: writing-academic-papers
 description: >-
   Guides academic writing including essays, research papers, dissertations, and reflective journals.
   Use when producing scholarly or educational texts requiring formal argumentation, source referencing,
-  and academic style. Covers writing process, coherence, Harvard referencing, academic language, and
-  submission preparation. For technical documentation and code comments, use writing-technical-docs instead.
+  and academic style. Covers writing process, coherence, Harvard referencing, academic language,
+  submission preparation, and AI-assisted academic workflows (research, writing, data analysis,
+  presentations, ethics). For technical documentation and code comments, use writing-technical-docs instead.
 ---
 
 # アカデミックライティング
@@ -134,9 +135,9 @@ Rebuttal（反論への対応）
 
 | 文書タイプ | 構造推奨 |
 |-----------|---------|
-| **エッセイ** | Introduction → Body（PEEL法） → Conclusion |
-| **リフレクティブエッセイ** | 経験 → 感情 → 評価 → 分析（理論接続） → 結論 → 行動計画 |
-| **Dissertation** | Introduction(10%) → Literature Review(30%) → Methodology(15%) → Findings(20%) → Discussion(20%) → Conclusion(5%) |
+| **エッセイ** | Introduction（TAOS） → Body（ファネル型・PEEL法） → Conclusion（4ステップ） |
+| **リフレクティブエッセイ** | 経験 → 感情 → 評価 → 分析（理論接続） → 結論 → 行動計画（詳細は [REFLECTIVE-WRITING.md](references/REFLECTIVE-WRITING.md)） |
+| **Dissertation** | Introduction(10%) → Literature Review(30%) → Methodology(15%) → Findings(20%) → Discussion(20%) → Conclusion(5%)（詳細は [DISSERTATION-WRITING.md](references/DISSERTATION-WRITING.md)） |
 | **試験エッセイ** | 計画(15%) → 執筆(70%) → 見直し(15%)、即座のブレインダンプ |
 
 ### 引用形式の選択
@@ -194,8 +195,8 @@ Rebuttal（反論への対応）
 - 課題分析（コマンドワード・トピックワード・制限ワード）
 - 計画手法とリーディング戦略
 - クリティカルライティング（5つのレベル）
-- エッセイ構造（Introduction/Body/Conclusion）
-- 特殊な形式（リフレクティブライティング、試験、Dissertation）
+- エッセイ構造（TAOSテンプレート、ファネル型アプローチ、結論の4ステップ）
+- 特殊な形式（リフレクティブライティング、試験、Dissertation）へのリンク
 
 ### [COHERENCE-ARGUMENTS.md](references/COHERENCE-ARGUMENTS.md)
 一貫性のある文章と論証：
@@ -205,6 +206,7 @@ Rebuttal（反論への対応）
 - 段落構造（General→Specific、Old→New）
 - 参照表現と接続表現（Repetition, Pronoun, Signalling Nouns）
 - 批判的言語表現（確信度、程度、評価語彙、報告動詞）
+- **6つの論証テンプレート（Basic, However Factor, There-can-only-be-one, Middle Ground, Real World, Magic Number）**
 
 ### [REFERENCING-SOURCES.md](references/REFERENCING-SOURCES.md)
 引用・参照テクニック：
@@ -215,6 +217,9 @@ Rebuttal（反論への対応）
 - 二次引用、匿名著者の扱い
 - 批判的なソース活用（Author-prominent vs Information-prominent）
 - Academic malpractice の回避
+- **エビデンスのコンテキスト表現（時期・場所・対象の明示）**
+- **報告動詞の拡張（Distance Verbs: Neutral/Tentative/Strong）**
+- **リサーチソースHack（Google Books、PhD thesis、Book reviews、Journal article芋づる式、Real world info、Government sources）**
 
 ### [ACADEMIC-STYLE.md](references/ACADEMIC-STYLE.md)
 アカデミックスタイルと言語：
@@ -234,6 +239,77 @@ Rebuttal（反論への対応）
 - フォーマットとプレゼンテーション（行間隔、段落、表と図）
 - タイトルページとヘッダー（必須要素、フォント選択）
 - 校正の倫理的境界
+
+### [CRITICAL-RESEARCH.md](references/CRITICAL-RESEARCH.md)
+批判的リサーチ戦略:
+- 検索語戦略（OR/AND演算子、ワイルドカード、フレーズ検索）
+- 批判的情報源（18種の情報ソース活用法）
+- 海外文献の活用（言語バリア対処法、翻訳ツール）
+
+### [CRITIQUING-TEXTS.md](references/CRITIQUING-TEXTS.md)
+テキスト批評の手法:
+- 5つの批評アプローチ（Generic, Limitations, New, Outdated, Race/Class/Gender）
+- 各アプローチのステップと例文
+
+### [INCORPORATING-THEORIES.md](references/INCORPORATING-THEORIES.md)
+理論・モデル・フレームワーク活用:
+- 理論活用3手法（Break-it-down, Broader Significance, The Ideal）
+- 理論批評3手法（Repair, Enhance, Write-off）
+
+### [REFLECTIVE-WRITING.md](references/REFLECTIVE-WRITING.md)
+リフレクティブライティング:
+- 9つの手法（Reflective Models, Zooming Out, Two Paths, Articulating Doubt等）
+- 各手法のステップと例文
+
+### [DISSERTATION-WRITING.md](references/DISSERTATION-WRITING.md)
+Dissertation章別テンプレート:
+- Research Aim（5種）、Introduction（2種）、Literature Review（3種）
+- Methodology（2種）、Findings/Discussion（2種）
+- Conclusion、Abstract
+
+### AI活用ガイド
+
+### [AI-PRACTICAL-TIPS.md](references/AI-PRACTICAL-TIPS.md)
+AI活用の実践ガイド:
+- 生成AIの基礎概念（LLM、トークン、温度パラメータ）
+- プロンプトエンジニアリングの基本原則
+- AIツール評価基準（汎用 vs 専門ツール）
+- ワークフロー統合とエラー対処
+- 将来トレンド（XAI、転移学習、AR/VR）
+
+### [AI-RESEARCH.md](references/AI-RESEARCH.md)
+AI支援リサーチ:
+- アイデア化・概念開発（AIブレインストーミング）
+- 文献発見・迅速レビュー
+- 仮説生成・方法論的ガイダンス
+- ツール開発・データ取得
+
+### [AI-WRITING.md](references/AI-WRITING.md)
+AI支援ライティング・出版:
+- ドラフティングプロセス（構造化→執筆→推敲）
+- AIの同意傾向への対処と批判的プロンプティング
+- 引用・参照管理とhallucination対策
+- 出版最適化とジャーナル選択
+
+### [AI-DATA-ANALYSIS.md](references/AI-DATA-ANALYSIS.md)
+AIデータ管理・分析:
+- データラングリング・クリーニング（異常検出、重複排除）
+- データ統合・ハーモナイゼーション
+- 探索的分析・特徴量エンジニアリング
+
+### [AI-PRESENTATIONS.md](references/AI-PRESENTATIONS.md)
+AIプレゼンテーション:
+- プレゼン作成（構造化、オーディエンス別調整）
+- AI生成ビジュアルとWOW効果
+- ソーシャルメディア活用とデザイン
+
+### [AI-ETHICS.md](references/AI-ETHICS.md)
+AI倫理・規制:
+- データ保護・プライバシー（GDPR対応）
+- 知的財産・著作権（AI生成コンテンツ）
+- 学術的誠実性と使用開示
+- ピアレビュー・学生評価でのAI
+- 実践的倫理チェックリスト
 
 ---
 
@@ -317,6 +393,7 @@ Rebuttal（反論への対応）
 - **removing-ai-smell**: AI臭除去（文章の自然化）
 - **writing-latex**: LaTeX学術文書作成
 - **researching-libraries**: ライブラリ調査（文献調査と同様のアプローチ）
+- **crafting-ai-copywriting**: AI活用コピーライティング（マーケティング文脈）
 
 ---
 

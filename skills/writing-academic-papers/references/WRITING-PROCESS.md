@@ -205,13 +205,77 @@ Rebuttal（反論への対応）- 予想される反論とその処理
 
 ### 5.2 Introduction（序論）
 
-#### 5.2.1 Introductionの構成要素
+#### 5.2.1 TAOSテンプレート
 
-1. **Hook**: 読者の関心を引く（問い、引用、統計、逸話）
-2. **Context**: 背景情報、トピックの重要性
-3. **Thesis Statement**: 中心的主張の明示
-4. **Scope**: 扱う範囲と扱わない範囲の明示
-5. **Structure**: エッセイの構成の予告
+Introductionを効果的に構築するための4ステップ構造：
+
+```
+T - Topic（トピック導入）
+A - Aim（目的の明示）
+O - Overview（構成の概観）
+S - Significance（意義・重要性）- オプショナル
+```
+
+#### ステップ1: Topic（トピック導入）
+
+エッセイの主題を読者に紹介する。
+
+**基本アプローチ**:
+"Technological advancements have revolutionized patient care in the United Kingdom, transforming the way healthcare is delivered and experienced."
+
+**問題化アプローチ（推奨）**:
+トピックを問題として提示し、読者の関心を引く：
+
+- **持続不可能性を示す**: "The shortage of housing, particularly social and genuinely affordable housing, has led to spiralling rents and house prices across the country."
+- **悪化を示す**: "Universities are reporting a steep drop in international students applying to come to the UK..."
+- **矛盾を示す**: "Michel Foucault, French historian and philosopher, claimed the question of truth is a question of power. However, there is a performative contradiction in Foucault's account..."
+
+#### ステップ2: Aim（目的の明示）
+
+エッセイの中心的な目的を1文で明確に示す。課題文を言い換え、"This essay will..." で始める。
+
+**基本形**:
+"This essay will assess the impact of urbanization on the health outcomes of children in the UK."
+
+**高度な形式（推奨）**:
+
+| アプローチ | 例 |
+|---------|---|
+| **Strong argument** | "This essay will argue that current levels of urbanization have negatively impacted the health outcomes of children in London." |
+| **理論/概念/モデルを使用** | "This essay will utilize Barton's Urban Health model to assess the impact of urbanization on the health outcomes of children in London." |
+| **ケーススタディを使用** | "This essay will assess the case of Rebecca Simmons to weigh up the impact of urbanization on the health outcomes of children in London." |
+
+#### ステップ3: Overview（構成の概観）
+
+エッセイの主要セクションを順に簡潔に説明する。
+
+**例**:
+"This essay will commence with a broad discussion on the definition of populism, including its key features and variations. It will then focus on populism in relation to democratic institutions within the European context. This will be followed by a more detailed discussion on populism's impact on democratic institutions in four critical areas: political parties, electoral systems, policy-making and public discourse."
+
+#### ステップ4: Significance（意義・重要性）- オプショナル
+
+より広い社会的文脈での重要性を示す。
+
+**例**:
+- **政府調査との対応**: "The assignment's focus on self-driving vehicles is significant because their development and deployment is currently being scrutinized by a government inquiry."
+- **新しい法律**: "This topic is pertinent considering that motorway safety has received increased attention with the enactment of the M48 Motorway Order 2025."
+- **統計の公開**: "This topic is significant due to the release of recent statistics that indicate a substantial population decline in Welsh rural and coastal regions."
+
+#### 完全なIntroduction例
+
+```
+Climate change poses risks to companies, financial institutions and individuals alike. Both physical and transition risks could have material impacts on the value of companies and their assets (BEIS, 2022).
+[Topic: 背景情報]
+
+In this light, this essay will critically evaluate the grounds for making climate-related financial requirements mandatory.
+[Aim: 明確な目的]
+
+This essay will cover four areas. First, there will be a discussion of the material impacts of companies and their assets caused by climate change. Second, this essay will evaluate the theoretical arguments for and against making climate-related financial requirements mandatory. The third area will explore prominent case studies on the issue of climate-related financial requirements mandatory. Drawing from the theoretical and practical discussions, the last area will craft an approach to climate-related financial requirements to enhance existing practices and address the growing threat of climate change.
+[Overview: 詳細な構成]
+
+Evaluating climate-related financial requirements is deeply significant in the face of mounting opposition and the commitments made by the UK government at the recent United Nations Climate Change Conference.
+[Significance: 社会的意義]
+```
 
 #### 5.2.2 Thesis Statementの要件
 
@@ -226,7 +290,33 @@ Rebuttal（反論への対応）- 予想される反論とその処理
 
 ### 5.3 Main Body（本論）
 
-#### 5.3.1 パラグラフ構造（PEEL法）
+#### 5.3.1 ファネル型アプローチ
+
+本論を広い視点から段階的に焦点を絞る構造で組み立てる：
+
+```
+Definition（定義）- 課題の主要概念を定義
+  ↓
+Context（文脈化）- 定義した概念を課題の文脈（地域・時代等）に接続
+  ↓
+Aim（焦点化）- 中心的な目的に集中（本論の65%以上をここに割く）
+  ↓
+The Way Forward（展望）- 解決策・新しいビジョン・推奨事項
+```
+
+**実践例（課題: "Assess the impact of populism on European democratic institutions"）**:
+
+| セクション | 内容 |
+|-----------|------|
+| **Definition** | "populism"の定義、主要な特徴とバリエーション |
+| **Context** | ポピュリズムをヨーロッパの民主的制度の文脈に接続 |
+| **Aim** | ポピュリズムがヨーロッパの民主的制度に及ぼす影響を評価（政党、選挙制度、政策決定、公共討論の4領域で詳細分析） |
+| **The Way Forward** | ヨーロッパの民主的制度の強靭化・適応のための推奨事項 |
+
+このアプローチをエッセイの冒頭で明示することも有効：
+"This assignment will adopt the funnel approach to assess the impact of populism on European democratic institutions (Arthur, 2025)."
+
+#### 5.3.2 パラグラフ構造（PEEL法）
 
 | 要素 | 機能 | 具体例 |
 |------|------|-------|
@@ -253,13 +343,64 @@ Rebuttal（反論への対応）- 予想される反論とその処理
 
 ### 5.4 Conclusion（結論）
 
-#### 5.4.1 Conclusionの構成要素
+#### 5.4.1 結論の4ステップテンプレート
 
-1. **Restatement**: Thesis statementの再表現（同じ言葉は避ける）
-2. **Summary**: 主要な論点の簡潔な統合
-3. **Synthesis**: 新しい理解の提示（単なる繰り返しでない）
-4. **Implications**: より広い文脈での意味、実践への示唆
-5. **Future directions**: 残された問い、今後の研究課題
+```
+1. Central Conclusion（中心的結論）- 主要メッセージを1文で明示
+  ↓
+2. Trail of Evidence（証拠の道筋）- 結論に至るまでの論理展開を要約
+  ↓
+3. Broader Implications（広い含意）- より大きな文脈での意味
+  ↓
+4. Final Thought（最終メッセージ）- 印象的な締めくくり
+```
+
+#### ステップ1: Central Conclusion
+
+結論全体の核心を1文で示す。
+
+**例**:
+"Through a critical review of the academic literature and government documents, this assignment has demonstrated that the state bears some responsibility in the tragedy of the Grenfell Tower Fire."
+
+#### ステップ2: Trail of Evidence
+
+結論に至るまでの主要な論理ステップ・証拠を簡潔に要約。
+
+**例**:
+"From the trail of evidence from the 1990s, it was possible to conclude that the state had failed the Grenfell residents. This assignment pointed to the state's failure to engage with the research and recommendations from Parliamentary Select Committees coupled with its 'inadequate' and 'poorly operated' pre-Grenfell regulatory system. Both of which created a 'perfect storm' (Davis, 2022, p. 66)."
+
+#### ステップ3: Broader Implications
+
+研究全体から得られるより広い教訓・含意を示す。
+
+**含意のタイプ**:
+
+| タイプ | 説明 |
+|-------|------|
+| **根本原因の特定** | 表面的な問題の背後にある根本的な原因を指摘 |
+| **悲観的見通し** | 改革の兆しがなく、将来が暗い |
+| **楽観的見通し** | 政府委員会設置、法律制定、意識向上等のポジティブな動き |
+| **過小評価の指摘** | 問題の真の範囲が認識されていない |
+| **過大評価の指摘** | 他のより重要な問題に焦点を移すべき |
+| **システム vs 個人** | 個人の責任ではなく、システムの問題 |
+| **倫理的ジレンマ** | 社会的選択が必要な倫理的岐路 |
+
+**例**:
+"The evidence so far points to a grave failure of not just one party, but the entire British state over a prolonged period with devastating consequences. It is an indictment of not just a few politicians but an entire style of government."
+
+#### ステップ4: Final Thought
+
+強く印象的な結びの文。
+
+**タイプと例**:
+
+| タイプ | 例 |
+|------|---|
+| **行動喚起** | "Moving forward, it is imperative that these lessons lead to tangible changes in how we design, manage and inhabit our urban environments. By doing so, we honour the memory of those lost and ensure that such a tragedy is never repeated." |
+| **問いかけ** | "Given the overwhelming benefits of renewable energy, the question remains: How long can society afford to delay its widespread implementation?" |
+| **未来のビジョン** | "Envisioning a future shaped by a multi-party system that is truly representative of the British electorate is all the motivation needed to pursue electoral reform." |
+| **引用** | "'Not everything that is faced can be changed, but nothing can be changed until it is faced.'" |
+| **読者への挑戦** | "The evidence is clear, and the steps have been laid out. The challenge now lies in the academic community's willingness to embrace the transformative potential of AI pedagogies." |
 
 #### 5.4.2 避けるべき要素
 
@@ -268,33 +409,26 @@ Rebuttal（反論への対応）- 予想される反論とその処理
 - ❌ 「In conclusion...」の多用（明白なため不要）
 - ❌ 謝罪（「時間が足りず十分に論じられなかった」等）
 
+#### オプショナル: Future Directions
+
+文献が不足している領域や新しい展開を指摘することで、トピックへの深い理解を示す。
+
+**例**:
+"The literature was sparse on the susceptibility of the state to the well-managed campaigns of lobbyists from the cladding industry. It would be interesting to know more about the level of reliance that the state had on the information from the cladding industry and why this was the case."
+
 ---
 
 ## 6. 特殊な形式
 
 ### 6.1 リフレクティブライティング
 
-#### 6.1.1 リフレクションの定義
+リフレクティブライティングは、個人の経験を批判的に分析し、理論と実践を統合する特殊な形式である。
+
+#### 基本概念
 
 経験を批判的に分析し、そこから学びを抽出するプロセス。単なる経験の記述ではなく、理論との対話を含む。
 
-#### 6.1.2 リフレクティブサイクル
-
-```
-経験（What happened?）
-   ↓
-感情（How did I feel?）
-   ↓
-評価（What was good/bad?）
-   ↓
-分析（Why did it happen?）- 理論との接続
-   ↓
-結論（What did I learn?）
-   ↓
-行動計画（What will I do differently?）
-```
-
-#### 6.1.3 リフレクティブライティングの特徴
+#### 主要な特徴
 
 | 要素 | 学術的エッセイ | リフレクティブエッセイ |
 |------|--------------|---------------------|
@@ -303,19 +437,11 @@ Rebuttal（反論への対応）- 予想される反論とその処理
 | **証拠** | 文献主体 | 経験 + 文献 |
 | **目的** | 一般的知識への貢献 | 個人の成長の実証 |
 
-#### 6.1.4 理論と実践の統合
+#### 詳細ガイド
 
-効果的なリフレクションは経験と理論を往復する：
+リフレクティブライティングの詳細な手法とテンプレートについては以下を参照：
 
-```
-具体的経験 → 理論的概念で解釈 → 新しい理解 → 次の実践への計画
-```
-
-**例**:
-- 経験: 「学習者Aが集中できなかった」
-- 理論: 「Maslow's hierarchy of needs」
-- 分析: 「基本的ニーズが満たされていない可能性」
-- 行動計画: 「次回は環境要因を事前に確認する」
+📖 **[REFLECTIVE-WRITING.md](REFLECTIVE-WRITING.md)** - 9つのリフレクティブ手法、リフレクティブモデル、ステップバイステップガイド
 
 ### 6.2 試験でのエッセイライティング
 
@@ -344,7 +470,9 @@ Rebuttal（反論への対応）- 予想される反論とその処理
 
 ### 6.3 Dissertation / 長編論文
 
-#### 6.3.1 Dissertationの構造
+Dissertation（修士論文・博士論文）は、独立した研究を体系的に記述する長編論文である。
+
+#### 基本構造
 
 | 章 | 機能 | 一般的な語数割合 |
 |----|------|----------------|
@@ -355,22 +483,11 @@ Rebuttal（反論への対応）- 予想される反論とその処理
 | **Discussion** | 結果の解釈、Literature Reviewとの対話 | 20% |
 | **Conclusion** | 要約、含意、限界、今後の研究 | 5% |
 
-#### 6.3.2 Literature Reviewの役割
+#### 詳細ガイド
 
-単なる要約集ではなく：
+各章の詳細なテンプレートと構造については以下を参照：
 
-- **Gap identification**: 既存研究の空白を特定
-- **Theoretical framework**: 自分の研究の理論的位置づけ
-- **Critical synthesis**: 複数の研究を統合・評価
-- **Justification**: 自分の研究の必要性を論証
-
-#### 6.3.3 データと解釈の分離
-
-| Findings章 | Discussion章 |
-|-----------|-------------|
-| データの客観的提示 | データの解釈・意味づけ |
-| 「何が見つかったか」 | 「それは何を意味するか」 |
-| 図表、引用の提示 | 理論との対話、含意の探求 |
+📖 **[DISSERTATION-WRITING.md](DISSERTATION-WRITING.md)** - Research Aim、Introduction、Literature Review、Methodology、Findings/Discussion、Conclusion、Abstract の章別テンプレート（複数バリエーション）
 
 ---
 

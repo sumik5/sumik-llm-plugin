@@ -128,7 +128,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `writing-technical-docs` | 技術ドキュメント（7つのC原則） |
-| `writing-academic-papers` | アカデミックライティング（エッセイ・論文・dissertation・リフレクティブジャーナル、Harvard参照、批判的思考） |
+| `writing-academic-papers` | アカデミックライティング（エッセイ・論文・dissertation、Harvard参照、批判的思考、論証テンプレート6種、TAOS導入・ファネル本文・結論4ステップ、リフレクティブライティング9手法、Dissertation章別テンプレート、批評手法5種、理論活用・批評手法、リサーチソースHack、AI活用学術ワークフロー） |
 | `removing-ai-smell` | AI臭除去（コード・文章の自然化） |
 | `crafting-ai-copywriting` | AIコピーライティング（15の心理的プロンプト技法） |
 | `writing-latex` | LaTeX文書作成 |

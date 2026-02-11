@@ -350,6 +350,272 @@ Looking at the Trends in International Mathematics and Science Study,
 
 ---
 
+---
+
+## 論証テンプレート（6種）
+
+効果的な論証は、明確な構造を持つ。以下の6つのテンプレートを状況に応じて使い分けることで、説得力のある議論を構築できる。
+
+### 1. Basic Argument（基本論証）
+
+#### 構造
+
+```
+Introduction Sentence（導入文）- 主張の提示
+  ↓
+Evidence Sentences（証拠文）- 引用・パラフレーズで根拠を示す
+  ↓
+Verdict Sentence（結論文）- 証拠に基づく結論
+```
+
+#### 使用タイミング
+
+本論で単一の主張を論証する標準的な段落構成。
+
+#### 例
+
+```
+Canada's publicly funded healthcare system is among the best in the world.
+[導入文: 主張]
+
+Smith (2025) explains that the Canadian system ensures equal healthcare access through social assistance. Moreover, Cann (2024) states that Canada's healthcare system prioritizes primary care services over specialist consultations.
+[証拠文: 複数のエビデンス]
+
+For these reasons, the healthcare system represents an exemplar of publicly funded healthcare.
+[結論文: 証拠に基づく結論]
+```
+
+---
+
+### 2. The However Factor（対立視点の提示）
+
+#### 構造
+
+```
+Introduction Sentence - 論争の存在を示す
+  ↓
+First Perspective - 第1の視点を提示
+  ↓
+"However" - 対比を示す接続表現
+  ↓
+Contrasting Perspective - 対立する視点を提示
+  ↓
+Verdict Sentence - どちらの視点がより妥当か評価
+```
+
+#### 使用タイミング
+
+異なる学者の見解を対照し、自分の判断を示す場合。
+
+#### 導入文の例
+
+- "Scholars have long debated the..."
+- "There has been much disagreement between scholars on the subject of..."
+- "One of the most significant current discussions in... is between..."
+- "A much-debated question is whether..."
+
+#### 対立を示す表現
+
+- "However, Jones (2024) points out that..."
+- "Mohamed (2025) disputes this account of..."
+- "Ellermeier (2024) challenges the widely held view that..."
+
+#### 例
+
+```
+The introduction of AI into the educator's toolbox has been the subject of intense debate.
+[導入文]
+
+On one hand, Karim and Baker (2025) argue that interactive AI tools, such as virtual tutors and chatbots, can impart knowledge and engage students in new and innovative ways, making learning more interactive and enjoyable.
+[第1視点]
+
+However, on the other hand, Jewitt (2020) questioned this premise. She argued that education is not just about imparting knowledge; it's also about mentoring and human interaction. Over-reliance on AI can reduce the personal connection between educators and students, potentially impacting the quality of education and student well-being.
+[対立視点]
+
+Though both perspectives have merit, Karim's study (2020) is rooted in the current context of the massification of higher education in which students significantly outnumber lecturers. In an ideal situation, Jewitt's argument is undeniable, but in the current climate, interactive AI tools used prudently, offer a viable alternative.
+[結論: 文脈を考慮した評価]
+```
+
+---
+
+### 3. There-can-only-be-one（定義・解釈の選択）
+
+#### 構造
+
+```
+Introduction Sentence - 複数の定義・解釈の存在を示す
+  ↓
+Evidence Sentences - 複数の定義を提示
+  ↓
+Verdict Sentence - 最適な定義を選択し、理由を説明
+```
+
+#### 使用タイミング
+
+- エッセイ冒頭で重要概念を定義する場合
+- 複数の解釈が存在する現象を扱う場合
+
+#### 導入文の例
+
+- "The definition of... has evolved."
+- "There are multiple definitions of..."
+- "Several definitions of... have been proposed."
+- "Despite its common usage,... is used in different disciplines to mean different things."
+
+#### 例
+
+```
+Human capital has acquired several definitions over the decades.
+[導入文]
+
+Schultz (1961) proposed that human capital consists of knowledge, skills and abilities of the people employed in an organization. Bontis (1999) defines human capital as the human factor that gives the organization its distinctive character. Thomas (2013) describes human capital as the performance and potential of people within the organization.
+[複数の定義を提示]
+
+This essay will utilize Thomas's work due to its inclusion of the term 'potential', which suggests that organizations can use people to develop over time.
+[選択と理由]
+```
+
+---
+
+### 4. Middle Ground（中庸の道）
+
+#### 構造
+
+```
+Introduction Sentence - 対立の存在を示す
+  ↓
+Description of Disagreement - 対立の内容を記述
+  ↓
+Verdict Sentence - 両者の共通点・統合可能性を示す
+```
+
+#### 使用タイミング
+
+対立する見解の間に共通基盤や統合可能性を見出せる場合。
+
+#### 対立を示す表現
+
+- "There is a notable disagreement between Johnson and Williams regarding..."
+- "While Anderson asserts that..., Brown contends that..."
+- "At the heart of their debate is the question of whether..."
+
+#### 共通点を示す表現
+
+- "Both... and... share several key features."
+- "There are several similarities between... and..."
+- "Both... and... were developed for similar purposes."
+
+#### 例
+
+```
+There is a notable difference between Shakur and Wallace regarding the role of technology in higher education.
+[導入文]
+
+Their difference appears to stem from the importance given to technology; Shakur gives it prime importance. He sees technology as a way to bridge educational gaps and prepare students for a technologically advanced future. However, Wallace argues that an overemphasis on digital tools can undermine fundamental skills such as critical thinking, problem-solving and face-to-face communication.
+[対立の記述]
+
+Despite their contrasting perspectives on the role of technology in education, both Wallace and Shakur find common ground in the emphasis on student engagement. They both agree that the goal of any educational strategy should be to engage students actively and meaningfully. This shared emphasis on engagement underscores the importance of considering how various tools can best serve students' needs, highlighting that while their approaches differ, their objectives align in fostering a dynamic and effective learning environment.
+[共通基盤の発見]
+```
+
+---
+
+### 5. Real World（実世界例の統合）
+
+#### 構造
+
+```
+Introduction Sentence - 概念的主張
+  ↓
+Connecting Phrase - 実世界例への橋渡し
+  ↓
+Real-World Example - 具体的事例の記述
+  ↓
+Verdict Sentence - 事例から得られる教訓
+```
+
+#### 使用タイミング
+
+- 抽象的な理論を具体化する場合
+- 主張を実証する事例がある場合
+- 理論と実践のギャップを示す場合
+
+#### 接続表現
+
+- "An example of this is..."
+- "This is exemplified by..."
+- "This distinction is exemplified in..."
+- "The effectiveness/ineffectiveness of... has been exemplified by..."
+- "This is evident in the case of..."
+
+#### 結論表現
+
+- "This case has shown that..."
+- "From this example, it is evident that..."
+- "This example confirms the importance of..."
+- "As this case demonstrates, it is important that..."
+
+#### 例
+
+```
+Climate change is often associated with the destructive influence of excess heat and flooding but less so with the insidious erosion of health by the indoor 'breathed environment' (Smith, 2023, p. 5).
+[概念的主張]
+
+The most striking illustration of this is Awaab Ishak died in a small apartment in Rochdale, Greater Manchester, on 21 December 2020, shortly after his second birthday. The autopsy found that Awaab's airways were swollen to a degree that would compromise his breathing, and fungus was detected in his blood and lungs along with evidence of severe allergic granulomatous inflammation (Holgate, 2024).
+[実世界例の詳細]
+
+This case has shown that beyond the headlines, climate change is impacting the quality of individual lives; the mould spores that were present in Awaab's small apartment are ubiquitous and will only take hold if the temperature and humidity are suitable. Climate change is a key factor in creating these conditions of condensation and dampness in housing.
+[事例から得られる教訓]
+```
+
+---
+
+### 6. The Magic Number（数値リスト論証）
+
+#### 構造
+
+```
+Introduction Sentence - リストの概要を提示
+  ↓
+First / Second / Third ... - 各項目を順序立てて展開
+  ↓
+Verdict Sentence - リスト全体から得られる結論
+```
+
+#### 使用タイミング
+
+- 複数の関連する論点をまとめる場合
+- 複数の理由・要因・問題点を提示する場合
+
+#### 導入文の例
+
+- "There are three reasons why..."
+- "The disadvantages of... stem from three matters..."
+- "The three key aspects of... can be listed as follows:"
+- "Lu and Xu (2025) highlight three major causes of failure."
+
+#### 結論表現
+
+- "These factors have shown that..."
+- "From these studies, it is evident that..."
+- "These points confirm the importance of..."
+- "The evidence presented thus far supports the idea that..."
+
+#### 例
+
+```
+For several reasons, it is futile for universities to rely on the development of AI detection tools to detect the use of AI in student work.
+[導入文: 複数理由の存在]
+
+First, AI has attracted considerable funding to the extent that AI detection services cannot compete with the vast resources of Microsoft, Open AI and Google (Furze, 2024). Second, students can use prompting tactics that are designed to circumvent detection tools (Smith, 2025). Third, false positives are risks that most university departments are not willing to take (Lucas, 2025). Fourth, the additional workload that AI detection tools demand is beyond what most departments can bear (Kay, 2026).
+[理由を数値順に展開]
+
+These reasons should hinder efforts to rely solely on AI detection tools. It may be possible to overcome one of these hurdles but not all four.
+[結論: リスト全体の含意]
+```
+
+---
+
 ## まとめ
 
 一貫性のある文章と説得力のある論証を構築するためには:
@@ -360,5 +626,6 @@ Looking at the Trends in International Mathematics and Science Study,
 4. **General→Specific、Old→New の原則で段落を構造化する**
 5. **効果的な参照表現・接続表現で結束性を高める**
 6. **批判的言語表現を駆使して自身の立場を明確にする**
+7. **6つの論証テンプレートを状況に応じて使い分ける**
 
 これらの原則を体系的に適用することで、読者にとって理解しやすく、説得力のあるアカデミックテキストを作成できる。

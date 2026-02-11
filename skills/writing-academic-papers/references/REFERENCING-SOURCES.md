@@ -446,6 +446,185 @@ Broadbent (2015) distinguishes between mild and severe forms of dyslexia.
 
 ---
 
+---
+
+## エビデンスのコンテキスト表現
+
+証拠を提示する際、その時期・場所・対象を明示することで、読者の理解を深めることができる。
+
+### コンテキスト要素
+
+| 要素 | 目的 | 例 |
+|-----|------|---|
+| **時期（When）** | 研究が行われた時代背景を示す | "In her 2021 study during the pandemic..." |
+| **場所（Where）** | 地理的・制度的文脈を示す | "Through analysis of 18 UK universities..." |
+| **対象（Who/What）** | 研究対象の特性を明示 | "Examining third-grade students in urban settings..." |
+
+### 実践例
+
+**コンテキストなし**:
+```
+Choeying (2021) found that plagiarism has been dealt with more punitively in UK universities since the move to online learning.
+```
+
+**コンテキストあり**:
+```
+Through her documentary analysis of academic integrity policies from 18 universities, Choeying (2021) found that plagiarism has been dealt with more punitively in UK universities since the move to online learning.
+```
+
+---
+
+## 報告動詞の拡張（Distance Verbs）
+
+報告動詞の選択は、情報源への距離感（支持・中立・懐疑）を示す重要な手段である。
+
+### Distance Verbsの3分類
+
+| 距離 | 動詞例 | ニュアンス |
+|------|-------|-----------|
+| **Neutral** | states, reports, describes, mentions, explains, clarifies, interprets | 中立的な事実報告 |
+| **Tentative** | suggests, proposes, recommends, puts forward, offers | 提案・示唆レベル |
+| **Strong** | argues, claims, asserts, contends, insists | 強い主張・論証 |
+| **Agreement** | agrees, supports, endorses, confirms, corroborates | 支持・同意 |
+| **Disagreement** | refutes, rejects, challenges, contradicts | 反対・反論 |
+| **Questioning** | doubts, criticizes, queries, casts doubt | 疑問・批判 |
+| **Emphasis** | emphasizes, highlights, stresses, underlines, points out | 強調 |
+| **Demonstration** | shows, demonstrates, illustrates, reveals, indicates | 示す・明らかにする |
+
+### 著者の背景情報を示す表現
+
+著者の専門性・背景を示すことで、引用の権威性と文脈を強化できる：
+
+**例**:
+- "Freire (1974, p. 24), **a leading advocate of critical pedagogy**, asserted that..."
+- "Ellsworth, **a post structural feminist**, argues that..."
+- "Simeon, **who has a background in sports science**, stated..."
+- "Jones, **an American professor of public health**, contends that..."
+
+**反応・文脈を示す表現**:
+- "In reaction to Peters and Waterman's 2020 article on organizational conformity, Farid (2021) argues that..."
+
+---
+
+## リサーチソースHack
+
+### Google Booksの活用
+
+#### プレビュー機能の戦略的利用
+
+- **検索機能**: 書籍内の特定キーワードを検索
+- **プレビューページ**: 目次、索引、選択されたページを閲覧
+- **引用の確認**: 著者名・概念の初出箇所を特定
+
+#### 検索テクニック
+
+```
+site:books.google.com "[キーワード]"
+```
+
+**活用シーン**:
+1. 文献リストから気になる書籍のプレビューを確認
+2. 特定理論の元文献を特定
+3. 引用する箇所の前後文脈を確認
+
+### PhD Thesis（博士論文）の活用
+
+#### データベース
+
+| データベース | 対象地域 | 特徴 |
+|-----------|---------|------|
+| **EThOS** (UK) | イギリス | 無料、全文アクセス可能なものが多い |
+| **ProQuest Dissertations** | 国際 | 最大規模、要約は無料、全文は有料の場合あり |
+| **国立国会図書館** | 日本 | 国内博士論文を網羅 |
+
+#### 活用メリット
+
+- **詳細な文献レビュー**: 特定分野の包括的な先行研究整理
+- **方法論の参照**: 詳細な研究デザインの記述
+- **未出版の知見**: ジャーナル論文になっていない新しい研究
+- **引用の芋づる**: 参考文献リストから関連文献を発見
+
+### Book Review（書評）の活用
+
+#### 検索方法
+
+```
+[書名] "book review" [著者名]
+```
+
+または学術データベース（JSTOR, Project MUSE等）で "Book Reviews" セクションを検索。
+
+#### 活用メリット
+
+| メリット | 説明 |
+|--------|------|
+| **批判的視点の獲得** | 専門家による書籍の評価・限界の指摘 |
+| **主要論点の要約** | 効率的な内容把握 |
+| **比較対照の材料** | 他研究との位置づけを理解 |
+| **引用での批判的統合** | 「XはYと主張するが、Zの書評では...と指摘されている」 |
+
+### Journal Articleからの芋づる式発見
+
+#### 1本の論文から広がる4つのルート
+
+| ルート | 方法 |
+|-------|------|
+| **参考文献リスト** | その論文が引用した先行研究をたどる（過去へ） |
+| **被引用文献（Forward Citation）** | Google Scholar等で「この論文を引用している論文」を検索（未来へ） |
+| **関連論文** | データベースの "Related Articles" 機能 |
+| **著者の他の研究** | 同じ著者の論文リストを確認 |
+
+#### 実践例
+
+```
+1. 重要な論文1本を特定
+   ↓
+2. Google Scholarで検索 → 「引用元」タブで被引用文献を表示
+   ↓
+3. 参考文献リストから重要そうな3本を選択
+   ↓
+4. それぞれについて手順2-3を繰り返す
+   ↓
+5. 10-15本の関連文献ネットワークが構築される
+```
+
+### Real World Information（実世界データ）
+
+#### 統計データソース
+
+| ソース | 内容 |
+|-------|------|
+| **政府統計** | 人口、経済、教育、保健等の公式データ |
+| **国際機関** | WHO, UNESCO, World Bank等のレポート |
+| **NGO報告書** | 分野別の詳細な調査報告 |
+| **ニュースソース** | BBC, Reuters等の信頼できるメディア |
+
+#### 活用方法
+
+- **数値的根拠**: "According to the Office for National Statistics, the UK population is 67 million (ONS, 2023)."
+- **事例の提示**: 理論を実世界の出来事に接続
+- **トレンドの提示**: 時系列データによる変化の実証
+
+### Government Sources（政府情報源）
+
+#### 活用可能な文書タイプ
+
+| 文書タイプ | 例 |
+|----------|---|
+| **白書・報告書** | 政策方針、調査結果 |
+| **統計年鑑** | 公式統計データ |
+| **法律・規制文書** | 教育法、労働法等 |
+| **議会報告** | Select Committee Reports |
+| **政策評価** | Impact Assessment |
+
+#### 引用時の注意
+
+- **著者名**: 省庁・機関名（例: DfE, Ofsted）
+- **信頼性**: 政府発行は権威あるソースとして認められる
+- **批判的視点**: 政治的バイアスの可能性を考慮
+
+---
+
 ## まとめ
 
 正確で効果的なソース参照は、アカデミックライティングの基礎である。
@@ -457,5 +636,8 @@ Broadbent (2015) distinguishes between mild and severe forms of dyslexia.
 3. **一貫性**を保つ（選んだスタイルを文書全体で統一）
 4. **参照ソフトウェア**の活用を検討（大規模な文献管理に有効）
 5. **Plagiarism を避ける**ため、すべてのソースを明示し、批判的に統合する
+6. **エビデンスのコンテキスト**を明示（時期・場所・対象）
+7. **報告動詞の戦略的選択**で情報源への距離感を調整
+8. **多様なリサーチソース**を活用（Google Books, PhD thesis, Book reviews, Real world data等）
 
 引用と参照は、学術コミュニティへの参加を示し、自分のアイデアの信頼性と独自性を高める重要な手段である。

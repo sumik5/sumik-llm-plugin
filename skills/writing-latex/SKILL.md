@@ -339,7 +339,30 @@ latexmk -pdfdvi -shell-escape document.tex
 
 ## 詳細リファレンス
 
-- **[REFERENCE.md](./references/REFERENCE.md)**: パッケージ詳細、listings設定、数式応用パターン、TikZ/circuitikz、コンパイル設定
+### 基本（日本語レポート特化）
+- **[REFERENCE.md](./references/REFERENCE.md)**: listings設定、数式応用パターン、TikZ/circuitikz、コンパイル設定
+
+### 高度なLaTeXパッケージ活用
+- **[DOCUMENT-STRUCTURE.md](./references/DOCUMENT-STRUCTURE.md)**: 文書構造（DocumentMetadata, titlesec, varioref, cleveref）
+- **[PARAGRAPH-FORMATTING.md](./references/PARAGRAPH-FORMATTING.md)**: 段落フォーマット（microtype, ragged2e, lettrine, 脚注）
+- **[LISTS-AND-VERBATIM.md](./references/LISTS-AND-VERBATIM.md)**: リスト・verbatim（enumitem, amsthm, fancyvrb, multicol）
+- **[PAGE-LAYOUT.md](./references/PAGE-LAYOUT.md)**: ページレイアウト（geometry, fancyhdr, widows-and-orphans）
+- **[TABLES-ADVANCED.md](./references/TABLES-ADVANCED.md)**: 高度なテーブル（tabularray, longtable, multirow, siunitx Sカラム）
+- **[FLOATS-ADVANCED.md](./references/FLOATS-ADVANCED.md)**: フロート制御（配置アルゴリズム, caption, subcaption, wrapfig）
+- **[GRAPHICS-ADVANCED.md](./references/GRAPHICS-ADVANCED.md)**: グラフィックス（tcolorbox, TikZ詳細, overpic, adjustbox）
+- **[FONTS-GUIDE.md](./references/FONTS-GUIDE.md)**: フォント選択（NFSS, fontspec, フォント分類・推奨）
+- **[MATHEMATICS-ADVANCED.md](./references/MATHEMATICS-ADVANCED.md)**: 高等数学（amsmath/mathtools完全ガイド, 数式フォント）
+- **[MATH-SYMBOL-TABLES.md](./references/MATH-SYMBOL-TABLES.md)**: 数学シンボル包括的テーブル（ギリシャ文字、二項関係、演算子、矢印、デリミタ、アクセント、スペーシング）
+- **[FORMULA-GALLERY.md](./references/FORMULA-GALLERY.md)**: 数式ギャラリー・実践ガイド（数式構築手順、20の実践例、多行数式Visual Guide、可換図式）
+- **[BIBLIOGRAPHY-ADVANCED.md](./references/BIBLIOGRAPHY-ADVANCED.md)**: 参考文献・引用（biblatex, natbib, biber, 引用スタイル）
+- **[LOCALIZATION-INDEX.md](./references/LOCALIZATION-INDEX.md)**: 多言語・索引（babel, upmendex, xindy）
+- **[PACKAGE-DEVELOPMENT.md](./references/PACKAGE-DEVELOPMENT.md)**: パッケージ開発（doc/docstrip, l3build, クラスファイル構造）
+- **[TROUBLESHOOTING-ADVANCED.md](./references/TROUBLESHOOTING-ADVANCED.md)**: トラブルシューティング（エラー診断, トレーシング）
+
+### 文書クラス・マクロ・プレゼンテーション
+- **[DOCUMENT-CLASSES.md](./references/DOCUMENT-CLASSES.md)**: 文書クラス別テンプレート（letter, article, amsart, book, report, ルートファイル構成）
+- **[USER-DEFINED-MACROS.md](./references/USER-DEFINED-MACROS.md)**: ユーザー定義マクロ（\newcommand, \newenvironment, \newtheorem, \newfloat）
+- **[BEAMER-PRESENTATIONS.md](./references/BEAMER-PRESENTATIONS.md)**: Beamerスライド作成（テーマ一覧、オーバーレイ、フレーム制御、ハイパーリンク）
 
 ## 関連スキル
 
