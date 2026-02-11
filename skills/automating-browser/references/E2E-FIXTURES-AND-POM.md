@@ -539,3 +539,367 @@ test('管理者を作成', async ({ signupPage }) => {
 - **Test Options**: プロジェクト単位のパラメタライズ
 
 適切なFixture設計により、テストコードの保守性と可読性が大幅に向上します。
+
+---
+
+## テストの保守性ベストプラクティス
+
+### describe() ブロックによるテスト整理
+
+テストスイートを明確な構造で整理することで、デバッグやナビゲーションが容易になります。`describe()` ブロックを使用して関連するテストをグループ化し、物語のような読みやすい構造を作成します。
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Login Functionality', () => {
+  test('should allow valid user to log in', async ({ page }) => {
+    await page.goto('https://www.saucedemo.com/');
+    await page.getByPlaceholder('Username').fill('standard_user');
+    await page.getByPlaceholder('Password').fill('secret_sauce');
+    await page.getByRole('button', { name: 'Login' }).click();
+    await expect(page).toHaveURL('https://www.saucedemo.com/inventory.html');
+  });
+
+  test('should show error for invalid credentials', async ({ page }) => {
+    await page.goto('https://www.saucedemo.com/');
+    await page.getByPlaceholder('Username').fill('locked_out_user');
+    await page.getByPlaceholder('Password').fill('secret_sauce');
+    await page.getByRole('button', { name: 'Login' }).click();
+    await expect(page.getByText('Epic sadface: Sorry, this user has been locked out.')).toBeVisible();
+  });
+});
+```
+
+**命名のベストプラクティス:**
+- テスト名は「should ...」形式で会話的に記述する
+- 曖昧な名前（`test1`、`loginTest`）は避ける
+- 意図が一目で分かるようにする
+
+### Fixtureによるセットアップとテアダウン
+
+Fixtureはセットアップとテアダウンの管理を簡素化します。Playwrightは`page`、`browser`、`context`などの組み込みFixtureを提供し、カスタムFixtureも定義できます。
+
+**ログインFixtureの例:**
+
+```typescript
+import { test as base } from '@playwright/test';
+
+export const test = base.extend({
+  login: async ({ page }, use) => {
+    await page.goto('https://www.saucedemo.com/');
+    const login = async (username: string, password: string) => {
+      await page.getByPlaceholder('Username').fill(username);
+      await page.getByPlaceholder('Password').fill(password);
+      await page.getByRole('button', { name: 'Login' }).click();
+    };
+    await use(login);
+  },
+});
+```
+
+**テストでの使用:**
+
+```typescript
+import { test, expect } from './loginFixture';
+
+test.describe('Login Functionality', () => {
+  test('should allow valid user to log in', async ({ login, page }) => {
+    await login('standard_user', 'secret_sauce');
+    await expect(page).toHaveURL('https://www.saucedemo.com/inventory.html');
+  });
+
+  test('should show error for invalid credentials', async ({ login, page }) => {
+    await login('locked_out_user', 'secret_sauce');
+    await expect(page.getByText('Epic sadface: Sorry, this user has been locked out.')).toBeVisible();
+  });
+});
+```
+
+これによりテストがDRY（Don't Repeat Yourself）原則に従い、繰り返しコードが削減されます。
+
+**クリーンアップ:**
+- Playwrightは自動的にクリーンアップを処理します
+- 必要に応じて`afterEach()`や`afterAll()`フックを使用できます
+- 再ログインを避けるには`storageState`を使用します（詳細は後述）
+
+### POMの重複削減効果
+
+Page Object Modelは、セレクターや操作の重複コードを排除し、UI変更に対する保守性を向上させます。
+
+**課題:**
+- 同じログイン手順が複数のテストに重複
+- UIが変更されると複数箇所の修正が必要
+- テストコードが低レベルの実装詳細で肥大化
+
+**解決策:**
+- 各ページのセレクターとメソッドをクラスにカプセル化
+- テストコードはページオブジェクトのメソッドを呼び出すだけ
+- UI変更時はページオブジェクトクラスのみを更新
+
+### 高度なPOM実装パターン
+
+#### readonly vs private プロパティ
+
+```typescript
+// readonly パターン（イミュータビリティ重視）
+import { type Page, type Locator } from '@playwright/test';
+
+export class TodoPage {
+  readonly page: Page;
+  readonly newTodoInput: Locator;
+  readonly todoItems: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.newTodoInput = page.locator('input.new-todo');
+    this.todoItems = page.locator('ul.todo-list li');
+  }
+
+  async goto() {
+    await this.page.goto('https://demo.playwright.dev/todomvc');
+  }
+
+  async addTodo(text: string) {
+    await this.newTodoInput.fill(text);
+    await this.newTodoInput.press('Enter');
+  }
+}
+
+// private パターン（カプセル化重視）
+export class LoginPage {
+  private page: Page;
+  private usernameInput: Locator;
+  private passwordInput: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.usernameInput = page.getByPlaceholder('Username');
+    this.passwordInput = page.getByPlaceholder('Password');
+  }
+
+  async login(username: string, password: string) {
+    await this.usernameInput.fill(username);
+    await this.passwordInput.fill(password);
+    await this.submitButton.click();
+  }
+}
+```
+
+**選択基準:**
+- `readonly`: プロパティの不変性を保証したい場合
+- `private`: 外部からのアクセスを防ぎたい場合
+- どちらもPOMパターンとして有効
+
+#### JSDocによるドキュメント化
+
+```typescript
+/**
+ * ログイン処理を実行する
+ * @param {string} username - ログインに使用するユーザー名
+ * @param {string} password - ログインに使用するパスワード
+ */
+async login(username: string, password: string) {
+  await this.usernameInput.fill(username);
+  await this.passwordInput.fill(password);
+  await this.submitButton.click();
+}
+```
+
+**重要な原則:**
+- ページオブジェクト内にアサーションを含めない
+- アサーションはテストファイル内で実行する
+- ページオブジェクトは操作とセレクターのみを管理
+
+---
+
+## テストデータ管理による保守性向上
+
+テストデータの管理方法は、テストスイートの脆弱性に直結します。適切なデータ管理により、環境変化や要件変更に対する耐性が向上します。
+
+### ハードコーディングのリスク
+
+**問題点:**
+- 同じデータが複数のテストに重複
+- 環境ごとに異なる値が必要
+- データ変更時に多数のファイルを修正
+- 動的データ（タイムスタンプ、ID）の扱いが困難
+
+**解決策: 設定ファイルによるデータ集約**
+
+```json
+// config.json
+{
+  "baseUrl": "https://www.saucedemo.com/",
+  "users": {
+    "standard": {
+      "username": "standard_user",
+      "password": "secret_sauce"
+    },
+    "admin": {
+      "username": "problem_user",
+      "password": "secret_sauce"
+    }
+  }
+}
+```
+
+```typescript
+import { test, expect } from '@playwright/test';
+import config from '../config.json';
+
+test('successful login with standard user', async ({ page }) => {
+  await page.goto(config.baseUrl);
+  await page.getByPlaceholder('Username').fill(config.users.standard.username);
+  await page.getByPlaceholder('Password').fill(config.users.standard.password);
+  await page.getByRole('button', { name: 'Login' }).click();
+  await expect(page).toHaveURL('https://www.saucedemo.com/inventory.html');
+});
+```
+
+**環境別設定:**
+- `config.dev.json` / `config.prod.json` を用意
+- `process.env.NODE_ENV` で切り替え
+- 変更は1ファイルのみで完結
+
+**TypeScript連携:**
+`tsconfig.json` で `resolveJsonModule: true` を有効化すると、JSONファイルのimportで型推論と補完が利用可能。
+
+### Fixtureによるデータ管理
+
+ログイン状態を共有するFixtureを作成し、テストデータと認証処理を統合します。
+
+```typescript
+import { expect, test as baseTest, Page } from '@playwright/test';
+import config from '../config.json';
+
+type MyFixtures = {
+  loggedInPage: Page;
+};
+
+export const test = baseTest.extend<MyFixtures>({
+  loggedInPage: async ({ page }, use) => {
+    await page.goto(config.baseUrl);
+    await page.getByPlaceholder('Username').fill(config.users.standard.username);
+    await page.getByPlaceholder('Password').fill(config.users.standard.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await use(page);
+  },
+});
+```
+
+**テストでの使用:**
+
+```typescript
+import { test } from '../fixtures/test-setup';
+import { expect } from '@playwright/test';
+
+test('access cart after login', async ({ loggedInPage }) => {
+  await loggedInPage.goto('https://www.saucedemo.com/cart.html');
+  await expect(loggedInPage.getByRole('button', { name: 'Checkout' })).toBeVisible();
+});
+```
+
+**メリット:**
+- テストコードからデータ管理ロジックを分離
+- ログイン処理の変更時はFixtureのみ更新
+- テストは本質的な検証に集中できる
+
+### Faker.jsによる動的データ生成
+
+一意性が必要な入力（ユーザー登録、フォーム送信など）では、ハードコーディングはデータ衝突を引き起こします。Faker.jsでランダムな実データを生成できます。
+
+```bash
+npm install @faker-js/faker --save-dev
+```
+
+```typescript
+import { test, expect } from '@playwright/test';
+import { faker } from '@faker-js/faker';
+
+test('register new user', async ({ page }) => {
+  const username = faker.internet.userName();
+  const email = faker.internet.email();
+  const password = faker.internet.password();
+
+  await page.goto('/login');
+  await page.getByPlaceholder('Username').fill(username);
+  await page.getByPlaceholder('Email').fill(email);
+  await page.getByPlaceholder('Password').fill(password);
+  await page.getByRole('button', { name: 'Submit' }).click();
+
+  await expect(page.locator('#success-message')).toHaveText(`Account created for ${username}`);
+});
+```
+
+**利点:**
+- 実行ごとに新しいデータ生成
+- データ衝突の回避
+- 要件変更時はFaker呼び出しのみ更新
+
+### APIモッキングによる外部依存排除
+
+外部APIへの依存はテストの不安定性を引き起こします。Playwrightの`page.route()`でAPIレスポンスをモックできます。
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('displays mocked blog posts from JSONPlaceholder API', async ({ page }) => {
+  await page.route('https://jsonplaceholder.typicode.com/posts', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        {
+          userId: 1,
+          id: 1,
+          title: 'Mocked Post Title One',
+          body: 'This is the body of the first mocked post.'
+        },
+        {
+          userId: 1,
+          id: 2,
+          title: 'Mocked Post Title Two',
+          body: 'Here\'s the second post body.'
+        }
+      ])
+    });
+  });
+
+  const data = await page.evaluate(() =>
+    fetch('https://jsonplaceholder.typicode.com/posts').then(r => r.json())
+  );
+
+  await expect(data[0].title).toBe('Mocked Post Title One');
+  await expect(data[1].title).toBe('Mocked Post Title Two');
+});
+```
+
+**仕組み:**
+1. `page.route()` でAPIエンドポイントを傍受
+2. `route.fulfill()` でモックレスポンスを返す
+3. `page.evaluate()` でブラウザ内からfetch実行
+4. モックデータがテストに供給される
+
+**利点:**
+- ネットワーク遅延の排除
+- API障害やレート制限の影響を受けない
+- テストの高速化と安定化
+- エラー状態（404、500など）のテストが容易
+
+**拡張パターン:**
+- `mocks/profile.json` として外部ファイル化
+- 複数のテストケース用に異なるモックを用意
+- エラー状態や空データのエッジケーステスト
+
+---
+
+## まとめ: 保守性の高いテストスイート構築
+
+- **describe()ブロック**: テストを論理的にグループ化し、可読性を向上
+- **Fixture**: セットアップとテアダウンを宣言的に管理、DRY原則を実現
+- **POM**: ページ固有のロジックをカプセル化、UI変更への耐性を向上
+- **設定ファイル**: テストデータを集約し、環境別管理を容易化
+- **Faker.js**: 動的データ生成で一意性を保証し、データ衝突を回避
+- **APIモッキング**: 外部依存を排除し、テストの安定性と速度を向上
+
+これらのベストプラクティスにより、テストスイートは保守性が高く、変更に強く、長期的に信頼できる資産となります。

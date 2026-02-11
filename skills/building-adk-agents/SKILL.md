@@ -1,6 +1,14 @@
 ---
 name: building-adk-agents
-description: Google ADK (Agent Development Kit) for building intelligent AI agents with Python. MUST load when google-adk is detected in requirements or pyproject.toml. Covers Agent, Runner, Tool, Session, and Memory concepts. Distinct from developing-python (general) by focusing on ADK patterns.
+description: >-
+  Google ADK (Agent Development Kit) for building intelligent AI agents with Python.
+  MUST load when google-adk is detected in requirements or pyproject.toml.
+  Covers Agent, Runner, Tool, Session, Memory, Callbacks/Guardrails, SSE Streaming,
+  UI Integration (AG-UI/CopilotKit), Multimodal, YAML Config, Production patterns,
+  Plugin System (BasePlugin・ライフサイクルフック), Grounding (Google Search・Vertex AI Search・Agentic RAG),
+  Context Management (Caching・Compaction), Session Rewind, Resume Agents, Action Confirmations,
+  Event System, Tool Performance, GKE Deployment.
+  Distinct from developing-python (general) by focusing on ADK patterns.
 ---
 
 # Google ADK (Agent Development Kit) 開発ガイド
@@ -278,11 +286,56 @@ AskUserQuestion(
 
 ### 詳細リファレンス
 
-- **[AGENT-AND-TOOLS.md](./references/./AGENT-AND-TOOLS.md)**: LlmAgent詳細、FunctionTool、OpenAPI/MCP統合
+- **[AGENT-AND-TOOLS.md](./references/./AGENT-AND-TOOLS.md)**: LlmAgent詳細、FunctionTool、OpenAPI/MCP統合、Action Confirmations、Tool Performance
 - **[CODE-EXECUTION-AND-MODELS.md](./references/./CODE-EXECUTION-AND-MODELS.md)**: コード実行、LLMモデル、Flows & Planners
 - **[MULTI-AGENT.md](./references/./MULTI-AGENT.md)**: マルチAgent設計、オーケストレーション、A2A
-- **[RUNTIME-AND-STATE.md](./references/./RUNTIME-AND-STATE.md)**: Runner、Session、Artifact、Memory、評価
-- **[DEPLOYMENT-AND-SECURITY.md](./references/./DEPLOYMENT-AND-SECURITY.md)**: デプロイ、テレメトリ、セキュリティ、CLI参照
+- **[RUNTIME-AND-STATE.md](./references/./RUNTIME-AND-STATE.md)**: Runner、Session、Artifact、Memory、Context階層、Context Caching/Compaction、Session Rewind、Resume Agents、Event System、評価
+- **[DEPLOYMENT-AND-SECURITY.md](./references/./DEPLOYMENT-AND-SECURITY.md)**: デプロイ、テレメトリ、セキュリティ、GKE Deployment、CLI参照
+- **[GUARDRAILS-AND-STREAMING.md](./references/GUARDRAILS-AND-STREAMING.md)**: Callback 6種、ガードレール、PIIフィルタリング、SSEストリーミング、Live API音声、Plugin System移行推奨
+- **[UI-INTEGRATION.md](./references/UI-INTEGRATION.md)**: AG-UIプロトコル、CopilotKit+Next.js、Streamlit/Slack統合、マルチモーダル画像
+- **[ADVANCED-PATTERNS.md](./references/ADVANCED-PATTERNS.md)**: YAML設定、意思決定フレームワーク、高度なオブザーバビリティ、本番ベストプラクティス
+- **[PLUGINS-AND-GROUNDING.md](./references/PLUGINS-AND-GROUNDING.md)**: Plugin System（BasePlugin・ライフサイクルフック6種）、Grounding（Google Search・Vertex AI Search・Agentic RAG）
+
+---
+
+## 新機能（v1.10.0+）
+
+### Context管理
+
+- **Context Caching** (v1.15.0+): ContextCacheConfigで大規模指示のキャッシュ、コスト削減
+- **Context Compaction** (v1.16.0+): EventsCompactionConfigでイベント履歴の自動要約圧縮
+
+### Plugin System
+
+- BasePlugin継承によるグローバルスコープのライフサイクルフック
+- Callbacksより広範な制御（セキュリティ、監視、ログに推奨）
+- 詳細: [PLUGINS-AND-GROUNDING.md](references/PLUGINS-AND-GROUNDING.md)
+
+### Grounding
+
+- Google Search / Vertex AI Search / Agentic RAGの3方式
+- ハルシネーション抑制と最新情報アクセス
+- 詳細: [PLUGINS-AND-GROUNDING.md](references/PLUGINS-AND-GROUNDING.md)
+
+### Session Rewind & Resume
+
+- **Session Rewind** (v1.17.0+): セッションを過去の状態に巻き戻し
+- **Resume Agents** (v1.14.0+): 中断ワークフローの再開（ResumabilityConfig）
+
+### Action Confirmations
+
+- `require_confirmation=True`でツール実行前にユーザー確認を要求
+- 動的確認ロジック対応
+
+### Event System
+
+- 7種のイベントタイプ、EventActions、状態管理プレフィックス
+- 詳細: [RUNTIME-AND-STATE.md](references/RUNTIME-AND-STATE.md)
+
+### Tool Performance
+
+- async定義ツールの自動並列実行（v1.10.0+）
+- 詳細: [AGENT-AND-TOOLS.md](references/AGENT-AND-TOOLS.md)
 
 ---
 

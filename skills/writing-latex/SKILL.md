@@ -364,6 +364,24 @@ latexmk -pdfdvi -shell-escape document.tex
 - **[USER-DEFINED-MACROS.md](./references/USER-DEFINED-MACROS.md)**: ユーザー定義マクロ（\newcommand, \newenvironment, \newtheorem, \newfloat）
 - **[BEAMER-PRESENTATIONS.md](./references/BEAMER-PRESENTATIONS.md)**: Beamerスライド作成（テーマ一覧、オーバーレイ、フレーム制御、ハイパーリンク）
 
+### 特殊文書・ビジュアルデザイン
+- **[SPECIAL-DOCUMENTS.md](./references/SPECIAL-DOCUMENTS.md)**: 特殊文書テンプレート（CV, 手紙, リーフレット, ポスター）
+- **[TEXT-EFFECTS.md](./references/TEXT-EFFECTS.md)**: テキスト効果（ドロップキャップ, プルクォート, テキストシェイピング, 絶対配置）
+- **[IMAGE-MANIPULATION.md](./references/IMAGE-MANIPULATION.md)**: 画像操作（フレーム, クリッピング, オーバーレイ, グリッド配置）
+- **[DIAGRAMS-CHARTS.md](./references/DIAGRAMS-CHARTS.md)**: ダイアグラム・チャート（フローチャート, ツリー, 棒/円グラフ, ベン図, マインドマップ, タイムライン）
+- **[VISUAL-DESIGN.md](./references/VISUAL-DESIGN.md)**: ビジュアルデザイン（背景画像, オーナメント, カレンダー, ワードクラウド）
+
+### PDF・出力最適化
+- **[PDF-OPTIMIZATION.md](./references/PDF-OPTIMIZATION.md)**: PDF最適化（メタデータ, フォーム, アニメーション, PDF結合, 電子書籍対応）
+
+### 科学技術・プロット・計算
+- **[PLOTTING-COMPUTATION.md](./references/PLOTTING-COMPUTATION.md)**: プロット・計算（pgfplots 2D/3D, tkz-euclide, fp/spreadtab）
+- **[SCIENCE-PACKAGES.md](./references/SCIENCE-PACKAGES.md)**: 科学技術パッケージ（アルゴリズム, 化学式, 分子構造, ファインマン図, 電気回路詳細）
+
+### リソース・AI活用
+- **[LATEX-RESOURCES.md](./references/LATEX-RESOURCES.md)**: LaTeXリソース（CTAN, TeX.SE, MWE作成, デバッグ手法）
+- **[AI-LATEX.md](./references/AI-LATEX.md)**: AI活用（質問手法, コード生成, コンテンツ改善）
+
 ## 関連スキル
 
 - **writing-technical-docs**: 技術文書の7つのCの原則

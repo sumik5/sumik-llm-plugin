@@ -10,8 +10,9 @@
 2. [Actions（操作）](#actions操作)
 3. [Assertions（アサーション）](#assertionsアサーション)
 4. [async/await パターン](#asyncawait-パターン)
-5. [設定（playwright.config.ts）](#設定playwrightconfigts)
-6. [❌ 典型的なミス（アンチパターン）](#-典型的なミスアンチパターン)
+5. [テストランナーの理解](#テストランナーの理解)
+6. [設定（playwright.config.ts）](#設定playwrightconfigts)
+7. [❌ 典型的なミス（アンチパターン）](#-典型的なミスアンチパターン)
 
 ---
 
@@ -509,6 +510,116 @@ await popup.close()
 
 ---
 
+## テストランナーの理解
+
+### Playwright Test と Playwright Library の違い
+
+**用途区別:**
+- **Playwright Test** (`@playwright/test`): テストランナー内蔵、オールインワンソリューション
+- **Playwright Library** (`playwright`): ブラウザ自動化API、Jest/Mocha等と組み合わせ可能
+
+**選択基準:**
+| 用途 | 推奨 |
+|------|------|
+| E2Eテストスイート構築 | Playwright Test |
+| Web スクレイピング・データ抽出 | Playwright Library |
+| 既存テストフレームワーク統合 | Playwright Library |
+| CI/CD パイプライン組み込み | Playwright Test |
+
+**Playwright Test の主要機能:**
+- 自動テストファイル認識（`*.spec.ts`, `*.test.ts`）
+- 並列実行（複数ワーカー）
+- ビジュアルレポート生成
+- CLI オプション（デバッグ、ビデオ録画等）
+- Web-First Assertions（自動リトライ機能付き）
+
+### テストランナー CLI オプション
+
+**基本実行:**
+```bash
+npx playwright test                    # 全テスト実行
+npx playwright test tests/login.spec.ts  # 特定ファイル実行
+npx playwright test --headed             # ブラウザUI表示
+npx playwright test --debug              # デバッグモード
+```
+
+**並列実行制御:**
+```bash
+npx playwright test --workers=4          # ワーカー数指定
+npx playwright test --workers=50%        # CPU コア数の50%
+```
+
+**ブラウザ・プロジェクト指定:**
+```bash
+npx playwright test --project=chromium   # 特定プロジェクトのみ
+npx playwright test --project=firefox
+```
+
+**フィルタリング:**
+```bash
+npx playwright test --grep @smoke       # @smoke タグを含むテスト
+npx playwright test --grep-invert @slow # @slow タグを除外
+```
+
+**レポート:**
+```bash
+npx playwright test --reporter=html     # HTML レポート生成
+npx playwright test --reporter=list     # リスト形式
+npx playwright test --reporter=json     # JSON 出力
+npx playwright show-report              # レポート表示
+```
+
+### 並列実行とテスト分離
+
+**並列実行の仕組み:**
+- Playwright Test はデフォルトで複数ワーカープロセスで並列実行
+- 各ワーカーは独立したブラウザコンテキストを持つ
+- CPU コア数に応じて自動調整（`workers: undefined`）
+
+**テスト分離の保証:**
+- 各テストは新しい `BrowserContext` で実行
+- Cookie、LocalStorage、SessionStorage は完全分離
+- テスト間の状態共有を防ぎ、flaky test を回避
+
+**設定例:**
+```typescript
+export default defineConfig({
+  workers: process.env.CI ? 1 : undefined, // CI では逐次、ローカルでは並列
+  fullyParallel: true, // 1ファイル内のテストも並列化
+})
+```
+
+### Hooks と Fixtures
+
+**Hooks（ライフサイクル制御）:**
+- `test.beforeAll`: 全テスト前に1回実行（高コストなセットアップ）
+- `test.beforeEach`: 各テスト前に実行（初期状態準備）
+- `test.afterEach`: 各テスト後に実行（クリーンアップ）
+- `test.afterAll`: 全テスト後に1回実行（最終クリーンアップ）
+
+**Fixtures（リソース管理）:**
+- `{ page }`: ブラウザページインスタンス（自動作成・破棄）
+- `{ browser }`: ブラウザインスタンス
+- `{ context }`: ブラウザコンテキスト
+- `{ request }`: API リクエストクライアント（HTTP 通信用）
+
+**requestフィクスチャの活用例:**
+```typescript
+test('API経由で認証後、UIで検証', async ({ request, page }) => {
+  // API でログイン（高速）
+  const response = await request.post('/api/auth/login', {
+    data: { username: 'user', password: 'pass' }
+  })
+  expect(response.status()).toBe(200)
+
+  // UI でログイン状態を確認
+  await page.goto('/dashboard')
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+})
+```
+
+---
+
 ## 設定（playwright.config.ts）
 
 ### 基本設定
@@ -580,6 +691,125 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+})
+```
+
+### 主要設定項目詳細
+
+**テストディレクトリ・ファイルマッチング:**
+```typescript
+export default defineConfig({
+  testDir: './tests',               // テストファイル配置ディレクトリ
+  testMatch: '**/*.spec.ts',        // テストファイルパターン
+  testIgnore: '**/drafts/**',       // 除外するファイル・ディレクトリ
+})
+```
+
+**タイムアウト設定:**
+```typescript
+export default defineConfig({
+  timeout: 30000,                   // 各テストのタイムアウト（30秒）
+  globalTimeout: 1800000,           // テストスイート全体のタイムアウト（30分）
+  expect: {
+    timeout: 5000,                  // Web-First Assertions のタイムアウト（5秒）
+  },
+  use: {
+    actionTimeout: 10000,           // 個別アクション（click, fill等）のタイムアウト（10秒）
+  },
+})
+```
+
+**並列実行とワーカー設定:**
+```typescript
+export default defineConfig({
+  workers: process.env.CI ? 1 : undefined, // ワーカー数（undefined = CPUコア数）
+  fullyParallel: true,              // 1ファイル内のテストも並列化
+})
+```
+
+**リトライと失敗処理:**
+```typescript
+export default defineConfig({
+  retries: process.env.CI ? 2 : 0,  // 失敗時のリトライ回数（CI環境のみ）
+  maxFailures: 10,                  // 指定数の失敗でテスト実行停止
+})
+```
+
+**レポーター設定:**
+```typescript
+export default defineConfig({
+  reporter: process.env.CI
+    ? [
+        ['list'],
+        ['html', { outputFolder: 'playwright-report', open: 'never' }], // CI では自動オープン無効
+        ['github'], // GitHub Actions 用レポーター
+      ]
+    : [['html']], // ローカルでは HTML レポートのみ
+})
+```
+
+**ブラウザ・コンテキストオプション:**
+```typescript
+export default defineConfig({
+  use: {
+    browserName: 'chromium',        // デフォルトブラウザ
+    headless: true,                 // ヘッドレスモード
+    viewport: { width: 1280, height: 720 }, // ビューポートサイズ
+    locale: 'ja-JP',                // ロケール
+    timezoneId: 'Asia/Tokyo',       // タイムゾーン
+    trace: 'on-first-retry',        // トレース記録タイミング
+    screenshot: 'only-on-failure',  // スクリーンショット取得タイミング
+    video: 'retain-on-failure',     // ビデオ録画保持条件
+  },
+})
+```
+
+**Projects（複数ブラウザ・環境テスト）:**
+```typescript
+export default defineConfig({
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'authenticated',
+      use: { storageState: '.auth/user.json' }, // 認証済み状態
+      dependencies: ['setup'],  // setup プロジェクト完了後に実行
+    },
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+  ],
+})
+```
+
+**webServer（開発サーバー自動起動）:**
+```typescript
+export default defineConfig({
+  webServer: {
+    command: 'npm run start',       // 起動コマンド
+    url: 'http://localhost:3000',   // 起動確認URL
+    reuseExistingServer: !process.env.CI, // ローカルでは既存サーバー利用
+    timeout: 120000,                // 起動タイムアウト（120秒）
+  },
+})
+```
+
+**globalSetup / globalTeardown:**
+```typescript
+export default defineConfig({
+  globalSetup: require.resolve('./global-setup'), // 全テスト前に1回実行
+  globalTeardown: require.resolve('./global-teardown'), // 全テスト後に1回実行
 })
 ```
 

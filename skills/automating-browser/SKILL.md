@@ -52,3 +52,9 @@ Playwright TestによるE2Eテスト設計・実装ガイド。
 | [E2E-CI-AND-PERFORMANCE.md](./references/E2E-CI-AND-PERFORMANCE.md) | CI/CDとパフォーマンス |
 | [E2E-EXTENDING.md](./references/E2E-EXTENDING.md) | 拡張機能 |
 | [E2E-BEYOND-E2E.md](./references/E2E-BEYOND-E2E.md) | E2E以外の活用 |
+| [E2E-AI-GENERATION.md](./references/E2E-AI-GENERATION.md) | AI支援テスト生成 |
+| [E2E-ACCESSIBILITY.md](./references/E2E-ACCESSIBILITY.md) | アクセシビリティテスト |
+| [E2E-VISUAL-REGRESSION.md](./references/E2E-VISUAL-REGRESSION.md) | ビジュアルリグレッションテスト |
+| [E2E-FORMS-AND-FILES.md](./references/E2E-FORMS-AND-FILES.md) | フォーム操作とファイル処理 |
+| [E2E-AUTH-AND-SECURITY.md](./references/E2E-AUTH-AND-SECURITY.md) | 認証とセキュリティテスト |
+| [E2E-REAL-WORLD-PATTERNS.md](./references/E2E-REAL-WORLD-PATTERNS.md) | 実践プロジェクトパターン |

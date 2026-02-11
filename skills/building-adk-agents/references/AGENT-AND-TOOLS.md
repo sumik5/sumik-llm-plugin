@@ -761,3 +761,325 @@ langgraph_agent = LangGraphAgent(
 
 1. **EmailStr等の特殊型**: カスタムTool実装で明示的なスキーマ定義
 2. **バリデーションエラー**: `try-except`でPydanticValidationErrorをキャッチ
+
+---
+
+## Action Confirmations
+
+### require_confirmationによる実行確認
+
+危険性のある操作（削除、課金アクション等）に対して、Tool実行前にユーザー確認を要求できます。
+
+```python
+from google.adk.tools import FunctionTool
+
+def delete_record(record_id: str) -> str:
+    """
+    レコードを削除する。
+
+    Args:
+        record_id: 削除対象のレコードID
+    """
+    # 削除処理実装
+    print(f"Record {record_id} を削除しました")
+    return f"Record {record_id} deleted"
+
+delete_tool = FunctionTool(
+    func=delete_record,
+    require_confirmation=True,  # 実行前にユーザー確認を要求
+)
+```
+
+**動作:**
+1. LLMがToolの実行を決定
+2. ADKがユーザーに確認プロンプトを表示
+3. ユーザーが承認した場合のみ実行
+
+### 動的確認ロジック
+
+条件に基づいて確認要求を切り替えることも可能です。
+
+```python
+def conditional_action(amount: float, tool_context: ToolContext) -> dict:
+    """
+    金額に応じて動的に確認を要求する。
+
+    Args:
+        amount: 処理金額
+        tool_context: ToolContext（ADKが自動注入）
+    """
+    # 閾値を超える場合のみ確認要求
+    threshold = 1000.0
+
+    if amount > threshold:
+        # 高額な操作: 確認要求
+        # （実装詳細はADK APIドキュメント参照）
+        return {
+            "status": "pending_confirmation",
+            "message": f"{amount}円の処理を実行しますか？"
+        }
+
+    # 通常の操作: 確認なしで実行
+    result = process_payment(amount)
+    return {"status": "success", "result": result}
+```
+
+### AgentToolでの確認パターン
+
+AgentToolを使用する場合も、サブAgentの重要なアクションに確認を追加できます。
+
+```python
+from google.adk.agents import Agent, AgentTool
+
+# 確認を要求するサブAgent
+sub_agent = Agent(
+    name="risky_agent",
+    model="gemini-2.0-flash",
+    instruction="削除操作を実行します。",
+    tools=[delete_tool]  # require_confirmation=Trueのツール
+)
+
+agent_tool = AgentTool(
+    agent=sub_agent,
+    require_confirmation=True  # AgentTool全体に確認を要求
+)
+```
+
+### 構造化された確認データ
+
+確認プロンプトに追加情報を含めることで、ユーザーが適切に判断できるようにします。
+
+```python
+from datetime import datetime
+
+def structured_confirmation(
+    action: str,
+    target: str,
+    tool_context: ToolContext
+) -> dict:
+    """
+    構造化された確認データを返す。
+
+    Args:
+        action: 実行するアクション
+        target: 対象リソース
+        tool_context: ToolContext
+    """
+    confirmation_data = {
+        "action": action,
+        "target": target,
+        "timestamp": datetime.now().isoformat(),
+        "user_id": tool_context.state.get("user:user_id"),
+        "confirmation_required": True,
+        "details": {
+            "risk_level": "high",
+            "reversible": False
+        }
+    }
+
+    # この情報がユーザーに提示される
+    return confirmation_data
+```
+
+**ベストプラクティス:**
+- 破壊的操作（削除、上書き）には常に確認を要求
+- 課金が発生する操作には明示的な確認
+- 閾値ベースの動的確認で柔軟性を確保
+- 確認メッセージにはアクション内容・対象・影響範囲を明記
+
+---
+
+## Tool Performance
+
+### 非同期ツールによる並列実行
+
+ADK v1.10.0以降、`async def`で定義されたToolは自動的に並列実行されます。
+
+```python
+import aiohttp
+
+async def fetch_weather(city: str) -> str:
+    """
+    非同期で天気情報を取得する。
+
+    Args:
+        city: 都市名
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://api.weather.com/{city}") as resp:
+            data = await resp.text()
+            return data
+
+weather_tool = FunctionTool(func=fetch_weather)
+```
+
+**重要:** LLMが複数のToolを同時に呼び出すと判断した場合、ADKは自動的に並列実行します。
+
+### パフォーマンス最適化テクニック
+
+| シナリオ | テクニック | 実装例 |
+|---------|----------|--------|
+| **HTTP通信** | aiohttp + セッション管理 | `async with aiohttp.ClientSession() as session: ...` |
+| **DB操作** | asyncpg等の非同期ドライバ | `async with asyncpg.create_pool(...) as pool: ...` |
+| **長時間ループ** | await asyncio.sleep(0)でイールド | `for item in items: await asyncio.sleep(0)` |
+| **CPU集約処理** | ThreadPoolExecutor + run_in_executor | `await loop.run_in_executor(pool, heavy_compute)` |
+| **大量データ** | チャンク処理 + スレッドプール | ページネーション + 並列取得 |
+
+### HTTP通信の最適化例
+
+```python
+import aiohttp
+import asyncio
+from typing import List
+
+async def fetch_multiple_apis(endpoints: List[str]) -> dict:
+    """
+    複数のAPIエンドポイントから並列にデータを取得。
+
+    Args:
+        endpoints: APIエンドポイントのリスト
+    """
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for url in endpoints:
+            tasks.append(session.get(url))
+
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+        results = {}
+        for url, response in zip(endpoints, responses):
+            if isinstance(response, Exception):
+                results[url] = {"error": str(response)}
+            else:
+                results[url] = await response.text()
+
+        return results
+```
+
+### DB操作の最適化例
+
+```python
+import asyncpg
+from typing import List
+
+async def query_users(user_ids: List[int], tool_context: ToolContext) -> List[dict]:
+    """
+    複数ユーザーのデータを非同期で取得。
+
+    Args:
+        user_ids: ユーザーIDリスト
+        tool_context: ToolContext
+    """
+    pool = await asyncpg.create_pool(
+        host="localhost",
+        user="app",
+        database="mydb"
+    )
+
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT * FROM users WHERE id = ANY($1::int[])",
+                user_ids
+            )
+            return [dict(row) for row in rows]
+    finally:
+        await pool.close()
+```
+
+### CPU集約処理の委譲
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+import asyncio
+from typing import List
+
+def heavy_computation(data: List[float]) -> float:
+    """重いCPU処理（同期）"""
+    result = 0
+    for x in data:
+        result += x ** 2
+    return result
+
+async def compute_async(data: List[float]) -> float:
+    """
+    CPU集約処理をスレッドプールに委譲。
+
+    Args:
+        data: 計算対象データ
+    """
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as pool:
+        result = await loop.run_in_executor(pool, heavy_computation, data)
+        return result
+
+compute_tool = FunctionTool(func=compute_async)
+```
+
+### 長時間ループのイールド
+
+```python
+from typing import List
+
+async def process_large_dataset(items: List[dict]) -> dict:
+    """
+    大量データを処理しつつイベントループに制御を返す。
+
+    Args:
+        items: 処理対象アイテム
+    """
+    results = []
+    for item in items:
+        processed = process_item(item)
+        results.append(processed)
+
+        # イベントループに制御を返す（他のタスクが実行可能に）
+        await asyncio.sleep(0)
+
+    return {"processed_count": len(results), "results": results}
+```
+
+### プロンプトでの並列呼び出しガイド
+
+LLMに並列実行を明示的に指示することで、パフォーマンスを最大化できます。
+
+```python
+agent = Agent(
+    name="parallel_agent",
+    model="gemini-2.0-flash",
+    instruction="""
+あなたは効率的にツールを使用するアシスタントです。
+
+重要:
+- 複数の独立したツール呼び出しは並列に実行してください。
+- 例: 複数の都市の天気を取得する場合、各都市のfetch_weatherを同時に呼び出す。
+- 依存関係がある場合のみ順次実行してください。
+""",
+    tools=[weather_tool, api_tool, db_tool]
+)
+```
+
+### 同期ツールの制約
+
+**重要:** 同期ツール（`def`で定義）が1つでも含まれていると、そのToolはパイプライン全体をブロックします。
+
+```python
+import time
+
+# ❌ 悪い例: 同期ツールがブロッキング
+def blocking_tool(param: str) -> str:
+    time.sleep(5)  # 全体が5秒停止
+    return "result"
+
+# ✅ 良い例: 非同期で実装
+async def non_blocking_tool(param: str) -> str:
+    await asyncio.sleep(5)  # 他のツールは並列実行可能
+    return "result"
+```
+
+**ベストプラクティス:**
+- すべてのToolを`async def`で実装（ADK v1.10.0+）
+- HTTP通信は`aiohttp`、DB操作は`asyncpg`等の非同期ライブラリ使用
+- CPU集約処理は`run_in_executor`でスレッドプールに委譲
+- 長時間ループでは`await asyncio.sleep(0)`を挿入
+- プロンプトで並列実行を明示的に指示

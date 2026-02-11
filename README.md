@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (45個)
+└── skills/             # ナレッジスキル (46個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (45個)
+### Skills (46個)
 
 #### コア開発
 
@@ -70,6 +70,7 @@ sumik-claude-plugin/
 | `testing-code` | テストファースト（Vitest/RTL/Playwright） |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
+| `developing-with-ai` | AI支援開発メソドロジー（プロンプトエンジニアリング・コンテキストエンジニアリング・コード生成・QA・デバッグ・エージェント協調） |
 
 #### アーキテクチャ
 
@@ -97,7 +98,7 @@ sumik-claude-plugin/
 | `developing-fullstack-javascript` | フルスタックJS |
 | `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド） |
 | `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・コード硬化・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |
-| `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド |
+| `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド（Agent、Tool、Runner、Session、Memory、Plugin System、Grounding、Context Management、Session Rewind/Resume、Action Confirmations、Event System、GKE Deployment含む9リファレンスファイル） |
 
 #### フロントエンド・デザイン
 
@@ -111,7 +112,7 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `automating-browser` | ブラウザ自動化統合（Playwright MCP・CLIエージェント・E2Eテスト） |
+| `automating-browser` | ブラウザ自動化統合（Playwright MCP・CLIエージェント・E2Eテスト・アクセシビリティ・ビジュアルリグレッション・認証・フォーム） |
 
 #### インフラ・ツール
 

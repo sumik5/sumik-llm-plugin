@@ -789,3 +789,239 @@ def hello():
 
 \end{document}
 ```
+
+## ポスター作成（beamerposter）
+
+beamerposterパッケージを使用してA0/A1サイズの学術ポスターを作成する。
+
+### サイズと方向の設定
+
+プリアンブルでサイズと方向を指定:
+
+```latex
+\usepackage[orientation=landscape,size=a1]{beamerposter}
+```
+
+#### オプション一覧
+
+| オプション | 値 | 説明 |
+|-----------|---|------|
+| **orientation** | `landscape` | 横向き |
+| | `portrait` | 縦向き |
+| **size** | `a0`, `a1`, `a2`, `a3`, `a4` | 定型サイズ |
+| | `custom` | カスタムサイズ（heightとwidthを併用） |
+| **height** | `数値`（cm単位） | カスタム高さ |
+| **width** | `数値`（cm単位） | カスタム幅 |
+| **scale** | `数値`（倍率） | フォントサイズの倍率（デフォルト: 1.0） |
+
+#### カスタムサイズの例
+
+```latex
+\usepackage[orientation=portrait,size=custom,height=110,width=80,scale=1.4]{beamerposter}
+```
+
+### 基本構成
+
+ポスターは1フレーム内にcolumns環境とblock環境を組み合わせて構成:
+
+```latex
+\documentclass[final,t]{beamer}
+\usetheme{テーマ名}
+\usepackage[orientation=landscape,size=a1]{beamerposter}
+
+\begin{document}
+\begin{frame}[t]
+  \begin{columns}[t]
+    \column{.32\linewidth}
+    % 左カラムのblock群
+
+    \column{.32\linewidth}
+    % 中央カラムのblock群
+
+    \column{.32\linewidth}
+    % 右カラムのblock群
+  \end{columns}
+\end{frame}
+\end{document}
+```
+
+#### レイアウト推奨パターン
+
+| 方向 | カラム数 | カラム幅 |
+|------|---------|---------|
+| **landscape**（横向き） | 3カラム | `.32\linewidth` |
+| **portrait**（縦向き） | 2カラム | `.45\linewidth` |
+
+### 完全なポスターテンプレート（日本語・3カラム）
+
+```latex
+\documentclass[final,t]{beamer}
+\usetheme{Berlin}
+\usecolortheme{beaver}
+\usepackage[orientation=landscape,size=a1,scale=1.4]{beamerposter}
+
+% 日本語対応
+\usepackage{luatexja}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% タイトル情報
+\title{深層学習による画像認識の高速化}
+\author{山田太郎 \inst{1} \and 佐藤花子 \inst{2}}
+\institute{
+  \inst{1} 〇〇大学 情報工学科 \\
+  \inst{2} △△研究所 機械学習研究室
+}
+
+\begin{document}
+\begin{frame}[t]
+
+  % タイトルブロック（全幅）
+  \begin{block}{\centering\LARGE\inserttitle}
+    \centering
+    \insertauthor \\[1ex]
+    \insertinstitute
+  \end{block}
+
+  \vskip 2ex
+
+  % 3カラムレイアウト
+  \begin{columns}[t]
+
+    % 左カラム
+    \column{.32\linewidth}
+
+    \begin{block}{研究背景}
+      深層学習モデルの推論速度は実用化における重要課題である。
+      本研究では、モデル圧縮技術と推論最適化手法を組み合わせることで、
+      精度を維持しつつ推論速度を大幅に向上させる手法を提案する。
+    \end{block}
+
+    \begin{block}{研究目的}
+      \begin{itemize}
+        \item モデルサイズの削減（50\%以上）
+        \item 推論速度の向上（3倍以上）
+        \item 精度の維持（劣化5\%以内）
+      \end{itemize}
+    \end{block}
+
+    \begin{block}{提案手法}
+      \begin{enumerate}
+        \item 重み量子化（8bit整数化）
+        \item 知識蒸留によるモデル圧縮
+        \item 推論グラフの最適化
+      \end{enumerate}
+    \end{block}
+
+    % 中央カラム
+    \column{.32\linewidth}
+
+    \begin{block}{実験結果}
+      \begin{center}
+      \begin{tabular}{lrrr}
+        \hline
+        モデル & 精度 & 速度 & サイズ \\
+        \hline
+        ベースライン & 92.3\% & 100ms & 250MB \\
+        提案手法 & 90.1\% & 32ms & 110MB \\
+        \hline
+      \end{tabular}
+      \end{center}
+
+      \vskip 2ex
+
+      \begin{center}
+      \begin{tikzpicture}
+        \begin{axis}[
+          ybar,
+          width=\textwidth,
+          height=0.5\textwidth,
+          ylabel={精度 (\%)},
+          symbolic x coords={ベースライン,手法A,手法B,提案手法},
+          xtick=data,
+          ymin=85,ymax=95,
+          legend pos=north west,
+        ]
+        \addplot coordinates {
+          (ベースライン,92.3)
+          (手法A,90.5)
+          (手法B,88.9)
+          (提案手法,90.1)
+        };
+        \end{axis}
+      \end{tikzpicture}
+      \end{center}
+    \end{block}
+
+    \begin{block}{システム構成}
+      \begin{center}
+      \begin{tikzpicture}[node distance=2cm]
+        \node[draw, rectangle] (input) {入力画像};
+        \node[draw, rectangle, right of=input] (preprocess) {前処理};
+        \node[draw, rectangle, right of=preprocess] (model) {圧縮モデル};
+        \node[draw, rectangle, right of=model] (output) {認識結果};
+
+        \draw[->] (input) -- (preprocess);
+        \draw[->] (preprocess) -- (model);
+        \draw[->] (model) -- (output);
+      \end{tikzpicture}
+      \end{center}
+    \end{block}
+
+    % 右カラム
+    \column{.32\linewidth}
+
+    \begin{block}{考察}
+      提案手法により、推論速度を3.1倍に向上させることができた。
+      精度の劣化は2.2\%に抑えられ、実用上十分な性能を達成した。
+
+      \vskip 1ex
+
+      \textbf{主な知見:}
+      \begin{itemize}
+        \item 量子化による速度向上が最も効果的
+        \item 知識蒸留でモデルサイズを大幅削減
+        \item 推論グラフ最適化で追加的な高速化
+      \end{itemize}
+    \end{block}
+
+    \begin{block}{今後の課題}
+      \begin{itemize}
+        \item より複雑なタスクへの適用
+        \item エッジデバイスでの実装
+        \item リアルタイム処理の実現
+      \end{itemize}
+    \end{block}
+
+    \begin{block}{参考文献}
+      \footnotesize
+      \begin{enumerate}
+        \item Smith, J. et al. (2023). Model Compression Techniques. ICML.
+        \item 田中一郎ら (2024). 深層学習の高速化. 情報処理学会論文誌.
+        \item Wang, L. et al. (2023). Quantization Methods. NeurIPS.
+      \end{enumerate}
+    \end{block}
+
+    \vfill
+
+    \begin{block}{謝辞}
+      本研究はJSPS科研費（課題番号 12345678）の助成を受けた。
+    \end{block}
+
+  \end{columns}
+
+\end{frame}
+\end{document}
+```
+
+### ポスター作成のポイント
+
+1. **カラムレイアウト**: landscape（横向き）は3カラム、portrait（縦向き）は2カラムが標準
+2. **block環境の活用**: 各セクションをblock環境で明確に区切る
+3. **フォントサイズ**: `scale`オプションで全体のフォントサイズを調整（1.4〜1.6推奨）
+4. **視覚的要素**: TikZ/pgfplotsで図表を直接描画し、可読性を向上
+5. **カラム幅の調整**: `.32\linewidth`は3カラムの標準。`.30\linewidth`等で調整可能
+6. **タイトルブロック**: `\centering`と`\LARGE`で目立たせる
+7. **垂直配置**: `\begin{frame}[t]`と`\begin{columns}[t]`で上揃えを指定

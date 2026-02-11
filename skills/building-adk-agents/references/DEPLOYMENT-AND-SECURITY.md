@@ -414,3 +414,327 @@ ADKデプロイとセキュリティの主要領域:
 5. **拡張**: カスタムAgent、Service、Tool
 
 ベストプラクティス遵守でセキュアで堅牢なAgentシステムを構築。
+
+---
+
+## GKE Deployment
+
+### プロジェクト構成
+
+GKE（Google Kubernetes Engine）にデプロイする際の推奨プロジェクト構成です。
+
+```
+project/
+├── agent/
+│   ├── __init__.py
+│   └── agent.py          # LlmAgent実装（root_agent定義）
+├── main.py               # FastAPIエントリポイント
+├── requirements.txt      # 依存関係
+└── Dockerfile            # コンテナイメージ定義
+```
+
+### FastAPIエントリポイント
+
+`main.py`に以下のコードを配置します。
+
+```python
+from google.adk.cli.fast_api import get_fast_api_app
+
+# ADKのFastAPIアプリケーションを取得
+app = get_fast_api_app(
+    agent_dir="./agent",  # root_agentが定義されたディレクトリ
+    session_service_uri="sqlite+aiosqlite:///./sessions.db",  # Session DB
+)
+```
+
+**重要:**
+- `agent_dir`には`root_agent`を定義した`agent.py`が含まれるディレクトリを指定
+- `session_service_uri`は永続化を考慮して適切なDBを選択（本番ではCloudSQL等推奨）
+
+### Dockerfile
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 依存関係をコピー・インストール
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# アプリケーションコードをコピー
+COPY . .
+
+# FastAPIサーバーを起動
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+```
+
+**注意:**
+- コンテナポートは`8080`（GKE推奨）
+- `.dockerignore`に`sessions.db`を追加（read-onlyエラー回避）
+
+### GKEクラスタ作成
+
+```bash
+# 環境変数設定
+export GOOGLE_CLOUD_PROJECT="your-project-id"
+export GOOGLE_CLOUD_LOCATION="us-central1"
+
+# GKE Autopilotクラスタ作成
+gcloud container clusters create-auto adk-cluster \
+    --location=$GOOGLE_CLOUD_LOCATION \
+    --project=$GOOGLE_CLOUD_PROJECT
+```
+
+**Autopilotのメリット:**
+- ノード管理が自動化
+- セキュリティベストプラクティスが自動適用
+- オートスケーリング
+
+### コンテナイメージビルド（Cloud Build）
+
+```bash
+# Artifact Registryリポジトリ作成（初回のみ）
+gcloud artifacts repositories create adk-repo \
+    --repository-format=docker \
+    --location=$GOOGLE_CLOUD_LOCATION
+
+# Cloud Buildでイメージをビルド・プッシュ
+gcloud builds submit \
+    --tag $GOOGLE_CLOUD_LOCATION-docker.pkg.dev/$GOOGLE_CLOUD_PROJECT/adk-repo/adk-agent:latest
+```
+
+### Workload Identity設定（Vertex AI認証）
+
+AgentがVertex AIにアクセスするために必要な設定です。
+
+```bash
+# Kubernetesサービスアカウント作成
+kubectl create serviceaccount adk-sa
+
+# GCPサービスアカウント作成
+gcloud iam service-accounts create adk-gcp-sa \
+    --project=$GOOGLE_CLOUD_PROJECT
+
+# Vertex AI権限付与
+gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+    --member="serviceAccount:adk-gcp-sa@$GOOGLE_CLOUD_PROJECT.iam.gserviceaccount.com" \
+    --role="roles/aiplatform.user"
+
+# Workload Identityバインディング
+gcloud iam service-accounts add-iam-policy-binding \
+    adk-gcp-sa@$GOOGLE_CLOUD_PROJECT.iam.gserviceaccount.com \
+    --role roles/iam.workloadIdentityUser \
+    --member "serviceAccount:$GOOGLE_CLOUD_PROJECT.svc.id.goog[default/adk-sa]"
+
+# KubernetesサービスアカウントにWorkload Identity注釈
+kubectl annotate serviceaccount adk-sa \
+    iam.gke.io/gcp-service-account=adk-gcp-sa@$GOOGLE_CLOUD_PROJECT.iam.gserviceaccount.com
+```
+
+### Kubernetesマニフェスト（deployment.yaml）
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adk-agent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: adk-agent
+  template:
+    metadata:
+      labels:
+        app: adk-agent
+    spec:
+      serviceAccountName: adk-sa  # Workload Identity用
+      containers:
+      - name: adk-agent
+        image: us-central1-docker.pkg.dev/PROJECT_ID/adk-repo/adk-agent:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "PROJECT_ID"
+        - name: GOOGLE_CLOUD_LOCATION
+          value: "us-central1"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adk-agent-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: adk-agent
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+```
+
+**適用:**
+
+```bash
+kubectl apply -f deployment.yaml
+```
+
+### adk deploy gke（自動デプロイコマンド）
+
+ADK CLIは上記の手順を自動化する`adk deploy gke`コマンドを提供しています。
+
+```bash
+adk deploy gke \
+  --project <project-id> \
+  --cluster_name <cluster-name> \
+  --region <region> \
+  --with_ui \
+  AGENT_PATH
+```
+
+**オプション:**
+- `--with_ui`: Web UIも同時デプロイ（開発・テスト環境用）
+- `--cluster_name`: 既存クラスタ名（未指定時は新規作成）
+- `--region`: GKEクラスタリージョン
+
+**このコマンドが自動実行する内容:**
+1. GKEクラスタ作成（存在しない場合）
+2. Dockerイメージビルド・プッシュ
+3. Workload Identity設定
+4. Kubernetesマニフェスト適用
+5. LoadBalancerのIPアドレス取得
+
+### テスト・検証
+
+```bash
+# Pod状態確認
+kubectl get pods -l=app=adk-agent
+
+# ログ確認
+kubectl logs -l app=adk-agent --tail=50 -f
+
+# Service確認（LoadBalancer IPを取得）
+kubectl get service adk-agent-service
+
+# アプリ一覧取得
+export APP_URL=http://<EXTERNAL-IP>
+curl -X GET $APP_URL/list-apps
+
+# メッセージ送信テスト
+curl -X POST $APP_URL/run_sse \
+  -H "Content-Type: application/json" \
+  -d '{
+    "app_name": "app",
+    "user_id": "user1",
+    "session_id": "session1",
+    "new_message": {"role": "user", "parts": [{"text": "こんにちは"}]}
+  }'
+```
+
+### トラブルシューティング
+
+| 問題 | 原因 | 解決策 |
+|-----|------|--------|
+| **403 Forbidden** | Workload Identity未設定 | Workload Identity設定手順を再実行、`kubectl describe pod`でAnnotation確認 |
+| **Read-only database** | sessions.dbがコンテナに含まれている | `.dockerignore`に`sessions.db`追加、イメージ再ビルド |
+| **ビルドログストリーム失敗** | Cloud Buildタイムアウト | Cloud Consoleの[Cloud Build履歴]で詳細ログ確認 |
+| **Podが起動しない** | イメージプル失敗 | `kubectl describe pod`でイベント確認、Artifact Registry権限確認 |
+| **502 Bad Gateway** | アプリケーション起動失敗 | `kubectl logs`でアプリログ確認、環境変数・依存関係チェック |
+
+**デバッグコマンド:**
+
+```bash
+# Pod詳細情報
+kubectl describe pod <pod-name>
+
+# コンテナ内でシェル実行
+kubectl exec -it <pod-name> -- /bin/bash
+
+# リソース使用状況
+kubectl top pods
+
+# イベント確認
+kubectl get events --sort-by='.lastTimestamp'
+```
+
+### ベストプラクティス
+
+1. **セッション永続化**: 本番環境では`sqlite`ではなくCloudSQL（PostgreSQL/MySQL）を使用
+2. **Artifactストレージ**: GCSバケットを`artifact_storage_uri`に指定
+3. **シークレット管理**: 環境変数ではなくKubernetes Secretsを使用
+4. **リソース制限**: `resources.limits`を適切に設定してリソース枯渇を防止
+5. **ヘルスチェック**: `livenessProbe`と`readinessProbe`を追加
+6. **Horizontal Pod Autoscaler**: トラフィックに応じた自動スケーリング設定
+
+**改善版マニフェスト例（ヘルスチェック追加）:**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adk-agent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: adk-agent
+  template:
+    metadata:
+      labels:
+        app: adk-agent
+    spec:
+      serviceAccountName: adk-sa
+      containers:
+      - name: adk-agent
+        image: us-central1-docker.pkg.dev/PROJECT_ID/adk-repo/adk-agent:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "PROJECT_ID"
+        - name: GOOGLE_CLOUD_LOCATION
+          value: "us-central1"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        # ヘルスチェック
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+```
+
+---
+
+## まとめ（更新版）
+
+ADKデプロイとセキュリティの主要領域:
+
+1. **デプロイ**: Vertex AI、Cloud Run、GKE、`adk api_server`で柔軟展開
+2. **テレメトリ**: OpenTelemetry、Cloud Trace、Dev UI
+3. **デバッグ**: Dev UI最優先、pdb、ログ
+4. **セキュリティ**: Tool入力検証、最小権限、Secret Manager、多層防御
+5. **拡張**: カスタムAgent、Service、Tool
+
+ベストプラクティス遵守でセキュアで堅牢なAgentシステムを構築。

@@ -666,6 +666,231 @@ int main()
   {\end{itemize}}
 ```
 
+## LaTeXプログラミング（カウンター・条件分岐・ループ）
+
+### カウンター操作
+
+LaTeXはカウンターを使用して番号付けやループ処理を実行できます。
+
+#### 基本操作
+
+| コマンド | 説明 |
+|---------|------|
+| `\newcounter{name}` | 新規カウンター宣言（初期値0） |
+| `\setcounter{name}{n}` | カウンターの値を設定 |
+| `\addtocounter{name}{n}` | 値を加算（負数で減算） |
+| `\stepcounter{name}` | 1を加算 |
+| `\value{name}` | カウンターの値を取得 |
+
+**算術演算**:
+
+| コマンド | 説明 |
+|---------|------|
+| `\multiply\value{name} by n` | 乗算 |
+| `\divide\value{name} by n` | 整数除算 |
+
+#### 出力フォーマット
+
+| コマンド | 出力形式 | 例（値が5の場合） |
+|---------|---------|-----------------|
+| `\arabic{name}` | アラビア数字 | 5 |
+| `\Roman{name}` | 大文字ローマ数字 | V |
+| `\roman{name}` | 小文字ローマ数字 | v |
+| `\Alph{name}` | 大文字アルファベット | E |
+| `\alph{name}` | 小文字アルファベット | e |
+| `\fnsymbol{name}` | 脚注記号 | ‡ |
+
+**使用例**:
+
+```latex
+\newcounter{mycount}
+\setcounter{mycount}{10}
+\addtocounter{mycount}{5}  % mycount = 15
+
+% 出力
+\arabic{mycount}  % 15
+\Roman{mycount}   % XV
+```
+
+**高度な演算（intcalcパッケージ）**:
+
+```latex
+\usepackage{intcalc}
+
+% 剰余演算
+\intcalcMod{17}{5}  % 2
+
+% 累乗
+\intcalcPow{2}{8}   % 256
+```
+
+### 条件分岐
+
+#### 整数比較（\ifnum）
+
+```latex
+\ifnum\value{num}>n
+  {真の場合の処理}
+\else
+  {偽の場合の処理}
+\fi
+```
+
+**比較演算子**: `>`, `<`, `=`
+
+**使用例**:
+
+```latex
+\newcounter{score}
+\setcounter{score}{85}
+
+\ifnum\value{score}>80
+  合格
+\else
+  不合格
+\fi
+```
+
+#### 奇数判定（\ifodd）
+
+```latex
+\ifodd\value{num}
+  {奇数の場合}
+\else
+  {偶数の場合}
+\fi
+```
+
+**使用例**:
+
+```latex
+\newcounter{page}
+\setcounter{page}{7}
+
+\ifodd\value{page}
+  右ページ
+\else
+  左ページ
+\fi
+```
+
+#### 複雑な条件（ifthenパッケージ）
+
+```latex
+\usepackage{ifthen}
+
+\ifthenelse{condition}{真の処理}{偽の処理}
+```
+
+**論理演算**:
+
+| 演算子 | 説明 |
+|-------|------|
+| `\AND` | 論理積 |
+| `\OR` | 論理和 |
+| `\NOT` | 論理否定 |
+| `\(`, `\)` | グループ化 |
+
+**使用例**:
+
+```latex
+\newcounter{age}
+\setcounter{age}{25}
+
+\ifthenelse{\value{age}>18 \AND \NOT\isodd{\value{age}}}%
+  {成人かつ偶数年齢}%
+  {その他}
+```
+
+### ループ処理
+
+#### @forループ（リスト反復）
+
+```latex
+\makeatletter
+\@for\cmd:={list}\do{commands}
+\makeatother
+```
+
+**使用例**:
+
+```latex
+\makeatletter
+\@for\sun:={rising,setting}\do{The sun is \sun.}
+\makeatother
+```
+
+**出力**:
+```
+The sun is rising.
+The sun is setting.
+```
+
+#### @whilenumループ（条件ループ）
+
+```latex
+\makeatletter
+\@whilenum condition\do{commands}
+\makeatother
+```
+
+**使用例（1から9の奇数を出力）**:
+
+```latex
+\makeatletter
+\newcounter{ctr}
+\setcounter{ctr}{1}
+
+\@whilenum\value{ctr}<10\do{%
+  \ifodd\value{ctr} \arabic{ctr}\ \fi
+  \stepcounter{ctr}%
+}
+\makeatother
+```
+
+**出力**: `1 3 5 7 9`
+
+#### TeXプリミティブループ
+
+```latex
+\newcounter{count}
+\setcounter{count}{1}
+
+\loop
+  処理内容 \arabic{count}\\
+  \stepcounter{count}
+\ifnum\value{count}<10
+\repeat
+```
+
+**注意**: `@`を含むコマンド（`\@for`, `\@whilenum`）は`\makeatletter`〜`\makeatother`で囲む必要があります。
+
+### TikZとのループ統合
+
+ループとTikZを組み合わせて図形を生成できます。
+
+**時計の文字盤の例**:
+
+```latex
+\usepackage{tikz}
+
+\makeatletter
+\newcounter{hour}
+\setcounter{hour}{1}
+
+\begin{tikzpicture}
+  \draw (0,0) circle (2cm);
+
+  \@whilenum\value{hour}<13\do{%
+    \node at ({360/12*\value{hour}}:1.6cm) {\arabic{hour}};
+    \stepcounter{hour}%
+  }
+\end{tikzpicture}
+\makeatother
+```
+
+この例では、1から12までの数字を円周上に均等配置します。
+
 ## まとめ
 
 ユーザー定義マクロを効果的に活用することで:

@@ -487,4 +487,252 @@ await page.getByTestId('submit-button').click()
 
 ---
 
+---
+
+## Shadow DOM コンポーネントのロケーティング
+
+Shadow DOM内の要素にアクセスするには、ホスト要素を特定してからその内部を探索します。
+
+### ホスト要素からのアクセス
+
+```typescript
+// Shadow DOMを持つカスタムコンポーネント
+const host = page.locator('custom-button')
+
+// Shadow DOM内のボタンを直接操作
+await host.getByRole('button', { name: 'Click me' }).click()
+
+// より複雑な例
+const shadowHost = page.locator('user-card')
+await shadowHost.getByText('John Doe').click()
+await expect(shadowHost.getByRole('heading', { name: 'Profile' })).toBeVisible()
+```
+
+### locatorとgetByRoleの組み合わせ
+
+Playwrightは自動的にShadow DOM境界を越えて要素を検索します：
+
+```typescript
+// Shadow DOM内のネストされた要素
+await page
+  .locator('app-root')
+  .locator('user-profile')
+  .getByRole('button', { name: 'Edit' })
+  .click()
+```
+
+### 注意点
+
+- PlaywrightのgetBy\*ロケーターは自動的にShadow DOMを貫通します
+- XPathはShadow DOM内では機能しません
+- CSSセレクタは`:shadow`疑似セレクタでアクセス可能ですが、非推奨です
+
+---
+
+## iframe / ネストされたフレームの操作
+
+### frameLocator() を使った基本操作
+
+```typescript
+// iframeを特定
+const frame = page.frameLocator('#payment-frame')
+
+// iframe内の要素を操作
+await frame.getByLabel('Card Number').fill('4242 4242 4242 4242')
+await frame.getByLabel('Expiry Date').fill('12/25')
+await frame.getByRole('button', { name: 'Pay' }).click()
+```
+
+### ネストされたフレームの扱い
+
+```typescript
+// 外側のフレーム → 内側のフレーム
+const outer = page.frameLocator('frame[name="frame-top"]')
+const inner = outer.frameLocator('frame[name="frame-left"]')
+
+// ネストされたフレーム内の要素をアサート
+await expect(inner.locator('body')).toContainText('Content')
+```
+
+### contentFrame() による代替アプローチ
+
+```typescript
+// locator → Frame オブジェクト取得
+const frameElement = page.locator('#my-iframe')
+const frame = await frameElement.contentFrame()
+
+if (frame) {
+  await frame.getByRole('button', { name: 'Submit' }).click()
+}
+```
+
+**推奨**: `frameLocator()` を使用する方がシンプルで、チェーニングが可能です。
+
+---
+
+## アラート・確認ダイアログのハンドリング
+
+JavaScriptダイアログ（alert、confirm、prompt）はブラウザネイティブのモーダルウィンドウです。
+
+### ダイアログイベントのリスニング
+
+```typescript
+// 全種類のダイアログを処理
+page.on('dialog', async dialog => {
+  console.log(`Dialog: ${dialog.type()} - ${dialog.message()}`)
+
+  if (dialog.type() === 'alert') {
+    await dialog.accept()
+  } else if (dialog.type() === 'confirm') {
+    await dialog.accept()  // OK をクリック
+    // または
+    // await dialog.dismiss()  // Cancel をクリック
+  } else if (dialog.type() === 'prompt') {
+    await dialog.accept('My Answer')  // テキスト入力 + OK
+  }
+})
+
+// ダイアログをトリガーするアクション
+await page.getByRole('button', { name: 'Show Alert' }).click()
+```
+
+### page.once() で単発のダイアログに対応
+
+```typescript
+// 1回だけ実行されるハンドラー
+page.once('dialog', dialog => dialog.accept())
+await page.getByRole('button', { name: 'Confirm Action' }).click()
+```
+
+### メッセージ内容のアサーション
+
+```typescript
+page.on('dialog', async dialog => {
+  expect(dialog.message()).toBe('Are you sure you want to delete this item?')
+  await dialog.accept()
+})
+
+await page.getByRole('button', { name: 'Delete' }).click()
+```
+
+**重要**: ダイアログをacceptまたはdismissしないと、テストが停止します。
+
+---
+
+## フォールバックセレクターの使い分け
+
+セマンティックなロケーター（getByRole等）が使えない場合の選択肢。
+
+### CSS セレクター
+
+```typescript
+// ID属性
+await page.locator('#login-form').fill('user@example.com')
+
+// クラス名
+await page.locator('.submit-button').click()
+
+// 属性セレクタ
+await page.locator('[data-automation-id="checkout-btn"]').click()
+
+// 複合セレクタ（可能な限り避ける）
+await page.locator('div.container > form#login input[type="email"]').fill('test@example.com')
+```
+
+### XPath（最終手段）
+
+```typescript
+// テキスト内容で検索
+await page.locator('//button[contains(text(), "Submit")]').click()
+
+// 親要素からの相対検索
+await page.locator('//form[@id="login"]//input[@type="password"]').fill('secret')
+
+// 属性ベース
+await page.locator('//div[@data-testid="user-card"]//button').click()
+```
+
+**XPathの制限**:
+- Shadow DOMに対応していない
+- パフォーマンスがCSS/getByRoleより劣る
+- 可読性が低い
+
+### テキストベースセレクタ
+
+```typescript
+// 部分一致（デフォルト）
+await page.getByText('Welcome').click()
+
+// 完全一致
+await page.getByText('Login', { exact: true }).click()
+
+// 正規表現
+await page.getByText(/sign in/i).click()
+
+// フィルタリングと組み合わせ
+await page.getByRole('button').filter({ hasText: 'Submit' }).click()
+```
+
+### data-testid の戦略的使用
+
+```typescript
+// HTML: <button data-testid="checkout-button">Checkout</button>
+await page.getByTestId('checkout-button').click()
+
+// カスタム属性名の設定（playwright.config.ts）
+export default defineConfig({
+  use: {
+    testIdAttribute: 'data-automation-id'
+  }
+})
+```
+
+**data-testidを使うべき場合**:
+- セマンティックな代替手段がない
+- サードパーティコンポーネント
+- 動的に生成されるUI
+
+---
+
+## 動的要素のカスタムwait戦略
+
+### waitForSelector() の活用
+
+```typescript
+// 要素が表示されるまで待機（状態指定）
+await page.waitForSelector('.loading-spinner', { state: 'visible' })
+await page.waitForSelector('.loading-spinner', { state: 'hidden' })
+
+// タイムアウトカスタマイズ
+await page.waitForSelector('#submit-button', {
+  state: 'visible',
+  timeout: 10000
+})
+```
+
+### カスタム条件での待機
+
+```typescript
+// ページ内のJavaScript変数が特定の値になるまで待機
+await page.waitForFunction(() => window.appReady === true)
+
+// DOM要素の特定の状態を待機
+await page.waitForFunction(selector => {
+  const el = document.querySelector(selector)
+  return el && el.classList.contains('loaded')
+}, '#data-table')
+```
+
+### ネットワーク完了を待つ
+
+```typescript
+// 特定のAPIレスポンスを待機
+await Promise.all([
+  page.waitForResponse(resp => resp.url().includes('/api/user') && resp.status() === 200),
+  page.getByRole('button', { name: 'Load Profile' }).click()
+])
+```
+
+---
+
 **次のステップ**: [FIXTURES-AND-POM.md](./FIXTURES-AND-POM.md) で Fixture と Page Object Model を学習してください。
