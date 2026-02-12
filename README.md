@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (46個)
+└── skills/             # ナレッジスキル (47個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (46個)
+### Skills (47個)
 
 #### コア開発
 
@@ -128,6 +128,7 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
+| `mermaid-diagrams` | Mermaidダイアグラム作成（22+種類：構造設計・フロー・プロジェクト管理・データ可視化・バージョン管理・思考整理・専門用途、23リファレンスファイル） |
 | `writing-technical-docs` | 技術ドキュメント（7つのC原則） |
 | `writing-academic-papers` | アカデミックライティング（エッセイ・論文・dissertation、Harvard参照、批判的思考、論証テンプレート6種、TAOS導入・ファネル本文・結論4ステップ、リフレクティブライティング9手法、Dissertation章別テンプレート、批評手法5種、理論活用・批評手法、リサーチソースHack、AI活用学術ワークフロー） |
 | `removing-ai-smell` | AI臭除去（コード・文章の自然化） |

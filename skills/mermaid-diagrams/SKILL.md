@@ -1,6 +1,6 @@
 ---
 name: mermaid-diagrams
-description: Comprehensive guide for creating software diagrams using Mermaid syntax. Use when users need to create, visualize, or document software through diagrams including class diagrams (domain modeling, object-oriented design), sequence diagrams (application flows, API interactions, code execution), flowcharts (processes, algorithms, user journeys), entity relationship diagrams (database schemas), C4 architecture diagrams (system context, containers, components), state diagrams, git graphs, pie charts, gantt charts, or any other diagram type. Triggers include requests to "diagram", "visualize", "model", "map out", "show the flow", or when explaining system architecture, database design, code structure, or user/application flows.
+description: Comprehensive guide for creating 22+ diagram types using Mermaid syntax. Use when users need to visualize software architecture (class, sequence, flowchart, ERD, C4, block, architecture), document processes (state, gantt, timeline, kanban, user journey, gitgraph), or present data (pie, xy, quadrant, radar, sankey, treemap). Also includes specialized diagrams (ZenUML, packet) and advanced theming. Triggers include "diagram", "visualize", "model", "map out", "show the flow", or requests for architecture, database schemas, workflows, or data visualization.
 ---
 
 # Mermaid Diagramming
@@ -24,40 +24,72 @@ diagramType
 
 ## Diagram Type Selection Guide
 
-**Choose the right diagram type:**
+**22+ diagram types organized by category:**
+
+### 構造・設計 (Structure & Design)
 
 1. **Class Diagrams** - Domain modeling, OOP design, entity relationships
-   - Domain-driven design documentation
-   - Object-oriented class structures
-   - Entity relationships and dependencies
+   - Domain-driven design documentation, object structures, dependencies
+2. **ERD (Entity Relationship Diagrams)** - Database schemas
+   - Table relationships, keys, data modeling
+3. **C4 Diagrams** - Software architecture at multiple levels
+   - System context, container, component, code-level views
+4. **Architecture Diagrams** - Cloud services, infrastructure
+   - AWS/Azure/GCP deployments, CI/CD, service topology
+5. **Block Diagrams** - Component composition, nested structures
+   - System modules, hierarchical views, composition relationships
 
-2. **Sequence Diagrams** - Temporal interactions, message flows
-   - API request/response flows
-   - User authentication flows
-   - System component interactions
-   - Method call sequences
+### フロー・プロセス (Flow & Process)
 
-3. **Flowcharts** - Processes, algorithms, decision trees
-   - User journeys and workflows
-   - Business processes
-   - Algorithm logic
-   - Deployment pipelines
+6. **Flowcharts** - Processes, algorithms, decision trees
+   - User journeys, business processes, algorithm logic, pipelines
+7. **Sequence Diagrams** - Temporal interactions, message flows
+   - API request/response, authentication flows, method calls
+8. **State Diagrams** - State machines, lifecycle states
+   - Application states, workflow transitions, FSM modeling
+9. **User Journey** - Customer experience flows
+   - Task sequences, satisfaction mapping, touchpoint analysis
 
-4. **Entity Relationship Diagrams (ERD)** - Database schemas
-   - Table relationships
-   - Data modeling
-   - Schema design
+### プロジェクト管理 (Project Management)
 
-5. **C4 Diagrams** - Software architecture at multiple levels
-   - System Context (systems and users)
-   - Container (applications, databases, services)
-   - Component (internal structure)
-   - Code (class/interface level)
+10. **Gantt Charts** - Project timelines, scheduling
+    - Task dependencies, milestones, resource allocation
+11. **Timeline** - Chronological events
+    - Product roadmaps, historical events, version history
+12. **Kanban** - Work-in-progress visualization
+    - Task boards, sprint planning, workflow stages
 
-6. **State Diagrams** - State machines, lifecycle states
-7. **Git Graphs** - Version control branching strategies
-8. **Gantt Charts** - Project timelines, scheduling
-9. **Pie/Bar Charts** - Data visualization
+### データ可視化 (Data Visualization)
+
+13. **Pie Charts** - Proportional data
+    - Market share, resource distribution, category breakdown
+14. **XY Charts** - Numerical relationships
+    - Time series, correlations, performance metrics
+15. **Quadrant Charts** - Four-quadrant analysis
+    - Priority matrices, risk assessment, strategic positioning
+16. **Radar Charts** - Multi-dimensional comparison
+    - Feature comparison, skill assessments, maturity models
+17. **Sankey Diagrams** - Flow quantities
+    - Energy flows, budget allocation, traffic analysis
+18. **Treemap** - Hierarchical data as nested rectangles
+    - Disk usage, portfolio allocation, taxonomies
+
+### バージョン管理 (Version Control)
+
+19. **Git Graphs** - Branch strategies
+    - Gitflow, trunk-based development, merge history
+
+### 思考整理 (Mind Organization)
+
+20. **Mindmaps** - Brainstorming, concept mapping
+    - Idea organization, knowledge structures, planning
+
+### 専門用途 (Specialized)
+
+21. **ZenUML** - UML sequence diagrams (alternative syntax)
+    - Use for complex UML scenarios requiring advanced features
+22. **Packet Diagrams** - Network protocol visualization
+    - Protocol headers, data structure layouts, bit-level formats
 
 ## Quick Start Examples
 
@@ -137,12 +169,43 @@ erDiagram
 
 For in-depth guidance on specific diagram types, see:
 
-- **[references/class-diagrams.md](references/class-diagrams.md)** - Domain modeling, relationships (association, composition, aggregation, inheritance), multiplicity, methods/properties
-- **[references/sequence-diagrams.md](references/sequence-diagrams.md)** - Actors, participants, messages (sync/async), activations, loops, alt/opt/par blocks, notes
-- **[references/flowcharts.md](references/flowcharts.md)** - Node shapes, connections, decision logic, subgraphs, styling
-- **[references/erd-diagrams.md](references/erd-diagrams.md)** - Entities, relationships, cardinality, keys, attributes
-- **[references/c4-diagrams.md](references/c4-diagrams.md)** - System context, container, component diagrams, boundaries
-- **[references/architecture-diagrams.md](references/architecture-diagrams.md)** - Cloud services, infrastructure, CI/CD deployments
+### 構造・設計
+- **[references/class-diagrams.md](references/class-diagrams.md)** - Domain modeling, relationships, multiplicity, methods/properties
+- **[references/erd-diagrams.md](references/erd-diagrams.md)** - Entities, cardinality, keys, attributes
+- **[references/c4-diagrams.md](references/c4-diagrams.md)** - System context, container, component, boundaries
+- **[references/architecture-diagrams.md](references/architecture-diagrams.md)** - Cloud services, infrastructure, CI/CD
+- **[references/block-diagrams.md](references/block-diagrams.md)** - Component composition, nested structures
+
+### フロー・プロセス
+- **[references/flowcharts.md](references/flowcharts.md)** - Node shapes, decision logic, subgraphs
+- **[references/sequence-diagrams.md](references/sequence-diagrams.md)** - Messages, activations, loops, alt/opt/par blocks
+- **[references/state-diagrams.md](references/state-diagrams.md)** - State transitions, FSM, lifecycle modeling
+- **[references/user-journey-diagrams.md](references/user-journey-diagrams.md)** - Customer experience, satisfaction mapping
+
+### プロジェクト管理
+- **[references/gantt-charts.md](references/gantt-charts.md)** - Timelines, dependencies, milestones
+- **[references/timeline-diagrams.md](references/timeline-diagrams.md)** - Chronological events, roadmaps
+- **[references/kanban-diagrams.md](references/kanban-diagrams.md)** - Task boards, workflow stages
+
+### データ可視化
+- **[references/pie-charts.md](references/pie-charts.md)** - Proportional data, category breakdown
+- **[references/xy-charts.md](references/xy-charts.md)** - Time series, correlations, metrics
+- **[references/quadrant-charts.md](references/quadrant-charts.md)** - Four-quadrant analysis, matrices
+- **[references/radar-charts.md](references/radar-charts.md)** - Multi-dimensional comparison, feature comparison
+- **[references/sankey-diagrams.md](references/sankey-diagrams.md)** - Flow quantities, resource allocation
+- **[references/treemap-diagrams.md](references/treemap-diagrams.md)** - Hierarchical data, nested rectangles
+
+### バージョン管理
+- **[references/git-graphs.md](references/git-graphs.md)** - Branch strategies, merge history
+
+### 思考整理
+- **[references/mindmaps.md](references/mindmaps.md)** - Brainstorming, concept mapping
+
+### 専門用途
+- **[references/zenuml-diagrams.md](references/zenuml-diagrams.md)** - Advanced UML sequence syntax
+- **[references/packet-diagrams.md](references/packet-diagrams.md)** - Network protocol, bit-level formats
+
+### 高度な機能
 - **[references/advanced-features.md](references/advanced-features.md)** - Themes, styling, configuration, layout options
 
 ## Best Practices
