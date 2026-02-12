@@ -395,6 +395,13 @@ resource "aws_vpc" "main" {
 - **[MODULES.md](./references/MODULES.md)** - モジュール設計パターンと実践例
 - **[AWS-PRACTICE.md](./references/AWS-PRACTICE.md)** - AWS環境での実践的な構築ガイド
 - **[TESTING.md](./references/TESTING.md)** - テスト、ツール、ドキュメンテーション
+- **[PLAN-AND-GRAPH.md](./references/PLAN-AND-GRAPH.md)** - Plan/Applyの内部動作、DAG、リソースグラフ、落とし穴
+- **[STATE-IN-DEPTH.md](./references/STATE-IN-DEPTH.md)** - ステート内部構造、バックエンド移行、ドリフト対策、プロジェクト間連携
+- **[CI-QUALITY.md](./references/CI-QUALITY.md)** - CI実践、品質維持ツール、セキュリティ検証、GitHub Actions
+- **[CD-DEPLOYMENT.md](./references/CD-DEPLOYMENT.md)** - モジュール配信、GitOps、プロジェクト構造、CDプラットフォーム
+- **[TESTING-IN-DEPTH.md](./references/TESTING-IN-DEPTH.md)** - テスト理論、Terratest、Testing Framework、リファクタリング
+- **[ADVANCED-PATTERNS.md](./references/ADVANCED-PATTERNS.md)** - 命名・ドメイン、ネットワーク、Provisioner、CDKTF
+- **[PROVIDER-DEVELOPMENT.md](./references/PROVIDER-DEVELOPMENT.md)** - カスタムProvider開発（Plugin Framework）
 
 ---
 

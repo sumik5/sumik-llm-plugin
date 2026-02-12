@@ -1,147 +1,284 @@
-# テスト・CSS・フレームワーク選定ガイド
+# テスト・ツール・スタイリング戦略
 
-Reactプロジェクトにおけるテスト戦略、CSS手法の選定、フレームワーク選定、開発ツールチェーンについて解説します。
+Reactアプリケーションのテスト手法、開発ツールチェーン、CSS手法の選定基準について解説します。
 
 ---
 
-## 1. Reactテスト戦略
+## 1. React開発ツールチェーン
 
-### AAAパターン（必須）
+### 1.1 ESLint（Linter）
 
-すべてのテストは以下の3段階で構成します。
+#### ESLintの役割
+
+- コードの静的解析によるエラー検出
+- チーム全体のコーディング規約の自動適用
+- 300以上のルールで構成、カスタマイズ可能
+
+#### 主要ルール設定
+
+```json
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "rules": {
+    "semi": ["error", "always"],
+    "quotes": ["error", "double"],
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  }
+}
+```
+
+**react-hooks関連ルール（必須）:**
+- `rules-of-hooks`: フックのルール違反を検出
+- `exhaustive-deps`: useEffectの依存配列の過不足を警告
+
+#### セットアップ
+
+```bash
+# 初期化
+npm init @eslint/config
+
+# エディタ統合
+# VS Code、VIM、Emacsなど主要エディタで利用可能
+```
+
+### 1.2 Prettier（Formatter）
+
+#### Prettierの特徴
+
+- **Opinionatedな自動フォーマッター** - ディスカッション不要の統一フォーマット
+- コンテキストに応じた動的なフォーマット決定
+- 全チームで共通のコードスタイルを実現
+
+#### 基本設定
+
+```json
+{
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 80
+}
+```
+
+#### 動的フォーマッティング例
+
+```typescript
+// シンプルな例 → 1行
+const someCars = cars.filter((car) => car.make === "Fiat");
+
+// 複雑な例 → 自動で複数行に
+const someCars = originalListOfCars.filter(
+  (car) =>
+    car.make === "Fiat" &&
+    !car.isPickup &&
+    !car.isHatchback &&
+    car.cylinders >= 6
+);
+```
+
+#### ESLintとの併用
+
+```bash
+npm install -D eslint-config-prettier
+```
+
+```json
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "prettier"  // 最後に配置してESLintのフォーマットルールを無効化
+  ]
+}
+```
+
+### 1.3 PropTypes（型チェック）
+
+**注意: PropTypesはReact 19以降非推奨です。TypeScript推奨。**
+
+#### PropTypesの使用例
+
+```typescript
+import PropTypes from 'prop-types';
+
+function Input({ name, label, value, onChange }) {
+  return (
+    <label>
+      {label}
+      <input name={name} value={value} onChange={onChange} />
+    </label>
+  );
+}
+
+Input.propTypes = {
+  name: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+};
+```
+
+#### 複雑な型定義
+
+```typescript
+// 形状（Shape）の定義
+UserDisplay.propTypes = {
+  user: PropTypes.shape({
+    name: PropTypes.string,
+    age: PropTypes.number,
+  }).isRequired,
+};
+
+// 配列型の定義
+Users.propTypes = {
+  userList: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      age: PropTypes.number,
+    })
+  ).isRequired,
+};
+```
+
+#### PropTypes vs TypeScript
+
+| PropTypes | TypeScript |
+|-----------|-----------|
+| ランタイム型チェック | 静的型チェック（エディタ内） |
+| コンポーネントのみ | 全コードベース対応 |
+| React 19で非推奨 | 推奨される現代的手法 |
+
+### 1.4 React Developer Tools
+
+#### Components Inspector（主要機能）
+
+**コンポーネント階層の可視化:**
+- Props/Stateのリアルタイム表示
+- コンポーネントの値をインスペクタから直接編集可能
+- コンテキストの値を確認
+- Memoizedコンポーネントの検出
+
+**State操作:**
+```typescript
+// useStateで管理されている状態をインスペクタから直接変更可能
+// コンポーネントは変更後即座に再レンダリング
+```
+
+**Context確認:**
+- Context Consumerでの値確認（読取専用）
+- Context Providerでの値編集
+
+#### Profiler（パフォーマンス計測）
+
+**レンダリング分析:**
+- コンポーネントのレンダリング時間計測
+- 再レンダリング原因の特定
+- レンダリングカスケードの可視化
+
+**使用手順:**
+1. 記録開始
+2. 操作実行
+3. 記録停止
+4. 再レンダリング理由の分析
+
+**設定:**
+- "Why did this render?" 追跡を有効化
+- レンダリング原因（Context更新、Props変更等）を表示
+
+---
+
+## 2. Reactテスト戦略
+
+### 2.1 AAAパターン（必須）
+
+すべてのテストは3段階で構成します。
 
 ```typescript
 test("カウンターがクリックで増加する", async () => {
-  // Arrange: テストの準備（レンダリング、モック設定等）
+  // Arrange: テストの準備
   render(<Counter />);
 
-  // Act: 操作の実行（ユーザー操作のシミュレーション）
+  // Act: 操作の実行
   const user = userEvent.setup();
   const increment = screen.getByRole("button", { name: "Increment" });
   await user.click(increment);
 
-  // Assert: 結果の検証（期待値と実際の値の比較）
+  // Assert: 結果の検証
   const heading = screen.getByRole("heading", { name: "Counter: 1" });
   expect(heading).toBeInTheDocument();
 });
 ```
 
 **変数名規則:**
-- `actual`: 実際の値
-- `expected`: 期待値
-- `expect(actual).toBe(expected)` の順序を厳守
-
 ```typescript
-test("合計金額が正しく計算される", () => {
-  // Arrange
-  const items = [
-    { id: "1", price: 100 },
-    { id: "2", price: 200 },
-  ];
-
-  // Act
-  const actual = calculateTotal(items);
-
-  // Assert
-  const expected = 300;
-  expect(actual).toBe(expected);
-});
+const actual = calculateTotal(items);
+const expected = 300;
+expect(actual).toBe(expected);
 ```
 
-### 要素クエリ優先順位（必須）
-
-React Testing Libraryでは、以下の優先順位でクエリを使用します。
+### 2.2 要素クエリ優先順位（React Testing Library）
 
 **1. getByRole（最優先）**
 
 ```typescript
 // ボタン
-const submitButton = screen.getByRole("button", { name: "送信" });
-const submitButton2 = screen.getByRole("button", { name: /送信/i }); // 正規表現
+screen.getByRole("button", { name: "送信" });
 
 // 見出し
-const heading = screen.getByRole("heading", { name: "タイトル" });
-const h2Heading = screen.getByRole("heading", { level: 2, name: "サブタイトル" });
+screen.getByRole("heading", { level: 2, name: "サブタイトル" });
 
-// リンク
-const link = screen.getByRole("link", { name: "ホームへ戻る" });
-
-// テキストボックス（input type="text", textarea等）
-const input = screen.getByRole("textbox", { name: "ユーザー名" });
+// テキストボックス
+screen.getByRole("textbox", { name: "ユーザー名" });
 
 // チェックボックス
-const checkbox = screen.getByRole("checkbox", { name: "利用規約に同意する" });
-
-// ラジオボタン
-const radio = screen.getByRole("radio", { name: "オプションA" });
-
-// リスト
-const list = screen.getByRole("list");
-const listItems = screen.getAllByRole("listitem");
+screen.getByRole("checkbox", { name: "利用規約に同意する" });
 ```
 
 **2. getByLabelText（フォーム要素）**
 
 ```typescript
-// label要素と関連付けられたinput
-const emailInput = screen.getByLabelText("メールアドレス");
-const passwordInput = screen.getByLabelText(/パスワード/i);
+screen.getByLabelText("メールアドレス");
 ```
 
 **3. getByPlaceholderText**
 
 ```typescript
-const searchInput = screen.getByPlaceholderText("キーワードを入力");
+screen.getByPlaceholderText("キーワードを入力");
 ```
 
 **4. getByText**
 
 ```typescript
-// 通常のテキスト
-const text = screen.getByText("こんにちは");
-
-// 部分一致
-const partialText = screen.getByText(/こんにちは/, { exact: false });
-
-// 特定の要素のみ
-const paragraph = screen.getByText("こんにちは", { selector: "p" });
+screen.getByText("こんにちは");
 ```
 
 **5. getByTestId（最終手段）**
 
 ```typescript
-// アイコンやデコレーション要素など、他の方法で取得できない場合のみ
-const icon = screen.getByTestId("user-icon");
+// アイコン等、他の方法で取得できない場合のみ
+screen.getByTestId("user-icon");
 ```
 
-**クエリの種類:**
-- `getBy*`: 要素が見つからない場合エラー（単一要素）
-- `queryBy*`: 要素が見つからない場合null（単一要素、存在しないことの検証用）
-- `findBy*`: 非同期で要素を待機（単一要素、Promise返却）
-- `getAllBy*`: 複数要素（配列）
-- `queryAllBy*`: 複数要素（配列、空配列の場合あり）
-- `findAllBy*`: 非同期で複数要素待機
-
-### user-event（必須）
-
-**fireEventではなくuser-eventを使用します**（実際のユーザー操作に近い動作を再現）。
+### 2.3 user-event（fireEventではなくuser-event使用）
 
 ```typescript
-import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 test("フォーム入力とクリック", async () => {
   render(<LoginForm />);
-
   const user = userEvent.setup();
 
   // テキスト入力
-  const emailInput = screen.getByLabelText("メールアドレス");
-  await user.type(emailInput, "test@example.com");
+  await user.type(screen.getByLabelText("メールアドレス"), "test@example.com");
 
   // クリック
-  const submitButton = screen.getByRole("button", { name: "ログイン" });
-  await user.click(submitButton);
+  await user.click(screen.getByRole("button", { name: "ログイン" }));
 
   // 結果の検証
   const successMessage = await screen.findByText("ログインに成功しました");
@@ -150,170 +287,37 @@ test("フォーム入力とクリック", async () => {
 ```
 
 **主な操作:**
-
 ```typescript
 const user = userEvent.setup();
 
-// クリック
 await user.click(element);
-await user.dblClick(element);
-
-// キーボード入力
 await user.type(input, "テキスト");
-await user.clear(input); // クリア
-await user.keyboard("{Enter}"); // 特殊キー
-await user.keyboard("{Shift>}A{/Shift}"); // Shift+A
-
-// 選択
+await user.clear(input);
+await user.keyboard("{Enter}");
 await user.selectOptions(select, "option1");
-await user.selectOptions(select, ["option1", "option2"]); // 複数選択
-
-// チェックボックス・ラジオ
-await user.click(checkbox); // トグル
 ```
 
-### コールバックテスト（モック）
+### 2.4 コールバックテスト（モック）
 
 ```typescript
 import { vi } from "vitest";
 
 test("削除コールバックが正しい引数で呼ばれる", async () => {
   // Arrange
-  const items = [
-    { id: "1", name: "Item A" },
-    { id: "2", name: "Item B" },
-  ];
   const mockDelete = vi.fn();
   render(<ItemList items={items} onDelete={mockDelete} />);
 
   // Act
   const user = userEvent.setup();
-  const deleteButton = screen.getByRole("button", { name: "Delete 'Item B'" });
-  await user.click(deleteButton);
+  await user.click(screen.getByRole("button", { name: "Delete 'Item B'" }));
 
   // Assert
   expect(mockDelete).toHaveBeenCalledTimes(1);
   expect(mockDelete).toHaveBeenCalledWith("2");
 });
-
-test("フォーム送信時にonSubmitが正しいデータで呼ばれる", async () => {
-  // Arrange
-  const mockSubmit = vi.fn();
-  render(<UserForm onSubmit={mockSubmit} />);
-
-  // Act
-  const user = userEvent.setup();
-  await user.type(screen.getByLabelText("名前"), "Alice");
-  await user.type(screen.getByLabelText("メール"), "alice@example.com");
-  await user.click(screen.getByRole("button", { name: "送信" }));
-
-  // Assert
-  const expected = { name: "Alice", email: "alice@example.com" };
-  expect(mockSubmit).toHaveBeenCalledWith(expected);
-});
 ```
 
-### テストの耐久性（実装詳細に依存しない）
-
-**❌ 悪い例（脆いテスト）:**
-
-```typescript
-// クラス名に依存
-const button = container.querySelector(".btn-primary");
-
-// DOM構造に依存
-const text = container.querySelector("div > span > p");
-
-// data属性に依存（getByTestId以外）
-const element = container.querySelector("[data-custom='value']");
-```
-
-**✅ 良い例（耐久性の高いテスト）:**
-
-```typescript
-// ロール + アクセシブルネームで取得
-const button = screen.getByRole("button", { name: "送信" });
-
-// 意味のあるテキストで取得
-const message = screen.getByText("登録が完了しました");
-
-// ラベルで取得（フォーム）
-const input = screen.getByLabelText("ユーザー名");
-```
-
-**アイコンボタンのテスト:**
-
-```typescript
-// アイコンのみのボタン → aria-labelで取得可能にする
-<button aria-label="お気に入りに追加">
-  <HeartIcon />
-</button>
-
-// テスト
-const favoriteButton = screen.getByRole("button", { name: "お気に入りに追加" });
-```
-
-### モック戦略
-
-**ブラウザAPIモック:**
-
-```typescript
-test("クリップボードにコピーする", async () => {
-  // Arrange
-  const mockWriteText = vi.fn();
-  Object.assign(navigator, {
-    clipboard: {
-      writeText: mockWriteText,
-    },
-  });
-
-  render(<CopyButton text="Hello" />);
-
-  // Act
-  const user = userEvent.setup();
-  await user.click(screen.getByRole("button", { name: "コピー" }));
-
-  // Assert
-  expect(mockWriteText).toHaveBeenCalledWith("Hello");
-});
-```
-
-**ライブラリモック:**
-
-```typescript
-// 例: date-fnsのモック
-vi.mock("date-fns", () => ({
-  format: vi.fn((date, formatStr) => "2025-01-01"),
-}));
-
-test("日付が正しくフォーマットされる", () => {
-  render(<DateDisplay date={new Date()} />);
-  expect(screen.getByText("2025-01-01")).toBeInTheDocument();
-});
-```
-
-**Contextモック:**
-
-```typescript
-test("ログイン状態でユーザー名を表示", () => {
-  // Arrange
-  const mockContextValue = {
-    user: { id: "1", name: "Alice" },
-    isAuthenticated: true,
-  };
-
-  render(
-    <AuthContext.Provider value={mockContextValue}>
-      <Header />
-    </AuthContext.Provider>
-  );
-
-  // Assert
-  expect(screen.getByText("Alice")).toBeInTheDocument();
-});
-```
-
-### 非同期処理のテスト
+### 2.5 非同期処理のテスト
 
 ```typescript
 test("データ取得後にリストを表示", async () => {
@@ -327,63 +331,40 @@ test("データ取得後にリストを表示", async () => {
   render(<ItemList />);
 
   // Act & Assert
-  // findByで非同期に要素が現れるまで待機（デフォルト1秒タイムアウト）
   const item = await screen.findByText("Item 1");
   expect(item).toBeInTheDocument();
-});
-
-test("ローディング状態の表示", () => {
-  render(<AsyncComponent />);
-
-  // 初期状態でローディング表示
-  expect(screen.getByText("読み込み中...")).toBeInTheDocument();
-
-  // データ取得後にローディングが消える
-  await waitFor(() => {
-    expect(screen.queryByText("読み込み中...")).not.toBeInTheDocument();
-  });
 });
 ```
 
 ---
 
-## 2. CSS手法選定ガイド
+## 3. CSS手法選定
 
-### 比較表
+### 3.1 CSS手法比較
 
-| 手法 | 特異性制御 | 衝突リスク | DX | バンドルサイズ | パフォーマンス | 学習コスト |
-|------|----------|----------|-----|-------------|-------------|----------|
-| CSSファイル+クラス名 | 中 | 高 | 中 | 中 | 優秀 | 低 |
-| CSS Modules | 中 | なし | 良好 | 中 | 優秀 | 低 |
-| styled-components | 高 | なし | 優秀 | 大 | 中 | 中 |
-| Tailwind CSS | 高 | 低 | 良好 | 大* | 優秀 | 中 |
+| 手法 | 特異性制御 | 衝突リスク | DX | パフォーマンス | 学習コスト |
+|------|----------|----------|-----|-------------|----------|
+| CSSファイル+クラス名 | 中 | 高 | 中 | 優秀 | 低 |
+| CSS Modules | 中 | なし | 良好 | 優秀 | 低 |
+| styled-components | 高 | なし | 優秀 | 中 | 中 |
+| Tailwind CSS | 高 | 低 | 良好 | 優秀 | 中 |
 
-*Tailwind CSSはPurgeCSS等で最適化可能
-
-### 1. CSSファイル + クラス名（従来型）
+### 3.2 CSSファイル + クラス名（従来型）
 
 ```css
 /* Button.css */
 .button {
   padding: 8px 16px;
-  border: none;
   border-radius: 4px;
-  cursor: pointer;
 }
 
 .button-primary {
   background-color: blue;
   color: white;
 }
-
-.button-secondary {
-  background-color: gray;
-  color: white;
-}
 ```
 
 ```tsx
-// Button.tsx
 import "./Button.css";
 
 function Button({ variant = "primary", children }) {
@@ -399,30 +380,21 @@ function Button({ variant = "primary", children }) {
 - グローバルスコープによる衝突リスク
 - クラス名の命名規則（BEM等）が必要
 
-### 2. CSS Modules
+### 3.3 CSS Modules
 
 ```css
 /* Button.module.css */
 .button {
   padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .primary {
   background-color: blue;
   color: white;
 }
-
-.secondary {
-  background-color: gray;
-  color: white;
-}
 ```
 
 ```tsx
-// Button.tsx
 import styles from "./Button.module.css";
 
 function Button({ variant = "primary", children }) {
@@ -435,24 +407,22 @@ function Button({ variant = "primary", children }) {
 ```
 
 **メリット:**
-- スコープの自動隔離（クラス名が自動生成される）
+- スコープの自動隔離（クラス名が自動生成）
 - 標準的なCSS記法
-- サーバーサイドレンダリング対応
+- SSR対応
 
 **デメリット:**
-- クラス名の結合が煩雑（`classnames`ライブラリ推奨）
+- クラス名の結合が煩雑（classnamesライブラリ推奨）
 - 動的スタイリングがやや不便
 
-### 3. styled-components（CSS-in-JS）
+### 3.4 styled-components（CSS-in-JS）
 
 ```tsx
 import styled from "styled-components";
 
 const StyledButton = styled.button<{ variant: "primary" | "secondary" }>`
   padding: 8px 16px;
-  border: none;
   border-radius: 4px;
-  cursor: pointer;
   background-color: ${(props) =>
     props.variant === "primary" ? "blue" : "gray"};
   color: white;
@@ -473,15 +443,15 @@ function Button({ variant = "primary", children }) {
 - 自動ベンダープレフィックス
 
 **デメリット:**
-- ランタイムオーバーヘッド（スタイル生成）
+- ランタイムオーバーヘッド
 - バンドルサイズ増加
-- サーバーサイドレンダリング設定が複雑
+- SSR設定が複雑
 
-### 4. Tailwind CSS（ユーティリティファースト）
+### 3.5 Tailwind CSS
 
 ```tsx
 function Button({ variant = "primary", children }) {
-  const baseClasses = "px-4 py-2 rounded cursor-pointer border-none";
+  const baseClasses = "px-4 py-2 rounded cursor-pointer";
   const variantClasses =
     variant === "primary"
       ? "bg-blue-500 text-white hover:bg-blue-600"
@@ -497,397 +467,72 @@ function Button({ variant = "primary", children }) {
 - PurgeCSSで未使用クラスを削除可能
 
 **デメリット:**
-- HTMLが冗長になる
+- HTMLが冗長
 - カスタムデザインの学習コスト
-- 初期バンドルサイズが大きい（最適化必須）
+- 初期バンドルサイズが大きい
 
-### 選定基準
+---
+
+## 4. 選定基準
+
+### 4.1 CSS手法選定
 
 **CSS Modules推奨:**
-- サーバーサイドレンダリング重視
-- バンドルサイズを最小化したい
-- 従来のCSS記法を維持したい
-- Next.js、Remix等のフレームワーク使用時
+- SSR重視
+- バンドルサイズ最小化
+- Next.js、Remix使用時
 
 **styled-components推奨:**
-- DX（開発者体験）最重視
-- 動的スタイリングが多い（テーマ、状態による変化）
-- コンポーネント単位の完全なカプセル化が必要
+- DX最重視
+- 動的スタイリングが多い
+- コンポーネント単位のカプセル化
 
 **Tailwind CSS推奨:**
 - 高速プロトタイピング
-- デザインシステムの統一が重要
-- レスポンシブデザインを多用
+- デザインシステム統一
+- レスポンシブデザイン多用
 
-**CSSファイル推奨:**
-- レガシープロジェクトとの統合
-- シンプルなサイト（複雑な状態管理なし）
+### 4.2 ツールチェーン選定
 
-### ユーザー確認が必要な場合
+**ESLint（必須）:**
+- eslint-plugin-react-hooks必須
+- Airbnb等の既存ルールセット活用
 
-CSS手法の選択は**プロジェクト・チームの慣習に大きく依存**するため、以下の場合はAskUserQuestionで確認してください。
+**Prettier（推奨）:**
+- ESLintと併用（eslint-config-prettier）
+- チーム全体のコードスタイル統一
 
-```typescript
-AskUserQuestion({
-  questions: [{
-    question: "CSS手法を選択してください",
-    header: "スタイリング",
-    options: [
-      {
-        label: "CSS Modules",
-        description: "スコープ自動隔離、SSR対応、標準的CSS記法"
-      },
-      {
-        label: "styled-components",
-        description: "DX優秀、動的スタイリング容易、コンポーネント内完結"
-      },
-      {
-        label: "Tailwind CSS",
-        description: "高速開発、デザインシステム統一、ユーティリティクラス"
-      },
-      {
-        label: "CSSファイル",
-        description: "シンプル、レガシー統合、学習コスト低"
-      }
-    ],
-    multiSelect: false
-  }]
-})
-```
+**TypeScript（推奨）:**
+- PropTypesの代替（React 19以降）
+- 静的型チェックによる早期エラー検出
 
 ---
 
-## 3. Reactフレームワーク選定
+## 5. まとめ
 
-### 比較表
+### 開発ツールチェーン
 
-| フレームワーク | SSR | SSG | ルーティング | データ取得 | デプロイ | 学習曲線 | 推奨用途 |
-|-------------|-----|-----|-----------|----------|---------|---------|---------|
-| **Next.js** | ✅ | ✅ | ファイルベース | Server Components, API Routes | Vercel最適化 | 中 | フルスタックWebアプリ |
-| **Remix** | ✅ | ✅ | ネスト型 | loader/action | 自由（任意プラットフォーム） | 中 | データ駆動アプリ |
-| **Vite + React** | ❌ | ❌ | React Router（手動） | クライアント（fetch/axios） | 静的ホスティング | 低 | SPA |
-| **Astro** | ✅ | ✅ | ファイルベース | アイランドアーキテクチャ | 静的ホスティング | 低 | コンテンツサイト |
+| ツール | 役割 | 必須度 |
+|--------|-----|--------|
+| ESLint | Linter | 必須 |
+| Prettier | Formatter | 推奨 |
+| React Developer Tools | デバッグ | 推奨 |
+| TypeScript | 型チェック | 推奨 |
 
-### Next.js（最も人気）
+### CSS手法
 
-**特徴:**
-- App Router（React Server Components対応）
-- ファイルベースルーティング
-- API Routes（バックエンド統合）
-- 画像最適化（next/image）
-- Vercelでのシームレスなデプロイ
+| 手法 | 推奨ケース |
+|------|----------|
+| CSS Modules | SSR、バンドルサイズ重視 |
+| styled-components | DX、動的スタイリング重視 |
+| Tailwind CSS | 高速プロトタイピング、デザインシステム |
+| CSSファイル | レガシー統合、シンプルなサイト |
 
-```tsx
-// app/page.tsx
-export default async function Page() {
-  const data = await fetch("https://api.example.com/data");
-  const items = await data.json();
+### テスト戦略
 
-  return (
-    <div>
-      <h1>Items</h1>
-      <ul>
-        {items.map((item) => (
-          <li key={item.id}>{item.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-
-**推奨ケース:**
-- フルスタックWebアプリ
-- SEOが重要（ブログ、EC、コーポレートサイト）
-- Vercelへのデプロイ
-- 画像最適化が必要
-
-### Remix
-
-**特徴:**
-- Web標準（FormData、Response等）重視
-- ネスト型ルーティング
-- loader（データ取得）/ action（データ変更）パターン
-- エラーバウンダリの組み込み
-
-```tsx
-// app/routes/items.$id.tsx
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const item = await fetchItem(params.id);
-  return json({ item });
-}
-
-export default function ItemPage() {
-  const { item } = useLoaderData<typeof loader>();
-  return <div>{item.name}</div>;
-}
-```
-
-**推奨ケース:**
-- データ駆動型アプリ（管理画面、ダッシュボード）
-- フォーム処理が多い
-- Web標準APIを重視
-- 任意のホスティングプラットフォーム（Vercel以外）
-
-### Vite + React（SPA）
-
-**特徴:**
-- 高速なHMR（Hot Module Replacement）
-- シンプルな設定
-- React Router手動設定
-- クライアントサイドレンダリングのみ
-
-```tsx
-// main.tsx
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomePage />,
-  },
-  {
-    path: "/items/:id",
-    element: <ItemPage />,
-  },
-]);
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <RouterProvider router={router} />
-);
-```
-
-**推奨ケース:**
-- SPA（Single Page Application）
-- SEO不要（社内ツール、管理画面）
-- 静的ホスティング（S3、Netlify等）
-- 学習用・プロトタイプ
-
-### Astro
-
-**特徴:**
-- アイランドアーキテクチャ（必要な部分のみJavaScript）
-- 静的サイト生成特化
-- React以外のフレームワークと混在可能
-- 超高速（JavaScriptが最小限）
-
-```astro
----
-// src/pages/index.astro
-const items = await fetch("https://api.example.com/items").then(r => r.json());
----
-
-<html>
-  <body>
-    <h1>Items</h1>
-    <ul>
-      {items.map(item => <li>{item.name}</li>)}
-    </ul>
-    <!-- Reactコンポーネントは必要な部分のみ -->
-    <Counter client:load />
-  </body>
-</html>
-```
-
-**推奨ケース:**
-- コンテンツサイト（ブログ、ドキュメントサイト）
-- 静的サイト生成重視
-- パフォーマンス最優先
-- JavaScriptを最小限にしたい
-
-### SSR/Hydrationの仕組み
-
-**Server-Side Rendering (SSR):**
-1. サーバーでReactコンポーネントをHTMLに変換
-2. HTMLをクライアントに送信
-3. ブラウザがHTMLを即座に表示（高速な初期表示）
-
-**Hydration:**
-1. ブラウザがJavaScriptをダウンロード
-2. 既存のHTML要素にReactのイベントリスナーを付与
-3. インタラクティブなUIに変換
-
-**メリット:**
-- SEO最適化（検索エンジンがHTMLを読める）
-- 初期表示が高速（HTMLが先に表示される）
-
-**デメリット:**
-- サーバー側のコスト増
-- Hydrationミスマッチのリスク
-
-### ユーザー確認が必要な場合
-
-フレームワーク選択は**要件に大きく依存**するため、不明な場合はAskUserQuestionで確認してください。
-
-```typescript
-AskUserQuestion({
-  questions: [{
-    question: "プロジェクトの要件を選択してください（複数選択可）",
-    header: "フレームワーク選定",
-    options: [
-      {
-        label: "SEOが重要",
-        description: "検索エンジン最適化が必須（Next.js/Remix/Astro推奨）"
-      },
-      {
-        label: "高速な初期表示",
-        description: "ユーザーが即座にコンテンツを見る必要がある（SSR/SSG推奨）"
-      },
-      {
-        label: "SPAで十分",
-        description: "社内ツール、SEO不要（Vite + React推奨）"
-      },
-      {
-        label: "フルスタック開発",
-        description: "API統合、バックエンドも同じコードベース（Next.js推奨）"
-      },
-      {
-        label: "静的サイト",
-        description: "ブログ、ドキュメント、コンテンツサイト（Astro推奨）"
-      },
-      {
-        label: "データ駆動型",
-        description: "フォーム処理多用、管理画面（Remix推奨）"
-      }
-    ],
-    multiSelect: true
-  }]
-})
-```
-
----
-
-## 4. 開発ツールチェーン
-
-### ESLint（必須）
-
-**eslint-plugin-react-hooks必須:**
-
-```json
-{
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended"
-  ],
-  "rules": {
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
-  }
-}
-```
-
-**主要ルール:**
-- `rules-of-hooks`: フックの呼び出しルール違反を検出
-- `exhaustive-deps`: useEffectの依存配列の過不足を警告
-
-### Prettier（推奨）
-
-```json
-{
-  "semi": true,
-  "singleQuote": false,
-  "tabWidth": 2,
-  "trailingComma": "es5",
-  "printWidth": 80
-}
-```
-
-**ESLintとの併用:**
-```bash
-npm install -D eslint-config-prettier
-```
-
-```json
-{
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "prettier" // 最後に配置してESLintのフォーマットルールを無効化
-  ]
-}
-```
-
-### React Developer Tools
-
-**Components Inspector:**
-- コンポーネント階層の可視化
-- Props/Stateのリアルタイム表示
-- コンポーネントの編集（値の変更）
-
-**Profiler:**
-- レンダリングパフォーマンスの計測
-- コンポーネントのレンダリング時間
-- レンダリング原因の特定
-
-**使用方法:**
-1. Chrome/Firefoxの拡張機能をインストール
-2. DevToolsで「Components」「Profiler」タブを開く
-3. コンポーネントを選択してProps/Stateを確認
-
-### TypeScript（推奨設定）
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}
-```
-
----
-
-## 5. ユーザー確認の原則
-
-### 確認すべき場面
-
-以下の選択は**プロジェクト・チーム・要件に大きく依存**するため、必ずAskUserQuestionで確認してください。
-
-1. **CSS手法の選択**
-   - プロジェクトの既存スタイル
-   - チームの慣習
-   - バンドルサイズ vs DX
-
-2. **フレームワーク選択**
-   - SEO要件
-   - SSR/SSGの必要性
-   - ホスティングプラットフォーム
-
-3. **テストカバレッジ目標**
-   - ビジネスロジック100%
-   - UIコンポーネント: 80%以上
-   - ユーティリティ関数: 100%
-
-### 確認不要な場面（業界標準）
-
-以下は業界のベストプラクティスであり、ユーザー確認不要です。
-
-1. **AAAパターンの採用**
-   - すべてのテストでArrange → Act → Assertを使用
-
-2. **getByRoleの優先使用**
-   - React Testing Library推奨のクエリ優先順位
-
-3. **user-eventの使用**
-   - fireEventではなくuser-eventを使用
-
-4. **ESLint + Prettierの導入**
-   - eslint-plugin-react-hooks必須
-
-5. **actual/expected変数名**
-   - テストの可読性向上のための標準パターン
+| 手法 | 説明 |
+|------|------|
+| AAAパターン | Arrange → Act → Assert |
+| getByRole優先 | アクセシビリティ重視のクエリ |
+| user-event | 実ユーザー操作の再現 |
+| actual/expected | 可読性の高い変数名規則 |

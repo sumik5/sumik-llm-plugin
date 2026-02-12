@@ -1,14 +1,348 @@
 # TypeScript × React 実践パターン
 
-ReactをTypeScriptで使う際の実践的な型付けパターンとベストプラクティスを解説します。
+ReactをTypeScriptで使う際の実践的な型付けパターンとベストプラクティス。
 
 ---
 
-## 1. ジェネリックコンポーネント
+## 1. 基本的な型システム
+
+### プリミティブ型
+
+TypeScriptの基本型：
+
+```typescript
+const num: number = 42;
+const str: string = "Hello";
+const bool: boolean = true;
+const nothing: null = null;
+const undef: undefined = undefined;
+```
+
+### ユニオン型とリテラル型
+
+複数の型を許容する場合や、特定の値のみを許容する場合に使用：
+
+```typescript
+// ユニオン型: 複数の型を許容
+type Status = "LOADING" | "SUCCESS" | "ERROR";
+let status: Status = "LOADING";
+
+// null許容型
+type Name = null | string;
+let firstName: Name = null;
+firstName = "Alice"; // OK
+
+// 型推論が不十分な場合は明示的に指定
+const [isAccepted, setIsAccepted] = useState<null | boolean>(null);
+```
+
+### 配列とオブジェクト
+
+```typescript
+// 配列
+const numbers: number[] = [1, 2, 3];
+const items: string[] = [];
+
+// オブジェクト (Record型)
+const userMap: Record<string, boolean> = {
+  user1: true,
+  user2: false
+};
+
+// interface / type
+interface Person {
+  name: string;
+  age: number;
+  email?: string; // オプショナル
+}
+
+type User = {
+  id: string;
+  name: string;
+};
+```
+
+---
+
+## 2. コンポーネントのProps型付け
+
+### 基本的なProps
+
+```typescript
+// typeを使う場合
+type PersonProps = {
+  name: string;
+  age: number;
+  email?: string; // オプショナル
+};
+
+function Person({ name, age, email }: PersonProps) {
+  return (
+    <div>
+      <p>名前: {name}</p>
+      <p>年齢: {age}</p>
+      {email && <p>メール: {email}</p>}
+    </div>
+  );
+}
+
+// interfaceを使う場合（推奨）
+interface PersonProps {
+  name: string;
+  age: number;
+  email?: string;
+}
+```
+
+**注意**: typeとinterfaceはほぼ同じですが、interfaceは拡張しやすいため、props定義には一般的にinterfaceを使います。
+
+### オプショナルpropsとデフォルト値
+
+```typescript
+interface GreetingProps {
+  name?: string;
+  title?: string;
+}
+
+function Greeting({ name = "Anonymous", title }: GreetingProps) {
+  return (
+    <div>
+      <h1>{title && `${title} `}{name}</h1>
+    </div>
+  );
+}
+```
+
+### Discriminated Unions（判別可能な共用体型）
+
+プロパティの値によって型を分岐させるパターン：
+
+```typescript
+interface ProductCardSaleProps {
+  productName: string;
+  price: number;
+  isOnSale: true;
+  salePrice: number;
+  saleExpiry: string;
+}
+
+interface ProductCardNoSaleProps {
+  productName: string;
+  price: number;
+  isOnSale: false;
+}
+
+type ProductCardProps = ProductCardSaleProps | ProductCardNoSaleProps;
+
+function ProductCard(props: ProductCardProps) {
+  return (
+    <div>
+      <h2>{props.productName}</h2>
+      <p>通常価格: ¥{props.price}</p>
+      {props.isOnSale && (
+        <>
+          <p>セール価格: ¥{props.salePrice}</p>
+          <p>期限: {props.saleExpiry}</p>
+        </>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## 3. React Hooksの型付け
+
+### useState
+
+```typescript
+// 基本: 初期値から型推論
+const [count, setCount] = useState(0); // number
+
+// 明示的な型指定（Union型や複雑な型の場合）
+const [user, setUser] = useState<User | null>(null);
+
+// 配列の場合
+const [tags, setTags] = useState<string[]>([]);
+
+// オブジェクトの場合
+const [userVisibility, setUserVisibility] = useState<Record<string, boolean>>({});
+
+// null許容型
+const [isAccepted, setIsAccepted] = useState<null | boolean>(null);
+```
+
+### useRef
+
+```typescript
+// DOM参照（初期値null必須）
+const inputRef = useRef<HTMLInputElement>(null);
+
+useEffect(() => {
+  inputRef.current?.focus(); // Optional chaining必須
+}, []);
+
+// 値保持（ミュータブル）
+const timerRef = useRef<number | null>(null);
+timerRef.current = window.setTimeout(() => {
+  // ...
+}, 1000);
+
+// React 18以前の注意事項:
+// useRef<string>(null) は読み取り専用になる
+// useRef<string | null>(null) はミュータブル
+
+// React 19: すべてのrefがミュータブルなので、この区別は不要
+```
+
+### useContext
+
+```typescript
+interface ThemeContextValue {
+  theme: "light" | "dark";
+  toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used within ThemeProvider");
+  }
+  return context;
+}
+
+// Provider
+function ThemeProvider({ children }: PropsWithChildren) {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+### useEffect
+
+```typescript
+// エフェクトは戻り値の型が自動的にチェックされる
+useEffect(() => {
+  // エフェクトのロジック
+
+  // 正しい: cleanupまたはundefined
+  return () => {
+    console.log("cleanup");
+  };
+}, []);
+
+// 誤り: boolean等は返せない
+useEffect(() => {
+  if (!isRunning) {
+    return false; // エラー: booleanは返せない
+  }
+  // ...
+}, []);
+
+// 正しい修正:
+useEffect(() => {
+  if (!isRunning) {
+    return; // undefinedが返される
+  }
+  // ...
+}, []);
+```
+
+### useReducer（Discriminated Union）
+
+```typescript
+type State<T> = T[];
+
+type Action<T> =
+  | { type: "add"; item: T }
+  | { type: "remove"; index: number }
+  | { type: "moveUp"; index: number }
+  | { type: "moveDown"; index: number };
+
+function reorder<T>(state: State<T>, action: Action<T>): State<T> {
+  switch (action.type) {
+    case "add":
+      return [...state, action.item];
+    case "remove":
+      return state.filter((_, i) => i !== action.index);
+    case "moveUp":
+      if (action.index === 0) return state;
+      const newState = [...state];
+      [newState[action.index - 1], newState[action.index]] = [
+        newState[action.index],
+        newState[action.index - 1],
+      ];
+      return newState;
+    case "moveDown":
+      if (action.index === state.length - 1) return state;
+      const newStateDown = [...state];
+      [newStateDown[action.index], newStateDown[action.index + 1]] = [
+        newStateDown[action.index + 1],
+        newStateDown[action.index],
+      ];
+      return newStateDown;
+  }
+}
+
+function useReorderable<T>(initial: State<T>) {
+  // React 18以前: 型ヒント必要
+  const [state, dispatch] = useReducer<Reducer<State<T>, Action<T>>>(
+    reorder,
+    initial
+  );
+
+  // React 19: 型ヒント不要（自動推論）
+  // const [state, dispatch] = useReducer(reorder, initial);
+
+  const add = (item: T) => dispatch({ type: "add", item });
+  const remove = (index: number) => dispatch({ type: "remove", index });
+  const moveUp = (index: number) => dispatch({ type: "moveUp", index });
+  const moveDown = (index: number) => dispatch({ type: "moveDown", index });
+
+  return { list: state, add, remove, moveUp, moveDown };
+}
+```
+
+### useMemo / useCallback
+
+```typescript
+// useMemoは戻り値の型が自動推論される
+const sortedItems = useMemo(() => {
+  return items.sort((a, b) => a.name.localeCompare(b.name));
+}, [items]); // sortedItems: Item[]
+
+// useCallbackも引数と戻り値が自動推論される
+const handleClick = useCallback((id: string) => {
+  console.log(`Clicked: ${id}`);
+}, []); // handleClick: (id: string) => void
+
+// 明示的な型指定が必要な場合
+const fetchData = useCallback<(id: number) => Promise<Data>>(
+  async (id) => {
+    const response = await fetch(`/api/data/${id}`);
+    return response.json();
+  },
+  []
+);
+```
+
+---
+
+## 4. ジェネリックコンポーネント
 
 ### 基本パターン
-
-ジェネリクスを使うことで、型安全性を保ちながら再利用可能なコンポーネントを作成できます。
 
 ```typescript
 interface ListProps<T> {
@@ -32,11 +366,6 @@ interface User {
   id: string;
   name: string;
 }
-
-const users: User[] = [
-  { id: "1", name: "Alice" },
-  { id: "2", name: "Bob" },
-];
 
 <List
   items={users}
@@ -98,246 +427,55 @@ function Pagination<T>({
 }
 ```
 
-### forwardRefとジェネリクスの組み合わせ
-
-```typescript
-interface InputProps<T> extends Omit<ComponentPropsWithoutRef<"input">, "value" | "onChange"> {
-  value: T;
-  onChange: (value: T) => void;
-  parser: (raw: string) => T;
-  formatter: (value: T) => string;
-}
-
-const Input = forwardRef(function Input<T>(
-  { value, onChange, parser, formatter, ...props }: InputProps<T>,
-  ref: ForwardedRef<HTMLInputElement>
-) {
-  return (
-    <input
-      {...props}
-      ref={ref}
-      value={formatter(value)}
-      onChange={(e) => onChange(parser(e.target.value))}
-    />
-  );
-}) as <T>(props: InputProps<T> & { ref?: ForwardedRef<HTMLInputElement> }) => ReactElement;
-
-// 使用例: 数値入力
-<Input
-  value={count}
-  onChange={setCount}
-  parser={(s) => parseInt(s, 10) || 0}
-  formatter={(n) => n.toString()}
-/>
-```
-
 ---
 
-## 2. React Hook型付けパターン
+## 5. PropsWithChildrenとchildren型付け
 
-### useState
-
-```typescript
-// 基本: 初期値から型推論
-const [count, setCount] = useState(0); // number
-
-// 明示的な型指定（Union型や複雑な型の場合）
-const [user, setUser] = useState<User | null>(null);
-
-// 配列の場合
-const [items, setItems] = useState<string[]>([]);
-```
-
-### useRef
+### PropsWithChildren（標準パターン）
 
 ```typescript
-// DOM参照（初期値null必須）
-const inputRef = useRef<HTMLInputElement>(null);
+import { PropsWithChildren, ReactNode } from "react";
 
-useEffect(() => {
-  inputRef.current?.focus(); // Optional chaining必須
-}, []);
-
-// 値保持（ミュータブル）
-const timerRef = useRef<number | null>(null);
-
-timerRef.current = window.setTimeout(() => {
-  // ...
-}, 1000);
-```
-
-### useContext
-
-```typescript
-interface ThemeContextValue {
-  theme: "light" | "dark";
-  toggleTheme: () => void;
+interface CardProps {
+  title: string;
+  variant?: "default" | "outlined";
 }
 
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
-
-function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error("useTheme must be used within ThemeProvider");
-  }
-  return context;
-}
-
-// Provider
-function ThemeProvider({ children }: PropsWithChildren) {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  };
-
+// PropsWithChildrenを使うと自動的にchildren: ReactNodeが追加される
+function Card({ title, variant = "default", children }: PropsWithChildren<CardProps>) {
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-}
-```
-
-### useReducer（Discriminated Union）
-
-```typescript
-type State<T> = T[];
-
-type Action<T> =
-  | { type: "add"; item: T }
-  | { type: "remove"; index: number }
-  | { type: "moveUp"; index: number }
-  | { type: "moveDown"; index: number }
-  | { type: "reset"; items: T[] };
-
-function reorder<T>(state: State<T>, action: Action<T>): State<T> {
-  switch (action.type) {
-    case "add":
-      return [...state, action.item];
-    case "remove":
-      return state.filter((_, i) => i !== action.index);
-    case "moveUp":
-      if (action.index === 0) return state;
-      const newStateUp = [...state];
-      [newStateUp[action.index - 1], newStateUp[action.index]] = [
-        newStateUp[action.index],
-        newStateUp[action.index - 1],
-      ];
-      return newStateUp;
-    case "moveDown":
-      if (action.index === state.length - 1) return state;
-      const newStateDown = [...state];
-      [newStateDown[action.index], newStateDown[action.index + 1]] = [
-        newStateDown[action.index + 1],
-        newStateDown[action.index],
-      ];
-      return newStateDown;
-    case "reset":
-      return action.items;
-  }
-}
-
-function useReorderable<T>(initial: State<T>) {
-  const [state, dispatch] = useReducer<Reducer<State<T>, Action<T>>>(
-    reorder,
-    initial
-  );
-
-  const add = (item: T) => dispatch({ type: "add", item });
-  const remove = (index: number) => dispatch({ type: "remove", index });
-  const moveUp = (index: number) => dispatch({ type: "moveUp", index });
-  const moveDown = (index: number) => dispatch({ type: "moveDown", index });
-  const reset = (items: T[]) => dispatch({ type: "reset", items });
-
-  return { list: state, add, remove, moveUp, moveDown, reset };
-}
-```
-
-### useMemo / useCallback
-
-```typescript
-// useMemoは戻り値の型が自動推論される
-const sortedItems = useMemo(() => {
-  return items.sort((a, b) => a.name.localeCompare(b.name));
-}, [items]); // sortedItems: Item[]
-
-// useCallbackも引数と戻り値が自動推論される
-const handleClick = useCallback((id: string) => {
-  console.log(`Clicked: ${id}`);
-}, []); // handleClick: (id: string) => void
-
-// 明示的な型指定が必要な場合
-const fetchData = useCallback<(id: number) => Promise<Data>>(
-  async (id) => {
-    const response = await fetch(`/api/data/${id}`);
-    return response.json();
-  },
-  []
-);
-```
-
----
-
-## 3. 高度な型パターン
-
-### Discriminated Unions（判別可能な共用体型）
-
-プロパティの値によって型を分岐させるパターン。
-
-```typescript
-interface ProductCardSaleProps {
-  productName: string;
-  price: number;
-  isOnSale: true;
-  salePrice: number;
-  saleExpiry: string;
-}
-
-interface ProductCardNoSaleProps {
-  productName: string;
-  price: number;
-  isOnSale: false;
-}
-
-type ProductCardProps = ProductCardSaleProps | ProductCardNoSaleProps;
-
-function ProductCard(props: ProductCardProps) {
-  return (
-    <div>
-      <h2>{props.productName}</h2>
-      <p>通常価格: ¥{props.price}</p>
-      {props.isOnSale && (
-        <>
-          <p>セール価格: ¥{props.salePrice}</p>
-          <p>期限: {props.saleExpiry}</p>
-        </>
-      )}
+    <div className={`card card-${variant}`}>
+      <h2>{title}</h2>
+      <div className="card-body">{children}</div>
     </div>
   );
 }
 
-// 使用例
-<ProductCard
-  productName="商品A"
-  price={1000}
-  isOnSale={true}
-  salePrice={800}
-  saleExpiry="2025-12-31"
-/>
+// 手動で定義する場合
+interface HeadingProps {
+  children?: ReactNode; // 手動で定義
+}
 
-<ProductCard
-  productName="商品B"
-  price={2000}
-  isOnSale={false}
-  // salePrice, saleExpiryは不要（型エラーになる）
-/>
+function Heading({ children }: HeadingProps) {
+  return <h1 style={{ backgroundColor: "hotpink" }}>{children}</h1>;
+}
 ```
 
-### ComponentPropsWithoutRef（HTML要素の拡張）
+**ReactNodeの範囲**:
+- `string`
+- `number`
+- `boolean` (レンダーされない)
+- `null` / `undefined` (レンダーされない)
+- `JSX.Element`
+- `ReactNode[]` (配列)
 
-既存のHTML要素やコンポーネントのpropsを拡張する。
+---
+
+## 6. HTML要素の型拡張
+
+### ComponentPropsWithoutRef
+
+既存のHTML要素のpropsを拡張する場合に使用：
 
 ```typescript
 // img要素の拡張（altを除外して独自実装）
@@ -373,8 +511,6 @@ function PrimaryButton({ variant = "solid", children, className, ...props }: Pri
 ```
 
 ### Pick / Omit（部分型の作成）
-
-既存の型から必要なプロパティのみを選択・除外する。
 
 ```typescript
 // Ratingコンポーネントがあると仮定
@@ -416,118 +552,7 @@ function CustomInput({ onValueChange, ...props }: CustomInputProps) {
 
 ---
 
-## 4. PropsWithChildrenとchildren型付け
-
-### PropsWithChildren（標準パターン）
-
-```typescript
-import { PropsWithChildren } from "react";
-
-interface CardProps {
-  title: string;
-  variant?: "default" | "outlined";
-}
-
-// PropsWithChildrenを使うと自動的にchildren: ReactNodeが追加される
-function Card({ title, variant = "default", children }: PropsWithChildren<CardProps>) {
-  return (
-    <div className={`card card-${variant}`}>
-      <h2>{title}</h2>
-      <div className="card-body">{children}</div>
-    </div>
-  );
-}
-```
-
-### childrenの制約（特定のコンポーネント型のみ受け入れ）
-
-```typescript
-interface TabsProps {
-  children: ReactElement<TabProps> | ReactElement<TabProps>[];
-}
-
-function Tabs({ children }: TabsProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const tabs = React.Children.toArray(children) as ReactElement<TabProps>[];
-
-  return (
-    <div>
-      <nav>
-        {tabs.map((tab, index) => (
-          <button
-            key={index}
-            onClick={() => setActiveIndex(index)}
-            aria-selected={index === activeIndex}
-          >
-            {tab.props.label}
-          </button>
-        ))}
-      </nav>
-      <div>{tabs[activeIndex]}</div>
-    </div>
-  );
-}
-
-interface TabProps {
-  label: string;
-  children: ReactNode;
-}
-
-function Tab({ children }: TabProps) {
-  return <div>{children}</div>;
-}
-
-// 使用例
-<Tabs>
-  <Tab label="タブ1">コンテンツ1</Tab>
-  <Tab label="タブ2">コンテンツ2</Tab>
-</Tabs>
-```
-
-### render propsパターン
-
-```typescript
-interface DataFetcherProps<T> {
-  url: string;
-  children: (data: T | null, loading: boolean, error: Error | null) => ReactNode;
-}
-
-function DataFetcher<T>({ url, children }: DataFetcherProps<T>) {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-  }, [url]);
-
-  return <>{children(data, loading, error)}</>;
-}
-
-// 使用例
-<DataFetcher<User> url="/api/user/1">
-  {(user, loading, error) => {
-    if (loading) return <p>読み込み中...</p>;
-    if (error) return <p>エラー: {error.message}</p>;
-    if (!user) return <p>ユーザーが見つかりません</p>;
-    return <p>{user.name}</p>;
-  }}
-</DataFetcher>
-```
-
----
-
-## 5. 型安全なrefフォワーディング
+## 7. 型安全なrefフォワーディング
 
 ### forwardRefの型パラメータ
 
@@ -609,7 +634,7 @@ const Select = forwardRef(function Select<T>(
 
 ### React 19のref as prop
 
-React 19以降では、forwardRefを使わずに直接refをpropsとして受け取れます。
+React 19以降では、forwardRefを使わずに直接refをpropsとして受け取れます：
 
 ```typescript
 interface CustomButtonProps extends ComponentPropsWithoutRef<"button"> {
@@ -633,7 +658,7 @@ const buttonRef = useRef<HTMLButtonElement>(null);
 
 ---
 
-## 6. TypeScript導入の判断基準
+## 8. TypeScript導入の判断基準
 
 ### メリット
 
@@ -671,3 +696,19 @@ const buttonRef = useRef<HTMLButtonElement>(null);
 2. `allowJs: true`で既存JSと共存
 3. 重要なモジュールから順次`.ts`化
 4. `strict: true`へ段階的に移行
+
+---
+
+## まとめ
+
+TypeScript × Reactの実践では、以下の原則を守ってください：
+
+1. **型推論を活用する**: 初期値から型が明確な場合は型注釈を省略
+2. **明示的な型指定**: Union型、配列、オブジェクトでは型引数を明示
+3. **Discriminated Unions**: 条件分岐でpropsを明確に区別
+4. **ジェネリクス活用**: 再利用可能なコンポーネントはジェネリックで型安全に
+5. **ReactNode / PropsWithChildren**: childrenの型付けは標準パターンを使用
+6. **ComponentPropsWithoutRef**: HTML要素拡張時の標準パターン
+7. **forwardRef**: ref転送が必要な場合は型パラメータを明示（React 19以降は不要）
+
+**重要**: TypeScript導入はプロジェクト規模、チーム経験、既存コードベースに依存します。不明な点があればユーザーに確認してください。

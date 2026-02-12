@@ -1,6 +1,6 @@
 ---
 name: mastering-typescript
-description: Comprehensive TypeScript guide covering type system, advanced patterns, framework integration, and 83 best practice decision criteria. MUST load when working in TypeScript projects detected by tsconfig.json. Covers Generics, Conditional Types, type inference, type design, and practical migration tips. For strict type safety rules, use enforcing-type-safety instead.
+description: Comprehensive TypeScript guide covering type system, advanced patterns, design patterns (GoF Creational/Structural/Behavioral), functional/reactive programming, framework integration, and 83 best practice decision criteria. MUST load when working in TypeScript projects detected by tsconfig.json. Covers Generics, Conditional Types, type inference, type design, SOLID/DDD in TypeScript, anti-patterns, and practical migration tips. For strict type safety rules, use enforcing-type-safety instead.
 ---
 
 # TypeScript マスターガイド
@@ -175,3 +175,19 @@ TypeScriptの型システム・関数・クラス・非同期処理・モジュ�
 | [PT-CH11-JS-INTEROP.md](./references/PT-CH11-JS-INTEROP.md) | JavaScript相互運用と漸進的移行 |
 | [PT-CH12-BUILD.md](./references/PT-CH12-BUILD.md) | ビルド・実行・npm公開 |
 | [PT-APPENDICES.md](./references/PT-APPENDICES.md) | 型演算子・Utility Types・TSCフラグ等リファレンス |
+
+---
+
+## Design Patterns & Best Practices
+
+TypeScript 5でのデザインパターンと設計原則の包括的ガイド。GoFパターン22種、関数型/リアクティブプログラミング、DDD/SOLID/MVC、アンチパターン回避を網羅。
+
+| ファイル | 内容 |
+|---------|------|
+| [DP-FOUNDATIONS.md](./references/DP-FOUNDATIONS.md) | TS5新機能、OOP原則、環境構築、デザインパターン概論 |
+| [DP-CREATIONAL.md](./references/DP-CREATIONAL.md) | Singleton, Prototype, Builder, Factory Method, Abstract Factory |
+| [DP-STRUCTURAL.md](./references/DP-STRUCTURAL.md) | Adapter, Decorator, Façade, Composite, Proxy, Bridge, Flyweight |
+| [DP-BEHAVIORAL.md](./references/DP-BEHAVIORAL.md) | Strategy, CoR, Command, Mediator, Observer, Iterator, Memento, State, Template Method, Visitor |
+| [DP-FUNCTIONAL-REACTIVE.md](./references/DP-FUNCTIONAL-REACTIVE.md) | FP（Monads, Functors, Lenses）+ Reactive（Promises, Observables） |
+| [DP-ARCHITECTURE.md](./references/DP-ARCHITECTURE.md) | DDD, SOLID, MVC、パターン結合、Utility Types活用 |
+| [DP-ANTI-PATTERNS.md](./references/DP-ANTI-PATTERNS.md) | TypeScriptアンチパターン + OSSパターン（Apollo, tRPC） |

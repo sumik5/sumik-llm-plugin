@@ -1,922 +1,678 @@
-# DATA-MANAGEMENT.md - Reactデータ管理とリモートデータ戦略
+# React データ管理戦略
+
+React アプリケーションにおけるローカル状態管理とリモートデータ管理の包括的ガイド。
+
+---
 
 ## 1. ローカル状態管理の選択肢
 
-Reactアプリケーションでのローカル状態管理には、複数のアプローチがあります。それぞれの特徴とトレードオフを理解し、プロジェクトに最適な選択をすることが重要です。
+### useState vs useReducer
 
-### useState + Context
+**useState推奨ケース:**
+- シンプルなプリミティブ値（string, number, boolean）
+- 独立した状態変更
+- 更新ロジックが単純（1-2行で完結）
 
-最もシンプルなアプローチですが、再レンダー問題に注意が必要です。
+**useReducer推奨ケース:**
+- 複雑なオブジェクト/配列
+- 複数の状態が連動して変更
+- 更新ロジックが複雑（条件分岐、複数ステップ）
+- アクションベースの状態管理が必要
 
-```jsx
-import { createContext, useContext, useState } from 'react';
+```typescript
+// useState: シンプルなケース
+const [count, setCount] = useState(0);
+const increment = () => setCount(c => c + 1);
 
-// Context作成
-const DataContext = createContext(null);
+// useReducer: 複雑なケース
+type State = { count: number; history: number[] };
+type Action =
+  | { type: "increment" }
+  | { type: "decrement" }
+  | { type: "reset" };
 
-// Provider
-export function DataProvider({ children }) {
-  const [items, setItems] = useState([]);
-
-  const addItem = (item) => {
-    setItems(prev => [...prev, item]);
-  };
-
-  const removeItem = (id) => {
-    setItems(prev => prev.filter(item => item.id !== id));
-  };
-
-  return (
-    <DataContext.Provider value={{ items, addItem, removeItem }}>
-      {children}
-    </DataContext.Provider>
-  );
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + 1, history: [...state.history, state.count + 1] };
+    case "decrement":
+      return { count: state.count - 1, history: [...state.history, state.count - 1] };
+    case "reset":
+      return { count: 0, history: [] };
+  }
 }
 
-// カスタムhook
-export function useData() {
-  const context = useContext(DataContext);
+const [state, dispatch] = useReducer(reducer, { count: 0, history: [] });
+dispatch({ type: "increment" });
+```
+
+### Context API による状態共有
+
+**Context使用の判断基準:**
+- 3階層以上のprops drilling発生時
+- アプリ全体で共有する状態（テーマ、認証、言語設定）
+- 中規模以上のコンポーネントツリー
+
+**Context使用の注意点:**
+- 過度な使用はパフォーマンス低下を招く
+- 値が変更されると全コンシューマーが再レンダリング
+- useMemo/useCallbackで値を最適化
+
+```typescript
+interface ThemeContextValue {
+  theme: "light" | "dark";
+  toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+function ThemeProvider({ children }: PropsWithChildren) {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  }, []);
+
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
+function useTheme() {
+  const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useData must be used within DataProvider');
+    throw new Error("useTheme must be used within ThemeProvider");
   }
   return context;
 }
-
-// 使用例
-function ItemList() {
-  const { items } = useData(); // Contextが更新されると全体が再レンダー
-  return <ul>{items.map(item => <li key={item.id}>{item.name}</li>)}</ul>;
-}
 ```
 
-**利点**：
-- シンプルで学習コストが低い
-- 追加のライブラリ不要
-- 小規模なアプリに最適
+---
 
-**欠点**：
-- Contextの値が変わるとすべての購読コンポーネントが再レンダー
-- 複雑な状態遷移の管理が難しい
-- DevToolsのサポートが限定的
+## 2. Redux Toolkit (RTK) による大規模状態管理
 
-### useReducer + Immer
+### Redux Toolkit の基本構造
 
-複雑な状態遷移をイミュータブルに管理しつつ、ミュータブルな書き方ができます。
+**Redux Toolkit推奨ケース:**
+- 大規模アプリケーション（10+ 画面、複雑な状態相互依存）
+- タイムトラベルデバッグが必要
+- 複数チーム開発で一貫した状態管理パターンが必要
+- Redux DevToolsでの状態監視が重要
 
-```jsx
-import { useReducer } from 'react';
-import { produce } from 'immer';
+```typescript
+// store.ts
+import { configureStore } from "@reduxjs/toolkit";
+import userReducer from "./slices/userSlice";
+import todosReducer from "./slices/todosSlice";
 
-// Reducerの定義
-function dataReducer(state, action) {
-  // Immerを使ってイミュータブル更新をミュータブルな書き方で実現
-  return produce(state, (draft) => {
-    switch (action.type) {
-      case 'ADD_ITEM':
-        draft.items.push(action.payload);
-        break;
-      case 'REMOVE_ITEM':
-        draft.items = draft.items.filter(item => item.id !== action.payload);
-        break;
-      case 'TOGGLE_ITEM':
-        const item = draft.items.find(item => item.id === action.payload);
-        if (item) {
-          item.done = !item.done;
-          item.done ? item.doneAt.push(Date.now()) : item.doneAt.pop();
-        }
-        break;
-      case 'UPDATE_ITEM':
-        const index = draft.items.findIndex(item => item.id === action.payload.id);
-        if (index !== -1) {
-          draft.items[index] = { ...draft.items[index], ...action.payload.updates };
-        }
-        break;
-      default:
-        break;
-    }
-  });
+export const store = configureStore({
+  reducer: {
+    user: userReducer,
+    todos: todosReducer,
+  },
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+
+// slices/userSlice.ts
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+interface UserState {
+  id: string | null;
+  name: string | null;
+  isAuthenticated: boolean;
 }
 
-// 初期状態
-const initialState = {
-  items: [],
-  filter: 'all',
-  loading: false
+const initialState: UserState = {
+  id: null,
+  name: null,
+  isAuthenticated: false,
 };
 
+const userSlice = createSlice({
+  name: "user",
+  initialState,
+  reducers: {
+    login(state, action: PayloadAction<{ id: string; name: string }>) {
+      state.id = action.payload.id;
+      state.name = action.payload.name;
+      state.isAuthenticated = true;
+    },
+    logout(state) {
+      state.id = null;
+      state.name = null;
+      state.isAuthenticated = false;
+    },
+  },
+});
+
+export const { login, logout } = userSlice.actions;
+export default userSlice.reducer;
+
+// hooks.ts
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "./store";
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export const useAppSelector = useSelector.withTypes<RootState>();
+
 // 使用例
-function App() {
-  const [state, dispatch] = useReducer(dataReducer, initialState);
+function UserProfile() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user);
 
-  const addItem = (item) => {
-    dispatch({ type: 'ADD_ITEM', payload: item });
-  };
-
-  const toggleItem = (id) => {
-    dispatch({ type: 'TOGGLE_ITEM', payload: id });
+  const handleLogout = () => {
+    dispatch(logout());
   };
 
   return (
     <div>
-      <ItemList items={state.items} onToggle={toggleItem} />
+      {user.isAuthenticated ? (
+        <>
+          <p>Welcome, {user.name}</p>
+          <button onClick={handleLogout}>Logout</button>
+        </>
+      ) : (
+        <p>Not logged in</p>
+      )}
     </div>
   );
 }
 ```
 
-**利点**：
-- 複雑な状態遷移を明確に管理
-- Immerにより、ミュータブルな書き方でイミュータブル更新が可能
-- 状態更新のロジックが一箇所に集約
+### RTK Query（APIスライス）
 
-**欠点**：
-- ボイラープレートが増える
-- 小規模なアプリには過剰
+```typescript
+// services/api.ts
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-### Redux Toolkit (RTK)
-
-スライス単位で状態を整理し、充実したDevToolsを活用できます。
-
-```jsx
-import { configureStore, createSlice } from '@reduxjs/toolkit';
-import { Provider, useSelector, useDispatch } from 'react-redux';
-
-// Slice定義（Immerが自動で有効）
-const dataSlice = createSlice({
-  name: 'data',
-  initialState: {
-    items: [],
-    filter: 'all',
-    loading: false
-  },
-  reducers: {
-    addItem: (state, action) => {
-      // Immerが自動で有効なので、ミュータブルな書き方でOK
-      state.items.push(action.payload);
-    },
-    removeItem: (state, action) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
-    },
-    toggleItem: (state, action) => {
-      const item = state.items.find(item => item.id === action.payload);
-      if (item) {
-        item.done = !item.done;
-        item.done ? item.doneAt.push(Date.now()) : item.doneAt.pop();
-      }
-    },
-    setFilter: (state, action) => {
-      state.filter = action.payload;
-    },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
-    }
-  }
-});
-
-// Actions
-export const { addItem, removeItem, toggleItem, setFilter, setLoading } = dataSlice.actions;
-
-// Store作成
-const store = configureStore({
-  reducer: {
-    data: dataSlice.reducer
-  }
-});
-
-// App
-function App() {
-  return (
-    <Provider store={store}>
-      <ItemList />
-    </Provider>
-  );
+interface User {
+  id: string;
+  name: string;
+  email: string;
 }
 
-// コンポーネント
-function ItemList() {
-  const items = useSelector(state => state.data.items);
-  const filter = useSelector(state => state.data.filter);
-  const dispatch = useDispatch();
+export const api = createApi({
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  tagTypes: ["User"],
+  endpoints: (builder) => ({
+    getUsers: builder.query<User[], void>({
+      query: () => "/users",
+      providesTags: ["User"],
+    }),
+    createUser: builder.mutation<User, Omit<User, "id">>({
+      query: (newUser) => ({
+        url: "/users",
+        method: "POST",
+        body: newUser,
+      }),
+      invalidatesTags: ["User"],
+    }),
+  }),
+});
 
-  const filteredItems = items.filter(item => {
-    if (filter === 'all') return true;
-    if (filter === 'active') return !item.done;
-    if (filter === 'completed') return item.done;
-  });
+export const { useGetUsersQuery, useCreateUserMutation } = api;
+
+// 使用例
+function UserList() {
+  const { data: users, isLoading, error } = useGetUsersQuery();
+  const [createUser] = useCreateUserMutation();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading users</div>;
 
   return (
     <ul>
-      {filteredItems.map(item => (
-        <li key={item.id}>
-          <input
-            type="checkbox"
-            checked={item.done}
-            onChange={() => dispatch(toggleItem(item.id))}
-          />
-          {item.name}
-        </li>
+      {users?.map((user) => (
+        <li key={user.id}>{user.name}</li>
       ))}
     </ul>
   );
 }
 ```
 
-**利点**：
-- スライス単位の整理で大規模アプリに最適
-- Redux DevToolsによる強力なデバッグ機能
-- Immerが組み込まれている
-- ミドルウェア（redux-thunk等）によるサイドエフェクト管理
+---
 
-**欠点**：
-- 学習コストが高い
-- 小規模なアプリには過剰
-- ボイラープレートがある（Redux無印よりは少ない）
+## 3. Zustand による軽量状態管理
 
-### zustand
+### Zustand の特徴
 
-最小限のボイラープレートで柔軟な状態管理を実現します。
+**Zustand推奨ケース:**
+- Redux ほど複雑でない中規模状態管理
+- 学習コストを抑えたい
+- Providerラップ不要なシンプルAPI
+- TypeScript との相性が良い
 
-```jsx
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
+```typescript
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
 
-// Store作成（Immer + Persist統合）
-export const useDataStore = create(
-  persist(
-    immer((set) => ({
-      // 初期状態
-      items: [],
-      filter: 'all',
-      loading: false,
+interface TodoState {
+  todos: { id: string; text: string; completed: boolean }[];
+  addTodo: (text: string) => void;
+  toggleTodo: (id: string) => void;
+  removeTodo: (id: string) => void;
+}
 
-      // アクション
-      addItem: (item) => set((state) => {
-        state.items.push(item);
+export const useTodoStore = create<TodoState>()(
+  devtools(
+    persist(
+      (set) => ({
+        todos: [],
+        addTodo: (text) =>
+          set((state) => ({
+            todos: [...state.todos, { id: crypto.randomUUID(), text, completed: false }],
+          })),
+        toggleTodo: (id) =>
+          set((state) => ({
+            todos: state.todos.map((todo) =>
+              todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            ),
+          })),
+        removeTodo: (id) =>
+          set((state) => ({
+            todos: state.todos.filter((todo) => todo.id !== id),
+          })),
       }),
-
-      removeItem: (id) => set((state) => {
-        state.items = state.items.filter(item => item.id !== id);
-      }),
-
-      toggleItem: (id) => set((state) => {
-        const item = state.items.find(item => item.id === id);
-        if (item) {
-          item.done = !item.done;
-          item.done ? item.doneAt.push(Date.now()) : item.doneAt.pop();
-        }
-      }),
-
-      setFilter: (filter) => set({ filter }),
-
-      setLoading: (loading) => set({ loading }),
-
-      // 複合アクション
-      clearCompleted: () => set((state) => {
-        state.items = state.items.filter(item => !item.done);
-      })
-    })),
-    {
-      name: 'app-data', // localStorageのキー
-      partialize: (state) => ({ items: state.items }) // 永続化する部分のみ選択
-    }
+      {
+        name: "todo-storage", // localStorage key
+      }
+    )
   )
 );
 
 // 使用例
-function ItemList() {
-  // 必要な状態とアクションのみ選択（細かい粒度で購読可能）
-  const items = useDataStore(state => state.items);
-  const filter = useDataStore(state => state.filter);
-  const toggleItem = useDataStore(state => state.toggleItem);
-
-  const filteredItems = items.filter(item => {
-    if (filter === 'all') return true;
-    if (filter === 'active') return !item.done;
-    if (filter === 'completed') return item.done;
-  });
-
-  return (
-    <ul>
-      {filteredItems.map(item => (
-        <li key={item.id}>
-          <input
-            type="checkbox"
-            checked={item.done}
-            onChange={() => toggleItem(item.id)}
-          />
-          {item.name}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-// Reactの外からもアクセス可能
-export function addItemFromOutside(item) {
-  useDataStore.getState().addItem(item);
-}
-```
-
-**利点**：
-- 最小限のボイラープレート
-- 学習コストが低い
-- Immer統合が簡単
-- React外からもアクセス可能
-- 細かい粒度で購読できる（不要な再レンダーを避けられる）
-- middlewareによる拡張が柔軟
-
-**欠点**：
-- Redux DevToolsのサポートは限定的（middlewareで追加可能）
-- 大規模チームでの標準化が難しい場合がある
-
-### XState
-
-有限状態マシン（Finite State Machine）による厳密なフロー管理を実現します。
-
-```jsx
-import { createMachine, assign } from 'xstate';
-import { useMachine } from '@xstate/react';
-
-// ステートマシン定義
-export const appMachine = createMachine({
-  id: 'app',
-  context: {
-    items: [],
-    currentItem: null,
-    error: null
-  },
-  initial: 'list',
-  states: {
-    list: {
-      on: {
-        SELECT_ITEM: {
-          target: 'single',
-          actions: assign({
-            currentItem: (context, event) =>
-              context.items.find(item => item.id === event.id)
-          })
-        },
-        ADD_ITEM: {
-          target: 'adding'
-        },
-        TOGGLE_ITEM: {
-          target: 'list',
-          actions: assign({
-            items: (context, event) =>
-              context.items.map(item =>
-                item.id === event.id
-                  ? { ...item, done: !item.done, doneAt: item.done ? [] : [Date.now()] }
-                  : item
-              )
-          })
-        }
-      }
-    },
-    single: {
-      on: {
-        SEE_ALL: {
-          target: 'list',
-          actions: assign({
-            currentItem: null
-          })
-        },
-        DELETE_ITEM: {
-          target: 'deleting'
-        }
-      }
-    },
-    adding: {
-      invoke: {
-        src: 'addItem',
-        onDone: {
-          target: 'list',
-          actions: assign({
-            items: (context, event) => [...context.items, event.data]
-          })
-        },
-        onError: {
-          target: 'list',
-          actions: assign({
-            error: (context, event) => event.data
-          })
-        }
-      }
-    },
-    deleting: {
-      invoke: {
-        src: 'deleteItem',
-        onDone: {
-          target: 'list',
-          actions: assign({
-            items: (context, event) =>
-              context.items.filter(item => item.id !== event.data.id),
-            currentItem: null
-          })
-        },
-        onError: {
-          target: 'single',
-          actions: assign({
-            error: (context, event) => event.data
-          })
-        }
-      }
-    }
-  }
-}, {
-  services: {
-    addItem: async (context, event) => {
-      const response = await fetch('/api/items', {
-        method: 'POST',
-        body: JSON.stringify(event.item)
-      });
-      return response.json();
-    },
-    deleteItem: async (context, event) => {
-      await fetch(`/api/items/${context.currentItem.id}`, {
-        method: 'DELETE'
-      });
-      return { id: context.currentItem.id };
-    }
-  }
-});
-
-// 使用例
-function App() {
-  const [state, send] = useMachine(appMachine);
+function TodoList() {
+  const todos = useTodoStore((state) => state.todos);
+  const addTodo = useTodoStore((state) => state.addTodo);
+  const toggleTodo = useTodoStore((state) => state.toggleTodo);
 
   return (
     <div>
-      {state.matches('list') && (
-        <ItemList
-          items={state.context.items}
-          onSelect={(id) => send({ type: 'SELECT_ITEM', id })}
-          onToggle={(id) => send({ type: 'TOGGLE_ITEM', id })}
-          onAdd={() => send({ type: 'ADD_ITEM' })}
-        />
-      )}
-
-      {state.matches('single') && (
-        <ItemDetail
-          item={state.context.currentItem}
-          onBack={() => send({ type: 'SEE_ALL' })}
-          onDelete={() => send({ type: 'DELETE_ITEM' })}
-        />
-      )}
-
-      {state.matches('adding') && <div>Adding item...</div>}
-      {state.matches('deleting') && <div>Deleting item...</div>}
-
-      {state.context.error && (
-        <div className="error">{state.context.error.message}</div>
-      )}
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => toggleTodo(todo.id)}
+            />
+            {todo.text}
+          </li>
+        ))}
+      </ul>
+      <button onClick={() => addTodo("New Todo")}>Add</button>
     </div>
   );
 }
 ```
 
-**利点**：
-- 複雑なワークフローを明確にモデル化
-- 不可能な状態遷移を防げる
-- ビジュアライザーで状態遷移を視覚化
-- 非同期処理の統合が自然
-- テストしやすい
+---
 
-**欠点**：
-- 学習曲線が急
-- ボイラープレートが多い
-- シンプルなアプリには過剰
-- コード量が増える
+## 4. XState によるステートマシン
+
+### XState 推奨ケース
+
+- 複雑なビジネスロジック（注文フロー、承認ワークフロー）
+- 明確な状態遷移ルールが必要
+- 状態の可視化が重要（XState Visualizer）
+- 並行状態や階層状態が必要
+
+```typescript
+import { createMachine, assign } from "xstate";
+import { useMachine } from "@xstate/react";
+
+interface TrafficLightContext {
+  timer: number;
+}
+
+type TrafficLightEvent =
+  | { type: "TIMER" }
+  | { type: "EMERGENCY_STOP" };
+
+const trafficLightMachine = createMachine(
+  {
+    id: "trafficLight",
+    initial: "red",
+    context: { timer: 0 },
+    states: {
+      red: {
+        on: { TIMER: "yellow" },
+        entry: "resetTimer",
+      },
+      yellow: {
+        on: { TIMER: "green" },
+      },
+      green: {
+        on: { TIMER: "red" },
+      },
+    },
+    on: {
+      EMERGENCY_STOP: ".red",
+    },
+  },
+  {
+    actions: {
+      resetTimer: assign({ timer: 0 }),
+    },
+  }
+);
+
+function TrafficLight() {
+  const [state, send] = useMachine(trafficLightMachine);
+
+  useEffect(() => {
+    const interval = setInterval(() => send({ type: "TIMER" }), 3000);
+    return () => clearInterval(interval);
+  }, [send]);
+
+  return (
+    <div>
+      <p>Current Light: {state.value}</p>
+      <button onClick={() => send({ type: "EMERGENCY_STOP" })}>
+        Emergency Stop
+      </button>
+    </div>
+  );
+}
+```
 
 ---
 
-## 2. 状態管理選定マトリクス
+## 5. リモートデータ管理の課題
 
-| ライブラリ | ボイラープレート | 学習コスト | DevTools | 推奨用途 |
-|-----------|----------------|-----------|---------|---------|
-| useState+Context | 少 | 低 | 基本のみ | 小規模、プロトタイプ、シンプルな状態 |
-| useReducer+Immer | 少 | 中 | 基本のみ | 中規模、複雑なstate遷移、Contextと組合せ |
-| Redux Toolkit | 中 | 高 | 優秀 | 大規模、チーム開発、標準化重視 |
-| zustand | 最小 | 低 | 良好 | 柔軟性重視、素早い開発、中小規模 |
-| XState | 多 | 高 | 優秀 | 複雑なワークフロー、有限状態、厳密な制御 |
+### リモートデータ特有の問題
 
-### 選定フローチャート
+1. **ネットワークレイテンシ**: 200ms ~ 2秒の遅延
+2. **セキュリティ**: クライアント側は信頼できない環境
+3. **キャッシュ管理**: 新鮮さ vs パフォーマンス
+4. **競合状態**: 複数ユーザーの同時操作
+5. **楽観的更新**: UI即時反映 vs サーバー確認
 
-```
-プロジェクト規模は？
-  ├─ 小規模（1-2画面）
-  │   └─ useState + Context
-  │
-  ├─ 中規模（3-10画面）
-  │   ├─ 複雑な状態遷移がある？
-  │   │   ├─ Yes → useReducer + Immer または XState
-  │   │   └─ No → zustand
-  │   │
-  │   └─ チーム開発で標準化が必要？
-  │       └─ Yes → Redux Toolkit
-  │
-  └─ 大規模（10画面以上）
-      ├─ 複雑なワークフロー・厳密な制御が必要？
-      │   └─ Yes → XState
-      │
-      └─ 一般的な状態管理
-          ├─ チーム標準がある → その標準に従う
-          ├─ 柔軟性重視 → zustand
-          └─ エコシステム重視 → Redux Toolkit
-```
+### Server as Single Source of Truth
+
+**基本原則:**
+- サーバーのデータが常に正 (Single Source of Truth)
+- クライアントはキャッシュに過ぎない
+- ミューテーション後は必ずサーバーからrefetch
 
 ---
 
-## 3. TanStack Queryによるリモートデータ管理
+## 6. TanStack Query (React Query) の基本
 
-サーバー状態（リモートデータ）は、クライアント状態とは異なる性質を持ちます。TanStack Query（旧React Query）は、サーバー状態管理に特化したライブラリです。
+### TanStack Query 推奨ケース
 
-### アーキテクチャ
+- サーバー状態が主体のアプリ（SPA、ダッシュボード）
+- 頻繁なサーバーリクエストが発生
+- キャッシュ無効化・再取得が必要
+- 楽観的更新が必要
 
-```
-QueryClient（中央管理）
-  ├─ Queries（読み取り：GET）
-  │   ├─ キャッシュ管理
-  │   ├─ 自動再フェッチ
-  │   ├─ バックグラウンド更新
-  │   └─ Stale/Fresh状態
-  │
-  └─ Mutations（書き込み：POST/PUT/DELETE）
-      ├─ 楽観的更新
-      ├─ ロールバック
-      └─ キャッシュ無効化
-```
+### 基本構成
 
-### 基本的なQuery
+```typescript
+// main.tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-```jsx
-import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-// QueryClient作成
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5分間はデータをフレッシュとみなす
-      cacheTime: 1000 * 60 * 10, // 10分間キャッシュを保持
-      retry: 3, // 失敗時に3回リトライ
-      refetchOnWindowFocus: true, // ウィンドウフォーカス時に再フェッチ
-    }
-  }
+      staleTime: 5 * 60 * 1000, // 5分間はキャッシュを利用
+      cacheTime: 10 * 60 * 1000, // 10分間キャッシュ保持
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
-// App
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ItemList />
+      <YourApp />
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
+```
 
-// API関数
-async function fetchItems() {
-  const response = await fetch('/api/items');
-  if (!response.ok) {
-    throw new Error('Failed to fetch items');
-  }
+### Query（データ取得）
+
+```typescript
+interface Todo {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+// APIクライアント
+async function fetchTodos(): Promise<Todo[]> {
+  const response = await fetch("/api/todos");
+  if (!response.ok) throw new Error("Failed to fetch todos");
   return response.json();
 }
 
-// カスタムhook
-function useAllItems() {
+async function fetchTodo(id: string): Promise<Todo> {
+  const response = await fetch(`/api/todos/${id}`);
+  if (!response.ok) throw new Error("Failed to fetch todo");
+  return response.json();
+}
+
+// カスタムフック
+function useTodos() {
   return useQuery({
-    queryKey: ['items'], // キャッシュのキー
-    queryFn: fetchItems, // データ取得関数
+    queryKey: ["todos"],
+    queryFn: fetchTodos,
   });
 }
 
-// コンポーネント
-function ItemList() {
-  const { data: items = [], isLoading, error, refetch } = useAllItems();
+function useTodo(id: string) {
+  return useQuery({
+    queryKey: ["todo", { id }],
+    queryFn: () => fetchTodo(id),
+    enabled: !!id, // idが存在する場合のみクエリ実行
+  });
+}
+
+// 使用例
+function TodoList() {
+  const { data: todos, isLoading, error } = useTodos();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div>
-      <button onClick={() => refetch()}>Refresh</button>
-      <ul>
-        {items.map(item => (
-          <li key={item.id}>{item.name}</li>
-        ))}
-      </ul>
-    </div>
+    <ul>
+      {todos?.map((todo) => (
+        <li key={todo.id}>{todo.title}</li>
+      ))}
+    </ul>
   );
 }
 ```
 
-### Mutationとキャッシュ更新
+### Mutation（データ変更）
 
-```jsx
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-// API関数
-async function addItem(newItem) {
-  const response = await fetch('/api/items', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newItem)
+```typescript
+async function createTodo(newTodo: Omit<Todo, "id">): Promise<Todo> {
+  const response = await fetch("/api/todos", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(newTodo),
   });
-  if (!response.ok) {
-    throw new Error('Failed to add item');
-  }
+  if (!response.ok) throw new Error("Failed to create todo");
   return response.json();
 }
 
-async function deleteItem(id) {
-  const response = await fetch(`/api/items/${id}`, {
-    method: 'DELETE'
+async function updateTodo(todo: Todo): Promise<Todo> {
+  const response = await fetch(`/api/todos/${todo.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(todo),
   });
-  if (!response.ok) {
-    throw new Error('Failed to delete item');
-  }
+  if (!response.ok) throw new Error("Failed to update todo");
+  return response.json();
 }
 
-// コンポーネント
-function ItemManager() {
+function useCreateTodo() {
   const queryClient = useQueryClient();
-  const { data: items = [] } = useAllItems();
 
-  // アイテム追加
-  const addMutation = useMutation({
-    mutationFn: addItem,
+  return useMutation({
+    mutationFn: createTodo,
     onSuccess: () => {
-      // キャッシュを無効化して再フェッチ
-      queryClient.invalidateQueries({ queryKey: ['items'] });
-    }
+      // キャッシュ無効化 → 自動再取得
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
   });
-
-  // アイテム削除
-  const deleteMutation = useMutation({
-    mutationFn: deleteItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['items'] });
-    }
-  });
-
-  const handleAdd = () => {
-    addMutation.mutate({ name: 'New Item', done: false });
-  };
-
-  const handleDelete = (id) => {
-    deleteMutation.mutate(id);
-  };
-
-  return (
-    <div>
-      <button onClick={handleAdd} disabled={addMutation.isPending}>
-        {addMutation.isPending ? 'Adding...' : 'Add Item'}
-      </button>
-
-      {addMutation.isError && (
-        <div className="error">Error: {addMutation.error.message}</div>
-      )}
-
-      <ul>
-        {items.map(item => (
-          <li key={item.id}>
-            {item.name}
-            <button
-              onClick={() => handleDelete(item.id)}
-              disabled={deleteMutation.isPending}
-            >
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
 }
-```
 
-### 楽観的更新パターン（重要）
-
-楽観的更新は、サーバーのレスポンスを待たずにUIを即座に更新する手法です。UX向上に効果的ですが、エラー時のロールバックが必要です。
-
-```jsx
-function useOptimisticMutation() {
+function useUpdateTodo() {
   const queryClient = useQueryClient();
 
-  // アイテム追加（楽観的更新）
-  const addItemMutation = useMutation({
-    mutationFn: async (newItem) => {
-      const response = await fetch('/api/items', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
-      });
-      if (!response.ok) throw new Error('Failed to add item');
-      return response.json();
+  return useMutation({
+    mutationFn: updateTodo,
+    onSuccess: (updatedTodo) => {
+      // 特定のクエリのみ無効化
+      queryClient.invalidateQueries({ queryKey: ["todo", { id: updatedTodo.id }] });
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
-
-    // Mutation実行前（楽観的更新）
-    onMutate: async (newItem) => {
-      // 進行中のクエリをキャンセル（競合を避ける）
-      await queryClient.cancelQueries({ queryKey: ['items'] });
-
-      // 現在のデータを保存（ロールバック用）
-      const previousItems = queryClient.getQueryData(['items']);
-
-      // 楽観的更新: 一時IDで即座にUIに反映
-      queryClient.setQueryData(['items'], (old = []) => [
-        ...old,
-        { id: `temp-${Date.now()}`, ...newItem, optimistic: true }
-      ]);
-
-      // contextとして返す（onErrorとonSuccessで使用）
-      return { previousItems };
-    },
-
-    // エラー時（ロールバック）
-    onError: (error, newItem, context) => {
-      console.error('Failed to add item:', error);
-      // 保存しておいた元のデータに戻す
-      if (context?.previousItems) {
-        queryClient.setQueryData(['items'], context.previousItems);
-      }
-    },
-
-    // 成功時（サーバーレスポンスで置き換え）
-    onSuccess: (serverItem, newItem, context) => {
-      // 一時IDのアイテムをサーバーから返された正式なデータで置き換え
-      queryClient.setQueryData(['items'], (old = []) => {
-        return old.map(item =>
-          item.optimistic ? serverItem : item
-        );
-      });
-    },
-
-    // 完了時（成功・失敗問わず）
-    onSettled: () => {
-      // 念のため再フェッチして同期を保証
-      queryClient.invalidateQueries({ queryKey: ['items'] });
-    }
   });
-
-  // アイテム削除（楽観的更新）
-  const deleteItemMutation = useMutation({
-    mutationFn: async (id) => {
-      const response = await fetch(`/api/items/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete item');
-    },
-
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['items'] });
-      const previousItems = queryClient.getQueryData(['items']);
-
-      // 楽観的更新: 即座に削除
-      queryClient.setQueryData(['items'], (old = []) =>
-        old.filter(item => item.id !== id)
-      );
-
-      return { previousItems };
-    },
-
-    onError: (error, id, context) => {
-      console.error('Failed to delete item:', error);
-      if (context?.previousItems) {
-        queryClient.setQueryData(['items'], context.previousItems);
-      }
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['items'] });
-    }
-  });
-
-  // トグル（楽観的更新）
-  const toggleItemMutation = useMutation({
-    mutationFn: async ({ id, done }) => {
-      const response = await fetch(`/api/items/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ done })
-      });
-      if (!response.ok) throw new Error('Failed to toggle item');
-      return response.json();
-    },
-
-    onMutate: async ({ id, done }) => {
-      await queryClient.cancelQueries({ queryKey: ['items'] });
-      const previousItems = queryClient.getQueryData(['items']);
-
-      // 楽観的更新: 即座に状態変更
-      queryClient.setQueryData(['items'], (old = []) =>
-        old.map(item =>
-          item.id === id
-            ? { ...item, done, doneAt: done ? [...item.doneAt, Date.now()] : item.doneAt.slice(0, -1) }
-            : item
-        )
-      );
-
-      return { previousItems };
-    },
-
-    onError: (error, variables, context) => {
-      console.error('Failed to toggle item:', error);
-      if (context?.previousItems) {
-        queryClient.setQueryData(['items'], context.previousItems);
-      }
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['items'] });
-    }
-  });
-
-  return {
-    addItem: addItemMutation.mutate,
-    deleteItem: deleteItemMutation.mutate,
-    toggleItem: toggleItemMutation.mutate,
-    isLoading: addItemMutation.isPending || deleteItemMutation.isPending || toggleItemMutation.isPending
-  };
 }
 
 // 使用例
-function ItemManager() {
-  const { data: items = [] } = useAllItems();
-  const { addItem, deleteItem, toggleItem, isLoading } = useOptimisticMutation();
+function TodoForm() {
+  const createTodo = useCreateTodo();
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const title = formData.get("title") as string;
+
+    createTodo.mutate({ title, completed: false });
+  };
 
   return (
-    <div>
-      <button onClick={() => addItem({ name: 'New Task', done: false })}>
-        Add Item
+    <form onSubmit={handleSubmit}>
+      <input name="title" required />
+      <button type="submit" disabled={createTodo.isPending}>
+        {createTodo.isPending ? "Creating..." : "Create"}
       </button>
-
-      <ul>
-        {items.map(item => (
-          <li key={item.id} style={{ opacity: item.optimistic ? 0.5 : 1 }}>
-            <input
-              type="checkbox"
-              checked={item.done}
-              onChange={() => toggleItem({ id: item.id, done: !item.done })}
-            />
-            {item.name}
-            {item.optimistic && <span> (Saving...)</span>}
-            <button onClick={() => deleteItem(item.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-
-      {isLoading && <div>Processing...</div>}
-    </div>
+    </form>
   );
 }
 ```
 
-### リアクティブキャッシュ: 部分データの活用
+---
 
-TanStack Queryのキャッシュはリアクティブなので、すでに取得したデータを活用して追加のリクエストを減らせます。
+## 7. TanStack Query 高度なパターン
 
-```jsx
-// すべてのアイテムを取得
-function useAllItems() {
-  return useQuery({
-    queryKey: ['items'],
-    queryFn: fetchItems,
+### キャッシュ直接更新（サーバーラウンドトリップ削減）
+
+```typescript
+function useToggleTodo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/todos/${id}/toggle`, { method: "POST" });
+      if (!response.ok) throw new Error("Failed to toggle todo");
+      return response.json();
+    },
+    onSuccess: (updatedTodo) => {
+      // キャッシュを直接更新（invalidateではなくsetQueryData）
+      queryClient.setQueryData<Todo[]>(["todos"], (oldTodos) =>
+        oldTodos?.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo))
+      );
+
+      queryClient.setQueryData<Todo>(["todo", { id: updatedTodo.id }], updatedTodo);
+    },
   });
 }
+```
 
-// 特定のアイテムを取得（キャッシュから初期データを取得）
-function useItem(id) {
+### 楽観的更新（Optimistic Updates）
+
+```typescript
+function useDeleteTodo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await fetch(`/api/todos/${id}`, { method: "DELETE" });
+    },
+    onMutate: async (deletedId) => {
+      // 進行中のクエリをキャンセル
+      await queryClient.cancelQueries({ queryKey: ["todos"] });
+
+      // 前の値を保存（ロールバック用）
+      const previousTodos = queryClient.getQueryData<Todo[]>(["todos"]);
+
+      // 楽観的更新（即座にUIから削除）
+      queryClient.setQueryData<Todo[]>(["todos"], (old) =>
+        old?.filter((todo) => todo.id !== deletedId)
+      );
+
+      return { previousTodos }; // コンテキストとして返す
+    },
+    onError: (err, deletedId, context) => {
+      // エラー時はロールバック
+      if (context?.previousTodos) {
+        queryClient.setQueryData<Todo[]>(["todos"], context.previousTodos);
+      }
+    },
+    onSettled: () => {
+      // 成功・失敗に関わらず、最終的にサーバーから取得
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+}
+```
+
+### 部分データの初期値（Initial Data）
+
+```typescript
+function useTodo(id: string) {
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: ['items', id],
-    queryFn: () => fetchItemById(id),
-
-    // 初期データをキャッシュから取得（ローダー表示をスキップ）
+    queryKey: ["todo", { id }],
+    queryFn: () => fetchTodo(id),
     initialData: () => {
-      const allItems = queryClient.getQueryData(['items']);
-      return allItems?.find(item => item.id === id);
+      // リスト取得済みなら、そこから該当アイテムを初期値として使用
+      const todos = queryClient.getQueryData<Todo[]>(["todos"]);
+      return todos?.find((todo) => todo.id === id);
     },
-
-    // 初期データがあっても一定時間後に再フェッチ
-    initialDataUpdatedAt: () =>
-      queryClient.getQueryState(['items'])?.dataUpdatedAt,
   });
 }
+```
 
-// 使用例
-function ItemDetail({ id }) {
-  const { data: item, isLoading } = useItem(id);
+### ローディング状態の最適化
 
-  // キャッシュに存在すればローダーなしで即座に表示
-  // バックグラウンドで最新データを取得して自動更新
+```typescript
+function TodoDetail({ id }: { id: string }) {
+  const queryClient = useQueryClient();
 
-  if (isLoading && !item) return <div>Loading...</div>;
-  if (!item) return <div>Item not found</div>;
+  const { data: todo, isLoading, isFetching } = useQuery({
+    queryKey: ["todo", { id }],
+    queryFn: () => fetchTodo(id),
+    initialData: () => {
+      const todos = queryClient.getQueryData<Todo[]>(["todos"]);
+      return todos?.find((t) => t.id === id);
+    },
+  });
 
+  // isLoading: データが全くない状態（初回）
+  // isFetching: バックグラウンドでフェッチ中
+
+  if (isLoading) {
+    return <div>Loading...</div>; // 初回のみ表示
+  }
+
+  // isFetchingの場合は、古いデータを表示しながらバックグラウンドで更新
   return (
     <div>
-      <h1>{item.name}</h1>
-      <p>Status: {item.done ? 'Done' : 'Active'}</p>
+      <h2>{todo?.title}</h2>
+      {isFetching && <span>(Updating...)</span>}
     </div>
   );
 }
@@ -924,91 +680,58 @@ function ItemDetail({ id }) {
 
 ---
 
-## 4. ユーザー確認の原則
+## 8. 状態管理ライブラリ選択フローチャート
 
-データ管理戦略を決定する際、以下の原則に従ってユーザーに確認すべきかを判断します。
+```
+[プロジェクト規模は？]
+  ├─ 小規模（1-5画面）
+  │   └─ useState + useContext
+  │
+  ├─ 中規模（6-20画面）
+  │   ├─ サーバー状態が主 → TanStack Query + zustand
+  │   └─ ローカル状態が主 → zustand または Context + useReducer
+  │
+  └─ 大規模（20+画面、複数チーム）
+      ├─ サーバー状態が主 → TanStack Query + Redux Toolkit
+      └─ ローカル状態が主 → Redux Toolkit
 
-### 確認すべき場面
+[特殊ケース]
+  ├─ 複雑なワークフロー → XState
+  ├─ タイムトラベルデバッグ必須 → Redux Toolkit
+  └─ 学習コスト最小化 → zustand
+```
 
-以下の決定はプロジェクト固有の要素が多いため、必ずユーザーに確認してください：
+---
 
-1. **状態管理ライブラリの選択**
-   - プロジェクト規模（小/中/大）
-   - チームの技術スタック
-   - 既存コードベースとの整合性
-   - チーム標準の有無
+## 9. 状態管理ライブラリ比較表
 
-   確認例：
-   ```
-   状態管理ライブラリを選択してください：
-
-   1. useState + Context（小規模・シンプル）
-   2. useReducer + Immer（中規模・複雑な遷移）
-   3. Redux Toolkit（大規模・チーム標準）
-   4. zustand（柔軟性重視・素早い開発）
-   5. XState（複雑なワークフロー・厳密な制御）
-
-   プロジェクトの規模と要件を教えてください。
-   ```
-
-2. **サーバー状態管理の方針**
-   - TanStack Query vs SWR vs 独自実装
-   - 楽観的更新の適用範囲
-   - キャッシュ戦略
-
-   確認例：
-   ```
-   サーバー状態管理のアプローチを選択してください：
-
-   1. TanStack Query（推奨: 強力なキャッシュ・楽観的更新）
-   2. SWR（軽量・シンプル）
-   3. 独自実装（useEffect + fetch）
-
-   パフォーマンス要件とチーム経験を考慮して選択してください。
-   ```
-
-### 確認不要な場面
-
-以下はベストプラクティスまたは標準的なパターンであり、確認なしで適用できます：
-
-1. **Immerによるイミュータブル更新の採用**
-   - useReducer、Redux Toolkit、zustandすべてでImmerを活用するのが標準
-
-2. **楽観的更新パターンの構造**
-   - onMutate → onError → onSuccess → onSettledの標準的なフロー
-
-3. **依存配列のstable values**
-   - setState、dispatch、refは依存配列に含めない
-
-4. **TanStack Queryのデフォルト設定**
-   - staleTime、cacheTime、retryなどの基本設定
+| ライブラリ | 学習コスト | バンドルサイズ | TypeScript | DevTools | 用途 |
+|-----------|----------|--------------|-----------|---------|-----|
+| **useState/useReducer** | 低 | 0 KB | ✅ | ❌ | 小規模 |
+| **Context API** | 低 | 0 KB | ✅ | ❌ | グローバル状態共有 |
+| **Zustand** | 低 | 3.3 KB | ✅ | ✅ | 中規模 |
+| **Redux Toolkit** | 中 | 12 KB | ✅ | ✅ | 大規模 |
+| **XState** | 高 | 25 KB | ✅ | ✅ | ワークフロー |
+| **TanStack Query** | 中 | 13 KB | ✅ | ✅ | サーバー状態 |
 
 ---
 
 ## まとめ
 
-Reactのデータ管理は、以下の原則に従って適切に選択してください：
+### ローカル状態管理のベストプラクティス
 
-1. **クライアント状態とサーバー状態を分離する**
-   - クライアント状態: useState/useReducer/Redux/zustand/XState
-   - サーバー状態: TanStack Query/SWR
+1. **小さく始める**: useState/useReducerで十分な場合は複雑化しない
+2. **Contextは慎重に**: パフォーマンスへの影響を考慮
+3. **状態の分離**: UIステート vs ビジネスロジックステート vs サーバーステート
+4. **型安全性**: TypeScriptで状態の型を明確に定義
+5. **不変性**: Immer等を活用して状態更新を安全に
 
-2. **プロジェクト規模に応じて選択する**
-   - 小規模: useState + Context
-   - 中規模: useReducer + Immer または zustand
-   - 大規模: Redux Toolkit または zustand
-   - 複雑なワークフロー: XState
+### リモートデータ管理のベストプラクティス
 
-3. **Immerを活用する**
-   - イミュータブル更新をミュータブルな書き方で実現
-   - コードの可読性と保守性が向上
+1. **TanStack Query推奨**: サーバー状態の標準ライブラリ
+2. **キャッシュ戦略**: staleTime, cacheTime を適切に設定
+3. **楽観的更新**: UX向上のため積極活用
+4. **エラーハンドリング**: ロールバック戦略を常に用意
+5. **ローディング状態**: isLoading vs isFetching を使い分け
 
-4. **楽観的更新でUXを向上させる**
-   - サーバーレスポンスを待たずにUIを更新
-   - エラー時のロールバックを忘れずに実装
-
-5. **リアクティブキャッシュを活用する**
-   - TanStack Queryのキャッシュから初期データを取得
-   - ローダー表示をスキップして高速なUI遷移
-
-**重要**: 技術選定はプロジェクト要件、チーム経験、既存コードベースに依存します。不明な点があれば必ずユーザーに確認してください。
+**重要**: 状態管理ライブラリの選択はプロジェクト要件とチーム経験に依存します。不明な点があればユーザーに確認してください。

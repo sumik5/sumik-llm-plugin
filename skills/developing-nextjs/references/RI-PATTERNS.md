@@ -1,6 +1,6 @@
 # コンポーネント設計パターン
 
-Reactコンポーネントの設計パターンは、**再利用性**、**保守性**、**テスト容易性**を高めるための構造化手法です。このドキュメントでは、実践的な3つの主要パターンと、UIライブラリ設計の原則を解説します。
+Reactコンポーネントの設計パターンは、**再利用性**、**保守性**、**テスト容易性**を高めるための構造化手法です。
 
 ---
 
@@ -9,8 +9,7 @@ Reactコンポーネントの設計パターンは、**再利用性**、**保守
 1. [Providerパターン](#providerパターン)
 2. [Compositeパターン](#compositeパターン)
 3. [Summaryパターン](#summaryパターン)
-4. [UIライブラリ設計パターン](#uiライブラリ設計パターン)
-5. [パターン選定ガイド](#パターン選定ガイド)
+4. [パターン選定ガイド](#パターン選定ガイド)
 
 ---
 
@@ -18,20 +17,9 @@ Reactコンポーネントの設計パターンは、**再利用性**、**保守
 
 ### 概要
 
-**Providerパターン**は、React Contextを使用して、コンポーネントツリー全体に状態を配布する設計手法です。深くネストされたコンポーネントに対して、Propsバケツリレー（prop drilling）を避けながら、効率的にデータを共有できます。
+**Providerパターン**は、React Contextを使用して、コンポーネントツリー全体に状態と更新関数を配布する設計手法です。深くネストされたコンポーネントに対して、Propsバケツリレー（prop drilling）を避けながら、効率的にデータを共有できます。
 
-### 利点
-
-- **Propsバケツリレーの回避**: 中間コンポーネントを経由せずに、必要な箇所にデータを届ける
-- **グローバル状態管理**: ユーザー認証情報、テーマ、言語設定など、アプリ全体で共有する状態に最適
-- **疎結合**: 親子関係に依存せず、任意の深さのコンポーネントからアクセス可能
-
-### 欠点
-
-- **再レンダー問題**: Context値が変更されると、そのContextを使用する**すべて**のコンポーネントが再レンダーされる
-- **過度な使用の危険性**: 頻繁に更新される状態をContextに入れると、パフォーマンスが劣化
-
-### 基本実装例
+### 基本実装
 
 ```typescript
 import { createContext, useContext, useState, ReactNode } from 'react';
@@ -45,11 +33,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 // 2. Providerコンポーネント
-interface ThemeProviderProps {
-  children: ReactNode;
-}
-
-export function ThemeProvider({ children }: ThemeProviderProps) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const toggleTheme = () => {
@@ -76,14 +60,55 @@ export function useTheme() {
 function ThemedButton() {
   const { theme, toggleTheme } = useTheme();
   return (
-    <button onClick={toggleTheme} style={{ background: theme === 'light' ? '#fff' : '#333' }}>
+    <button
+      onClick={toggleTheme}
+      style={{ background: theme === 'light' ? '#fff' : '#333' }}
+    >
       Toggle Theme
     </button>
   );
 }
 ```
 
-### use-context-selectorによる最適化
+### 専用Providerコンポーネントの作成
+
+状態管理ロジックを専用コンポーネントに分離することで、メインアプリケーションがよりクリーンになります。
+
+```typescript
+// 専用Providerコンポーネント
+function DarkModeProvider({ children }: { children: ReactNode }) {
+  const [isDarkMode, setDarkMode] = useState(false);
+  const toggleDarkMode = () => setDarkMode((v) => !v);
+  const contextValue = { isDarkMode, toggleDarkMode };
+
+  return (
+    <DarkModeContext.Provider value={contextValue}>
+      {children}
+    </DarkModeContext.Provider>
+  );
+}
+
+// カスタムフック
+function useDarkMode() {
+  return useContext(DarkModeContext);
+}
+
+// アプリケーション（状態なし、再レンダーなし）
+export default function App() {
+  return (
+    <DarkModeProvider>
+      <Main />
+    </DarkModeProvider>
+  );
+}
+```
+
+**利点**:
+- Appコンポーネントが状態を持たないため、再レンダーされない
+- Mainコンポーネントのmemo()が不要になる
+- 状態管理ロジックが明確に分離される
+
+### パフォーマンス最適化: use-context-selector
 
 **問題**: 標準のContextは、値の一部だけを使用しているコンポーネントも、全体が変更されると再レンダーされます。
 
@@ -99,16 +124,65 @@ interface UserContextValue {
 
 const UserContext = createContext<UserContextValue | undefined>(undefined);
 
+function useDarkMode(selector: (ctx: UserContextValue) => any) {
+  return useContextSelector(DarkModeContext, selector);
+}
+
 // 名前のみを購読（settingsが変更されても再レンダーされない）
 function UserName() {
-  const name = useContextSelector(UserContext, (ctx) => ctx?.user.name);
+  const name = useDarkMode((ctx) => ctx.user.name);
   return <div>{name}</div>;
 }
 
-// 通知設定のみを購読（userが変更されても再レンダーされない）
-function NotificationToggle() {
-  const notifications = useContextSelector(UserContext, (ctx) => ctx?.settings.notifications);
-  return <input type="checkbox" checked={notifications} />;
+// トグル関数のみを購読（isDarkModeが変更されても再レンダーされない）
+function ToggleButton() {
+  const toggle = useDarkMode((ctx) => ctx.toggle);
+  return <button onClick={toggle}>Toggle mode</button>;
+}
+```
+
+**重要**: トグル関数は`useCallback`でメモ化し、安定した参照を保つ必要があります。
+
+```typescript
+function DarkModeProvider({ children }) {
+  const [isDarkMode, setDarkMode] = useState(false);
+  const toggle = useCallback(() => setDarkMode((v) => !v), []);
+  const contextValue = { isDarkMode, toggle };
+
+  return (
+    <DarkModeContext.Provider value={contextValue}>
+      {children}
+    </DarkModeContext.Provider>
+  );
+}
+```
+
+### TypeScript型付き: recontextualパッケージ
+
+`recontextual`パッケージを使用すると、型安全なSelectable Contextを簡単に作成できます。
+
+```typescript
+import recontextual from 'recontextual';
+
+interface DarkModeContext {
+  isDarkMode: boolean;
+  toggle: () => void;
+}
+
+const [Provider, useDarkMode] = recontextual<DarkModeContext>();
+
+function DarkModeProvider({ children }: PropsWithChildren) {
+  const [isDarkMode, setDarkMode] = useState(false);
+  const toggle = useCallback(() => setDarkMode((v) => !v), []);
+  const contextValue = { isDarkMode, toggle };
+
+  return <Provider value={contextValue}>{children}</Provider>;
+}
+
+// 使用例
+function ThemedButton() {
+  const isDarkMode = useDarkMode((ctx) => ctx.isDarkMode);
+  return <button>{isDarkMode ? 'Dark' : 'Light'}</button>;
 }
 ```
 
@@ -120,7 +194,7 @@ function NotificationToggle() {
 | ✅ 深くネストされたコンポーネント間のデータ共有 | ❌ 単一コンポーネント内の状態 |
 | ✅ 更新頻度が低い状態 | ❌ 大量のコンポーネントが購読する頻繁更新状態 |
 
-**最適化の目安**: Context値が1秒に1回以上更新される場合、use-context-selectorまたは状態管理ライブラリ（zustand、Redux）を検討。
+**最適化の目安**: Context値が1秒に1回以上更新される場合、use-context-selectorまたは状態管理ライブラリ（zustand、Redux Toolkit）を検討。
 
 ---
 
@@ -130,21 +204,10 @@ function NotificationToggle() {
 
 **Compositeパターン**は、複合UIコンポーネントを、名前空間付きサブコンポーネントで構築する設計手法です。親コンポーネントが構造を定義し、子コンポーネントがその中で柔軟に配置されます。
 
-### 利点
-
-- **柔軟性**: 使用側が自由にサブコンポーネントを組み合わせられる
-- **関心の分離**: 各サブコンポーネントが独立した責務を持つ
-- **再利用性**: 共通のUIパターン（タブ、アコーディオン、ドロップダウン）を効率的に実装
-
-### 欠点
-
-- **初期設計コスト**: 適切な粒度のサブコンポーネント分割が必要
-- **複雑性**: 親子間の通信にContextを使用するため、理解が必要
-
-### 基本実装例（タブコンポーネント）
+### タブコンポーネントの実装例
 
 ```typescript
-import { createContext, useContext, useState, ReactNode, Children, isValidElement } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 // 1. 内部Context（タブの状態管理）
 interface TabsContextValue {
@@ -163,12 +226,7 @@ function useTabsContext() {
 }
 
 // 2. 親コンポーネント（名前空間ルート）
-interface TabsProps {
-  defaultTab: string;
-  children: ReactNode;
-}
-
-function Tabs({ defaultTab, children }: TabsProps) {
+function Tabs({ defaultTab, children }: { defaultTab: string; children: ReactNode }) {
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   return (
@@ -179,21 +237,12 @@ function Tabs({ defaultTab, children }: TabsProps) {
 }
 
 // 3. サブコンポーネント: タブリスト
-interface TabListProps {
-  children: ReactNode;
-}
-
-function TabList({ children }: TabListProps) {
+function TabList({ children }: { children: ReactNode }) {
   return <div className="tab-list">{children}</div>;
 }
 
 // 4. サブコンポーネント: タブボタン
-interface TabProps {
-  id: string;
-  children: ReactNode;
-}
-
-function Tab({ id, children }: TabProps) {
+function Tab({ id, children }: { id: string; children: ReactNode }) {
   const { activeTab, setActiveTab } = useTabsContext();
   const isActive = activeTab === id;
 
@@ -209,7 +258,7 @@ function Tab({ id, children }: TabProps) {
 }
 
 // 5. サブコンポーネント: パネル
-function TabPanel({ id, children }: TabProps) {
+function TabPanel({ id, children }: { id: string; children: ReactNode }) {
   const { activeTab } = useTabsContext();
   if (activeTab !== id) return null;
 
@@ -247,7 +296,7 @@ function App() {
 }
 ```
 
-### 高度な例: Accordionコンポーネント
+### アコーディオンコンポーネントの実装例
 
 ```typescript
 import { createContext, useContext, useState, ReactNode } from 'react';
@@ -267,12 +316,7 @@ function useAccordionContext() {
   return context;
 }
 
-interface AccordionProps {
-  multiple?: boolean; // 複数項目の同時オープンを許可
-  children: ReactNode;
-}
-
-function Accordion({ multiple = false, children }: AccordionProps) {
+function Accordion({ multiple = false, children }: { multiple?: boolean; children: ReactNode }) {
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
   const toggleItem = (id: string) => {
@@ -295,21 +339,11 @@ function Accordion({ multiple = false, children }: AccordionProps) {
   );
 }
 
-interface AccordionItemProps {
-  id: string;
-  children: ReactNode;
-}
-
-function AccordionItem({ id, children }: AccordionItemProps) {
+function AccordionItem({ id, children }: { id: string; children: ReactNode }) {
   return <div className="accordion-item">{children}</div>;
 }
 
-interface AccordionHeaderProps {
-  id: string;
-  children: ReactNode;
-}
-
-function AccordionHeader({ id, children }: AccordionHeaderProps) {
+function AccordionHeader({ id, children }: { id: string; children: ReactNode }) {
   const { openItems, toggleItem } = useAccordionContext();
   const isOpen = openItems.has(id);
 
@@ -321,7 +355,7 @@ function AccordionHeader({ id, children }: AccordionHeaderProps) {
   );
 }
 
-function AccordionContent({ id, children }: AccordionItemProps) {
+function AccordionContent({ id, children }: { id: string; children: ReactNode }) {
   const { openItems } = useAccordionContext();
   const isOpen = openItems.has(id);
 
@@ -373,209 +407,125 @@ function FAQ() {
 
 **Summaryパターン**は、コンポーネントのビジネスロジック・副作用・状態管理を**カスタムフック**に集約する設計手法です。コンポーネント本体はUIの描画のみに集中し、ロジックはフックでカプセル化されます。
 
-### 利点
-
-- **テストが容易**: ロジックをフックとして独立してテスト可能
-- **ロジック再利用**: 複数のコンポーネントで同じロジックを共有
-- **可読性向上**: コンポーネントがUIに集中し、複雑なロジックがフックに隠蔽される
-
-### 欠点
-
-- **フックのルール**: トップレベルでのみ呼び出し可能、条件分岐内では使用不可
-- **過度な抽象化**: すべてをフックに抽出すると、逆に複雑化する可能性
-
-### 基本実装例（ユーザープロファイル）
+### 単一カスタムフックの例: RadioGroup
 
 ```typescript
-import { useState, useEffect } from 'react';
+import { useState } from "react";
 
-// 1. カスタムフック（ロジック集約）
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+// カスタムフック（ロジック集約）
+function useContextValue({ name, onChange }: { name: string; onChange?: (value: string) => void }) {
+  const [selectedValue, setSelectedValue] = useState("");
 
-function useUserProfile(userId: string) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchUser() {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/users/${userId}`);
-        if (!response.ok) throw new Error('Failed to fetch user');
-        const data = await response.json();
-        if (isMounted) {
-          setUser(data);
-          setError(null);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err : new Error('Unknown error'));
-        }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
+  const handleChange = (value: string) => {
+    setSelectedValue(value);
+    if (onChange) {
+      onChange(value);
     }
+  };
 
-    fetchUser();
-
-    return () => {
-      isMounted = false; // クリーンアップ
-    };
-  }, [userId]);
-
-  return { user, loading, error };
+  return {
+    name,
+    selectedValue,
+    onChange: handleChange,
+  };
 }
 
-// 2. コンポーネント（UIのみ）
-interface UserProfileProps {
-  userId: string;
-}
-
-function UserProfile({ userId }: UserProfileProps) {
-  const { user, loading, error } = useUserProfile(userId);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  if (!user) return <div>User not found</div>;
+// コンポーネント（UIのみ）
+export function RadioGroup({ children, name, onChange }: { children: ReactNode; name: string; onChange?: (value: string) => void }) {
+  const contextValue = useContextValue({ name, onChange });
 
   return (
-    <div>
-      <h2>{user.name}</h2>
-      <p>{user.email}</p>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+      <RadioGroupContext.Provider value={contextValue}>
+        {children}
+      </RadioGroupContext.Provider>
     </div>
   );
 }
 ```
 
-### 複雑な例: フォーム管理
+### 複数カスタムフックの例: タスク管理
 
 ```typescript
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, useCallback } from "react";
 
-// 1. フォーム状態管理フック
-interface FormValues {
-  [key: string]: string;
-}
+// 1. タスクリスト管理フック
+function useTaskList() {
+  const [tasks, setTasks] = useState<Array<{ task: string; completed: boolean }>>([]);
 
-interface FormErrors {
-  [key: string]: string;
-}
-
-interface UseFormOptions {
-  initialValues: FormValues;
-  validate: (values: FormValues) => FormErrors;
-  onSubmit: (values: FormValues) => Promise<void>;
-}
-
-function useForm({ initialValues, validate, onSubmit }: UseFormOptions) {
-  const [values, setValues] = useState<FormValues>(initialValues);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-    // リアルタイムバリデーション
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+  const addTask = (task: string) => {
+    if (task.trim() !== "") {
+      setTasks((prevTasks) => [...prevTasks, { task, completed: false }]);
     }
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const toggleTaskCompletion = useCallback((index: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task, i) =>
+        i === index ? { ...task, completed: !task.completed } : task
+      )
+    );
+  }, []);
+
+  return { tasks, addTask, toggleTaskCompletion };
+}
+
+// 2. 新規タスク入力フック
+function useNewTaskInput(addTask: (task: string) => void) {
+  const [newTask, setNewTask] = useState("");
+
+  const handleNewTaskChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTask(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const validationErrors = validate(values);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      await onSubmit(values);
-      setValues(initialValues); // リセット
-    } catch (err) {
-      setErrors({ submit: 'Submission failed' });
-    } finally {
-      setIsSubmitting(false);
-    }
+    addTask(newTask);
+    setNewTask("");
   };
 
   return {
-    values,
-    errors,
-    isSubmitting,
-    handleChange,
+    newTask,
+    handleNewTaskChange,
     handleSubmit,
   };
 }
 
-// 2. バリデーション関数
-function validateLoginForm(values: FormValues): FormErrors {
-  const errors: FormErrors = {};
-
-  if (!values.email) {
-    errors.email = 'Email is required';
-  } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-    errors.email = 'Email is invalid';
-  }
-
-  if (!values.password) {
-    errors.password = 'Password is required';
-  } else if (values.password.length < 8) {
-    errors.password = 'Password must be at least 8 characters';
-  }
-
-  return errors;
-}
-
 // 3. コンポーネント（UIのみ）
-function LoginForm() {
-  const { values, errors, isSubmitting, handleChange, handleSubmit } = useForm({
-    initialValues: { email: '', password: '' },
-    validate: validateLoginForm,
-    onSubmit: async (values) => {
-      // API呼び出し
-      await fetch('/api/login', {
-        method: 'POST',
-        body: JSON.stringify(values),
-      });
-    },
-  });
+export function CompactTaskManager() {
+  const { tasks, addTask, toggleTaskCompletion } = useTaskList();
+  const { newTask, handleNewTaskChange, handleSubmit } = useNewTaskInput(addTask);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="email">Email</label>
-        <input id="email" name="email" type="email" value={values.email} onChange={handleChange} />
-        {errors.email && <span className="error">{errors.email}</span>}
-      </div>
-
-      <div>
-        <label htmlFor="password">Password</label>
+    <div>
+      <form onSubmit={handleSubmit}>
         <input
-          id="password"
-          name="password"
-          type="password"
-          value={values.password}
-          onChange={handleChange}
+          type="text"
+          value={newTask}
+          onChange={handleNewTaskChange}
+          placeholder="Add new task"
         />
-        {errors.password && <span className="error">{errors.password}</span>}
-      </div>
-
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Logging in...' : 'Login'}
-      </button>
-
-      {errors.submit && <span className="error">{errors.submit}</span>}
-    </form>
+        <button type="submit">Add Task</button>
+      </form>
+      <ul>
+        {tasks.map((task, index) => (
+          <li
+            key={index}
+            style={{
+              textDecoration: task.completed ? "line-through" : "none",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={task.completed}
+              onChange={() => toggleTaskCompletion(index)}
+              disabled={task.completed}
+            />
+            {task.task}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 ```
@@ -585,7 +535,7 @@ function LoginForm() {
 | アプローチ | 適用場面 | 例 |
 |----------|---------|-----|
 | **単一フック** | 関心事が単一で、密結合したロジック | `useForm`: フォームの状態・バリデーション・送信を一括管理 |
-| **複数フック** | 独立した複数の関心事 | `useAuth` + `useTheme` + `useLocalStorage`: それぞれ独立 |
+| **複数フック** | 独立した複数の関心事 | `useTaskList` + `useNewTaskInput`: それぞれ独立 |
 
 **判断基準**: ロジックが互いに依存している場合は単一フック、独立している場合は複数フックに分割。
 
@@ -596,153 +546,6 @@ function LoginForm() {
 | ✅ コンポーネントのロジックが肥大化 | ❌ 非常にシンプルなコンポーネント |
 | ✅ ロジックを複数コンポーネントで再利用 | ❌ 単一コンポーネントでしか使わない |
 | ✅ テストしやすくしたい | ❌ フックのルールを理解していない |
-
----
-
-## UIライブラリ設計パターン
-
-### Switchコンポーネント
-
-トグルスイッチは、アクセシビリティとビジュアルフィードバックが重要です。
-
-```typescript
-import { useState } from 'react';
-
-interface SwitchProps {
-  id: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label: string;
-  disabled?: boolean;
-}
-
-function Switch({ id, checked, onChange, label, disabled = false }: SwitchProps) {
-  return (
-    <div className="switch-container">
-      <label htmlFor={id} className="switch-label">
-        {label}
-      </label>
-      <button
-        id={id}
-        role="switch"
-        aria-checked={checked}
-        aria-label={label}
-        disabled={disabled}
-        onClick={() => onChange(!checked)}
-        className={`switch ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''}`}
-      >
-        <span className="switch-thumb" />
-      </button>
-    </div>
-  );
-}
-
-// 使用例
-function App() {
-  const [notifications, setNotifications] = useState(false);
-  return <Switch id="notifications" checked={notifications} onChange={setNotifications} label="Enable Notifications" />;
-}
-```
-
-**設計原則**:
-- `role="switch"`でスクリーンリーダー対応
-- `aria-checked`で状態を明示
-- キーボード操作（Space/Enter）で切り替え可能
-
-### Toastコンポーネント
-
-通知の表示・自動消去・スタック管理を行います。
-
-```typescript
-import { useState, useEffect } from 'react';
-
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-}
-
-function useToast() {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const addToast = (message: string, type: Toast['type'] = 'info') => {
-    const id = Math.random().toString(36);
-    setToasts((prev) => [...prev, { id, message, type }]);
-
-    // 3秒後に自動削除
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, 3000);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
-  return { toasts, addToast, removeToast };
-}
-
-function ToastContainer() {
-  const { toasts, removeToast } = useToast();
-
-  return (
-    <div className="toast-container">
-      {toasts.map((toast) => (
-        <div key={toast.id} className={`toast toast-${toast.type}`}>
-          <span>{toast.message}</span>
-          <button onClick={() => removeToast(toast.id)}>✕</button>
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
-**設計原則**:
-- カスタムフックで状態管理をカプセル化
-- 自動消去タイマーでUX向上
-- 複数のトーストをスタック表示
-
-### Storybook統合
-
-```typescript
-// Switch.stories.tsx
-import { Meta, StoryObj } from '@storybook/react';
-import { Switch } from './Switch';
-
-const meta: Meta<typeof Switch> = {
-  component: Switch,
-  tags: ['autodocs'],
-};
-
-export default meta;
-type Story = StoryObj<typeof Switch>;
-
-export const Default: Story = {
-  args: {
-    id: 'default',
-    checked: false,
-    label: 'Default Switch',
-  },
-};
-
-export const Checked: Story = {
-  args: {
-    id: 'checked',
-    checked: true,
-    label: 'Checked Switch',
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    id: 'disabled',
-    checked: false,
-    label: 'Disabled Switch',
-    disabled: true,
-  },
-};
-```
 
 ---
 
