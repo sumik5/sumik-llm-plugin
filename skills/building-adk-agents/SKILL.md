@@ -3,9 +3,11 @@ name: building-adk-agents
 description: >-
   Google ADK (Agent Development Kit) for building intelligent AI agents with Python.
   MUST load when google-adk is detected in requirements or pyproject.toml.
-  Covers Agent, Runner, Tool, Session, Memory, Callbacks/Guardrails, SSE Streaming,
+  Covers Agent, Runner, Tool (FunctionTool/LongRunningFunctionTool/RequestProcessor), Session, Memory,
+  Callbacks/Guardrails (6種: before/after agent/model + before/after tool), SSE Streaming,
   UI Integration (AG-UI/CopilotKit), Multimodal, YAML Config, Production patterns,
-  Plugin System (BasePlugin・ライフサイクルフック), Grounding (Google Search・Vertex AI Search・Agentic RAG),
+  Plugin System (BasePlugin・ライフサイクルフック6種: on_user_message/before_run/after_run/on_event/on_model_error/on_tool_error),
+  Grounding (Google Search・Vertex AI Search・Agentic RAG + Pre-built Tools: google_search/VertexAiSearchTool/load_web_page/LoadMemoryTool/PreloadMemoryTool/LoadArtifactsTool/GetUserChoiceTool/ExitLoopTool),
   Context Management (Caching・Compaction), Session Rewind, Resume Agents, Action Confirmations,
   Event System, Tool Performance, GKE Deployment.
   Distinct from developing-python (general) by focusing on ADK patterns.
@@ -291,10 +293,10 @@ AskUserQuestion(
 - **[MULTI-AGENT.md](./references/./MULTI-AGENT.md)**: マルチAgent設計、オーケストレーション、A2A
 - **[RUNTIME-AND-STATE.md](./references/./RUNTIME-AND-STATE.md)**: Runner、Session、Artifact、Memory、Context階層、Context Caching/Compaction、Session Rewind、Resume Agents、Event System、評価
 - **[DEPLOYMENT-AND-SECURITY.md](./references/./DEPLOYMENT-AND-SECURITY.md)**: デプロイ、テレメトリ、セキュリティ、GKE Deployment、CLI参照
-- **[GUARDRAILS-AND-STREAMING.md](./references/GUARDRAILS-AND-STREAMING.md)**: Callback 6種、ガードレール、PIIフィルタリング、SSEストリーミング、Live API音声、Plugin System移行推奨
+- **[GUARDRAILS-AND-STREAMING.md](./references/GUARDRAILS-AND-STREAMING.md)**: Callback 6種（before/after agent/model + before/after tool）、CallbackContext、ガードレール（入力バリデーション・Tool引数バリデーション・安全指示注入・出力フィルタリング）、PIIフィルタリング、SSEストリーミング（FastAPI統合・エラーハンドリング・セッションベースリカバリ）、Live API音声処理（LiveRequestQueue・双方向ストリーミング・5つのプリビルトボイス・単一モダリティ制約）、Plugin System移行推奨
 - **[UI-INTEGRATION.md](./references/UI-INTEGRATION.md)**: AG-UIプロトコル、CopilotKit+Next.js、Streamlit/Slack統合、マルチモーダル画像
 - **[ADVANCED-PATTERNS.md](./references/ADVANCED-PATTERNS.md)**: YAML設定、意思決定フレームワーク、高度なオブザーバビリティ、本番ベストプラクティス
-- **[PLUGINS-AND-GROUNDING.md](./references/PLUGINS-AND-GROUNDING.md)**: Plugin System（BasePlugin・ライフサイクルフック6種）、Grounding（Google Search・Vertex AI Search・Agentic RAG）
+- **[PLUGINS-AND-GROUNDING.md](./references/PLUGINS-AND-GROUNDING.md)**: Plugin System（BasePlugin・ライフサイクルフック6種: on_user_message/before_run/after_run/on_event/on_model_error/on_tool_error）、Grounding（Google Search・Vertex AI Search・Agentic RAG + Pre-built Tools: google_search/VertexAiSearchTool/load_web_page/LoadMemoryTool/PreloadMemoryTool/LoadArtifactsTool/GetUserChoiceTool/ExitLoopTool）、選択基準、トラブルシューティング
 
 ---
 

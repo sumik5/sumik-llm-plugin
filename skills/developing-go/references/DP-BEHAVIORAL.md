@@ -1577,3 +1577,252 @@ tmpl.Execute(os.Stdout, map[string]string{"Name": "World"})
 - シンプルなケース: `func` 型や channel を優先
 - 複雑な状態管理: interface ベースの実装
 - 並行処理: channel ベースの Observer/Mediator
+
+---
+
+## Genericsを活用したIterator拡張
+
+Go 1.18以降、Genericsを利用することでIteratorパターンの型安全性と汎用性を向上できる。
+
+### Generic Iterator interface
+
+```go
+package iterator
+
+// Iterator はジェネリクスを使った汎用イテレータ
+type Iterator[T any] interface {
+    Next() bool
+    Get() T
+}
+```
+
+### SliceIterator[T] 実装
+
+スライスの汎用イテレータ。任意の型のスライスに対応。
+
+```go
+package iterator
+
+// SliceIterator は任意の型のスライスをイテレート
+type SliceIterator[T any] struct {
+    items []T
+    index int
+}
+
+func NewSliceIterator[T any](items []T) *SliceIterator[T] {
+    return &SliceIterator[T]{
+        items: items,
+        index: 0,
+    }
+}
+
+func (s *SliceIterator[T]) Next() bool {
+    return s.index < len(s.items)
+}
+
+func (s *SliceIterator[T]) Get() T {
+    item := s.items[s.index]
+    s.index++
+    return item
+}
+
+// 使用例
+func ExampleSliceIterator() {
+    iter := NewSliceIterator([]int{1, 2, 3, 4, 5})
+
+    for iter.Next() {
+        fmt.Println(iter.Get())
+    }
+}
+```
+
+### Map[T, U]関数 - イテレータの要素変換
+
+```go
+package iterator
+
+// Map はイテレータの要素を変換する高階関数
+func Map[T any, U any](iter Iterator[T], f func(T) U) Iterator[U] {
+    return &MapIterator[T, U]{
+        source:    iter,
+        transform: f,
+    }
+}
+
+type MapIterator[T any, U any] struct {
+    source    Iterator[T]
+    transform func(T) U
+}
+
+func (m *MapIterator[T, U]) Next() bool {
+    return m.source.Next()
+}
+
+func (m *MapIterator[T, U]) Get() U {
+    return m.transform(m.source.Get())
+}
+
+// 使用例
+func ExampleMap() {
+    numbers := NewSliceIterator([]int{1, 2, 3, 4, 5})
+
+    // int → string に変換
+    strings := Map(numbers, func(n int) string {
+        return fmt.Sprintf("Number: %d", n)
+    })
+
+    for strings.Next() {
+        fmt.Println(strings.Get())
+    }
+}
+```
+
+### Filter[T]関数 - 条件に一致する要素のみ返す
+
+```go
+package iterator
+
+// Filter は条件に一致する要素のみを返すイテレータを生成
+func Filter[T any](iter Iterator[T], predicate func(T) bool) Iterator[T] {
+    return &FilterIterator[T]{
+        source:    iter,
+        predicate: predicate,
+    }
+}
+
+type FilterIterator[T any] struct {
+    source    Iterator[T]
+    predicate func(T) bool
+    current   T
+    hasValue  bool
+}
+
+func (f *FilterIterator[T]) Next() bool {
+    for f.source.Next() {
+        item := f.source.Get()
+        if f.predicate(item) {
+            f.current = item
+            f.hasValue = true
+            return true
+        }
+    }
+    f.hasValue = false
+    return false
+}
+
+func (f *FilterIterator[T]) Get() T {
+    if !f.hasValue {
+        var zero T
+        return zero
+    }
+    return f.current
+}
+
+// 使用例
+func ExampleFilter() {
+    numbers := NewSliceIterator([]int{1, 2, 3, 4, 5, 6})
+
+    // 偶数のみフィルタ
+    evens := Filter(numbers, func(n int) bool {
+        return n%2 == 0
+    })
+
+    for evens.Next() {
+        fmt.Println(evens.Get()) // 2, 4, 6
+    }
+}
+```
+
+### Reduce[T, U]関数 - 集約処理
+
+```go
+package iterator
+
+// Reduce はイテレータの要素を集約
+func Reduce[T any, U any](iter Iterator[T], initial U, accumulator func(U, T) U) U {
+    result := initial
+    for iter.Next() {
+        result = accumulator(result, iter.Get())
+    }
+    return result
+}
+
+// 使用例
+func ExampleReduce() {
+    numbers := NewSliceIterator([]int{1, 2, 3, 4, 5})
+
+    // 合計を計算
+    sum := Reduce(numbers, 0, func(acc int, n int) int {
+        return acc + n
+    })
+
+    fmt.Println(sum) // 15
+}
+```
+
+### 合成使用例 - Filter → Map → Reduce のチェーン
+
+```go
+package iterator
+
+func ExampleChaining() {
+    numbers := NewSliceIterator([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+
+    // 偶数のみフィルタ → 二乗 → 合計
+    evens := Filter(numbers, func(n int) bool {
+        return n%2 == 0
+    })
+
+    squares := Map(evens, func(n int) int {
+        return n * n
+    })
+
+    sum := Reduce(squares, 0, func(acc, n int) int {
+        return acc + n
+    })
+
+    fmt.Println(sum) // 2^2 + 4^2 + 6^2 + 8^2 + 10^2 = 220
+}
+```
+
+### Go 1.23+ のiter.Seq[V]との比較
+
+Go 1.23以降、標準ライブラリに `iter` パッケージが追加され、rangeループで直接利用できるイテレータがサポートされた。
+
+| アプローチ | Go バージョン | 特徴 | 使用場面 |
+|-----------|-------------|------|---------|
+| `iter.Seq[V]` (標準) | Go 1.23+ | range構文で直接利用可能、yieldベース | 新規プロジェクト、Goバージョン制約なし |
+| Generic Iterator (本パターン) | Go 1.18+ | 明示的なNext/Getメソッド、高階関数による合成 | Go 1.18-1.22、既存コードベースとの互換性 |
+| channel-based | 全バージョン | goroutineと親和性高い、rangeで利用可能 | 並行処理が必要、バッファリングが重要 |
+
+**Go 1.23以降の `iter.Seq[V]` 例**:
+
+```go
+package main
+
+import (
+    "fmt"
+    "iter"
+)
+
+func CountUp(max int) iter.Seq[int] {
+    return func(yield func(int) bool) {
+        for i := 1; i <= max; i++ {
+            if !yield(i) {
+                return
+            }
+        }
+    }
+}
+
+func main() {
+    for i := range CountUp(5) {
+        fmt.Println(i) // 1, 2, 3, 4, 5
+    }
+}
+```
+
+**使い分けの判断基準**:
+- **Go 1.23以降**: `iter.Seq[V]` を使用（標準ライブラリ推奨）
+- **Go 1.18-1.22**: Generic Iterator（本パターン）
+- **並行処理重視**: channel-based Iterator

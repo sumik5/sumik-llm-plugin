@@ -307,6 +307,7 @@ GoFデザインパターン、Go並行処理パターン、アーキテクチャ
 | [DP-ADVANCED.md](./references/DP-ADVANCED.md) | 高度なパターン（DDD, CQRS, Event Sourcing） |
 | [DP-ANTI-PATTERNS.md](./references/DP-ANTI-PATTERNS.md) | アンチパターンと回避策 |
 | [DP-TESTING.md](./references/DP-TESTING.md) | パターンのテスト手法 |
+| [DP-CASE-STUDIES.md](./references/DP-CASE-STUDIES.md) | 実システムでのパターン適用ケーススタディ |
 
 ## 実践パターン
 

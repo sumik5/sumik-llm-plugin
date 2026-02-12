@@ -8,6 +8,7 @@ description: >-
   Covers 25 named antipatterns with detection signals, solutions, and exception cases.
   For code-level security (input validation, XSS, OWASP), use securing-code instead.
   For database model selection and data architecture decisions, use understanding-database-internals instead.
+  For positive relational database design methodology (entity modeling, normalization process), use designing-relational-databases instead.
 ---
 
 # SQLアンチパターン回避ガイド

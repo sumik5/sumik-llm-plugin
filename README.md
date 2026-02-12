@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (50個)
+└── skills/             # ナレッジスキル (52個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (50個)
+### Skills (52個)
 
 #### コア開発
 
@@ -86,8 +86,10 @@ sumik-claude-plugin/
 | `architecting-micro-frontends` | マイクロフロントエンドアーキテクチャ（垂直/水平分割、Module Federation/iframe/Web Components/SSR/ESI構成パターン、意思決定フレームワーク、組織導入） |
 | `understanding-database-internals` | データベース内部構造の包括的リファレンス。ストレージエンジン（Bツリー、LSMツリー、トランザクション）、分散システム（合意アルゴリズム、レプリケーション、一貫性モデル）、DB選択・設計ガイドをカバー |
 | `avoiding-sql-antipatterns` | SQLアンチパターン回避（論理設計・物理設計・クエリ・アプリ開発の25パターン） |
+| `designing-relational-databases` | リレーショナルDB設計ガイド（エンティティモデリング・ER図・正規化1NF-BCNF・インデックス・非正規化・PostgreSQL実装: マイクロサービスアーキテクチャ・ACID/トランザクション・関数/プロシージャ・AAAセキュリティ） |
 | `applying-behavior-design` | 行動変容デザイン（CREATEファネル、3戦略）|
 | `building-green-software` | グリーンソフトウェアエンジニアリング（カーボン効率・運用効率・カーボンアウェアネス・測定方法論・GSMM・グリーンAI） |
+| `building-rag-systems` | RAGシステム構築ガイド（11種データソース読み込み・5種チャンキング戦略・パイプラインアーキテクチャ・Python実装） |
 
 #### フレームワーク
 

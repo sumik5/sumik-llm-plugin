@@ -1661,3 +1661,1015 @@ fileLogger.Info("message") // 両方のメソッドが実行される
 | `golangci-lint` | 包括的linter |
 | `go test -race` | データレース検出 |
 | `go test -cover` | テストカバレッジ |
+
+---
+
+## 7. リファクタリング × デザインパターン
+
+アンチパターンをデザインパターンで段階的に解決する実践的アプローチ。
+
+### 7.1 Code Smell → パターンマッピング
+
+| Code Smell | 推奨パターン | 理由 |
+|-----------|------------|------|
+| **God Function（巨大関数）** | Strategy / Chain of Responsibility | 責務を複数のクラスに分割し、処理の流れを明示化 |
+| **グローバル状態依存** | Dependency Injection | テスト可能性を向上し、依存関係を明示化 |
+| **条件分岐の肥大化** | State / Strategy | 状態・戦略ごとにクラスを分割し、開放閉鎖原則に準拠 |
+| **API互換性問題** | Adapter | 既存インターフェースを維持しながら新実装を導入 |
+| **オブジェクト生成の散在** | Factory Method | 生成ロジックを集約し、変更の影響範囲を限定 |
+| **重複コード** | Template Method | 共通処理を親クラスに抽出し、差異のみサブクラスで実装 |
+| **複雑な初期化** | Builder | オブジェクト構築手順を段階化し、可読性を向上 |
+| **オブジェクト間の密結合** | Mediator | オブジェクト間の通信を仲介役に集約 |
+| **複数の責務を持つクラス** | Facade | 複雑なサブシステムを単純なインターフェースでラップ |
+
+---
+
+### 7.2 レガシーコード変換の5ステップ
+
+#### ステップ1: テストの整備（特性テスト）
+
+既存コードの振舞いを保護するため、まず特性テストを作成する。
+
+```go
+// レガシーコードの特性を捕捉
+func TestLegacyProcessOrder(t *testing.T) {
+    // 既存の振舞いを記録するテスト
+    tests := []struct {
+        name        string
+        orderID     int
+        wantStatus  string
+        wantError   bool
+    }{
+        {
+            name:       "valid order with in-stock items",
+            orderID:    123,
+            wantStatus: "confirmed",
+            wantError:  false,
+        },
+        {
+            name:       "invalid order ID",
+            orderID:    999,
+            wantStatus: "",
+            wantError:  true,
+        },
+        {
+            name:       "out of stock",
+            orderID:    456,
+            wantStatus: "pending",
+            wantError:  false,
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            // Arrange
+            setupTestDB(t)
+            defer cleanupTestDB(t)
+
+            // Act
+            status, err := LegacyProcessOrder(tt.orderID)
+
+            // Assert
+            if (err != nil) != tt.wantError {
+                t.Errorf("error = %v, wantError %v", err, tt.wantError)
+            }
+            if status != tt.wantStatus {
+                t.Errorf("status = %v, want %v", status, tt.wantStatus)
+            }
+        })
+    }
+}
+```
+
+#### ステップ2: Code Smell の特定
+
+```bash
+# 静的解析でCode Smellを検出
+gocyclo -over 10 .
+golangci-lint run
+
+# 出力例:
+# legacy_order.go:45: function ProcessOrder has complexity 25 (> 10)
+# legacy_order.go:120: function ProcessOrder is too long (150 lines)
+```
+
+具体的なチェックポイント:
+- 関数の行数（50行超）
+- Cyclomatic Complexity（10以上）
+- 同じコードブロックの重複（3回以上）
+- グローバル変数への依存
+- 具体型への直接依存
+
+#### ステップ3: パターンの選択
+
+マッピングテーブルを参照し、検出されたCode Smellに対応するパターンを選択:
+
+```go
+// 検出されたCode Smell:
+// - 150行の巨大関数（God Function）
+// - switch文での支払い方法分岐（10+ case）
+// - グローバルDB変数への依存
+
+// 選択したパターン:
+// 1. Strategy: 支払い方法の分岐を戦略クラスに分離
+// 2. Dependency Injection: グローバルDB依存を解消
+// 3. Chain of Responsibility: 注文処理フローを段階化
+```
+
+#### ステップ4: 段階的リファクタリング
+
+一度にすべてを変更せず、小さなステップで進める:
+
+**Phase 1: 関数の分割（Extract Method）**
+
+```go
+// Before: 150行の巨大関数
+func LegacyProcessOrder(orderID int) (string, error) {
+    // 注文取得（20行）
+    // 在庫確認（30行）
+    // 支払い処理（40行）
+    // 在庫減算（30行）
+    // メール送信（30行）
+}
+
+// After: 責務ごとに分割
+func ProcessOrder(orderID int) (string, error) {
+    order, err := fetchOrder(orderID)
+    if err != nil {
+        return "", fmt.Errorf("fetch order: %w", err)
+    }
+
+    if err := checkInventory(order); err != nil {
+        return "", fmt.Errorf("inventory: %w", err)
+    }
+
+    if err := processPayment(order); err != nil {
+        return "", fmt.Errorf("payment: %w", err)
+    }
+
+    if err := reduceInventory(order); err != nil {
+        return "", fmt.Errorf("reduce inventory: %w", err)
+    }
+
+    sendConfirmationEmail(order)
+
+    return "confirmed", nil
+}
+```
+
+**Phase 2: Strategyパターンの導入**
+
+```go
+// Before: switch文での支払い処理
+func processPayment(order *Order) error {
+    switch order.PaymentMethod {
+    case "credit_card":
+        // クレジットカード処理（20行）
+    case "bank_transfer":
+        // 銀行振込処理（20行）
+    case "paypal":
+        // PayPal処理（20行）
+    // ... 10+ cases
+    }
+}
+
+// After: Strategyパターン
+type PaymentStrategy interface {
+    Process(order *Order) error
+}
+
+type CreditCardPayment struct{}
+
+func (p *CreditCardPayment) Process(order *Order) error {
+    // クレジットカード処理
+    return nil
+}
+
+type BankTransferPayment struct{}
+
+func (p *BankTransferPayment) Process(order *Order) error {
+    // 銀行振込処理
+    return nil
+}
+
+// Factory
+func GetPaymentStrategy(method string) (PaymentStrategy, error) {
+    switch method {
+    case "credit_card":
+        return &CreditCardPayment{}, nil
+    case "bank_transfer":
+        return &BankTransferPayment{}, nil
+    default:
+        return nil, fmt.Errorf("unknown payment method: %s", method)
+    }
+}
+
+func processPayment(order *Order) error {
+    strategy, err := GetPaymentStrategy(order.PaymentMethod)
+    if err != nil {
+        return err
+    }
+    return strategy.Process(order)
+}
+```
+
+**Phase 3: Dependency Injectionの導入**
+
+```go
+// Before: グローバルDB依存
+var globalDB *sql.DB
+
+func fetchOrder(orderID int) (*Order, error) {
+    row := globalDB.QueryRow("SELECT * FROM orders WHERE id = ?", orderID)
+    // ...
+}
+
+// After: DI
+type OrderRepository interface {
+    FindByID(id int) (*Order, error)
+}
+
+type PostgresOrderRepository struct {
+    db *sql.DB
+}
+
+func NewOrderRepository(db *sql.DB) *PostgresOrderRepository {
+    return &PostgresOrderRepository{db: db}
+}
+
+func (r *PostgresOrderRepository) FindByID(id int) (*Order, error) {
+    row := r.db.QueryRow("SELECT * FROM orders WHERE id = ?", id)
+    // ...
+}
+
+type OrderService struct {
+    repo           OrderRepository
+    paymentFactory PaymentStrategyFactory
+}
+
+func NewOrderService(repo OrderRepository, factory PaymentStrategyFactory) *OrderService {
+    return &OrderService{
+        repo:           repo,
+        paymentFactory: factory,
+    }
+}
+
+func (s *OrderService) ProcessOrder(orderID int) (string, error) {
+    order, err := s.repo.FindByID(orderID)
+    // ...
+}
+```
+
+#### ステップ5: テストでの検証
+
+各フェーズ後にテストを実行し、振舞いが変わっていないことを確認:
+
+```bash
+# Phase 1完了後
+go test ./... -v
+
+# Phase 2完了後
+go test ./... -v
+
+# Phase 3完了後
+go test ./... -v
+
+# 最終確認
+go test -race ./...
+go test -cover ./...
+```
+
+---
+
+### 7.3 パターン適用のBefore/Afterコード例
+
+#### 例1: モノリシック関数 → Strategy パターン
+
+**Before: 100行超の価格計算関数**
+
+```go
+func CalculatePrice(productType string, basePrice float64, quantity int, customerType string, seasonalDiscount bool) float64 {
+    var finalPrice float64
+
+    // 商品タイプによる基本割引
+    switch productType {
+    case "book":
+        if basePrice > 100 {
+            finalPrice = basePrice * 0.9
+        } else {
+            finalPrice = basePrice * 0.95
+        }
+    case "electronics":
+        if basePrice > 500 {
+            finalPrice = basePrice * 0.85
+        } else {
+            finalPrice = basePrice * 0.9
+        }
+    case "clothing":
+        if basePrice > 200 {
+            finalPrice = basePrice * 0.8
+        } else {
+            finalPrice = basePrice * 0.9
+        }
+    case "food":
+        finalPrice = basePrice * 0.98
+    default:
+        finalPrice = basePrice
+    }
+
+    // 顧客タイプによる追加割引
+    switch customerType {
+    case "premium":
+        finalPrice *= 0.95
+    case "gold":
+        finalPrice *= 0.9
+    case "regular":
+        // 割引なし
+    }
+
+    // 数量割引
+    if quantity >= 10 {
+        finalPrice *= 0.95
+    } else if quantity >= 5 {
+        finalPrice *= 0.97
+    }
+
+    // 季節割引
+    if seasonalDiscount {
+        finalPrice *= 0.9
+    }
+
+    return finalPrice * float64(quantity)
+}
+```
+
+**After: Strategyパターンで責務分離**
+
+```go
+// 商品タイプ別価格戦略
+type ProductPricingStrategy interface {
+    CalculateBase(basePrice float64) float64
+}
+
+type BookPricing struct{}
+
+func (s *BookPricing) CalculateBase(basePrice float64) float64 {
+    if basePrice > 100 {
+        return basePrice * 0.9
+    }
+    return basePrice * 0.95
+}
+
+type ElectronicsPricing struct{}
+
+func (s *ElectronicsPricing) CalculateBase(basePrice float64) float64 {
+    if basePrice > 500 {
+        return basePrice * 0.85
+    }
+    return basePrice * 0.9
+}
+
+type ClothingPricing struct{}
+
+func (s *ClothingPricing) CalculateBase(basePrice float64) float64 {
+    if basePrice > 200 {
+        return basePrice * 0.8
+    }
+    return basePrice * 0.9
+}
+
+// 顧客タイプ別割引戦略
+type CustomerDiscountStrategy interface {
+    ApplyDiscount(price float64) float64
+}
+
+type PremiumCustomer struct{}
+
+func (c *PremiumCustomer) ApplyDiscount(price float64) float64 {
+    return price * 0.95
+}
+
+type GoldCustomer struct{}
+
+func (c *GoldCustomer) ApplyDiscount(price float64) float64 {
+    return price * 0.9
+}
+
+type RegularCustomer struct{}
+
+func (c *RegularCustomer) ApplyDiscount(price float64) float64 {
+    return price // 割引なし
+}
+
+// 価格計算サービス（複数戦略を統合）
+type PriceCalculator struct {
+    productStrategy  ProductPricingStrategy
+    customerStrategy CustomerDiscountStrategy
+}
+
+func NewPriceCalculator(productType, customerType string) (*PriceCalculator, error) {
+    productStrategy, err := getProductStrategy(productType)
+    if err != nil {
+        return nil, err
+    }
+
+    customerStrategy := getCustomerStrategy(customerType)
+
+    return &PriceCalculator{
+        productStrategy:  productStrategy,
+        customerStrategy: customerStrategy,
+    }, nil
+}
+
+func (pc *PriceCalculator) Calculate(basePrice float64, quantity int, seasonalDiscount bool) float64 {
+    // 商品タイプ別基本価格
+    price := pc.productStrategy.CalculateBase(basePrice)
+
+    // 顧客タイプ別割引
+    price = pc.customerStrategy.ApplyDiscount(price)
+
+    // 数量割引
+    price = pc.applyQuantityDiscount(price, quantity)
+
+    // 季節割引
+    if seasonalDiscount {
+        price *= 0.9
+    }
+
+    return price * float64(quantity)
+}
+
+func (pc *PriceCalculator) applyQuantityDiscount(price float64, quantity int) float64 {
+    if quantity >= 10 {
+        return price * 0.95
+    } else if quantity >= 5 {
+        return price * 0.97
+    }
+    return price
+}
+
+// Factory関数
+func getProductStrategy(productType string) (ProductPricingStrategy, error) {
+    switch productType {
+    case "book":
+        return &BookPricing{}, nil
+    case "electronics":
+        return &ElectronicsPricing{}, nil
+    case "clothing":
+        return &ClothingPricing{}, nil
+    default:
+        return nil, fmt.Errorf("unknown product type: %s", productType)
+    }
+}
+
+func getCustomerStrategy(customerType string) CustomerDiscountStrategy {
+    switch customerType {
+    case "premium":
+        return &PremiumCustomer{}
+    case "gold":
+        return &GoldCustomer{}
+    default:
+        return &RegularCustomer{}
+    }
+}
+
+// 使用例
+func main() {
+    calculator, err := NewPriceCalculator("book", "premium")
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    finalPrice := calculator.Calculate(120.0, 7, true)
+    fmt.Printf("Final price: %.2f\n", finalPrice)
+}
+```
+
+**改善ポイント:**
+- 単一責任の原則：各戦略が1つの責務のみ担当
+- 開放閉鎖の原則：新しい商品タイプや顧客タイプの追加が容易
+- テスト容易性：各戦略を独立してテスト可能
+
+---
+
+#### 例2: グローバルSingleton → DI（コンストラクタインジェクション）
+
+**Before: テスト不可能なグローバル依存**
+
+```go
+package service
+
+import (
+    "database/sql"
+    "log"
+)
+
+// グローバルDB接続
+var db *sql.DB
+var logger *log.Logger
+
+func init() {
+    var err error
+    db, err = sql.Open("postgres", "host=prod-db user=admin password=secret")
+    if err != nil {
+        panic(err)
+    }
+
+    logger = log.New(os.Stdout, "PROD: ", log.LstdFlags)
+}
+
+type UserService struct{}
+
+func (s *UserService) GetUser(id int) (*User, error) {
+    // グローバルDBに直接依存（テスト時にモック不可）
+    row := db.QueryRow("SELECT id, name, email FROM users WHERE id = ?", id)
+
+    var user User
+    if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+        logger.Printf("failed to fetch user %d: %v", id, err)
+        return nil, err
+    }
+
+    logger.Printf("fetched user: %d", id)
+    return &user, nil
+}
+
+func (s *UserService) CreateUser(name, email string) (*User, error) {
+    result, err := db.Exec("INSERT INTO users (name, email) VALUES (?, ?)", name, email)
+    if err != nil {
+        logger.Printf("failed to create user: %v", err)
+        return nil, err
+    }
+
+    id, _ := result.LastInsertId()
+    logger.Printf("created user: %d", id)
+
+    return &User{ID: int(id), Name: name, Email: email}, nil
+}
+
+// テストコード（不可能）
+func TestGetUser(t *testing.T) {
+    // グローバルDBを変更できないため、テスト不可能
+    // 本番DBに接続してしまう
+}
+```
+
+**After: DIパターンで依存関係を外部化**
+
+```go
+package service
+
+import (
+    "context"
+    "database/sql"
+    "fmt"
+)
+
+// Repository層のinterface
+type UserRepository interface {
+    FindByID(ctx context.Context, id int) (*User, error)
+    Create(ctx context.Context, name, email string) (*User, error)
+}
+
+// Logger interface
+type Logger interface {
+    Info(msg string)
+    Error(msg string)
+}
+
+// 本番用Repository実装
+type PostgresUserRepository struct {
+    db *sql.DB
+}
+
+func NewUserRepository(db *sql.DB) *PostgresUserRepository {
+    return &PostgresUserRepository{db: db}
+}
+
+func (r *PostgresUserRepository) FindByID(ctx context.Context, id int) (*User, error) {
+    row := r.db.QueryRowContext(ctx, "SELECT id, name, email FROM users WHERE id = ?", id)
+
+    var user User
+    if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+        return nil, fmt.Errorf("scan user: %w", err)
+    }
+
+    return &user, nil
+}
+
+func (r *PostgresUserRepository) Create(ctx context.Context, name, email string) (*User, error) {
+    result, err := r.db.ExecContext(ctx, "INSERT INTO users (name, email) VALUES (?, ?)", name, email)
+    if err != nil {
+        return nil, fmt.Errorf("insert user: %w", err)
+    }
+
+    id, _ := result.LastInsertId()
+    return &User{ID: int(id), Name: name, Email: email}, nil
+}
+
+// Service層（interfaceに依存）
+type UserService struct {
+    repo   UserRepository
+    logger Logger
+}
+
+func NewUserService(repo UserRepository, logger Logger) *UserService {
+    return &UserService{
+        repo:   repo,
+        logger: logger,
+    }
+}
+
+func (s *UserService) GetUser(ctx context.Context, id int) (*User, error) {
+    user, err := s.repo.FindByID(ctx, id)
+    if err != nil {
+        s.logger.Error(fmt.Sprintf("failed to fetch user %d: %v", id, err))
+        return nil, err
+    }
+
+    s.logger.Info(fmt.Sprintf("fetched user: %d", id))
+    return user, nil
+}
+
+func (s *UserService) CreateUser(ctx context.Context, name, email string) (*User, error) {
+    user, err := s.repo.Create(ctx, name, email)
+    if err != nil {
+        s.logger.Error(fmt.Sprintf("failed to create user: %v", err))
+        return nil, err
+    }
+
+    s.logger.Info(fmt.Sprintf("created user: %d", user.ID))
+    return user, nil
+}
+
+// テスト用モック実装
+type MockUserRepository struct {
+    users map[int]*User
+}
+
+func NewMockUserRepository() *MockUserRepository {
+    return &MockUserRepository{
+        users: make(map[int]*User),
+    }
+}
+
+func (m *MockUserRepository) FindByID(ctx context.Context, id int) (*User, error) {
+    if user, ok := m.users[id]; ok {
+        return user, nil
+    }
+    return nil, fmt.Errorf("user not found")
+}
+
+func (m *MockUserRepository) Create(ctx context.Context, name, email string) (*User, error) {
+    id := len(m.users) + 1
+    user := &User{ID: id, Name: name, Email: email}
+    m.users[id] = user
+    return user, nil
+}
+
+type MockLogger struct {
+    logs []string
+}
+
+func (m *MockLogger) Info(msg string) {
+    m.logs = append(m.logs, "INFO: "+msg)
+}
+
+func (m *MockLogger) Error(msg string) {
+    m.logs = append(m.logs, "ERROR: "+msg)
+}
+
+// テストコード（テスト可能）
+func TestGetUser(t *testing.T) {
+    // Arrange
+    mockRepo := NewMockUserRepository()
+    mockRepo.users[1] = &User{ID: 1, Name: "Alice", Email: "alice@example.com"}
+
+    mockLogger := &MockLogger{}
+    service := NewUserService(mockRepo, mockLogger)
+
+    // Act
+    user, err := service.GetUser(context.Background(), 1)
+
+    // Assert
+    if err != nil {
+        t.Fatalf("unexpected error: %v", err)
+    }
+    if user.Name != "Alice" {
+        t.Errorf("expected Alice, got %s", user.Name)
+    }
+    if len(mockLogger.logs) == 0 {
+        t.Error("expected log entries")
+    }
+}
+
+// 本番環境でのDI設定
+func main() {
+    // 本番DB接続
+    db, err := sql.Open("postgres", "host=prod-db user=admin password=secret")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    // 依存を注入
+    repo := NewUserRepository(db)
+    logger := &ProductionLogger{}
+    service := NewUserService(repo, logger)
+
+    // サービスを使用
+    user, err := service.GetUser(context.Background(), 123)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("User: %+v\n", user)
+}
+```
+
+**改善ポイント:**
+- テスト容易性：モック実装でDBアクセスなしにテスト可能
+- 依存関係の明示化：コンストラクタで依存を明示
+- 環境切り替え：本番/テスト環境で異なる実装を注入可能
+
+---
+
+#### 例3: switch文の肥大化 → State パターン
+
+**Before: 状態管理が複雑なswitch文**
+
+```go
+type Order struct {
+    ID     int
+    Status string // "pending", "paid", "shipped", "delivered", "cancelled"
+    Items  []Item
+}
+
+func (o *Order) ProcessAction(action string) error {
+    switch o.Status {
+    case "pending":
+        switch action {
+        case "pay":
+            // 支払い処理
+            o.Status = "paid"
+            return nil
+        case "cancel":
+            o.Status = "cancelled"
+            return nil
+        default:
+            return fmt.Errorf("invalid action %s for pending order", action)
+        }
+
+    case "paid":
+        switch action {
+        case "ship":
+            // 発送処理
+            o.Status = "shipped"
+            return nil
+        case "cancel":
+            // 返金処理
+            o.Status = "cancelled"
+            return nil
+        default:
+            return fmt.Errorf("invalid action %s for paid order", action)
+        }
+
+    case "shipped":
+        switch action {
+        case "deliver":
+            // 配送完了処理
+            o.Status = "delivered"
+            return nil
+        default:
+            return fmt.Errorf("invalid action %s for shipped order", action)
+        }
+
+    case "delivered":
+        return fmt.Errorf("order already delivered, no actions allowed")
+
+    case "cancelled":
+        return fmt.Errorf("order cancelled, no actions allowed")
+
+    default:
+        return fmt.Errorf("unknown order status: %s", o.Status)
+    }
+}
+```
+
+**After: Stateパターンで状態遷移を明確化**
+
+```go
+// State interface
+type OrderState interface {
+    Pay(order *Order) error
+    Ship(order *Order) error
+    Deliver(order *Order) error
+    Cancel(order *Order) error
+    StatusName() string
+}
+
+// Order構造体
+type Order struct {
+    ID    int
+    state OrderState
+    Items []Item
+}
+
+func NewOrder(id int) *Order {
+    return &Order{
+        ID:    id,
+        state: &PendingState{},
+    }
+}
+
+func (o *Order) SetState(state OrderState) {
+    o.state = state
+}
+
+func (o *Order) Pay() error {
+    return o.state.Pay(o)
+}
+
+func (o *Order) Ship() error {
+    return o.state.Ship(o)
+}
+
+func (o *Order) Deliver() error {
+    return o.state.Deliver(o)
+}
+
+func (o *Order) Cancel() error {
+    return o.state.Cancel(o)
+}
+
+func (o *Order) StatusName() string {
+    return o.state.StatusName()
+}
+
+// Pending状態
+type PendingState struct{}
+
+func (s *PendingState) Pay(order *Order) error {
+    // 支払い処理
+    fmt.Println("Processing payment...")
+    order.SetState(&PaidState{})
+    return nil
+}
+
+func (s *PendingState) Ship(order *Order) error {
+    return fmt.Errorf("cannot ship pending order")
+}
+
+func (s *PendingState) Deliver(order *Order) error {
+    return fmt.Errorf("cannot deliver pending order")
+}
+
+func (s *PendingState) Cancel(order *Order) error {
+    fmt.Println("Cancelling pending order...")
+    order.SetState(&CancelledState{})
+    return nil
+}
+
+func (s *PendingState) StatusName() string {
+    return "pending"
+}
+
+// Paid状態
+type PaidState struct{}
+
+func (s *PaidState) Pay(order *Order) error {
+    return fmt.Errorf("order already paid")
+}
+
+func (s *PaidState) Ship(order *Order) error {
+    fmt.Println("Shipping order...")
+    order.SetState(&ShippedState{})
+    return nil
+}
+
+func (s *PaidState) Deliver(order *Order) error {
+    return fmt.Errorf("cannot deliver order before shipping")
+}
+
+func (s *PaidState) Cancel(order *Order) error {
+    fmt.Println("Processing refund...")
+    order.SetState(&CancelledState{})
+    return nil
+}
+
+func (s *PaidState) StatusName() string {
+    return "paid"
+}
+
+// Shipped状態
+type ShippedState struct{}
+
+func (s *ShippedState) Pay(order *Order) error {
+    return fmt.Errorf("order already paid and shipped")
+}
+
+func (s *ShippedState) Ship(order *Order) error {
+    return fmt.Errorf("order already shipped")
+}
+
+func (s *ShippedState) Deliver(order *Order) error {
+    fmt.Println("Order delivered successfully")
+    order.SetState(&DeliveredState{})
+    return nil
+}
+
+func (s *ShippedState) Cancel(order *Order) error {
+    return fmt.Errorf("cannot cancel shipped order")
+}
+
+func (s *ShippedState) StatusName() string {
+    return "shipped"
+}
+
+// Delivered状態
+type DeliveredState struct{}
+
+func (s *DeliveredState) Pay(order *Order) error {
+    return fmt.Errorf("order already completed")
+}
+
+func (s *DeliveredState) Ship(order *Order) error {
+    return fmt.Errorf("order already completed")
+}
+
+func (s *DeliveredState) Deliver(order *Order) error {
+    return fmt.Errorf("order already delivered")
+}
+
+func (s *DeliveredState) Cancel(order *Order) error {
+    return fmt.Errorf("cannot cancel delivered order")
+}
+
+func (s *DeliveredState) StatusName() string {
+    return "delivered"
+}
+
+// Cancelled状態
+type CancelledState struct{}
+
+func (s *CancelledState) Pay(order *Order) error {
+    return fmt.Errorf("cannot pay cancelled order")
+}
+
+func (s *CancelledState) Ship(order *Order) error {
+    return fmt.Errorf("cannot ship cancelled order")
+}
+
+func (s *CancelledState) Deliver(order *Order) error {
+    return fmt.Errorf("cannot deliver cancelled order")
+}
+
+func (s *CancelledState) Cancel(order *Order) error {
+    return fmt.Errorf("order already cancelled")
+}
+
+func (s *CancelledState) StatusName() string {
+    return "cancelled"
+}
+
+// 使用例
+func main() {
+    order := NewOrder(123)
+
+    fmt.Println("Current status:", order.StatusName())
+
+    // 正常フロー
+    order.Pay()
+    fmt.Println("Current status:", order.StatusName())
+
+    order.Ship()
+    fmt.Println("Current status:", order.StatusName())
+
+    order.Deliver()
+    fmt.Println("Current status:", order.StatusName())
+
+    // 不正な操作
+    if err := order.Ship(); err != nil {
+        fmt.Println("Error:", err) // "order already completed"
+    }
+}
+```
+
+**改善ポイント:**
+- 状態遷移ロジックが各Stateクラスに分散
+- 新しい状態の追加が容易（開放閉鎖の原則）
+- 不正な状態遷移がコンパイル時に検出可能
+
+---
+
+### 7.4 まとめ：パターン適用の判断基準
+
+| 状況 | 適用パターン | 適用条件 |
+|------|------------|---------|
+| 関数が100行超 | Strategy / Template Method | 複数の責務が混在している |
+| switch/if-else が10+ | State / Strategy | 条件が状態や戦略の切り替えに相当 |
+| グローバル変数に依存 | Dependency Injection | テスト可能性が低い |
+| 同じコードが3箇所以上 | Template Method / Decorator | 共通処理を抽出可能 |
+| オブジェクト生成が散在 | Factory Method / Builder | 生成ロジックの集約が必要 |
+| 複数クラスが密結合 | Mediator / Observer | 相互依存が複雑化している |
+
+**重要:** すべてのCode Smellにパターンが必要なわけではない。シンプルな関数抽出やリネームで解決できる場合も多い。パターンは「複雑性を削減する手段」であり、「目的」ではない。

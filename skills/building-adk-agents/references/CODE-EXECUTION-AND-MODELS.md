@@ -818,6 +818,39 @@ LLM FlowはLLM Flow Processorsにより拡張性が高まります。これら�
 
 これらのProcessorを直接記述することは通常ありませんが、その存在と順序を理解することはAgent動作のデバッグと予測に役立ちます。
 
+**カスタムFlow Processorの実装例:**
+
+```python
+from google.adk.llm_flow.request_processors import BaseRequestProcessor
+from google.adk.agents.callback_context import CallbackContext
+from google.adk.models.llm_request import LlmRequest
+
+class CustomLoggingProcessor(BaseRequestProcessor):
+    """リクエスト送信前にログを記録するカスタムProcessor"""
+
+    async def process(
+        self,
+        llm_request: LlmRequest,
+        callback_context: CallbackContext
+    ) -> LlmRequest:
+        # リクエスト内容をログ記録
+        print(f"[CustomLogger] システム指示: {llm_request.config.system_instruction[:100]}...")
+        print(f"[CustomLogger] ツール数: {len(llm_request.config.tools or [])}")
+
+        # カスタムメタデータを追加
+        llm_request.config.metadata = {
+            "custom_timestamp": "2025-01-01T00:00:00Z",
+            "request_source": "CustomProcessor"
+        }
+
+        return llm_request
+
+# Agentに登録(SingleFlowのrequest_processorsリストに追加)
+# from google.adk.llm_flow import SingleFlow
+# custom_flow = SingleFlow(request_processors=[CustomLoggingProcessor()])
+# agent = Agent(name="custom_agent", model="gemini-2.0-flash", llm_flow=custom_flow)
+```
+
 ---
 
 ### BuiltInPlanner（モデルネイティブの計画機能）
@@ -1007,6 +1040,27 @@ asyncio.run(main())
 - `PlanReActPlanner`が注入する指示は詳細でプロンプト長を増加させる
 - 効果はLLMがタグフォーマットを一貫して守れるかに大きく依存する(強力な推論モデルほど良好)
 - LLMがフォーマットから逸脱したりステップをスキップしたりする場合、Agentのメイン指示を調整してReActパターンを強化する必要がある
+
+---
+
+### マルチLLM戦略と選択基準
+
+複数のLLMを組み合わせることで、コスト、速度、品質のバランスを最適化できます。
+
+**マルチLLM戦略の判断テーブル:**
+
+| 要素 | 値 |
+|-----|-----|
+| **軽量タスク** | 小さなモデル(Gemini Flash、GPT-4o-mini)で高速・低コスト処理 |
+| **複雑推論** | 大きなモデル(Opus、GPT-4o、Gemini Pro)で精度重視 |
+| **並列実行** | 複数モデルで同時実行し、結果を集約(アンサンブル戦略) |
+| **フォールバック** | プライマリモデル失敗時にセカンダリモデルへ自動切替 |
+| **ドメイン特化** | タスク別に最適なモデルを選択(コード生成、文章作成、データ分析等) |
+
+**実装パターン:**
+- **SubAgent戦略**: 各SubAgentに異なるモデルを割り当て
+- **条件分岐**: ツール内でタスクの複雑度を判定し、動的にモデル選択
+- **RoutingAgent**: ユーザークエリを解析し、適切な専門AgentにルーティングするオーケストレーターAgent
 
 ---
 

@@ -43,6 +43,7 @@ DESIGN_SKILLS=(
 DATABASE_SKILLS=(
     "avoiding-sql-antipatterns"
     "understanding-database-internals"
+    "designing-relational-databases"
 )
 
 # オブザーバビリティスキル（監視・可観測性検出時に適用）
@@ -102,6 +103,7 @@ get_skill_description() {
         "implementing-design") echo "Figmaデザイン→コード変換" ;;
         "avoiding-sql-antipatterns") echo "SQLアンチパターン回避（25パターン）" ;;
         "understanding-database-internals") echo "DB内部構造（ストレージエンジン・分散システム）" ;;
+        "designing-relational-databases") echo "リレーショナルDB設計（エンティティ・ER図・正規化・最適化・PostgreSQL実装ガイド）" ;;
         "designing-monitoring") echo "監視・オブザーバビリティ設計" ;;
         "developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
         "deploying-google-cloud") echo "Cloud Run サーバーレスデプロイ（CI/CD・スケーリング・コスト最適化）" ;;

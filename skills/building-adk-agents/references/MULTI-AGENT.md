@@ -432,6 +432,17 @@ asyncio.run(main())
 **注意点:**
 > 多数の複雑な子Agentを並列実行すると、リソース（CPU、メモリ、LLM APIクオータ）を大量消費します。並列起動するAgentの数と複雑さに注意してください。
 
+**SequentialAgent vs ParallelAgent vs LoopAgent 判断テーブル:**
+
+| 要素 | SequentialAgent | ParallelAgent | LoopAgent |
+|-----|----------------|--------------|-----------|
+| **実行順序** | 固定・順次 | 同時並行 | 反復（条件満たすまで） |
+| **子Agent間依存** | あり（前Agentの出力が次Agentの入力） | なし（独立実行） | あり（反復中に状態更新） |
+| **結果統合** | 最後の子Agentの出力がメイン | オーケストレーターが明示的に統合 | 終了条件満たした時点の出力 |
+| **典型的用途** | データ処理パイプライン、段階的タスク | アンサンブル、複数視点、独立タスク | 反復改善、リトライ、ポーリング |
+| **終了条件** | 全子Agent完了 | 全子Agent完了 | `exit_loop` 呼び出し または `max_iterations` |
+| **状態共有** | 順次蓄積（次Agentが前Agentの状態を引き継ぐ） | 初期状態を全Agentで共有（分岐後は独立） | 反復ごとに状態更新 |
+
 ### 5.3 LoopAgent: 反復タスク/リトライ
 
 **特徴:**
@@ -680,6 +691,22 @@ except ImportError:
 **ベストプラクティス:**
 > LangGraphAgentは、Agent処理の特に複雑な部分をカプセル化するのに適しています。ADKオーケストレーターAgentが、LangGraphの循環グラフ機能の恩恵を受けるサブタスクを LangGraphAgent に委譲し、全体のマルチAgentシステムはADKの階層パターンで管理するという使い方が有効です。
 
+**LangGraphAgent利用判断:**
+
+| 要素 | 値 |
+|-----|-----|
+| **循環ロジック** | タスクが本質的に循環的（ループ、条件分岐、human-in-the-loopが必要） |
+| **複雑な状態管理** | LLM間で複雑な状態遷移が必要で、ADKの線形フローでは表現困難 |
+| **チェックポイント** | 長期実行タスクで中断・再開が必要（LangGraphのCheckpointer機能） |
+| **既存LangGraph資産** | 既にLangGraphで構築したグラフ資産をADKに統合したい |
+| **注意点** | 実験的機能。LangGraphとADKの状態・メッセージ形式の互換性確保が必要 |
+
+**LangGraphAgentのキーコンセプト:**
+- **State Graph**: 状態スキーマ（PydanticまたはTypedDict）を定義し、ノード間で状態を受け渡す
+- **Nodes**: 状態を操作するPython関数またはLangchain Runnables
+- **Edges**: ノード間の遷移を定義（多くは状態や出力に基づく条件付き）
+- **Checkpointer**: 状態を永続化（LangChainRedis等）し、再開可能なAgent相互作用を実現
+
 ---
 
 ## 7. A2Aプロトコル（Agent-to-Agent通信）
@@ -720,15 +747,15 @@ except ImportError:
 
 ### 7.3 主要A2A RPCメソッド
 
-| メソッド | 説明 |
-|---------|------|
-| **`message/send`** | クライアントが `Message` を送信してタスクを開始・継続。サーバーは `Task` オブジェクトまたは直接 `Message` で応答。 |
-| **`message/stream`** | クライアントが `Message` を送信し、Server-Sent Events (SSE) でリアルタイム更新を受信。サーバーは `capabilities.streaming: true` が必要。`TaskStatusUpdateEvent`, `TaskArtifactUpdateEvent`, 新しい `Message` を配信。 |
-| **`tasks/get`** | 特定 `Task` の現在状態を `id` で取得。 |
-| **`tasks/cancel`** | 実行中タスクのキャンセル要求。更新された `Task` オブジェクトを返す。 |
-| **`tasks/pushNotificationConfig/set/get`** | プッシュ通知設定管理。クライアントがwebhook URLを提供し、A2Aサーバーが長期タスクの更新をPOST。 |
-| **`tasks/resubscribe`** | 中断されたSSEストリームへの再接続。 |
-| **`agent/authenticatedExtendedCard`** | 認証後により詳細な AgentCard を取得（HTTP GET、JSON-RPCではない）。 |
+| メソッド | 説明 | 用途 |
+|---------|------|------|
+| **`message/send`** | クライアントが `Message` を送信してタスクを開始・継続。サーバーは `Task` オブジェクトまたは直接 `Message` で応答。 | 同期・短時間処理 |
+| **`message/stream`** | クライアントが `Message` を送信し、Server-Sent Events (SSE) でリアルタイム更新を受信。サーバーは `capabilities.streaming: true` が必要。`TaskStatusUpdateEvent`, `TaskArtifactUpdateEvent`, 新しい `Message` を配信。最終イベントは `final: true` でマーク。 | リアルタイムフィードバック、インタラクティブ体験 |
+| **`tasks/get`** | 特定 `Task` の現在状態を `id` で取得。 | ポーリングによるステータス確認 |
+| **`tasks/cancel`** | 実行中タスクのキャンセル要求。更新された `Task` オブジェクトを返す（状態は `canceled` に）。 | 長期タスクの中断 |
+| **`tasks/pushNotificationConfig/set/get`** | プッシュ通知設定管理。クライアントがwebhook URLを提供し、A2Aサーバーが長期タスクの更新をPOST。サーバーは `capabilities.pushNotifications: true` が必要。 | 非常に長期タスク、モバイルアプリ、サーバーレス |
+| **`tasks/resubscribe`** | 中断されたSSEストリームへの再接続。接続が切断された場合の復旧。 | ネットワーク中断後のストリーム再開 |
+| **`agent/authenticatedExtendedCard`** | 認証後により詳細な AgentCard を取得（HTTP GET、JSON-RPCではない）。`AgentCard.supportsAuthenticatedExtendedCard: true` の場合に使用可能。 | ユーザー固有の能力・スキル情報の提供 |
 
 ### 7.4 インタラクションパターン
 
@@ -815,6 +842,47 @@ class RemoteA2AAgentTool(BaseTool):
 
 **A2Aで真のフレームワーク間協調を実現:**
 > LangGraph、CrewAI、Semantic Kernel等、他のフレームワークで構築されたAgentとADK Agentを連携させる場合、A2Aインターフェース（サーバーラッパーまたはクライアントツール）を実装・使用することで実現できます。
+
+### 7.6 A2Aセキュリティとベストプラクティス
+
+**認証・認可:**
+- **HTTPS必須**: 本番環境ではすべての通信をHTTPS経由で行う
+- **認証スキーム**: `AgentCard.securitySchemes` で宣言（OAuth2、OIDC、APIキー等）
+- **リクエストごと認証**: A2Aサーバーは全リクエストを認証必須（クレデンシャルはHTTPヘッダーで渡す）
+- **認可**: サーバー側で認証されたクライアントIDとポリシーに基づいて実施
+
+**プッシュ通知セキュリティ:**
+- **Webhook URL検証**: サーバーはSSRF攻撃防止のためwebhook URLを慎重に検証
+- **通知認証**: クライアントのwebhook受信側はサーバーからの通知を強力に認証
+- **推奨メカニズム**: サーバーからクライアントwebhookへの認証（HMAC署名等）
+
+**入力検証:**
+- サーバーは全RPCパラメータとメッセージ/アーティファクトコンテンツを検証
+
+**メディアタイプの活用:**
+- `defaultInputModes` / `defaultOutputModes`: Agentがサポートするメディアタイプ（MIME types）を明示
+  - 例: `"text/plain"`, `"application/json"`, `"image/png"`
+- スキル単位で入出力モードを上書き可能
+- クライアントはAgentCardから対応フォーマットを確認し、適切なデータ形式で送信
+
+**TaskStateのライフサイクル:**
+
+| State | 説明 |
+|-------|------|
+| `submitted` | タスクが受理され、処理待ち |
+| `working` | タスク処理中 |
+| `input-required` | Agentがクライアントから追加情報を要求 |
+| `auth-required` | Agentがユーザーからのセカンダリ認証を要求 |
+| `completed` | タスク正常完了 |
+| `failed` | タスク失敗 |
+| `canceled` | タスクがキャンセル |
+| `rejected` | サーバーがタスクを拒否 |
+| `unknown` | 不明な状態 |
+
+**A2A vs MCPの関係:**
+- **MCP (Model Context Protocol)**: AIモデル/AgentがツールやAPIをどう使用するかにフォーカス（関数呼び出し）
+- **A2A**: 独立したAI Agent同士がピアとしてどう通信・協調するかにフォーカス
+- **組み合わせ**: A2AサーバーAgentは内部でMCPを使用して独自のツールセットにアクセス可能
 
 ---
 

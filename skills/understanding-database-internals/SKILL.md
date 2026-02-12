@@ -7,6 +7,7 @@ description: >-
   Use when designing database-backed systems, choosing storage engines, understanding
   consistency guarantees, or debugging distributed system behavior.
   For SQL-level antipatterns and query optimization, use avoiding-sql-antipatterns instead.
+  For relational database design process (entity modeling, ER diagrams, normalization), use designing-relational-databases instead.
 ---
 
 # データベース内部構造の理解

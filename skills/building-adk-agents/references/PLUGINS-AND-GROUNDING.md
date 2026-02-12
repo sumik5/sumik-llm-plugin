@@ -628,6 +628,25 @@ ADKは以下の3つのGrounding方式をサポート:
 
 ---
 
+## Pre-built Toolsの概要
+
+ADKは、一般的なAgent機能を実現するPre-built Toolsを提供する。これらを活用することで、開発時間を短縮し、テスト済みの統合を利用できる。
+
+### Pre-built Tools一覧
+
+| Tool | 種類 | 用途 |
+|------|------|------|
+| **google_search** | GoogleSearchTool | Google検索によるGrounding |
+| **VertexAiSearchTool** | VertexAiSearchTool | Vertex AI SearchデータストアによるGrounding |
+| **load_web_page** | FunctionTool | Web ページのテキスト取得 |
+| **load_memory** | LoadMemoryTool | 長期記憶の明示的検索 |
+| **preload_memory** | PreloadMemoryTool | 長期記憶の自動プリロード（RequestProcessor） |
+| **load_artifacts** | LoadArtifactsTool | セッション内ファイル（Artifact）のロード（RequestProcessor） |
+| **get_user_choice** | GetUserChoiceTool（LongRunningFunctionTool） | ユーザーインタラクション（選択肢提示） |
+| **exit_loop** | FunctionTool | LoopAgentのループ終了 |
+
+---
+
 ## 3つのGrounding方式
 
 ### 1. Google Search Grounding
@@ -1130,6 +1149,211 @@ async def parallel_search(queries: List[str]) -> List[dict]:
 
 ---
 
+## Pre-built Toolsの詳細
+
+### 1. load_web_page (Web Page Loading)
+
+**概要**: URLからWebページのテキストコンテンツを取得する。`requests` + `BeautifulSoup4` (lxml parser) で実装。
+
+```python
+from google.adk.agents import Agent
+from google.adk.tools import FunctionTool
+from google.adk.tools.load_web_page import load_web_page
+
+# FunctionToolでラップ
+web_page_loader_tool = FunctionTool(func=load_web_page)
+
+browser_agent = Agent(
+    name="web_browser_agent",
+    model="gemini-2.0-flash",
+    instruction="Webページの内容を取得して要約・質問に答えてください。",
+    tools=[web_page_loader_tool]
+)
+
+# 使用例
+# "https://www.python.org/ のメインテキストを1文で要約してください"
+```
+
+**注意事項:**
+- JavaScriptで動的生成されるコンテンツには対応しない
+- 取得内容が大量の場合、トークン制限に注意
+- より高度な自動化には `browser-use` 等のブラウザ自動化ツールをカスタムToolとして統合可能
+
+**ベストプラクティス: Search + Page Loading の2段階パターン**
+1. `google_search` でURL取得
+2. `load_web_page` で詳細コンテンツ取得
+
+---
+
+### 2. LoadMemoryTool & PreloadMemoryTool (Memory管理)
+
+**LoadMemoryTool** (`google.adk.tools.load_memory`)
+
+- **動作**: Agentが明示的に長期記憶を検索
+- **LLMの役割**: 検索クエリを生成し、`load_memory(query="...")` を呼び出し
+- **実装**: `MemoryService.search_memory()` を実行し、`MemoryEntry` リストを返す
+
+**PreloadMemoryTool** (`google.adk.tools.preload_memory`)
+
+- **動作**: LLMリクエスト前に自動的に記憶を検索し、System Instructionに追加
+- **種類**: Request Processor Tool (`process_llm_request` メソッド)
+- **実装**: ユーザークエリで `tool_context.search_memory()` を実行し、結果を `<PAST_CONVERSATIONS>` タグでプリペンド
+
+```python
+from google.adk.agents import Agent
+from google.adk.tools import load_memory, preload_memory
+
+# 明示的検索Agent
+reactive_memory_agent = Agent(
+    name="reactive_memory_agent",
+    model="gemini-2.0-flash",
+    instruction="過去情報が必要な場合はload_memoryツールを使用してください。",
+    tools=[load_memory]
+)
+
+# 自動プリロードAgent
+proactive_memory_agent = Agent(
+    name="proactive_memory_agent",
+    model="gemini-2.0-flash",
+    instruction="過去の会話は自動的に提供されます。",
+    tools=[preload_memory]
+)
+```
+
+**使い分け:**
+- **LoadMemoryTool**: 明示的な記憶検索が必要な場合
+- **PreloadMemoryTool**: 常時関連コンテキストを提供したい場合（UX向上）
+
+**注意**: PreloadMemoryToolは大量のメモリ検索結果でプロンプト長を増大させる可能性がある。`VertexAiRagMemoryService` の `similarity_top_k` で制御推奨。
+
+---
+
+### 3. LoadArtifactsTool (Artifact管理)
+
+**概要**: セッション内でAgentが生成したファイル（Artifact）を認識・ロードする。
+
+**動作フロー:**
+1. **Request Processor**: `process_llm_request` でArtifactServiceをチェック
+2. **Artifact認識**: 利用可能なArtifact名をLLMに通知
+3. **Artifact要求**: LLMが `load_artifacts(artifact_names=["file.txt"])` を疑似呼び出し
+4. **Content追加**: 次のLLMリクエストで `Part.inline_data` として内容を追加
+
+```python
+from google.adk.agents import Agent
+from google.adk.tools import load_artifacts, FunctionTool
+from google.adk.tools.tool_context import ToolContext
+
+# Artifact保存ツール
+async def create_report_artifact(report_content: str, tool_context: ToolContext) -> dict:
+    filename = "summary_report.txt"
+    artifact_part = Part(text=report_content)
+    await tool_context.save_artifact(filename=filename, artifact=artifact_part)
+    return {"status": "success", "filename": filename}
+
+report_tool = FunctionTool(func=create_report_artifact)
+
+artifact_agent = Agent(
+    name="artifact_manager",
+    model="gemini-2.0-flash",
+    instruction="レポートを作成し、必要に応じてload_artifactsで参照してください。",
+    tools=[report_tool, load_artifacts]
+)
+```
+
+**ユースケース:**
+- Agent生成ファイルへの後続参照
+- 全ターンでのファイル内容送信を回避（必要時のみロード）
+
+---
+
+### 4. GetUserChoiceTool (ユーザーインタラクション)
+
+**概要**: ユーザーに選択肢を提示し、選択を待つ（LongRunningFunctionTool）。
+
+**動作フロー:**
+1. **LLMが選択肢生成**: Agentがコンテキストから選択肢を生成
+2. **Tool呼び出し**: `get_user_choice(options=[...])` を呼び出し
+3. **UIレイヤーの責務**:
+   - Function Call検出
+   - 選択肢をユーザーに提示
+   - ユーザー選択を取得
+   - `FunctionResponse` として選択結果を返送
+
+```python
+from google.adk.agents import Agent
+from google.adk.tools import get_user_choice
+
+beverage_assistant = Agent(
+    name="beverage_assistant",
+    model="gemini-2.0-flash",
+    instruction="""
+    まず、get_user_choiceツールで 'coffee' と 'tea' の選択肢を提示してください。
+    ユーザーが選択したら、「[選択]を選びましたね！」と確認してください。
+    """,
+    tools=[get_user_choice]
+)
+```
+
+**UIレイヤー実装例:**
+
+```python
+# ターン1: Agent が get_user_choice を呼び出す
+for event in runner.run(...):
+    if calls := event.get_function_calls():
+        options = calls[0].args.get("options", [])
+        function_call_id = calls[0].id
+        # UIで選択肢表示
+
+# ターン2: ユーザー選択を FunctionResponse として送信
+user_choice = "coffee"
+func_resp = FunctionResponse(
+    name="get_user_choice",
+    response={"result": user_choice},
+    id=function_call_id
+)
+response_part = Part(function_response=func_resp)
+empty_text_part = Part(text="")  # Gemini API要件
+function_response_content = Content(
+    role="user",
+    parts=[empty_text_part, response_part]
+)
+
+for event in runner.run(new_message=function_response_content):
+    # Agentが選択を確認
+```
+
+**ベストプラクティス:**
+- Instructionでマルチターン推論をガイド
+- 選択後の処理フローを明確に指示
+
+---
+
+### 5. ExitLoopTool (LoopAgent制御)
+
+**概要**: `LoopAgent` 内のサブAgentがループ終了を通知するツール。
+
+**動作:**
+- `exit_loop()` 実行時、`tool_context.actions.escalate = True` を設定
+- `LoopAgent` が `escalate` フラグを検出してループ終了
+
+```python
+from google.adk.tools import FunctionTool, exit_loop
+from google.adk.agents import Agent
+
+exit_tool = FunctionTool(exit_loop)
+
+sub_agent_in_loop = Agent(
+    name="looper_child",
+    model="gemini-2.0-flash",
+    instruction="タスク完了または条件達成時に exit_loop を呼び出してください。",
+    tools=[exit_tool]
+)
+
+# LoopAgent で使用（詳細は MULTI-AGENT.md 参照）
+```
+
+---
+
 ## まとめ
 
 ### Plugin System
@@ -1144,6 +1368,15 @@ async def parallel_search(queries: List[str]) -> List[dict]:
 - **Vertex AI Search Grounding**: 企業データストアの検索
 - **Agentic RAG**: 動的でマルチステップな検索戦略
 
+### Pre-built Tools
+
+- **google_search / VertexAiSearchTool**: Grounding（検索統合）
+- **load_web_page**: Webページ取得
+- **load_memory / preload_memory**: 長期記憶検索
+- **load_artifacts**: セッション内ファイル管理
+- **get_user_choice**: ユーザーインタラクション（選択肢）
+- **exit_loop**: LoopAgent制御
+
 ### 使い分け
 
 | 要件 | 推奨方式 |
@@ -1153,3 +1386,9 @@ async def parallel_search(queries: List[str]) -> List[dict]:
 | 最新ニュース・一般情報 | Google Search Grounding |
 | 社内文書・プライベートデータ | Vertex AI Search Grounding |
 | 複雑な検索ロジック | Agentic RAG |
+| Webページ取得 | load_web_page |
+| 記憶の明示的検索 | LoadMemoryTool |
+| 記憶の自動提供 | PreloadMemoryTool |
+| Artifact参照 | LoadArtifactsTool |
+| ユーザー選択肢提示 | GetUserChoiceTool |
+| ループ終了制御 | ExitLoopTool |

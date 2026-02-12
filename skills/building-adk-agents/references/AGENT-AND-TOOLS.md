@@ -44,6 +44,11 @@ agent = Agent(
 )
 ```
 
+**特徴:**
+- 固定の文字列をLLMに送信
+- 全リクエストで同じ指示が適用される
+- 単純で予測可能なAgent動作に適用
+
 #### Dynamic Instructions (InstructionProvider)
 
 ```python
@@ -70,10 +75,14 @@ agent = Agent(
 )
 ```
 
-**注意:**
-- InstructionProviderは`ReadonlyContext`を受け取り`str`を返す関数
+**InstructionProviderの要件:**
+- `ReadonlyContext`を受け取り`str`を返す関数（または`async def`）
 - `context.state`から状態を読み取り可能
-- 自動状態注入 (`{変数名}`) はInstructionProvider使用時は**無効**
+- 自動状態注入 (`{変数名}`) はInstructionProvider使用時は**無効**（関数内で明示的に`context.state.get()`を使用）
+
+**使用タイミング:**
+- ユーザーロール・時間・セッション状態に応じた動的指示が必要な場合
+- 外部要因に基づきAgentの振る舞いを変更する場合
 
 ### generate_content_configの活用
 
@@ -95,15 +104,49 @@ agent = Agent(
                 category=HarmCategory.HARM_CATEGORY_HARASSMENT,
                 threshold=HarmBlockThreshold.BLOCK_NONE
             )
-        ]
+        ],
+        response_mime_type="application/json",  # JSON出力を期待（構造化出力用）
+        response_schema=...         # Pydantic Modelから生成したスキーマ
     )
 )
 ```
 
-**重要:**
-- `system_instruction`は設定しない（`LlmAgent.instruction`を使用）
-- `tools`は設定しない（`LlmAgent.tools`を使用）
-- `thinking_config`は設定しない（`LlmAgent.planner`を使用）
+**主要パラメータ:**
+
+| パラメータ | 説明 | 推奨値 |
+|----------|------|--------|
+| `temperature` | ランダム性制御（0.0～1.0） | 事実: 0.0-0.3, 創造: 0.7-1.0 |
+| `top_p` | 累積確率サンプリング | 0.95（デフォルト） |
+| `top_k` | トークンサンプリング数 | 40（デフォルト） |
+| `max_output_tokens` | 生成トークン数上限 | タスクに応じて調整 |
+| `stop_sequences` | 生成停止トリガー文字列 | 特定パターンで停止したい場合 |
+| `safety_settings` | コンテンツ安全フィルタ | HarmCategory別に設定 |
+| `response_mime_type` | レスポンス形式 | `application/json`（構造化出力） |
+| `response_schema` | JSON出力スキーマ | Pydanticモデルから生成 |
+
+**重要（ADK固有制約）:**
+- `system_instruction`は設定しない → `LlmAgent.instruction`を使用
+- `tools`は設定しない → `LlmAgent.tools`を使用
+- `thinking_config`は設定しない → `LlmAgent.planner`を使用
+
+**構造化出力の例:**
+```python
+from pydantic import BaseModel
+
+class WeatherResponse(BaseModel):
+    temperature: float
+    condition: str
+
+agent = Agent(
+    name="weather_bot",
+    model="gemini-2.0-flash",
+    instruction="天気情報をJSON形式で返してください。",
+    generate_content_config=GenerateContentConfig(
+        response_mime_type="application/json",
+        response_schema=WeatherResponse.model_json_schema()
+    )
+)
+```
 
 ### Callbacks（コールバック）
 
@@ -176,6 +219,14 @@ agent = Agent(
 
 ### 基本的なFunctionTool
 
+`FunctionTool`は任意のPython関数をADKツールに変換する。
+
+**動作原理:**
+1. Python関数のシグネチャ（型ヒント）を解析
+2. docstringからツール説明とパラメータ説明を抽出
+3. LLM用の`FunctionDeclaration`（スキーマ）を自動生成
+4. LLMからの呼び出しをPython関数実行にマッピング
+
 ```python
 from google.adk.tools import FunctionTool
 
@@ -212,6 +263,23 @@ agent = Agent(
     instruction="計算ツールを使って算術演算を実行してください。",
     tools=[calculator_tool]
 )
+```
+
+**自動スキーマ生成結果（概念図）:**
+```json
+{
+  "name": "calculate",
+  "description": "基本的な算術演算を実行します。",
+  "parameters": {
+    "type": "OBJECT",
+    "properties": {
+      "operand1": {"type": "NUMBER", "description": "最初の数値"},
+      "operand2": {"type": "NUMBER", "description": "2番目の数値"},
+      "operation": {"type": "STRING", "description": "演算子 ('add', 'subtract', 'multiply', 'divide')"}
+    },
+    "required": ["operand1", "operand2", "operation"]
+  }
+}
 ```
 
 ### 型ヒントとPydanticモデル
@@ -377,7 +445,9 @@ agent = Agent(
 
 ## Pre-built Tools
 
-### Google Search
+### Internet Access Tools
+
+#### GoogleSearchTool
 
 ```python
 from google.adk.tools import google_search
@@ -391,10 +461,14 @@ search_agent = Agent(
 ```
 
 **特徴:**
-- Gemini 2.0以降で統合検索
-- `grounding_metadata`にクエリと出典情報
+- Gemini 2.0以降で統合検索（モデルが自動的に検索を実行）
+- `grounding_metadata.web_search_queries`にクエリ情報
+- `grounding_metadata`に出典URLが含まれる
+- LLMが検索・結果解釈・引用を暗黙的に処理
 
-### Vertex AI Search
+**使用タイミング:** リアルタイム情報、最新ニュース、事実確認が必要な場合
+
+#### VertexAiSearchTool
 
 ```python
 from google.adk.tools import VertexAiSearchTool
@@ -416,7 +490,15 @@ agent = Agent(
 )
 ```
 
-### Web Page Loading
+**特徴:**
+- 独自のVertex AI Searchデータストアから検索
+- `grounding_metadata.retrieval_queries`に検索クエリ
+- 企業固有のナレッジベース・ドキュメントに対応
+- IAM権限とデータストア設定が必要
+
+**使用タイミング:** 社内ドキュメント、プライベートナレッジベース、カスタムデータソースが必要な場合
+
+#### load_web_page
 
 ```python
 from google.adk.tools import FunctionTool
@@ -432,6 +514,20 @@ agent = Agent(
     tools=[web_loader]
 )
 ```
+
+**特徴:**
+- `requests` + `BeautifulSoup4`でHTMLからテキスト抽出
+- 静的HTMLページに対応（JavaScript実行不可）
+- 大量のテキストを返す可能性があるためトークン制限に注意
+
+**組み合わせパターン:**
+1. `google_search`でURL取得
+2. `load_web_page`で詳細コンテンツ取得
+3. LLMが内容を要約・分析
+
+**制限:**
+- JavaScript動的生成コンテンツは取得不可（Playwright等が必要）
+- 長大なページはトークン制限超過の可能性
 
 ### LoadMemoryTool / PreloadMemoryTool
 
@@ -520,11 +616,161 @@ loop_child = Agent(
 # )
 ```
 
+**動作原理:**
+- `exit_loop`呼び出し時に`tool_context.actions.escalate = True`を設定
+- `LoopAgent`がこのフラグを検出してループを終了
+- マルチAgentシステムでのループ制御に使用
+
+---
+
+## Tool Performance（並列実行とパフォーマンス最適化）
+
+### 非同期ツールによる並列実行
+
+ADK v1.10.0以降、`async def`定義のToolは自動的に並列実行される。
+
+```python
+import aiohttp
+
+async def fetch_weather(city: str) -> str:
+    """
+    非同期で天気情報を取得する。
+
+    Args:
+        city: 都市名
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://api.weather.com/{city}") as resp:
+            data = await resp.text()
+            return data
+
+weather_tool = FunctionTool(func=fetch_weather)
+```
+
+**重要:** LLMが複数ツールを同時呼び出すと判断した場合、ADKは自動的に並列実行。
+
+### パフォーマンス最適化パターン
+
+| シナリオ | テクニック | 実装例 |
+|---------|----------|--------|
+| **HTTP通信** | aiohttp + セッション管理 | `async with aiohttp.ClientSession() as session: ...` |
+| **DB操作** | asyncpg等の非同期ドライバ | `async with asyncpg.create_pool(...) as pool: ...` |
+| **長時間ループ** | `await asyncio.sleep(0)`でイールド | `for item in items: await asyncio.sleep(0)` |
+| **CPU集約処理** | ThreadPoolExecutor + run_in_executor | `await loop.run_in_executor(pool, heavy_compute)` |
+| **大量データ** | チャンク処理 + スレッドプール | ページネーション + 並列取得 |
+
+### HTTP通信の最適化例
+
+```python
+import aiohttp
+import asyncio
+from typing import List
+
+async def fetch_multiple_apis(endpoints: List[str]) -> dict:
+    """
+    複数のAPIエンドポイントから並列にデータを取得。
+
+    Args:
+        endpoints: APIエンドポイントのリスト
+    """
+    async with aiohttp.ClientSession() as session:
+        tasks = [session.get(url) for url in endpoints]
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+        results = {}
+        for url, response in zip(endpoints, responses):
+            if isinstance(response, Exception):
+                results[url] = {"error": str(response)}
+            else:
+                results[url] = await response.text()
+
+        return results
+```
+
+### CPU集約処理の委譲
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+import asyncio
+
+def heavy_computation(data: List[float]) -> float:
+    """重いCPU処理（同期）"""
+    result = sum(x ** 2 for x in data)
+    return result
+
+async def compute_async(data: List[float]) -> float:
+    """
+    CPU集約処理をスレッドプールに委譲。
+
+    Args:
+        data: 計算対象データ
+    """
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as pool:
+        result = await loop.run_in_executor(pool, heavy_computation, data)
+        return result
+
+compute_tool = FunctionTool(func=compute_async)
+```
+
+### プロンプトでの並列呼び出しガイド
+
+LLMに並列実行を明示的に指示することでパフォーマンスを最大化。
+
+```python
+agent = Agent(
+    name="parallel_agent",
+    model="gemini-2.0-flash",
+    instruction="""
+あなたは効率的にツールを使用するアシスタントです。
+
+重要:
+- 複数の独立したツール呼び出しは並列に実行してください。
+- 例: 複数の都市の天気を取得する場合、各都市のfetch_weatherを同時に呼び出す。
+- 依存関係がある場合のみ順次実行してください。
+""",
+    tools=[weather_tool, api_tool, db_tool]
+)
+```
+
+### 同期ツールの制約
+
+**重要:** 同期ツール（`def`定義）が1つでも含まれると、そのToolはパイプライン全体をブロック。
+
+```python
+import time
+
+# ❌ 悪い例: 同期ツールがブロッキング
+def blocking_tool(param: str) -> str:
+    time.sleep(5)  # 全体が5秒停止
+    return "result"
+
+# ✅ 良い例: 非同期で実装
+async def non_blocking_tool(param: str) -> str:
+    await asyncio.sleep(5)  # 他のツールは並列実行可能
+    return "result"
+```
+
+**ベストプラクティス:**
+- すべてのToolを`async def`で実装（ADK v1.10.0+）
+- HTTP通信は`aiohttp`、DB操作は`asyncpg`等の非同期ライブラリ使用
+- CPU集約処理は`run_in_executor`でスレッドプールに委譲
+- 長時間ループでは`await asyncio.sleep(0)`を挿入
+- プロンプトで並列実行を明示的に指示
+
 ---
 
 ## OpenAPI統合
 
 ### OpenAPIToolsetの基本
+
+OpenAPI仕様から自動的にToolを生成する。
+
+**動作原理:**
+1. OpenAPI仕様（JSON/YAML）を解析
+2. 各`operationId`に対して`RestApiTool`を自動生成
+3. パラメータ・リクエストボディ・レスポンススキーマをLLM用に変換
+4. 認証スキームを処理
 
 ```python
 from google.adk.tools.openapi_tool import OpenAPIToolset
@@ -565,6 +811,11 @@ agent = Agent(
     tools=[toolset]
 )
 ```
+
+**生成されるツール:**
+- ツール名: `operationId`をsnake_caseに変換（例: `findPetsByStatus` → `find_pets_by_status`）
+- 説明: OpenAPI仕様の`summary`と`description`
+- パラメータ: `parameters`配列から自動抽出（path/query/header/body）
 
 ### 認証ハンドリング
 
@@ -630,6 +881,15 @@ spotify_toolset = OpenAPIToolset(
 
 ### APIHubToolset
 
+Google API Hubからスペックを取得してToolを生成する。
+
+**動作フロー:**
+1. API Hubサービスに認証（Application Default Credentials等）
+2. 指定されたAPI リソースを取得
+3. 最新バージョン・スペックを解決
+4. OpenAPI仕様をダウンロード
+5. `OpenAPIToolset`でツール生成
+
 ```python
 from google.adk.tools.apihub_tool import APIHubToolset
 import os
@@ -653,7 +913,9 @@ def is_valid_tool(tool, ctx=None) -> bool:
 
 apihub_toolset = APIHubToolset(
     apihub_resource_name=resource_name,
-    tool_filter=is_valid_tool
+    tool_filter=is_valid_tool,
+    auth_scheme=...,      # 認証スキーム
+    auth_credential=...   # 認証クレデンシャル
 )
 
 agent = Agent(
@@ -664,11 +926,27 @@ agent = Agent(
 )
 ```
 
+**必要な権限:**
+- API Hubへのアクセス権限（IAM）
+- 対象APIのスペック読み取り権限
+- 認証情報（gcloud auth application-default login等）
+
+**リソース名形式:**
+- `projects/{project}/locations/{location}/apis/{api}`
+- `projects/{project}/locations/{location}/apis/{api}/versions/{version}`
+- `projects/{project}/locations/{location}/apis/{api}/versions/{version}/specs/{spec}`
+
+**トラブルシューティング:**
+- `tool_filter`でADKパーサーが対応できないスキーマを除外
+- `override_base_url`で相対URLの問題を修正（カスタムサブクラス化が必要）
+
 ---
 
 ## MCP統合
 
 ### MCPToolset
+
+Model Context Protocol (MCP) サーバーと統合してToolを提供する。
 
 ```python
 from google.adk.tools.mcp_toolset import MCPToolset
@@ -686,7 +964,30 @@ agent = Agent(
 )
 ```
 
+**動作原理:**
+1. MCPサーバーに接続
+2. サーバーが提供するツール・リソース・プロンプトを取得
+3. ADK Toolに変換してAgentに提供
+4. Tool呼び出し時にMCPサーバーにリクエスト送信
+
+**設定オプション:**
+```python
+mcp_toolset = MCPToolset(
+    server_url="http://localhost:8080/mcp",
+    timeout=30,                    # タイムアウト（秒）
+    headers={"Authorization": ...},  # カスタムヘッダー
+    tool_filter=lambda tool: ...   # ツールフィルター関数
+)
+```
+
+**使用タイミング:**
+- 外部システム（データベース、API、ファイルシステム）との統合
+- 既存MCPサーバーの再利用
+- Claude Desktop等の他MCPクライアントとの互換性確保
+
 ### ApplicationIntegrationToolset
+
+Google Cloud Application Integration と連携してワークフローを実行する。
 
 ```python
 from google.adk.tools.application_integration_toolset import ApplicationIntegrationToolset
@@ -706,10 +1007,21 @@ agent = Agent(
 )
 ```
 
-### LangGraphAgent統合
+**特徴:**
+- Google Cloud上のエンタープライズ統合ワークフローを実行
+- SaaS・オンプレミスシステムとの接続
+- イベント駆動型ワークフロー実行
+
+**必要な設定:**
+- GCP認証（Application Default Credentials）
+- IAM権限（Integration Invoker等）
+- Integration名とロケーション
+
+### LangGraphAgent統合（フレームワーク間ブリッジ）
+
+LangGraphのグラフをADK Agentとして実行する。
 
 ```python
-# ADKとLangGraphのブリッジ
 from google.adk.agents.langgraph_agent import LangGraphAgent
 
 # LangGraphのグラフをADK Agentとして実行
@@ -717,7 +1029,24 @@ langgraph_agent = LangGraphAgent(
     name="langgraph_bridge",
     graph=your_compiled_langgraph  # LangGraph CompiledGraph
 )
+
+# ADKのマルチAgentシステムで使用可能
+parent_agent = Agent(
+    name="orchestrator",
+    model="gemini-2.0-flash",
+    instruction="LangGraphエージェントと連携してください。",
+    tools=[AgentTool(agent=langgraph_agent)]
+)
 ```
+
+**使用タイミング:**
+- 既存のLangGraphワークフローをADKで再利用
+- LangGraphとADKの混合システム構築
+- LangGraphの複雑なステートマシンをサブAgentとして利用
+
+**注意事項:**
+- LangGraphとADKのイベントモデルの差異に注意
+- ステート管理は各フレームワークで独立
 
 ---
 

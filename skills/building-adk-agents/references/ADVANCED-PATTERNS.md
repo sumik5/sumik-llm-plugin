@@ -1270,6 +1270,255 @@ for _ in range(20):
 
 ---
 
+## 5. ADK Expert Agent実践例（Ch15からの要約）
+
+### 5.1 ADK Expert Agentの概要
+
+実際のエンドツーエンドAgent構築例として、**ADK Expert Agent**がある（[GitHub](https://github.com/iamulya/adk-expert-agent)）。これはGoogle ADK自体に関する質問応答・GitHub Issue処理・ドキュメント生成・Mermaid図生成を行うマルチAgentシステム。
+
+| コア機能 | 説明 |
+|---------|------|
+| ADK Q&A | 知識ベースからADK質問に回答 |
+| GitHub Issue処理 | `google/adk-python` のIssue取得・ADK固有のガイダンス提供 |
+| ドキュメント生成 | PDF/HTML/PPTXスライド生成（Mermaidコンテンツから） |
+| Mermaid図生成 | ユーザー記述から図生成・PNG変換 |
+
+### 5.2 アーキテクチャ概要
+
+```
+root_agent (adk_expert_orchestrator)
+├── github_issue_processing_agent (SequentialAgent)
+│   ├── get_issue_description_wrapper_agent
+│   ├── adk_guidance_wrapper_agent
+│   └── FormatOutputAgent (custom BaseAgent)
+├── document_generator_agent
+├── mermaid_diagram_orchestrator_agent
+│   ├── mermaid_syntax_generator_agent
+│   └── mermaid_to_png_and_upload_tool
+└── PrepareDocumentContentTool
+```
+
+### 5.3 設計パターン
+
+#### Orchestrator Pattern
+`root_agent`は**Orchestratorパターン**を使用し、自身でタスクをすべて実行せずに、専用sub-agent（`AgentTool`でラップ）に委譲する。
+
+**Dynamic Instructions:**
+```python
+def root_agent_instruction_provider(context: ReadonlyContext) -> str:
+    user_query_text = get_text_from_content(invocation_ctx.user_content)
+
+    # キーワード検出で分岐
+    if any(kw in user_query_text.lower() for kw in ["diagram", "architecture"]):
+        # Mermaid図生成エージェント呼び出し指示
+        return f"Call '{mermaid_diagram_orchestrator_agent.name}' tool with..."
+    elif "github" in user_query_text.lower() or "issue" in user_query_text.lower():
+        # GitHub処理エージェント呼び出し指示
+        return f"Call '{github_issue_processing_agent.name}' tool with..."
+    else:
+        # 一般Q&A
+        return f"Use your ADK knowledge to answer: {user_query_text}"
+```
+
+#### Custom BaseAgent for Deterministic Steps
+`FormatOutputAgent`はカスタム`BaseAgent`で、前ステップの出力を決定論的にJSON構造化する（LLM不要）。これによりコスト削減と確実性向上を実現。
+
+### 5.4 ベストプラクティス
+
+| プラクティス | 具体例 |
+|-------------|--------|
+| **Callbacksでデータ変換** | `after_tool_callback`でsub-agentのJSON出力を`Content`に変換 |
+| **ToolContext.stateで中間データ** | `temp:` スコープで`gcs_link_for_diagram`等を一時保存 |
+| **外部CLIをToolで実行** | `asyncio.create_subprocess_exec`で`mmdc`（Mermaid CLI）を非同期実行 |
+| **Pydanticで構造化データ** | `SequentialProcessorFinalOutput`, `DiagramGeneratorAgentToolInput` |
+| **モジュラーTool設計** | ドメイン別整理: `tools/search/`, `tools/processing/`, `tools/formatting/` |
+
+### 5.5 学びのポイント
+
+- **Multi-Agentシステムの実践**: root orchestrator + specialized sub-agents
+- **Dynamic Instructions**: ユーザークエリからルーティング判定
+- **カスタムBaseAgent**: 決定論的ステップでLLMコスト削減
+- **Secret Manager**: APIキー管理（GitHub PAT）
+- **Cloud Build/Cloud Runデプロイ**: Dockerfile、Workload Identity、環境変数設定
+
+---
+
+## 6. 拡張とカスタマイズ
+
+### 6.1 カスタムBaseAgent実装
+
+**使用ケース:**
+- ルールベースAgent
+- レガシーシステム統合
+- 特殊オーケストレーター
+- 決定論的ステップ（LLMコスト削減）
+
+**実装例（TrafficLightAgent）:**
+
+```python
+from google.adk.agents import BaseAgent, InvocationContext
+from google.adk.events.event import Event, EventActions
+from google.genai.types import Content, Part
+from typing import AsyncGenerator
+
+class TrafficLightAgent(BaseAgent):
+    """ルールベースAgent - 信号機状態遷移"""
+    def __init__(self, name: str = "traffic_light_controller"):
+        super().__init__(name=name, description="Manages a traffic light state.")
+        self.light_sequence = ["red", "red-amber", "green", "amber"]
+
+    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
+        current_light = ctx.state.get("current_light_color", "red")
+
+        try:
+            current_index = self.light_sequence.index(current_light)
+            next_index = (current_index + 1) % len(self.light_sequence)
+            next_light = self.light_sequence[next_index]
+        except ValueError:
+            next_light = "red"
+
+        actions = EventActions(state_delta={"current_light_color": next_light})
+
+        yield Event(
+            invocation_id=ctx.invocation_id,
+            author=self.name,
+            branch=ctx.branch,
+            content=Content(parts=[Part(text=f"The traffic light is now: {next_light}")]),
+            actions=actions
+        )
+```
+
+**重要ポイント:**
+- `_run_async_impl`をオーバーライド
+- `ctx.state`で状態管理
+- `EventActions(state_delta=...)`で状態変更
+- `yield Event(...)`でイベント生成
+- 非同期処理（`async def`、`await`使用）
+
+### 6.2 カスタムRunner実装
+
+**使用ケース:**
+- カスタムメッセージキュー統合
+- 異なるWebフレームワーク統合
+- メトリクス収集ラッパー
+
+**実装例（MetricsEmittingRunner）:**
+
+```python
+from google.adk.runners import Runner
+from google.genai.types import Content
+from typing import AsyncGenerator
+import time
+
+class MetricsEmittingRunner(Runner):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request_count = 0
+        self.total_processing_time = 0.0
+
+    async def run_async(self, *, user_id: str, session_id: str, new_message: Content, **kwargs) -> AsyncGenerator[Event, None]:
+        start_time = time.monotonic()
+        self.request_count += 1
+
+        async for event in super().run_async(user_id=user_id, session_id=session_id, new_message=new_message, **kwargs):
+            yield event
+
+        processing_time = time.monotonic() - start_time
+        self.total_processing_time += processing_time
+        print(f"Request #{self.request_count}, Time: {processing_time:.4f}s, Avg: {self.total_processing_time / self.request_count:.4f}s")
+```
+
+**オーバーライド可能メソッド:**
+- `run_async(...)`: コア実行ループ
+- `_new_invocation_context(...)`: InvocationContext作成
+- `_find_agent_to_run(...)`: Agent選択ロジック
+- `_append_new_message_to_session(...)`: メッセージ処理
+
+**⚠️ 注意:** Runnerカスタマイズは複雑。ADK内部フロー理解必須。
+
+### 6.3 カスタムService実装
+
+**使用ケース:**
+- NoSQLデータベースでSession管理
+- 独自クラウドストレージでArtifact管理
+- 独自ベクトルDBでMemory管理
+
+**実装例（FileSystemArtifactService）:**
+
+```python
+from google.adk.artifacts import BaseArtifactService
+from google.genai.types import Part, Blob
+import os
+from typing import Optional, List
+
+class FileSystemArtifactService(BaseArtifactService):
+    def __init__(self, base_storage_path: str = "./adk_local_artifacts"):
+        self.base_storage_path = os.path.abspath(base_storage_path)
+        os.makedirs(base_storage_path, exist_ok=True)
+
+    async def save_artifact(self, *, app_name: str, user_id: str, session_id: str, filename: str, artifact: Part) -> int:
+        versions = await self.list_versions(app_name, user_id, session_id, filename)
+        new_version = 0 if not versions else max(versions) + 1
+
+        versioned_file_path = self._get_artifact_path(app_name, user_id, session_id, filename, new_version)
+        os.makedirs(os.path.dirname(versioned_file_path), exist_ok=True)
+
+        data_to_write = artifact.text.encode('utf-8') if artifact.text else artifact.inline_data.data
+        with open(versioned_file_path, "wb") as f:
+            f.write(data_to_write)
+
+        return new_version
+
+    async def load_artifact(self, *, app_name: str, user_id: str, session_id: str, filename: str, version: Optional[int] = None) -> Optional[Part]:
+        if version is None:
+            versions = await self.list_versions(app_name, user_id, session_id, filename)
+            version = max(versions) if versions else None
+
+        if version is None:
+            return None
+
+        file_path = self._get_artifact_path(app_name, user_id, session_id, filename, version)
+        if not os.path.exists(file_path):
+            return None
+
+        with open(file_path, "rb") as f:
+            data = f.read()
+
+        return Part(inline_data=Blob(mime_type="application/octet-stream", data=data))
+
+    # list_artifact_keys, delete_artifact, list_versions等も実装
+```
+
+**ベストプラクティス:**
+- すべてのメソッドは`async def`
+- I/O操作は非同期ライブラリ使用（`aiohttp`, `asyncpg`, `aiofiles`）
+- CPU集約処理は`asyncio.to_thread`使用
+
+### 6.4 カスタムTool/Toolset開発ガイドライン
+
+再利用可能Tool/Toolset開発時、ADKコミュニティへの貢献を検討。
+
+**ガイドライン:**
+- `BaseTool`/`BaseToolset`継承
+- 明確なネーミング・説明
+- 正確な`FunctionDeclaration`
+- 堅牢なエラーハンドリング
+- セキュリティ遵守
+- ドキュメント・ユニットテスト
+
+**チェックリスト:**
+- [ ] `BaseTool`/`BaseToolset`から継承
+- [ ] `tool.name`と`tool.description`が明確
+- [ ] `FunctionDeclaration`が正確（型ヒント、スキーマ）
+- [ ] エラーハンドリング実装
+- [ ] 入力検証実装
+- [ ] セキュリティベストプラクティス遵守
+- [ ] 外部依存関係明記
+- [ ] ドキュメント・使用例提供
+- [ ] ユニットテスト実装
+
+---
+
 ## まとめ
 
 ### 主要パターン選択ガイド
@@ -1281,6 +1530,7 @@ for _ in range(20):
 | 中規模本番（100-10k req/day） | YAML設定 + Agent Engine + PerformanceProfiler + Alerting |
 | 大規模本番（>10k req/day） | Python構成 + GKE + Cloud Trace + サーキットブレーカー |
 | マルチ環境管理 | YAML環境別設定 + 環境変数参照 |
+| カスタム統合 | BaseAgent/Runner/Service継承 |
 
 ### 開発フェーズ別チェックリスト
 
@@ -1302,3 +1552,9 @@ for _ in range(20):
 - [ ] サーキットブレーカー実装
 - [ ] SLI監視ダッシュボード構築
 - [ ] Evaluation Test（品質評価）実装
+
+**拡張・カスタマイズ:**
+- [ ] カスタムBaseAgent実装（ルールベース/決定論的ロジック）
+- [ ] カスタムRunner実装（メトリクス収集/特殊実行環境）
+- [ ] カスタムService実装（独自ストレージ/DB統合）
+- [ ] カスタムTool/Toolset開発（再利用可能コンポーネント）

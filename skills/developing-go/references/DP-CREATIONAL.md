@@ -849,3 +849,215 @@ func InitializeClient() (*Client, error) {
 - なぜそのパターンを選択したかをコメントに記載
 - 使用例を提供
 - 制約や注意点を明記
+
+---
+
+## Genericsを活用したBuilder拡張
+
+Go 1.18以降、Genericsを利用することでBuilderパターンの型安全性と再利用性を向上できる。
+
+### Generic Builder interface
+
+```go
+package builder
+
+// Builder は任意の型Tを構築するビルダーの共通インターフェース
+type Builder[T any] interface {
+    Build() T
+}
+```
+
+### GenericBuilderによるStep-by-step construction
+
+action関数のスライスで構築ステップを保持し、Build時に順次適用する。
+
+```go
+package builder
+
+// GenericBuilder はaction関数を蓄積してオブジェクトを構築
+type GenericBuilder[T any] struct {
+    actions []func(*T)
+}
+
+func NewGenericBuilder[T any]() *GenericBuilder[T] {
+    return &GenericBuilder[T]{
+        actions: make([]func(*T), 0),
+    }
+}
+
+func (b *GenericBuilder[T]) AddAction(action func(*T)) *GenericBuilder[T] {
+    b.actions = append(b.actions, action)
+    return b
+}
+
+func (b *GenericBuilder[T]) Build() T {
+    var result T
+    for _, action := range b.actions {
+        action(&result)
+    }
+    return result
+}
+```
+
+### Method Chainingパターン
+
+具体的なドメインBuilderがGenericBuilderを埋め込み、ドメイン固有のメソッドチェーンを提供する。
+
+```go
+package builder
+
+type User struct {
+    Name  string
+    Email string
+    Age   int
+}
+
+// UserBuilder はGenericBuilderを埋め込み、User固有のメソッドを提供
+type UserBuilder struct {
+    *GenericBuilder[User]
+}
+
+func NewUserBuilder() *UserBuilder {
+    return &UserBuilder{
+        GenericBuilder: NewGenericBuilder[User](),
+    }
+}
+
+func (b *UserBuilder) Name(name string) *UserBuilder {
+    b.AddAction(func(u *User) {
+        u.Name = name
+    })
+    return b
+}
+
+func (b *UserBuilder) Email(email string) *UserBuilder {
+    b.AddAction(func(u *User) {
+        u.Email = email
+    })
+    return b
+}
+
+func (b *UserBuilder) Age(age int) *UserBuilder {
+    b.AddAction(func(u *User) {
+        u.Age = age
+    })
+    return b
+}
+
+// 使用例
+func Example() {
+    user := NewUserBuilder().
+        Name("Alice").
+        Email("alice@example.com").
+        Age(30).
+        Build()
+
+    // user.Name == "Alice", user.Email == "alice@example.com", user.Age == 30
+}
+```
+
+### Optional[T]型を活用した省略可能フィールド
+
+```go
+package builder
+
+// Optional は値の存在/不在を表現する
+type Optional[T any] struct {
+    value T
+    set   bool
+}
+
+func Some[T any](value T) Optional[T] {
+    return Optional[T]{value: value, set: true}
+}
+
+func None[T any]() Optional[T] {
+    return Optional[T]{set: false}
+}
+
+func (o Optional[T]) Get() (T, bool) {
+    return o.value, o.set
+}
+
+// OptionalFieldsを持つ構造体
+type Config struct {
+    Host    string
+    Port    Optional[int]
+    Timeout Optional[int]
+}
+
+type ConfigBuilder struct {
+    *GenericBuilder[Config]
+}
+
+func NewConfigBuilder() *ConfigBuilder {
+    return &ConfigBuilder{
+        GenericBuilder: NewGenericBuilder[Config](),
+    }
+}
+
+func (b *ConfigBuilder) Host(host string) *ConfigBuilder {
+    b.AddAction(func(c *Config) {
+        c.Host = host
+    })
+    return b
+}
+
+func (b *ConfigBuilder) Port(port int) *ConfigBuilder {
+    b.AddAction(func(c *Config) {
+        c.Port = Some(port)
+    })
+    return b
+}
+
+func (b *ConfigBuilder) Timeout(timeout int) *ConfigBuilder {
+    b.AddAction(func(c *Config) {
+        c.Timeout = Some(timeout)
+    })
+    return b
+}
+
+// Build時にOptionalフィールドをチェック
+func (b *ConfigBuilder) Build() Config {
+    cfg := b.GenericBuilder.Build()
+
+    // デフォルト値設定
+    if port, ok := cfg.Port.Get(); !ok {
+        cfg.Port = Some(8080)
+    } else {
+        cfg.Port = Some(port)
+    }
+
+    if timeout, ok := cfg.Timeout.Get(); !ok {
+        cfg.Timeout = Some(30)
+    } else {
+        cfg.Timeout = Some(timeout)
+    }
+
+    return cfg
+}
+
+// 使用例
+func ExampleOptional() {
+    // Portのみ指定、Timeoutはデフォルト
+    cfg := NewConfigBuilder().
+        Host("localhost").
+        Port(9000).
+        Build()
+
+    // cfg.Port == Some(9000), cfg.Timeout == Some(30)
+}
+```
+
+### 使い分けの判断基準
+
+| アプローチ | 使用場面 | メリット |
+|-----------|---------|---------|
+| Functional Options | 関数オプションが3-5個程度、標準的な設定 | Goイディオム、デフォルト値が明確 |
+| Generic Builder | 複雑な構築ロジック、ステップ順序が重要 | 型安全、再利用可能、ステップの柔軟な組み合わせ |
+| 直接構築 | 必須パラメータのみ、単純な構造 | 最もシンプル、オーバーヘッドなし |
+
+**推奨**:
+- **単純なケース**: Functional Options（Goコミュニティ標準）
+- **複雑な構築フロー**: Generic Builder（ステップ管理が重要）
+- **再利用性重視**: Generic Builder（複数ドメインで共通基盤）
