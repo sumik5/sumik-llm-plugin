@@ -104,6 +104,7 @@ get_skill_description() {
         "understanding-database-internals") echo "DB内部構造（ストレージエンジン・分散システム）" ;;
         "designing-monitoring") echo "監視・オブザーバビリティ設計" ;;
         "developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
+        "deploying-google-cloud") echo "Cloud Run サーバーレスデプロイ（CI/CD・スケーリング・コスト最適化）" ;;
         "architecting-micro-frontends") echo "マイクロフロントエンドアーキテクチャ" ;;
         *) echo "" ;;
     esac
@@ -227,6 +228,31 @@ check_terraform() {
 check_docker() {
     if [[ -f "$WORK_DIR/Dockerfile" ]] || find "$WORK_DIR" -maxdepth 3 -name "docker-compose.*" 2>/dev/null | grep -q .; then
         PROJECT_SKILLS+=("managing-docker")
+    fi
+}
+
+# Cloud Run チェック
+check_cloud_run() {
+    # cloudbuild.yaml
+    if [[ -f "$WORK_DIR/cloudbuild.yaml" ]] || [[ -f "$WORK_DIR/cloudbuild.json" ]]; then
+        PROJECT_SKILLS+=("deploying-google-cloud")
+        return
+    fi
+
+    # .gcloudignore
+    if [[ -f "$WORK_DIR/.gcloudignore" ]]; then
+        PROJECT_SKILLS+=("deploying-google-cloud")
+        return
+    fi
+
+    # package.json の @google-cloud パッケージ
+    local package_json="$WORK_DIR/package.json"
+    if [[ -f "$package_json" ]]; then
+        local deps
+        deps=$(jq -r '(.dependencies // {} | keys[]) , (.devDependencies // {} | keys[])' "$package_json" 2>/dev/null) || return
+        if echo "$deps" | grep -q "^@google-cloud/"; then
+            PROJECT_SKILLS+=("deploying-google-cloud")
+        fi
     fi
 }
 
@@ -376,6 +402,7 @@ check_python
 check_python_deps
 check_terraform
 check_docker
+check_cloud_run
 check_writing
 check_cedar
 check_database

@@ -9,6 +9,8 @@ description: >
   Use when designing monitoring strategy, setting up alerting, choosing monitoring tools,
   building observability systems, implementing SLOs, or adopting observability practices.
   For OpenTelemetry SDK/API implementation, use implementing-opentelemetry instead.
+  For green software carbon metrics and sustainability monitoring, use building-green-software instead.
+  For Cloud Run-specific monitoring with Cloud Monitoring/Logging, use deploying-google-cloud instead.
 ---
 
 # Designing Monitoring

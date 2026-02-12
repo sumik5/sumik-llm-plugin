@@ -6,7 +6,9 @@ description: >-
   tools or discussing AI-assisted development practices. Use when crafting prompts
   for code generation, managing AI context, reviewing AI-generated code, or
   coordinating multi-agent development workflows. For AI copywriting techniques,
-  use crafting-ai-copywriting instead.
+  use crafting-ai-copywriting instead. For testing-specific AI techniques (test data
+  generation, exploratory testing with AI, test planning with AI), use testing-code
+  AI references instead.
 ---
 
 # developing-with-ai

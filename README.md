@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (47個)
+└── skills/             # ナレッジスキル (50個)
 ```
 
 ---
@@ -57,7 +57,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (47個)
+### Skills (50個)
 
 #### コア開発
 
@@ -87,6 +87,7 @@ sumik-claude-plugin/
 | `understanding-database-internals` | データベース内部構造の包括的リファレンス。ストレージエンジン（Bツリー、LSMツリー、トランザクション）、分散システム（合意アルゴリズム、レプリケーション、一貫性モデル）、DB選択・設計ガイドをカバー |
 | `avoiding-sql-antipatterns` | SQLアンチパターン回避（論理設計・物理設計・クエリ・アプリ開発の25パターン） |
 | `applying-behavior-design` | 行動変容デザイン（CREATEファネル、3戦略）|
+| `building-green-software` | グリーンソフトウェアエンジニアリング（カーボン効率・運用効率・カーボンアウェアネス・測定方法論・GSMM・グリーンAI） |
 
 #### フレームワーク
 
@@ -119,10 +120,12 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `designing-monitoring` | 監視・オブザーバビリティシステム設計（アンチパターン、デザインパターン、レイヤー別戦略、テレメトリーパイプライン、アラート・オンコール・インシデント管理、オブザーバビリティ概念、SLO、サンプリング戦略、成熟度モデル） |
+| `deploying-google-cloud` | Google Cloud デプロイ（Cloud Run中心）（アーキテクチャ・コンテナ化・CI/CD・スケーリング・セキュリティ・監視・コスト最適化） |
 | `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm含む） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
 | `developing-terraform` | Terraform IaC開発（HCL構文/モジュール設計/ステート管理/AWS構築） |
+| `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 
 #### ドキュメント・品質
 

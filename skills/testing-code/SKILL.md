@@ -1,6 +1,6 @@
 ---
 name: testing-code
-description: REQUIRED for all feature implementations. Automatically load when writing or reviewing tests. Enforces TDD approach with AAA pattern, actual/expected variables, and 100% coverage goal for business logic. Covers Vitest, React Testing Library, Jest, and Playwright.
+description: REQUIRED for all feature implementations. Automatically load when writing or reviewing tests. Enforces TDD approach with AAA pattern, actual/expected variables, and 100% coverage goal for business logic. Covers Vitest, React Testing Library, Jest, Playwright, and AI-augmented testing strategies.
 ---
 
 # テストファーストアプローチ
@@ -11,11 +11,14 @@ description: REQUIRED for all feature implementations. Automatically load when w
 
 - **SKILL.md** (このファイル): 概要と使用タイミング
 - **[VITEST-RTL-GUIDELINES.md](./references/VITEST-RTL-GUIDELINES.md)**: Vitest / React Testing Library コード規約 ⭐NEW
+- **[REACT-TDD-PATTERNS.md](./references/REACT-TDD-PATTERNS.md)**: React コンポーネント TDD パターン ⭐NEW
 - **[TDD.md](./references/TDD.md)**: TDDサイクルと実装パターン
 - **[TEST-TYPES.md](./references/TEST-TYPES.md)**: テストピラミッド（単体、統合、E2E）
 - **[TESTABLE-DESIGN.md](./references/TESTABLE-DESIGN.md)**: テスタブルな設計原則
 - **[REFERENCE.md](./references/REFERENCE.md)**: ベストプラクティス、カバレッジ、チェックリスト
 - **[AI-REVIEW-GUIDELINES.md](./references/AI-REVIEW-GUIDELINES.md)**: AIテストコードレビュー観点
+- **[AI-TESTING-STRATEGY.md](./references/AI-TESTING-STRATEGY.md)**: AI活用テスト戦略（マインドセット・判断基準）⭐NEW
+- **[AI-TEST-TECHNIQUES.md](./references/AI-TEST-TECHNIQUES.md)**: AI活用テストテクニック集（データ生成・探索的テスト・UI自動化）⭐NEW
 
 ## 🎯 使用タイミング
 

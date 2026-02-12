@@ -7,6 +7,7 @@ description: >-
   For migration strategy and trade-off analysis methodology, use modernizing-architecture instead.
   For DDD domain modeling, use applying-domain-driven-design instead.
   For frontend decomposition patterns (micro-frontends), use architecting-micro-frontends instead.
+  For green/sustainable microservices trade-offs and carbon-efficient architecture, use building-green-software instead.
 ---
 
 # Architecting Microservices

@@ -5,6 +5,7 @@ description: >-
   MUST load when Dockerfile, docker-compose.yml, docker-compose.yaml, or .dockerignore is detected.
   Covers container management via Docker MCP, multi-stage builds, cache optimization, security hardening, and image size minimization.
   For Terraform IaC, use developing-terraform instead.
+  For Cloud Run serverless deployment, use deploying-google-cloud instead.
 ---
 
 # Docker開発環境管理
