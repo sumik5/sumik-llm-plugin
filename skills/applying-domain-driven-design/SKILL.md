@@ -6,6 +6,7 @@ description: >-
   Use when designing domain boundaries, choosing business logic implementation patterns, decomposing monolithic data, or aligning software architecture with business strategy.
   For socio-technical architecture modernization and trade-off analysis, use modernizing-architecture instead.
   For microservices distributed patterns (Saga, messaging, granularity), use architecting-microservices instead.
+  For data architecture read-side patterns and caching strategies, use architecting-data instead.
 ---
 
 # Domain-Driven Design (ドメイン駆動設計)

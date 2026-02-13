@@ -8,6 +8,7 @@ description: >-
   For DDD domain modeling, use applying-domain-driven-design instead.
   For frontend decomposition patterns (micro-frontends), use architecting-micro-frontends instead.
   For green/sustainable microservices trade-offs and carbon-efficient architecture, use building-green-software instead.
+  For data architecture patterns (read-side optimization, caching strategies), use architecting-data instead.
 ---
 
 # Architecting Microservices

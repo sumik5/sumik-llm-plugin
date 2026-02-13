@@ -8,7 +8,7 @@ description: >-
   coordinating multi-agent development workflows. For AI copywriting techniques,
   use crafting-ai-copywriting instead. For testing-specific AI techniques (test data
   generation, exploratory testing with AI, test planning with AI), use testing-code
-  AI references instead.
+  AI references instead. For organizational AI development security strategy (trust frameworks, governance, AI-SPM), use securing-ai-development instead.
 ---
 
 # developing-with-ai

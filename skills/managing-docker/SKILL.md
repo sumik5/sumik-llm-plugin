@@ -6,6 +6,7 @@ description: >-
   Covers container management via Docker MCP, multi-stage builds, cache optimization, security hardening, and image size minimization.
   For Terraform IaC, use developing-terraform instead.
   For Cloud Run serverless deployment, use deploying-google-cloud instead.
+  For broader DevOps methodology and orchestration strategy, use practicing-devops instead.
 ---
 
 # Docker開発環境管理

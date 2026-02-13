@@ -1,6 +1,6 @@
 ---
 name: developing-terraform
-description: Terraform IaC development with HCL syntax, module design, and state management. MUST load when .tf files are detected or go.mod contains 'terraform'. Covers AWS infrastructure patterns. For Docker infrastructure, use managing-docker instead.
+description: Terraform IaC development with HCL syntax, module design, and state management. MUST load when .tf files are detected or go.mod contains 'terraform'. Covers AWS infrastructure patterns. For Docker infrastructure, use managing-docker instead. For broader DevOps methodology and IaC tool comparison, use practicing-devops instead.
 ---
 
 # Terraform IaC開発ガイド
