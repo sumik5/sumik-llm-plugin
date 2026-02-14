@@ -4,7 +4,7 @@ Cloud Run の料金モデルを理解し、リソース最適化とコスト管�
 
 ## 料金モデル
 
-### CPU allocation: always-on vs request-based
+### CPU allocation: always-on vs request-based 詳細比較
 
 | モード | 課金対象 | 用途 | コスト影響 |
 |-------|---------|------|----------|
@@ -29,7 +29,23 @@ gcloud run deploy my-app \
   --allow-unauthenticated
 ```
 
-**推奨**: 99%のケースで request-based を使用
+**詳細比較表:**
+
+| 項目 | Request-based | Always-on |
+|------|---------------|-----------|
+| **課金モデル** | リクエスト処理時間のみ | インスタンス起動中常時（アイドル時も課金） |
+| **適用ケース** | REST API、軽量Webアプリ | WebSocket、バックグラウンドタスク、ストリーミング |
+| **コスト差** | 低コスト（推奨） | 約2-3倍のコスト |
+| **アイドル時のCPU** | 0%（スロットリング） | 利用可能（常時割り当て） |
+| **コールドスタート影響** | やや長い（CPU割り当て待機） | 短い（常時CPU利用可能） |
+
+**選択基準:**
+- **Request-based**: ステートレスなリクエスト駆動型アプリケーション（99%のケースで推奨）
+- **Always-on**: リクエスト外でもCPU処理が必要な場合（例: WebSocketのハートビート、定期的なバックグラウンド処理）
+
+**コスト削減のポイント:**
+- アイドル時間が多いアプリケーションでは Request-based の方が圧倒的に有利
+- Always-on が必要な場合も、concurrency を高めてインスタンス数を削減
 
 ### メモリ・CPU・ネットワーク課金
 
@@ -57,14 +73,25 @@ CPU時間 = 10,000 × 0.2 = 2,000 vCPU-秒
 ### 無料枠の活用
 
 **Cloud Run 無料枠（月次）:**
-- CPU時間: 180,000 vCPU-秒
-- メモリ: 360,000 GiB-秒
-- リクエスト: 2,000,000回
-- ネットワーク Egress: 1 GB（北米内）
+
+| リソース | 月次無料枠 |
+|---------|-----------|
+| **CPU時間** | 180,000 vCPU-秒 |
+| **メモリ** | 360,000 GiB-秒 |
+| **リクエスト** | 2,000,000回 |
+| **ネットワーク Egress** | 1 GB（北米内） |
+
+**具体的な使用可能量の例:**
+- 1 vCPU、512MiB、平均200msのリクエストの場合
+  - CPU: 180,000 vCPU-秒 ÷ 0.2秒 = 900,000リクエスト/月
+  - メモリ: 360,000 GiB-秒 ÷ (0.5 GiB × 0.2秒) = 3,600,000リクエスト/月
+  - リクエスト数: 2,000,000リクエスト/月
+  - **実質的な上限**: 900,000リクエスト/月（CPU時間が先に枯渇）
 
 **活用戦略:**
 - 小規模プロジェクトは完全無料で運用可能
 - 開発・ステージング環境を無料枠内に収める
+- 複数の小規模サービスを無料枠内で並行運用
 
 ## コスト最適化戦略
 
@@ -133,12 +160,37 @@ gcloud run deploy my-app \
 - アイドル時のCPU課金ゼロ
 - リクエスト処理時のみ課金
 
-### Committed Use Discounts
+### Committed Use Discounts (CUD)
 
 長期利用でコスト削減（1年/3年契約）:
-- **割引率**: 最大57%
-- **対象**: 予測可能な定常トラフィック
-- **設定**: Google Cloud Console の Billing セクション
+
+| 契約期間 | 割引率 |
+|---------|--------|
+| **1年** | 約37% |
+| **3年** | 最大57% |
+
+**対象リソース:**
+- Cloud Run の CPU・メモリ使用量
+- 予測可能な定常トラフィックに適用
+
+**設定手順:**
+1. Google Cloud Console の Billing セクションにアクセス
+2. "Commitments" → "Purchase a commitment" を選択
+3. リソースタイプ（CPU・メモリ）と契約期間を選定
+4. 予測使用量に基づいてコミットメント量を設定
+
+**適用基準:**
+- 月次のベースライン使用量を分析
+- 変動の少ない定常トラフィックに対して CUD を適用
+- ピークトラフィック分は従量課金のままにしてコスト変動を吸収
+
+**例: 月次平均10,000 vCPU-時間の場合**
+- CUD で8,000 vCPU-時間をカバー（80%）
+- 残り2,000 vCPU-時間は従量課金（ピーク対応）
+
+**注意事項:**
+- コミットメント未達でも課金される（契約量が最低課金額）
+- トラフィック予測が困難な場合は従量課金のまま運用推奨
 
 ## モニタリングと予算管理
 
@@ -164,7 +216,8 @@ gcloud billing budgets update BUDGET_ID \
 
 ### コスト分析ダッシュボード
 
-**BigQuery でコスト分析:**
+**BigQuery でコスト分析（SQLクエリテンプレート）:**
+
 ```sql
 -- Cloud Run の日次コスト集計
 SELECT
@@ -188,6 +241,57 @@ WHERE
   AND usage_start_time BETWEEN '2024-01-01' AND '2024-01-31'
 GROUP BY resource_type
 ORDER BY total_cost DESC;
+
+-- サービス別コスト分析（トップ10）
+SELECT
+  resource.name AS service_name,
+  SUM(cost) AS total_cost,
+  SUM(usage.amount) AS total_usage,
+  sku.description AS resource_type
+FROM
+  `my-project.billing_dataset.gcp_billing_export_v1_*`
+WHERE
+  service.description = 'Cloud Run'
+  AND usage_start_time BETWEEN TIMESTAMP('2024-01-01') AND TIMESTAMP('2024-01-31')
+GROUP BY service_name, resource_type
+ORDER BY total_cost DESC
+LIMIT 10;
+
+-- CPU vs メモリ コスト比較
+SELECT
+  DATE(usage_start_time) AS day,
+  SUM(CASE WHEN sku.description LIKE '%CPU%' THEN cost ELSE 0 END) AS cpu_cost,
+  SUM(CASE WHEN sku.description LIKE '%Memory%' THEN cost ELSE 0 END) AS memory_cost,
+  SUM(CASE WHEN sku.description LIKE '%Request%' THEN cost ELSE 0 END) AS request_cost
+FROM
+  `my-project.billing_dataset.gcp_billing_export_v1_*`
+WHERE
+  service.description = 'Cloud Run'
+  AND usage_start_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+GROUP BY day
+ORDER BY day;
+
+-- コスト異常検出（前週比較）
+WITH weekly_cost AS (
+  SELECT
+    EXTRACT(WEEK FROM usage_start_time) AS week,
+    EXTRACT(YEAR FROM usage_start_time) AS year,
+    SUM(cost) AS total_cost
+  FROM
+    `my-project.billing_dataset.gcp_billing_export_v1_*`
+  WHERE
+    service.description = 'Cloud Run'
+    AND usage_start_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 8 WEEK)
+  GROUP BY week, year
+)
+SELECT
+  week,
+  year,
+  total_cost,
+  LAG(total_cost) OVER (ORDER BY year, week) AS prev_week_cost,
+  (total_cost - LAG(total_cost) OVER (ORDER BY year, week)) / LAG(total_cost) OVER (ORDER BY year, week) * 100 AS percent_change
+FROM weekly_cost
+ORDER BY year DESC, week DESC;
 ```
 
 **Cloud Monitoring ダッシュボード:**

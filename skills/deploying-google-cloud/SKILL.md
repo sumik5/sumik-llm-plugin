@@ -389,6 +389,7 @@ Cloud Run のデプロイ時、以下の判断が必要な場合は AskUserQuest
 
 | ファイル | 内容 |
 |---------|------|
+| **[CLOUDRUN-SETUP.md](references/CLOUDRUN-SETUP.md)** | 開発環境セットアップ、SDK インストール、認証設定、複数環境管理 |
 | **[CLOUDRUN-CONTAINERIZATION.md](references/CLOUDRUN-CONTAINERIZATION.md)** | Dockerfile 最適化、マルチステージビルド、Cloud Run 向けベストプラクティス |
 | **[CLOUDRUN-DEPLOYMENT.md](references/CLOUDRUN-DEPLOYMENT.md)** | デプロイ戦略（Blue/Green、カナリア）、トラフィック分割、ロールバック |
 | **[CLOUDRUN-CI-CD.md](references/CLOUDRUN-CI-CD.md)** | Cloud Build パイプライン、cloudbuild.yaml、自動テスト・デプロイ |
@@ -396,6 +397,7 @@ Cloud Run のデプロイ時、以下の判断が必要な場合は AskUserQuest
 | **[CLOUDRUN-SECURITY.md](references/CLOUDRUN-SECURITY.md)** | IAM詳細、VPC、Secret Manager、Binary Authorization |
 | **[CLOUDRUN-MONITORING.md](references/CLOUDRUN-MONITORING.md)** | Cloud Monitoring、Logging、Trace、アラート設定 |
 | **[CLOUDRUN-COST-OPTIMIZATION.md](references/CLOUDRUN-COST-OPTIMIZATION.md)** | 料金計算、コスト分析、最適化テクニック |
+| **[CLOUDRUN-ADVANCED-TOPICS.md](references/CLOUDRUN-ADVANCED-TOPICS.md)** | 将来トレンド、エコシステム統合、マルチクラウド、エッジ、AI/ML |
 
 ---
 

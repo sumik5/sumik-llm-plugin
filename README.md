@@ -26,23 +26,24 @@ sumik-claude-plugin/
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
-├── agents/             # Agent定義 (2体)
+├── agents/             # Agent定義 (3体)
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (55個)
+└── skills/             # ナレッジスキル (57個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Agents (2体)
+### Agents (3体)
 
 | Agent | モデル | 説明 |
 |-------|--------|------|
 | **タチコマ** (tachikoma) | Sonnet | 実装・実行Agent。フロント/バック/テスト等に適応。並列実行対応(1-4体) |
 | **Serena Expert** (serena-expert) | Sonnet | /serenaコマンドを活用したトークン効率重視の開発Agent |
+| **Team Builder** (team-builder) | Opus | チーム編成・タスク分解・Agent協調オーケストレーター。4種のモデル戦略とチーム構成テンプレートで並列開発を最適化 |
 
 ### Commands (8個)
 
@@ -57,7 +58,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (55個)
+### Skills (57個)
 
 #### コア開発
 
@@ -124,13 +125,15 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `designing-monitoring` | 監視・オブザーバビリティシステム設計（アンチパターン、デザインパターン、レイヤー別戦略、テレメトリーパイプライン、アラート・オンコール・インシデント管理、オブザーバビリティ概念、SLO、サンプリング戦略、成熟度モデル） |
-| `deploying-google-cloud` | Google Cloud デプロイ（Cloud Run中心）（アーキテクチャ・コンテナ化・CI/CD・スケーリング・セキュリティ・監視・コスト最適化） |
+| `deploying-google-cloud` | Google Cloud デプロイ（Cloud Run中心）（アーキテクチャ・コンテナ化・CI/CD・スケーリング・セキュリティ・監視・コスト最適化・9リファレンスファイル） |
 | `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm含む） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
 | `developing-terraform` | Terraform IaC開発（HCL構文/モジュール設計/ステート管理/AWS構築） |
 | `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 | `practicing-devops` | DevOps方法論・IaCツール選定・オーケストレーション比較・CI/CD・プラットフォームエンジニアリング |
+| `using-anki-mcp` | Anki MCP Server統合（デッキ管理・カードレビュー・ノートタイプ・メディア管理・GUI統合） |
+| `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
 
 #### ドキュメント・品質
 

@@ -26,10 +26,32 @@ gcloud projects add-iam-policy-binding my-project \
 
 | ロール | 権限 | 用途 |
 |-------|------|------|
-| `roles/run.admin` | 完全な管理権限 | デプロイ・更新・削除 |
-| `roles/run.developer` | サービス作成・更新 | 開発者向け |
+| `roles/run.admin` | 完全な管理権限（すべての操作可能） | デプロイ・更新・削除・IAM変更 |
+| `roles/run.developer` | サービス作成・更新・削除（IAM変更不可） | 開発者向けデプロイ |
 | `roles/run.invoker` | サービス呼び出しのみ | API呼び出し、他サービスからのアクセス |
-| `roles/run.viewer` | 読み取り専用 | 監視・運用チーム |
+| `roles/run.viewer` | 読み取り専用（設定・ログ閲覧可能） | 監視・運用チーム |
+
+**IAM ロール詳細権限範囲:**
+
+**`roles/run.admin`:**
+- サービスの作成・更新・削除
+- IAMポリシーの変更
+- トラフィック分割の設定
+- リビジョン管理
+
+**`roles/run.developer`:**
+- サービスの作成・更新・削除
+- 新リビジョンのデプロイ
+- IAMポリシーの変更は**不可**
+
+**`roles/run.invoker`:**
+- 認証済みHTTPリクエストの送信
+- サービス設定の閲覧・変更は**不可**
+
+**`roles/run.viewer`:**
+- サービス設定の閲覧
+- ログ・メトリクスの閲覧
+- 変更操作は一切**不可**
 
 **推奨プラクティス:**
 - 開発者には `roles/run.developer` を付与（admin権限不要）
@@ -47,11 +69,35 @@ gcloud run services add-iam-policy-binding my-app \
   --region us-central1
 ```
 
-**サービスアカウント偽装:**
+**サービスアカウント偽装（impersonation）:**
+
+サービスアカウントキーをダウンロードせず、一時的に別のサービスアカウント権限で操作できる:
+
 ```bash
 # 一時的に別のサービスアカウントで認証
 gcloud auth print-access-token \
   --impersonate-service-account=cloud-run-deployer@my-project.iam.gserviceaccount.com
+
+# サービスアカウントを偽装してCloud Runをデプロイ
+gcloud run deploy my-app \
+  --image gcr.io/my-project/my-app:latest \
+  --platform managed \
+  --region us-central1 \
+  --impersonate-service-account=cloud-run-deployer@my-project.iam.gserviceaccount.com
+```
+
+**偽装の利点:**
+- サービスアカウントキーのローカル保存が不要（キー漏洩リスクゼロ）
+- IAM監査ログに実際のユーザーと偽装先サービスアカウントの両方が記録される
+- 一時的なトークンのみ発行され、セキュリティが向上
+
+**偽装権限の付与:**
+```bash
+# ユーザーにサービスアカウント偽装権限を付与
+gcloud iam service-accounts add-iam-policy-binding \
+  cloud-run-deployer@my-project.iam.gserviceaccount.com \
+  --member="user:alice@example.com" \
+  --role="roles/iam.serviceAccountTokenCreator"
 ```
 
 ## コンテナセキュリティ
@@ -131,14 +177,51 @@ steps:
 
 ### Binary Authorization
 
-イメージ署名と検証:
+Binary Authorization はコンテナイメージが信頼できるソースから署名されたことを検証し、未承認イメージのデプロイを防止する。
+
+**Cosign を使用したイメージ署名と検証:**
+
 ```bash
-# イメージに署名（Cosign使用）
+# 1. Cosign 鍵ペアを生成
+cosign generate-key-pair
+
+# 2. イメージに署名
 cosign sign --key cosign.key gcr.io/my-project/my-app:latest
 
-# デプロイ前に署名検証
+# 3. デプロイ前に署名検証
 cosign verify --key cosign.pub gcr.io/my-project/my-app:latest
 ```
+
+**Binary Authorization ポリシーの設定:**
+
+```bash
+# Binary Authorization を有効化
+gcloud services enable binaryauthorization.googleapis.com
+
+# デフォルトポリシーを設定（すべてのイメージで署名を要求）
+gcloud container binauthz policy import policy.yaml
+```
+
+**policy.yaml 例:**
+```yaml
+admissionWhitelistPatterns:
+- namePattern: gcr.io/my-project/*
+defaultAdmissionRule:
+  requireAttestationsBy:
+  - projects/my-project/attestors/my-attestor
+  enforcementMode: ENFORCED_BLOCK_AND_AUDIT_LOG
+```
+
+**実装手順の概要:**
+1. Cosign または Google Cloud KMS で署名鍵を生成
+2. CI/CDパイプラインでイメージビルド後に署名
+3. Binary Authorization ポリシーで署名済みイメージのみデプロイ許可
+4. Cloud Run に Binary Authorization を適用
+
+**メリット:**
+- サプライチェーン攻撃の防止
+- 未承認イメージの自動ブロック
+- 監査ログによるコンプライアンス対応
 
 ## ネットワークセキュリティ
 
@@ -185,6 +268,27 @@ gcloud run deploy my-app \
   --no-allow-unauthenticated
 ```
 
+**Ingress 制御モード詳細:**
+
+**`all`（デフォルト）:**
+- インターネット経由の公開アクセス許可
+- IAM認証と組み合わせることで未認証アクセスを防止可能
+
+**`internal-and-cloud-load-balancing`:**
+- 同一プロジェクト内のCloud Run/Cloud Functions/App Engineからのアクセス許可
+- Cloud Load Balancer経由の外部アクセス許可
+- パブリックインターネットからの直接アクセスはブロック
+
+**`internal`:**
+- 同一プロジェクト・VPC内のリソースからのみアクセス可能
+- Load Balancer経由も含めた外部アクセスを完全にブロック
+- マイクロサービス間の内部通信に最適
+
+**選択基準:**
+- 公開APIエンドポイント → `all`
+- 社内ツール・管理画面 → `internal-and-cloud-load-balancing`
+- バックエンドマイクロサービス → `internal`
+
 ### Cloud Armor WAF
 
 DDoS攻撃対策とカスタムルール:
@@ -197,6 +301,67 @@ DDoS攻撃対策とカスタムルール:
 2. Cloud Armor セキュリティポリシーを定義
 3. Load Balancer にポリシーをアタッチ
 4. Cloud Run サービスをバックエンドに追加
+
+**Cloud Armor WAF ルール設定詳細:**
+
+```bash
+# セキュリティポリシーの作成
+gcloud compute security-policies create my-policy \
+  --description "Cloud Run protection policy"
+
+# SQLインジェクション対策ルール追加
+gcloud compute security-policies rules create 1000 \
+  --security-policy my-policy \
+  --expression "evaluatePreconfiguredExpr('sqli-stable')" \
+  --action "deny-403" \
+  --description "Block SQL injection attacks"
+
+# XSS（クロスサイトスクリプティング）対策ルール追加
+gcloud compute security-policies rules create 1001 \
+  --security-policy my-policy \
+  --expression "evaluatePreconfiguredExpr('xss-stable')" \
+  --action "deny-403" \
+  --description "Block XSS attacks"
+
+# 特定国からのアクセスをブロック
+gcloud compute security-policies rules create 2000 \
+  --security-policy my-policy \
+  --expression "origin.region_code == 'CN' || origin.region_code == 'KP'" \
+  --action "deny-403" \
+  --description "Block access from specific countries"
+
+# レート制限（同一IPから100リクエスト/分超でブロック）
+gcloud compute security-policies rules create 3000 \
+  --security-policy my-policy \
+  --expression "true" \
+  --action "rate-based-ban" \
+  --rate-limit-threshold-count 100 \
+  --rate-limit-threshold-interval-sec 60 \
+  --description "Rate limiting rule"
+
+# Backend Service にポリシーをアタッチ
+gcloud compute backend-services update my-backend \
+  --security-policy my-policy
+```
+
+**事前設定済みルールのカテゴリ:**
+- `sqli-stable`: SQLインジェクション攻撃検出
+- `xss-stable`: XSS攻撃検出
+- `lfi-stable`: ローカルファイルインクルージョン攻撃検出
+- `rfi-stable`: リモートファイルインクルージョン攻撃検出
+- `rce-stable`: リモートコード実行攻撃検出
+- `methodenforcement-stable`: 許可されたHTTPメソッドのみ許可
+- `scannerdetection-stable`: セキュリティスキャナーの検出
+
+**カスタムルールの例（特定パスへのアクセス制御）:**
+```bash
+# /admin パスへのアクセスを特定IPのみ許可
+gcloud compute security-policies rules create 4000 \
+  --security-policy my-policy \
+  --expression "request.path.matches('/admin.*') && !inIpRange(origin.ip, '203.0.113.0/24')" \
+  --action "deny-403" \
+  --description "Restrict admin access to specific IP range"
+```
 
 ## Secret Manager 連携
 

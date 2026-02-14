@@ -16,7 +16,10 @@ Cloud Run アプリケーションの包括的な可観測性を実現するた�
 | `run.googleapis.com/container/memory/utilization` | メモリ使用率 | メモリリーク検出 |
 | `run.googleapis.com/instance_count` | アクティブインスタンス数 | スケーリング分析 |
 
-**MQL クエリ例:**
+**MQL（Monitoring Query Language）クエリ例:**
+
+MQL は Google Cloud Monitoring のクエリ言語で、メトリクスのフィルタリング・集計・変換を柔軟に記述できる。
+
 ```mql
 # 平均リクエストレイテンシ（1分集計）
 fetch cloud_run_revision
@@ -38,28 +41,97 @@ fetch cloud_run_revision
 | filter (resource.labels.service_name == "my-app")
 | align mean(1m)
 | every 1m
+
+# P95レイテンシ（95パーセンタイル）
+fetch cloud_run_revision
+| metric 'run.googleapis.com/request_latencies'
+| filter (resource.labels.service_name == "my-app")
+| align percentile(0.95, 1m)
+| every 1m
+
+# エラーレート（5xxエラーの比率）
+fetch cloud_run_revision
+| { metric 'run.googleapis.com/request_count'
+  | filter (metric.labels.response_code_class == "5xx")
+  ; metric 'run.googleapis.com/request_count' }
+| ratio
+| align rate(1m)
+| every 1m
 ```
 
 ### カスタムメトリクス
 
-**OpenTelemetry による計装:**
-```javascript
-// Node.js 例
-const { MeterProvider } = require('@opentelemetry/sdk-metrics');
-const { PrometheusExporter } = require('@opentelemetry/exporter-prometheus');
+**OpenTelemetry による計装（カスタムメトリクス実装）:**
 
-const exporter = new PrometheusExporter({ port: 9464 });
-const meterProvider = new MeterProvider();
-meterProvider.addMetricReader(exporter);
+**Node.js 例:**
+```javascript
+const { MeterProvider, PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
+const { MetricExporter } = require('@google-cloud/opentelemetry-cloud-monitoring-exporter');
+
+// Cloud Monitoring へのエクスポート設定
+const exporter = new MetricExporter();
+const metricReader = new PeriodicExportingMetricReader({
+  exporter: exporter,
+  exportIntervalMillis: 60000, // 1分ごとにエクスポート
+});
+
+const meterProvider = new MeterProvider({
+  readers: [metricReader],
+});
 
 const meter = meterProvider.getMeter('my-app');
-const requestCounter = meter.createCounter('custom_request_count');
 
-// リクエストごとにカウント
+// カスタムカウンター
+const requestCounter = meter.createCounter('custom_request_count', {
+  description: 'Total number of requests by route',
+});
+
+// カスタムヒストグラム（レイテンシ分布）
+const latencyHistogram = meter.createHistogram('custom_request_duration', {
+  description: 'Request duration in milliseconds',
+  unit: 'ms',
+});
+
+// Express ミドルウェアで計測
 app.use((req, res, next) => {
-  requestCounter.add(1, { route: req.path });
+  const startTime = Date.now();
+
+  res.on('finish', () => {
+    const duration = Date.now() - startTime;
+    requestCounter.add(1, { route: req.path, status: res.statusCode });
+    latencyHistogram.record(duration, { route: req.path });
+  });
+
   next();
 });
+```
+
+**Python 例:**
+```python
+from opentelemetry import metrics
+from opentelemetry.exporter.cloud_monitoring import CloudMonitoringMetricsExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+
+# エクスポーター設定
+exporter = CloudMonitoringMetricsExporter()
+reader = PeriodicExportingMetricReader(exporter, export_interval_millis=60000)
+
+# MeterProvider 初期化
+provider = MeterProvider(metric_readers=[reader])
+metrics.set_meter_provider(provider)
+
+meter = metrics.get_meter("my-app")
+
+# カスタムカウンター
+request_counter = meter.create_counter(
+    "custom_request_count",
+    description="Total number of requests by route"
+)
+
+# 使用例
+def handle_request(route, status_code):
+    request_counter.add(1, {"route": route, "status": status_code})
 ```
 
 **ログベースメトリクス:**
@@ -70,6 +142,13 @@ gcloud logging metrics create http_5xx_count \
   --log-filter='resource.type="cloud_run_revision"
     resource.labels.service_name="my-app"
     httpRequest.status>=500'
+
+# 特定エラーメッセージのカウント
+gcloud logging metrics create database_timeout_count \
+  --description="Count of database timeout errors" \
+  --log-filter='resource.type="cloud_run_revision"
+    resource.labels.service_name="my-app"
+    jsonPayload.error:"database timeout"'
 ```
 
 ### ダッシュボード設定
@@ -209,6 +288,10 @@ gcloud alpha monitoring policies create \
 - Cloud Run はデフォルトで基本的なトレースを自動生成
 - `X-Cloud-Trace-Context` ヘッダーでトレース伝播
 
+**Cloud Trace 統合の仕組み:**
+
+Cloud Trace は分散システム内のリクエストフロー全体を可視化し、各サービスやコンポーネントでの処理時間を詳細に追跡する。Cloud Run サービス間でトレースコンテキストを伝播することで、エンドツーエンドのレイテンシ分析が可能になる。
+
 **OpenTelemetry 計装（Node.js）:**
 ```javascript
 const { NodeTracerProvider } = require('@opentelemetry/node');
@@ -337,6 +420,47 @@ gcloud alpha monitoring channels create \
   --channel-labels=service_key=YOUR_PAGERDUTY_KEY
 ```
 
+### SLO（Service Level Objectives）定義とアラート設定
+
+**SLO ベースのアラート設計:**
+
+SLO はサービスの目標品質指標を定義し、ユーザー体験に直結するメトリクスを監視する。
+
+**例: レイテンシ SLO（95%のリクエストが500ms以内）**
+
+```bash
+# SLO ポリシー作成（gcloud CLI または Cloud Console）
+gcloud slo create my-app-latency-slo \
+  --service my-app \
+  --slo-id latency-slo \
+  --goal 0.95 \
+  --calendar-period MONTH \
+  --request-based \
+  --good-total-ratio-threshold "
+    fetch cloud_run_revision
+    | metric 'run.googleapis.com/request_latencies'
+    | filter (resource.labels.service_name == 'my-app')
+    | filter (metric.value < 500)  # 500ms以内が「良好」
+    | ratio
+  "
+```
+
+**例: エラーレート SLO（99.9%のリクエストが成功）**
+
+```mql
+fetch cloud_run_revision
+| { metric 'run.googleapis.com/request_count'
+  | filter (metric.labels.response_code_class != "5xx")
+  ; metric 'run.googleapis.com/request_count' }
+| ratio
+| condition gt(val, 0.999)  # 99.9%以上が目標
+```
+
+**SLO アラートの利点:**
+- ユーザー体験に直結する指標で監視
+- エラーバジェットの消費率を追跡
+- 誤検知を削減（一時的な異常値を無視）
+
 ### インシデント対応
 
 **アラート受信時の対応フロー:**
@@ -345,6 +469,18 @@ gcloud alpha monitoring channels create \
 3. **緊急対応**: 必要に応じてロールバック実施
 4. **根本原因分析**: ログ・トレースから原因特定
 5. **恒久対策**: コード修正・設定変更を実施
+
+**自動ロールバック設定:**
+
+```bash
+# トラフィック分割でロールバック（緊急時）
+gcloud run services update-traffic my-app \
+  --to-revisions=stable=100
+
+# Canary デプロイ時の自動ロールバック（エラー率監視）
+# Cloud Monitoring アラートポリシーと連携し、エラー率が閾値を超えた場合に
+# Cloud Functions でロールバックスクリプトを実行
+```
 
 ## トラブルシューティングガイド
 

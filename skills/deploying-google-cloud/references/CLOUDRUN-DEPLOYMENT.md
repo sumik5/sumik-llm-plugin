@@ -166,37 +166,72 @@ done
 
 1. **Cloud Console にアクセス**
    - https://console.cloud.google.com/
-   - プロジェクトを選択
+   - プロジェクトセレクター（画面上部）から対象プロジェクトを選択
 
 2. **Cloud Run ページに移動**
-   - ナビゲーションメニュー → Cloud Run
+   - 左側ナビゲーションメニュー → Cloud Run
+   - 既存サービス一覧と新規作成オプションが表示される
 
 3. **サービス作成**
-   - 「サービスを作成」ボタンをクリック
+   - 「サービスを作成」（Create Service）ボタンをクリック
+   - デプロイウィザードが起動
 
 4. **コンテナイメージの指定**
    - コンテナイメージURL: `gcr.io/my-project/my-app:latest`
-   - または「コンテナイメージを選択」からレジストリを参照
+   - 「コンテナイメージを選択」からGoogle Container RegistryまたはArtifact Registryを参照可能
+   - イメージプレビューと基本メタデータが表示される
 
 5. **サービス設定**
-   - サービス名: `my-app`
-   - リージョン: `us-central1`
+   - サービス名: `my-app`（公開URLの一部となる）
+   - リージョン: `us-central1`（ユーザーベースに近いリージョンを選択）
 
 6. **リソース設定**
-   - メモリ: 512 MiB
-   - CPU: 1
-   - 同時実行リクエスト数: 80
+   - メモリ割り当て: 512 MiB（ドロップダウンまたはスライダーで選択）
+   - CPU: 1 vCPU
+   - 同時実行リクエスト数: 80（各インスタンスが処理できる同時リクエスト数）
+   - 最大インスタンス数: 10（コスト制限に応じて設定）
 
 7. **環境変数設定**
-   - `PORT=8080`
-   - `DEBUG=false`
-   - `API_ENDPOINT=https://api.example.com`
+   - 環境変数パネルで「変数を追加」をクリック
+   - キーと値のペアを入力:
+     - `PORT=8080`
+     - `DEBUG=false`
+     - `API_ENDPOINT=https://api.example.com`
 
 8. **ネットワーク設定**
-   - 認証: 未認証の呼び出しを許可
+   - 認証: 「未認証の呼び出しを許可」を選択（公開APIの場合）
+   - 内部通信の場合はVPCコネクタを設定可能
 
-9. **デプロイ実行**
-   - 「作成」ボタンをクリック
+9. **詳細設定（オプション）**
+   - タイムアウト値の設定
+   - 最小インスタンス数（常時起動インスタンス）
+   - Cloud SQL接続設定
+
+10. **デプロイ実行**
+    - 設定サマリーページで全項目を確認
+    - 「作成」（Create）ボタンをクリック
+    - リアルタイムの進捗インジケーターが表示される
+    - デプロイ完了後、サービスURLが表示される
+
+### デプロイ後の管理
+
+**リビジョン管理:**
+- サービス詳細ページで「リビジョン」タブを表示
+- 各リビジョンの履歴、デプロイ時刻、イメージタグを確認
+- ワンクリックで以前のリビジョンにロールバック可能
+
+**トラフィック分割設定（GUI）:**
+- 「リビジョン」タブで「トラフィックを編集」をクリック
+- スライダーコントロールで各リビジョンへのトラフィック割合を調整:
+  - v1: 80%
+  - v2: 20%
+- パーセンテージフィールドで直接数値入力も可能
+- 設定適用後、数秒～数十秒で反映
+
+**パフォーマンス監視:**
+- 「メトリクス」タブでリクエスト数、レイテンシ、エラー率を可視化
+- 「ログ」タブでリアルタイムログストリームを表示
+- アラート設定も可能
 
 ### GUI のメリット・デメリット
 
@@ -205,6 +240,8 @@ done
 | 視覚的で理解しやすい | 自動化困難 |
 | 設定ミスが少ない | 大量のサービスには不向き |
 | 初心者に優しい | バージョン管理できない |
+| トラフィック分割がスライダーで直感的 | 大規模チームでの並行作業に不向き |
+| リアルタイムログ・メトリクス確認が簡単 | スクリプト化・再現性が低い |
 
 ## ソースベースデプロイ（Buildpack）
 
@@ -344,79 +381,304 @@ gcloud run services update-traffic my-app \
   --to-revisions=v1=50,v2=30,v3=20
 ```
 
-### Canary デプロイの実践例
+### Canary デプロイの段階的割り当て手順
 
-**ステップ1: 新リビジョンをデプロイ（トラフィックなし）**
+Canaryデプロイは、新バージョンに段階的にトラフィックを移行し、本番環境でリスクを最小化しながら検証する手法です。
+
+#### ステップ1: 新リビジョンをデプロイ（トラフィックなし）
 
 ```bash
+# トラフィックを受け取らない新リビジョンをデプロイ
 gcloud run deploy my-app \
   --image gcr.io/my-project/my-app:v2.0.0 \
+  --platform managed \
+  --region us-central1 \
   --no-traffic
 ```
 
-**ステップ2: 10%のトラフィックを割り当て**
+**確認:**
 
 ```bash
-gcloud run services update-traffic my-app \
-  --to-revisions=v1=90,v2=10
+# リビジョン一覧とトラフィック割り当てを確認
+gcloud run revisions list --service my-app --region us-central1
+
+# 現在のトラフィック設定を確認
+gcloud run services describe my-app --region us-central1 \
+  --format="value(status.traffic)"
 ```
 
-**ステップ3: メトリクスを監視**
+#### ステップ2: 初期Canaryトラフィック（10%）割り当て
+
+```bash
+# 10%のトラフィックを新リビジョンに割り当て
+gcloud run services update-traffic my-app \
+  --to-revisions=v1=90,v2=10 \
+  --region us-central1
+```
+
+**初期フェーズの監視（10分間）:**
 
 ```bash
 # エラーレート確認
-gcloud logging read "resource.type=cloud_run_revision AND severity=ERROR" --limit 50
+gcloud logging read \
+  "resource.type=cloud_run_revision AND resource.labels.revision_name=v2 AND severity=ERROR" \
+  --limit 50
+
+# レイテンシ確認（Cloud Monitoringで視覚化推奨）
+gcloud monitoring time-series list \
+  --filter='metric.type="run.googleapis.com/request_latencies"'
 ```
 
-**ステップ4: 段階的に増やす**
+**判定基準:**
+- エラーレート < 1%
+- P95レイテンシが旧バージョンの±20%以内
+- 致命的なログが存在しない
+
+#### ステップ3: 中間Canaryトラフィック（20% → 50%）
+
+問題が検出されなければ、段階的に割合を増やします。
 
 ```bash
-# 50%に増やす
+# 20%に増加
 gcloud run services update-traffic my-app \
-  --to-revisions=v1=50,v2=50
+  --to-revisions=v1=80,v2=20 \
+  --region us-central1
 
-# 問題なければ100%に
+# 15分間監視後、問題なければ50%に増加
 gcloud run services update-traffic my-app \
-  --to-revisions=v2=100
+  --to-revisions=v1=50,v2=50 \
+  --region us-central1
 ```
 
-### Blue-Green デプロイの実践例
-
-**現在の状態（Blue）:**
-- サービス: `my-app`
-- リビジョン: `v1`（トラフィック100%）
-
-**ステップ1: Green環境をデプロイ**
+**50%フェーズの監視（30分間）:**
 
 ```bash
-gcloud run deploy my-app \
-  --image gcr.io/my-project/my-app:v2.0.0 \
-  --no-traffic
+# 両リビジョンのメトリクス比較
+gcloud monitoring time-series list \
+  --filter='metric.type="run.googleapis.com/request_count"' \
+  --interval-start-time="30 minutes ago"
+
+# 特定エンドポイントのエラー確認
+gcloud logging read \
+  "resource.type=cloud_run_revision AND httpRequest.requestUrl=~'/api/critical'" \
+  --limit 100
 ```
 
-**ステップ2: 動作確認（専用URLでテスト）**
+**A/Bテスト機会:**
+- 50%割り当て時は、新旧バージョンのパフォーマンス比較に最適
+- ビジネスメトリクス（コンバージョン率、セッション時間）も確認
+
+#### ステップ4: 最終Canaryトラフィック（100%）
+
+全監視基準をクリアしたら、100%に移行します。
 
 ```bash
-# 新リビジョンのURLを確認
-gcloud run revisions describe v2 --region us-central1 --format="value(status.url)"
-
-# curlでテスト
-curl https://v2---my-app-xyz-uc.a.run.app
-```
-
-**ステップ3: トラフィックを一括切り替え**
-
-```bash
+# 全トラフィックを新リビジョンに移行
 gcloud run services update-traffic my-app \
-  --to-revisions=v2=100
+  --to-revisions=v2=100 \
+  --region us-central1
 ```
 
-**ステップ4: 問題発生時はロールバック**
+**完全移行後の監視（24時間）:**
 
 ```bash
+# 日次エラーサマリー
+gcloud logging read \
+  "resource.type=cloud_run_revision AND severity>=ERROR" \
+  --limit 200 \
+  --format="table(timestamp,severity,jsonPayload.message)"
+```
+
+#### Canary中の問題検出とロールバック
+
+**問題を検知した場合の即座対応:**
+
+```bash
+# 新リビジョンへのトラフィックを停止
+gcloud run services update-traffic my-app \
+  --to-revisions=v1=100 \
+  --region us-central1
+```
+
+**段階的ロールバック（推奨）:**
+
+```bash
+# 段階的にトラフィックを減少
+gcloud run services update-traffic my-app \
+  --to-revisions=v1=80,v2=20  # まず80:20に戻す
+
+# 問題が継続する場合は完全にロールバック
 gcloud run services update-traffic my-app \
   --to-revisions=v1=100
 ```
+
+#### Canaryデプロイの推奨タイムライン
+
+| フェーズ | トラフィック割合 | 監視時間 | 判定基準 |
+|---------|---------------|---------|---------|
+| **初期** | v1:90, v2:10 | 10分 | エラー率<1%, レイテンシ安定 |
+| **拡大1** | v1:80, v2:20 | 15分 | エラー率<2%, CPU/メモリ正常 |
+| **拡大2** | v1:50, v2:50 | 30分 | パフォーマンスが旧版と同等 |
+| **最終** | v2:100 | 24時間 | ビジネスメトリクス正常 |
+
+#### 自動Canaryスクリプト例
+
+```bash
+#!/bin/bash
+# Automated Canary Deployment Script
+
+SERVICE="my-app"
+REGION="us-central1"
+NEW_REVISION="v2"
+OLD_REVISION="v1"
+
+# Phase 1: 10%
+gcloud run services update-traffic $SERVICE \
+  --to-revisions=$OLD_REVISION=90,$NEW_REVISION=10 \
+  --region $REGION
+
+echo "Phase 1: 10% deployed. Monitoring for 10 minutes..."
+sleep 600
+
+# Check error rate (simplified)
+ERROR_COUNT=$(gcloud logging read \
+  "resource.labels.revision_name=$NEW_REVISION AND severity=ERROR" \
+  --limit 1000 --format="value(timestamp)" | wc -l)
+
+if [ $ERROR_COUNT -gt 10 ]; then
+  echo "Error threshold exceeded. Rolling back..."
+  gcloud run services update-traffic $SERVICE \
+    --to-revisions=$OLD_REVISION=100 \
+    --region $REGION
+  exit 1
+fi
+
+# Phase 2: 50%
+gcloud run services update-traffic $SERVICE \
+  --to-revisions=$OLD_REVISION=50,$NEW_REVISION=50 \
+  --region $REGION
+
+echo "Phase 2: 50% deployed. Monitoring for 30 minutes..."
+sleep 1800
+
+# Phase 3: 100%
+gcloud run services update-traffic $SERVICE \
+  --to-revisions=$NEW_REVISION=100 \
+  --region $REGION
+
+echo "Canary deployment complete. Full traffic on $NEW_REVISION."
+```
+
+### Blue-Green デプロイの詳細実装ステップ
+
+Blue-Greenデプロイは、2つの完全な環境（BlueとGreen）を維持し、トラフィックを一度に切り替えることでリスクを最小化する手法です。
+
+**前提条件:**
+- 現在の本番環境（Blue）: リビジョン `v1` がトラフィック100%を受信中
+- 新バージョン（Green）: イメージ `v2.0.0` をデプロイ予定
+
+#### ステップ1: Green環境のデプロイ（トラフィックなし）
+
+```bash
+# トラフィックを受け取らない新リビジョンをデプロイ
+gcloud run deploy my-app \
+  --image gcr.io/my-project/my-app:v2.0.0 \
+  --no-traffic \
+  --region us-central1
+```
+
+**重要ポイント:**
+- `--no-traffic` フラグにより、新リビジョンはトラフィックを受け取らない
+- この時点でBlue（v1）は100%のトラフィックを継続受信
+- Green（v2）は本番環境にデプロイされているが、ユーザーには公開されていない
+
+#### ステップ2: Green環境の検証
+
+**専用URLでのテスト:**
+
+```bash
+# 新リビジョン専用のURLを取得
+NEW_URL=$(gcloud run revisions describe v2 \
+  --region us-central1 \
+  --format="value(status.url)")
+
+# 専用URLでヘルスチェック
+curl -I $NEW_URL/health
+
+# 機能テスト実行
+curl -X POST $NEW_URL/api/test -d '{"test": "data"}'
+```
+
+**検証項目:**
+- ヘルスチェックエンドポイントが200を返すか
+- 主要APIエンドポイントが正常動作するか
+- データベース接続が確立されるか
+- レイテンシが許容範囲内か
+- エラーログに異常がないか
+
+#### ステップ3: トラフィックの一括切り替え
+
+検証が完了したら、全トラフィックをGreenに切り替えます。
+
+```bash
+# 100%のトラフィックを新リビジョンに切り替え
+gcloud run services update-traffic my-app \
+  --to-revisions=v2=100 \
+  --region us-central1
+```
+
+**切り替え時の挙動:**
+- 数秒以内に全トラフィックがv2に切り替わる
+- v1のインスタンスは即座に削除されず、既存リクエストの完了を待つ
+- DNSキャッシュにより、一部ユーザーは数十秒間v1にアクセスする可能性あり
+
+#### ステップ4: Green環境の監視
+
+切り替え後、すぐに監視を開始します。
+
+```bash
+# リアルタイムログ確認
+gcloud logging read \
+  "resource.type=cloud_run_revision AND resource.labels.service_name=my-app AND resource.labels.revision_name=v2" \
+  --limit 50 \
+  --format json
+
+# エラーレート確認
+gcloud logging read \
+  "resource.type=cloud_run_revision AND severity=ERROR" \
+  --limit 50
+```
+
+**監視項目:**
+- エラーレート（5分間で5%以下を維持）
+- レイテンシ（P95が許容範囲内）
+- CPU/メモリ使用率
+- リクエスト成功率
+
+#### ステップ5: 問題発生時の即座ロールバック
+
+問題を検知したら、即座にBlueに戻します。
+
+```bash
+# 全トラフィックを安定版（v1）に戻す
+gcloud run services update-traffic my-app \
+  --to-revisions=v1=100 \
+  --region us-central1
+```
+
+**ロールバックの利点:**
+- Blue環境（v1）は削除されていないため、即座に切り戻し可能
+- ダウンタイムは数秒～数十秒
+- データ整合性の問題が最小化される
+
+#### リスクプロファイル別ガイダンス
+
+| リスクレベル | 推奨デプロイ戦略 | 理由 |
+|------------|----------------|------|
+| **低リスク** | 直接デプロイ | 開発環境、内部ツール |
+| **中リスク** | Canaryデプロイ | 段階的検証が可能 |
+| **高リスク** | Blue-Green | ミッションクリティカル、即座ロールバック必須 |
+| **最高リスク** | Blue-Green + 段階的検証 | 金融、医療、大規模eコマース |
 
 ## ロールバック手順
 

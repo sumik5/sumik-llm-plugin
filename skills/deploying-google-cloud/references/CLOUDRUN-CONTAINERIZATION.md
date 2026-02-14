@@ -177,6 +177,160 @@ README.md
 docs/
 ```
 
+### .dockerignore 詳細テンプレート（言語・用途別）
+
+**Python プロジェクト向け:**
+
+```
+# バージョン管理
+.git
+.gitignore
+.gitattributes
+
+# Python バイトコード・キャッシュ
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 仮想環境
+venv/
+ENV/
+env/
+.venv
+
+# テスト
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.nox/
+
+# 環境変数・機密情報
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+service-account-key.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ドキュメント
+*.md
+docs/
+LICENSE
+```
+
+**Node.js プロジェクト向け:**
+
+```
+# 依存関係
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+package-lock.json
+yarn.lock
+
+# ビルド成果物
+dist/
+build/
+.next/
+out/
+.nuxt
+
+# テスト
+coverage/
+.nyc_output
+
+# 環境変数・機密情報
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+.npmrc
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# バージョン管理
+.git/
+.gitignore
+
+# その他
+*.log
+tmp/
+temp/
+```
+
+**Go プロジェクト向け:**
+
+```
+# バイナリ
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/dist/
+
+# テスト
+*.test
+*.out
+
+# 依存関係（go.mod/go.sumは含める）
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# 環境変数・機密情報
+.env
+*.pem
+*.key
+
+# バージョン管理
+.git/
+.gitignore
+
+# その他
+*.log
+tmp/
+```
+
 ## Cloud Run固有のコンテナ要件
 
 ### PORT環境変数のリッスン
@@ -430,6 +584,53 @@ EXPOSE 8080
 CMD ["python", "app.py"]
 ```
 
+### 非rootユーザー作成の詳細コマンド
+
+**Alpine Linux ベースイメージの場合:**
+
+```dockerfile
+# Alpine では adduser/addgroup コマンドの構文が異なる
+RUN addgroup -S appgroup && adduser -S -G appgroup appuser
+```
+
+**Debian/Ubuntu ベースイメージの場合:**
+
+```dockerfile
+# --system オプションでシステムユーザーとして作成（UID < 1000）
+RUN groupadd --system --gid 1001 appgroup && \
+    useradd --system --uid 1001 --gid appgroup --shell /bin/bash --create-home appuser
+```
+
+**UID/GIDを明示的に指定（推奨）:**
+
+固定のUID/GIDを使用することで、ボリュームマウント時のパーミッション問題を回避できる。
+
+```dockerfile
+FROM python:3.9-slim
+
+# UID 1001, GID 1001 で作成
+RUN groupadd --gid 1001 appgroup && \
+    useradd --uid 1001 --gid appgroup --shell /bin/bash --create-home appuser
+
+WORKDIR /app
+
+# ディレクトリ作成と所有権設定
+RUN mkdir -p /app /tmp/app-cache && \
+    chown -R appuser:appgroup /app /tmp/app-cache
+
+USER appuser
+
+# 以降の COPY は appuser として実行される
+COPY --chown=appuser:appgroup requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+COPY --chown=appuser:appgroup . .
+
+ENV PATH="/home/appuser/.local/bin:${PATH}"
+EXPOSE 8080
+CMD ["python", "app.py"]
+```
+
 ### 読み取り専用ファイルシステム
 
 Cloud Runは `/tmp` 以外のディレクトリへの書き込みを制限できる（セキュリティ強化）。
@@ -445,6 +646,63 @@ ENV UPLOAD_DIR=/tmp/uploads
 # 読み取り専用でデプロイ（gcloud run deploy 時に指定）
 # --execution-environment=gen2 --no-allow-unauthenticated
 ```
+
+**読み取り専用ファイルシステム設定の詳細:**
+
+Cloud Run Gen2（第2世代実行環境）では、コンテナファイルシステムをデフォルトで読み取り専用にできる。
+
+**デプロイ時の設定:**
+
+```bash
+gcloud run deploy my-app \
+  --image asia-northeast1-docker.pkg.dev/my-project/repo/my-app:latest \
+  --execution-environment gen2 \
+  --no-cpu-throttling \
+  --region asia-northeast1
+```
+
+**アプリケーションコードでの `/tmp` 使用例（Python）:**
+
+```python
+import os
+import tempfile
+
+# 一時ファイルは /tmp に作成
+TEMP_DIR = os.getenv('TEMP_DIR', '/tmp')
+
+def save_uploaded_file(file_content, filename):
+    temp_path = os.path.join(TEMP_DIR, filename)
+    with open(temp_path, 'wb') as f:
+        f.write(file_content)
+    return temp_path
+
+# tempfile モジュールも /tmp を使用
+with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
+    tmp.write('temporary data')
+    tmp_path = tmp.name
+```
+
+**Node.js での例:**
+
+```javascript
+const os = require('os');
+const path = require('path');
+const fs = require('fs');
+
+// 一時ディレクトリのパス
+const TEMP_DIR = process.env.TEMP_DIR || os.tmpdir();
+
+function saveUploadedFile(buffer, filename) {
+  const tempPath = path.join(TEMP_DIR, filename);
+  fs.writeFileSync(tempPath, buffer);
+  return tempPath;
+}
+```
+
+**注意事項:**
+- `/tmp` のサイズはメモリ制限に依存（例: メモリ512MiBなら `/tmp` も最大512MiB）
+- コンテナ再起動時に `/tmp` の内容は失われる
+- 永続化が必要なデータは Cloud Storage 等を使用
 
 ### 機密情報の管理
 
@@ -487,32 +745,49 @@ import os
 database_password = os.environ.get('DATABASE_PASSWORD')
 ```
 
-## コード例集
+## 言語別完全 Dockerfile テンプレート
 
-### Python Flask アプリケーション
+### Python Flask アプリケーション（本番用）
 
-**Dockerfile:**
+**Dockerfile（マルチステージビルド + 非rootユーザー）:**
 
 ```dockerfile
+# ビルドステージ
+FROM python:3.9-slim AS builder
+
+WORKDIR /build
+
+# 依存関係定義のみコピー（キャッシュ最適化）
+COPY requirements.txt .
+
+# pip 依存関係をビルド
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# 本番ステージ
 FROM python:3.9-slim
+
+# 非rootユーザー作成（UID/GID固定）
+RUN groupadd --gid 1001 appgroup && \
+    useradd --uid 1001 --gid appgroup --create-home appuser
 
 WORKDIR /app
 
-# 非rootユーザー作成
-RUN addgroup --system appgroup && \
-    adduser --system --group appuser
+# ビルドステージから依存関係をコピー
+COPY --from=builder --chown=appuser:appgroup /root/.local /home/appuser/.local
 
-# 依存関係インストール
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# アプリケーションコードをコピー
+COPY --chown=appuser:appgroup . .
 
-# アプリケーションコピー
-COPY . .
-RUN chown -R appuser:appgroup /app
+# 一時ディレクトリ作成
+RUN mkdir -p /tmp/app-cache && chown appuser:appgroup /tmp/app-cache
 
 USER appuser
 
+# PATH に user site-packages を追加
+ENV PATH="/home/appuser/.local/bin:${PATH}"
 ENV PORT=8080
+ENV PYTHONUNBUFFERED=1
+
 EXPOSE 8080
 
 CMD ["python", "app.py"]
@@ -539,31 +814,66 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)
 ```
 
-### Node.js Express アプリケーション
+**requirements.txt:**
 
-**Dockerfile:**
+```
+Flask==2.3.0
+gunicorn==21.2.0
+```
+
+**Gunicorn 使用時（推奨）:**
 
 ```dockerfile
-FROM node:14-alpine AS builder
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4", "--timeout", "300", "app:app"]
+```
+
+### Node.js Express アプリケーション（本番用）
+
+**Dockerfile（マルチステージビルド + 本番依存のみ）:**
+
+```dockerfile
+# ビルドステージ
+FROM node:18-alpine AS builder
+
 WORKDIR /app
+
+# package.json のみコピー（キャッシュ最適化）
 COPY package*.json ./
-RUN npm install
+
+# 全依存関係をインストール（devDependencies含む）
+RUN npm ci
+
+# ソースコードをコピー
 COPY . .
+
+# TypeScript ビルド（該当する場合）
 RUN npm run build
 
-FROM node:14-alpine
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+# 本番依存のみインストール
+RUN npm ci --production
 
-# 非rootユーザー（alpineのデフォルトユーザー）
+# 本番ステージ
+FROM node:18-alpine
+
+# 非rootユーザー（Alpine では node ユーザーが既存）
 USER node
 
+WORKDIR /app
+
+# ビルド成果物と本番依存をコピー
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/dist ./dist
+COPY --from=builder --chown=node:node /app/package*.json ./
+
+ENV NODE_ENV=production
+ENV PORT=8080
+
 EXPOSE 8080
+
 CMD ["node", "dist/server.js"]
 ```
 
-**server.js:**
+**server.js（または dist/server.js）:**
 
 ```javascript
 const express = require('express');
@@ -578,30 +888,68 @@ app.get('/health', (req, res) => {
 });
 
 const port = process.env.PORT || 8080;
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
 });
 ```
 
-### Go アプリケーション
+**package.json:**
 
-**Dockerfile:**
+```json
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/express": "^4.17.0",
+    "@types/node": "^18.0.0"
+  }
+}
+```
+
+### Go アプリケーション（本番用 distroless）
+
+**Dockerfile（マルチステージビルド + distroless）:**
 
 ```dockerfile
 # ビルドステージ
-FROM golang:1.18-alpine AS builder
+FROM golang:1.21-alpine AS builder
+
 WORKDIR /src
+
+# go.mod/go.sum のみコピー（依存関係キャッシュ最適化）
 COPY go.mod go.sum ./
 RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o my-app .
 
-# 本番ステージ（distroless）
-FROM gcr.io/distroless/static-debian11
+# ソースコードをコピー
+COPY . .
+
+# 静的リンクバイナリをビルド
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-w -s" \
+    -o /app/my-app .
+
+# 本番ステージ（distroless - 最小イメージ）
+FROM gcr.io/distroless/static-debian11:nonroot
+
+# distroless の nonroot ユーザー（UID 65532）
+USER nonroot:nonroot
+
 WORKDIR /app
-COPY --from=builder /src/my-app .
+
+# ビルド成果物のみコピー
+COPY --from=builder --chown=nonroot:nonroot /app/my-app .
+
 EXPOSE 8080
-CMD ["./my-app"]
+
+ENTRYPOINT ["./my-app"]
 ```
 
 **main.go:**
@@ -635,6 +983,96 @@ func main() {
     log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 ```
+
+**go.mod:**
+
+```go
+module my-app
+
+go 1.21
+
+require (
+    // 依存関係をここに追加
+)
+```
+
+## ベースイメージ選択ガイド（詳細比較）
+
+### イメージタイプ別比較表
+
+| 項目 | Alpine | Slim | Standard | Distroless |
+|------|--------|------|----------|-----------|
+| **サイズ** | 最小（5-50MB） | 小（100-200MB） | 大（300-1000MB） | 最小（10-50MB） |
+| **パッケージマネージャー** | apk | apt/dpkg | apt/dpkg | なし |
+| **シェル** | ✅ sh/bash | ✅ bash | ✅ bash | ❌ なし |
+| **デバッグツール** | ❌ 最小限 | ⚠️ 一部 | ✅ 豊富 | ❌ なし |
+| **セキュリティ** | ⚠️ musl libc | ✅ 良好 | ⚠️ 攻撃面大 | ✅ 最高 |
+| **ビルド速度** | 🚀 高速 | ⚠️ 中 | ⚠️ 遅 | 🚀 高速 |
+| **互換性** | ⚠️ 一部ライブラリ不可 | ✅ 高 | ✅ 最高 | ⚠️ 静的バイナリのみ |
+
+### Python ベースイメージ選択
+
+**開発環境:**
+```dockerfile
+FROM python:3.9  # 標準イメージ（デバッグツール豊富）
+```
+
+**本番環境（推奨）:**
+```dockerfile
+FROM python:3.9-slim  # Debian slim（バランス良好）
+```
+
+**超軽量化:**
+```dockerfile
+FROM python:3.9-alpine  # Alpine（最小サイズ、C拡張注意）
+```
+
+**注意事項:**
+- Alpine は `musl libc` を使用するため、C 拡張モジュール（numpy, pandas等）でビルドエラーが発生する場合がある
+- その場合は `python:3.9-slim` を推奨
+
+### Node.js ベースイメージ選択
+
+**開発環境:**
+```dockerfile
+FROM node:18  # 標準イメージ（全ツール含む）
+```
+
+**本番環境（推奨）:**
+```dockerfile
+FROM node:18-alpine  # Alpine（Node.jsはC拡張少なく相性良）
+```
+
+**LTS バージョン:**
+```dockerfile
+FROM node:lts-alpine  # LTS最新版を自動選択
+```
+
+### Go ベースイメージ選択
+
+**ビルドステージ:**
+```dockerfile
+FROM golang:1.21-alpine  # ビルド専用（軽量で十分）
+```
+
+**本番ステージ（推奨）:**
+```dockerfile
+FROM gcr.io/distroless/static-debian11:nonroot  # 静的バイナリ用
+```
+
+**または:**
+```dockerfile
+FROM gcr.io/distroless/base-debian11:nonroot  # 動的リンク用（CGO使用時）
+```
+
+**最軽量（scratch）:**
+```dockerfile
+FROM scratch  # 空イメージ（静的リンクバイナリのみ）
+COPY --from=builder /app/my-app /
+CMD ["/my-app"]
+```
+
+---
 
 ## トラブルシューティング
 
