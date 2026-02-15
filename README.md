@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (57個)
+└── skills/             # ナレッジスキル (58個)
 ```
 
 ---
@@ -58,7 +58,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (57個)
+### Skills (58個)
 
 #### コア開発
 
@@ -73,6 +73,7 @@ sumik-claude-plugin/
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 | `securing-ai-development` | AI開発セキュリティ戦略（信頼フレームワーク、適応型ガードレール、AI-BOM、AI-SPM、ガバナンス、クロスファンクショナル所有権） |
 | `developing-with-ai` | AI支援開発メソドロジー（プロンプトエンジニアリング・コンテキストエンジニアリング・コード生成・QA・デバッグ・エージェント協調） |
+| `using-claude-code-as-pm` | PM向けClaude Code活用ガイド（コードベース調査・バグトリアージ・競合分析・フィードバック分析・要件生成・PMワークフロー自動化） |
 
 #### アーキテクチャ
 
@@ -125,7 +126,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `designing-monitoring` | 監視・オブザーバビリティシステム設計（アンチパターン、デザインパターン、レイヤー別戦略、テレメトリーパイプライン、アラート・オンコール・インシデント管理、オブザーバビリティ概念、SLO、サンプリング戦略、成熟度モデル） |
-| `deploying-google-cloud` | Google Cloud デプロイ（Cloud Run中心）（アーキテクチャ・コンテナ化・CI/CD・スケーリング・セキュリティ・監視・コスト最適化・9リファレンスファイル） |
+| `developing-google-cloud` | Google Cloud 開発・セキュリティ包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ: IAM・VPC・KMS・DLP・SCC・コンテナセキュリティ・コンプライアンス・15リファレンスファイル） |
 | `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm含む） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |

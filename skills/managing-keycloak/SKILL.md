@@ -360,7 +360,7 @@ AskUserQuestion(
 - **developing-nextjs:** Next.js統合（App Router + Server Components + Keycloak）
 - **developing-fullstack-javascript:** NestJS/Express統合（バックエンドでKeycloak認証）
 - **managing-docker:** Dockerデプロイ基礎（Keycloakコンテナ運用）
-- **deploying-google-cloud:** Google Cloud Run/GKE統合（Keycloak on Cloud Run）
+- **developing-google-cloud:** Google Cloud開発・セキュリティ（Cloud Run/GKE統合、IAM、Keycloak on Cloud Run）
 
 ---
 

@@ -106,7 +106,7 @@ get_skill_description() {
         "designing-relational-databases") echo "リレーショナルDB設計（エンティティ・ER図・正規化・最適化・PostgreSQL実装ガイド）" ;;
         "designing-monitoring") echo "監視・オブザーバビリティ設計" ;;
         "developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
-        "deploying-google-cloud") echo "Cloud Run サーバーレスデプロイ（CI/CD・スケーリング・コスト最適化）" ;;
+        "developing-google-cloud") echo "Google Cloud 開発・セキュリティ（Cloud Run + IAM/VPC/KMS/DLP/SCC）" ;;
         "architecting-micro-frontends") echo "マイクロフロントエンドアーキテクチャ" ;;
         *) echo "" ;;
     esac
@@ -237,13 +237,13 @@ check_docker() {
 check_cloud_run() {
     # cloudbuild.yaml
     if [[ -f "$WORK_DIR/cloudbuild.yaml" ]] || [[ -f "$WORK_DIR/cloudbuild.json" ]]; then
-        PROJECT_SKILLS+=("deploying-google-cloud")
+        PROJECT_SKILLS+=("developing-google-cloud")
         return
     fi
 
     # .gcloudignore
     if [[ -f "$WORK_DIR/.gcloudignore" ]]; then
-        PROJECT_SKILLS+=("deploying-google-cloud")
+        PROJECT_SKILLS+=("developing-google-cloud")
         return
     fi
 
@@ -253,7 +253,7 @@ check_cloud_run() {
         local deps
         deps=$(jq -r '(.dependencies // {} | keys[]) , (.devDependencies // {} | keys[])' "$package_json" 2>/dev/null) || return
         if echo "$deps" | grep -q "^@google-cloud/"; then
-            PROJECT_SKILLS+=("deploying-google-cloud")
+            PROJECT_SKILLS+=("developing-google-cloud")
         fi
     fi
 }

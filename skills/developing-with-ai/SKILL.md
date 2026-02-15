@@ -8,7 +8,10 @@ description: >-
   coordinating multi-agent development workflows. For AI copywriting techniques,
   use crafting-ai-copywriting instead. For testing-specific AI techniques (test data
   generation, exploratory testing with AI, test planning with AI), use testing-code
-  AI references instead. For organizational AI development security strategy (trust frameworks, governance, AI-SPM), use securing-ai-development instead.
+  AI references instead. For organizational AI development security strategy (trust
+  frameworks, governance, AI-SPM), use securing-ai-development instead. For
+  PM-specific Claude Code workflows (codebase investigation, feedback synthesis,
+  competitive analysis, requirements generation), use using-claude-code-as-pm instead.
 ---
 
 # developing-with-ai
@@ -330,3 +333,4 @@ Create a similar endpoint for [新機能]."
 - `using-serena`: Serena MCP によるトークン効率的なコード編集
 - `crafting-ai-copywriting`: AI ライティング技術（マーケティング・コンテンツ制作）
 - `researching-libraries`: ライブラリ調査（AI支援開発前の事前調査必須）
+- `using-claude-code-as-pm`: PM向けClaude Code活用（コードベース調査・フィードバック分析・競合分析・要件生成）

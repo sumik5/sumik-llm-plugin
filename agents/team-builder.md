@@ -263,9 +263,14 @@ color: green
   "team_name": "user-management-feature",
   "name": "frontend",
   "subagent_type": "general",
-  "additional_instructions": "タスク3を担当。src/components/**のみ編集可。developing-nextjsスキル参照。"
+  "additional_instructions": "タスク3を担当。src/components/**のみ編集可。developing-nextjsスキル参照。",
+  "run_in_background": true
 }
 ```
+
+**🔴 重要: チームメンバー起動時は必ず `run_in_background: true` を指定すること**
+- このパラメータがないとフォアグラウンド実行となり、tmux paneが立ち上がらず並列実行が機能しない
+- 複数メンバーを並列起動する場合、すべてのメンバーに `run_in_background: true` を設定する必要がある
 
 **Spawn Promptテンプレート（additional_instructions に含める内容）:**
 ```
@@ -346,6 +351,7 @@ TeamDelete()
 - 同一ファイルへの同時書き込み（サイレントな上書きが発生）
 - 役割の重複（例: 2人の researcher が同じ観点で調査）
 - 過度なメンバー数（5人以上は調整コストが急増）
+- チームメンバー起動時に `run_in_background: true` を省略すること（並列実行が機能せずフォアグラウンドでブロッキングされる）
 
 ---
 
