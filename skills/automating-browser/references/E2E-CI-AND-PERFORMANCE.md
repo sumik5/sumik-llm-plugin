@@ -258,11 +258,17 @@ jobs:
 
 ### Worker数の判断基準
 
+Playwrightのworker数は以下のロジックで自動決定される:
+- **デフォルト**: `Math.max(1, Math.floor(os.cpus().length / 2))` (CPUコア数の50%、最低1)
+- **明示的指定**: `workers: N` で固定
+- **未定義時**: ローカル環境では自動計算が適用される
+
 | 環境 | 推奨worker数 | 理由 |
 |------|-------------|------|
-| ローカル開発 | `undefined`（50%） | デフォルトで十分なリソース |
+| ローカル開発 | `undefined`（自動） | CPUコア数の50%を自動使用（例: 8コア→4 worker） |
 | CI（アプリ同梱） | `1` | アプリとテストでリソース競合回避 |
 | CI（テスト専用） | `2-4` | リソースに余裕があれば並列化 |
+| 多コアCI | `Math.min(8, cpuCount - 2)` | 過剰並列によるコンテキストスイッチ防止 |
 
 ### 並列化モード
 
@@ -273,6 +279,10 @@ jobs:
 | `serial` | ブロック全体をリトライ | 避けるべき（遅い） |
 
 ### fullyParallel の活用
+
+**デフォルトの並列挙動:**
+- `fullyParallel: false`（デフォルト）: **ファイル単位で並列、ファイル内は順次実行**
+- `fullyParallel: true`: **すべてのテストを完全並列実行**（最大パフォーマンス）
 
 ```typescript
 export default defineConfig({
@@ -299,6 +309,64 @@ test.describe('順序依存テスト', () => {
   test('ステップ1', async ({ page }) => { /* ... */ });
   test('ステップ2', async ({ page }) => { /* ... */ });
 });
+```
+
+**注意事項:**
+- 完全並列化により実行時間は50%削減可能
+- テスト間の状態共有がないことを確認する
+- 順序依存が必要な場合は `mode: 'default'` または `mode: 'serial'` を使用
+
+---
+
+## マトリクスビルド（複数環境並列実行）
+
+GitHub Actionsのマトリクス戦略を使用して、複数のOS・ブラウザ・Node.jsバージョンを並列テストできます。
+
+### 基本的なマトリクス設定
+
+```yaml
+name: Playwright Tests (Matrix)
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        browser: [chromium, firefox, webkit]
+        node-version: [18, 20]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npx playwright test --project=${{ matrix.browser }}
+```
+
+### マトリクスの効果
+
+- **3 OS × 3 browser × 2 Node.js = 18 並列ジョブ**
+- 各環境の互換性を同時検証
+- `fail-fast: false` で1つの失敗が他をブロックしない
+
+### マトリクス除外（特定組み合わせスキップ）
+
+```yaml
+strategy:
+  matrix:
+    os: [ubuntu-latest, windows-latest, macos-latest]
+    browser: [chromium, firefox, webkit]
+    exclude:
+      - os: windows-latest
+        browser: webkit  # Windows上のWebKitはサポート外
 ```
 
 ---
@@ -532,6 +600,115 @@ playwright-tests:
 
 ---
 
+## パフォーマンス測定とモニタリング
+
+### Navigation Timing API による測定
+
+ブラウザ組み込みのPerformance APIでページロード時間を計測できます:
+
+```typescript
+test('ページロードパフォーマンス', async ({ page }) => {
+  await page.goto('/');
+
+  const metrics = await page.evaluate(() => {
+    const timing = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    return {
+      domContentLoaded: timing.domContentLoadedEventEnd - timing.domContentLoadedEventStart,
+      loadComplete: timing.loadEventEnd - timing.loadEventStart,
+      domInteractive: timing.domInteractive - timing.fetchStart,
+      firstPaint: performance.getEntriesByType('paint')
+        .find(entry => entry.name === 'first-paint')?.startTime || 0,
+    };
+  });
+
+  // パフォーマンス閾値を検証
+  expect(metrics.domInteractive).toBeLessThan(1500); // 1.5秒以内
+  expect(metrics.firstPaint).toBeLessThan(1000); // 1秒以内
+});
+```
+
+### Chrome DevTools Protocol (CDP) による詳細メトリクス
+
+Chromiumブラウザでは、CDPを使用してメモリ使用量やCPU使用率を取得できます:
+
+```typescript
+test('リソース使用量モニタリング', async ({ page }) => {
+  // CDPセッション開始
+  const client = await page.context().newCDPSession(page);
+
+  await client.send('Performance.enable');
+  await page.goto('/');
+
+  // パフォーマンスメトリクス取得
+  const metrics = await client.send('Performance.getMetrics');
+
+  const metricsMap = new Map(
+    metrics.metrics.map(m => [m.name, m.value])
+  );
+
+  console.log('JavaScript Heap Used:', metricsMap.get('JSHeapUsedSize'));
+  console.log('Documents:', metricsMap.get('Documents'));
+  console.log('Frames:', metricsMap.get('Frames'));
+
+  // メモリリーク検出
+  expect(metricsMap.get('JSHeapUsedSize')!).toBeLessThan(50 * 1024 * 1024); // 50MB未満
+});
+```
+
+### Core Web Vitals 測定
+
+ユーザー体験を表すCore Web Vitalsを測定:
+
+```typescript
+test('Core Web Vitals', async ({ page }) => {
+  await page.goto('/');
+
+  const vitals = await page.evaluate(() => {
+    return new Promise((resolve) => {
+      new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const lcp = entries.find(e => e.entryType === 'largest-contentful-paint')?.startTime || 0;
+        const fid = entries.find(e => e.entryType === 'first-input')?.processingStart || 0;
+        const cls = entries.reduce((sum, e) =>
+          e.entryType === 'layout-shift' && !(e as any).hadRecentInput
+            ? sum + (e as any).value : sum, 0
+        );
+        resolve({ lcp, fid, cls });
+      }).observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
+
+      setTimeout(() => resolve({ lcp: 0, fid: 0, cls: 0 }), 5000);
+    });
+  });
+
+  // Google推奨値
+  expect(vitals.lcp).toBeLessThan(2500); // 2.5秒未満
+  expect(vitals.fid).toBeLessThan(100);  // 100ms未満
+  expect(vitals.cls).toBeLessThan(0.1);  // 0.1未満
+});
+```
+
+### トレースによるボトルネック特定
+
+```typescript
+test('トレース記録でボトルネック分析', async ({ page }) => {
+  await page.goto('/');
+
+  // トレース記録開始
+  await page.tracing.start({ screenshots: true, snapshots: true });
+
+  // 重い操作を実行
+  await page.getByRole('button', { name: '大量データロード' }).click();
+  await page.waitForSelector('.data-loaded');
+
+  // トレース停止＆保存
+  await page.tracing.stop({ path: 'trace.zip' });
+
+  // trace.zipを https://trace.playwright.dev にアップロードして分析
+});
+```
+
+---
+
 ## まとめ
 
 ### CI/CD 環境構築のベストプラクティス
@@ -725,17 +902,25 @@ export default defineConfig({
 
 1. **Docker環境を使用**: ブラウザインストール時間を削減
 2. **CI固有設定を分離**: `process.env.CI` での条件分岐
-3. **アーティファクト保存**: レポートとトレースを必ず保存
-4. **リトライ設定**: Flaky テスト対策に `retries: 2`
-5. **クラウドサービス活用**: スケーラビリティと環境カバレッジ向上
+3. **マトリクスビルド**: 複数OS・ブラウザ・Node.jsバージョンを並列検証
+4. **アーティファクト保存**: レポートとトレースを必ず保存
+5. **リトライ設定**: Flaky テスト対策に `retries: 2`
+6. **クラウドサービス活用**: スケーラビリティと環境カバレッジ向上
 
 ### パフォーマンス最適化の優先順位
 
-1. **並列化**: `fullyParallel: true` + 適切なworker数
-2. **シャーディング**: 大規模テストスイートで効果大
+1. **並列化**: `fullyParallel: true` + 適切なworker数（デフォルトはCPUコア数の50%）
+2. **シャーディング**: 大規模テストスイートで効果大（4シャードで時間75%削減）
 3. **One-Time Auth**: 認証を1回のみ実行
 4. **Fail Fast**: 早期失敗で無駄な実行を削減
 5. **--only-changed**: PR時に変更テストのみ実行
+
+### パフォーマンス測定とモニタリング
+
+1. **Navigation Timing API**: ページロード時間の計測
+2. **CDP (Chrome DevTools Protocol)**: メモリ・CPU使用率の詳細取得
+3. **Core Web Vitals**: LCP・FID・CLSでユーザー体験を定量化
+4. **トレース分析**: ボトルネックの特定とデバッグ
 
 ### 開発ワークフローとの統合
 

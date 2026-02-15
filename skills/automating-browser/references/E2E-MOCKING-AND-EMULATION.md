@@ -398,6 +398,40 @@ export default defineConfig({
 })
 ```
 
+### ブランドチャネル（Branded Browser Channels）
+
+Playwrightのデフォルトブラウザは独自ビルド版ですが、公式のEdge/Chromeでテストする必要がある場合は`channel`オプションを使用します。
+
+```typescript
+export default defineConfig({
+  projects: [
+    {
+      name: 'edge-stable',
+      use: {
+        ...devices['Desktop Edge'],
+        channel: 'msedge', // Microsoft Edge安定版
+      },
+    },
+    {
+      name: 'chrome-beta',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome-beta', // Chrome Beta版
+      },
+    },
+  ],
+})
+```
+
+利用可能なチャネル:
+- `msedge` (Edge Stable)
+- `chrome` (Chrome Stable)
+- `chrome-beta`
+- `chrome-dev`
+- `chrome-canary`
+
+**注意**: ブランドブラウザはシステムにインストールされている必要があります。存在しない場合はエラーが発生します。
+
 すべてのブラウザで並列実行:
 
 ```bash
@@ -517,6 +551,43 @@ test('スワイプジェスチャー', async ({ page }) => {
 })
 ```
 
+### タッチイベントの明示的なシミュレーション
+
+`page.click()`と`page.tap()`は異なるイベントを発火します。タッチデバイスでは`tap()`を使用してください。
+
+```typescript
+test('タッチイベント vs マウスイベント', async ({ page }) => {
+  test.use({ ...devices['iPhone 15'] })
+
+  await page.goto('/button-test')
+
+  // タッチイベント（touchstart/touchend）を発火
+  await page.locator('button').tap()
+
+  // マウスイベント（click）を発火
+  // await page.locator('button').click() // モバイルでは非推奨
+})
+```
+
+### スワイプ操作（touchstart → touchmove → touchend）
+
+Playwrightには直接的なswipe APIがないため、低レベルAPIで実装します。
+
+```typescript
+test('カスタムスワイプ', async ({ page }) => {
+  await page.goto('/carousel')
+
+  // 右から左へスワイプ
+  await page.touchscreen.tap(300, 200) // touchstart
+  await page.mouse.move(50, 200, { steps: 10 }) // touchmove
+  await page.evaluate(() => {
+    document.dispatchEvent(new TouchEvent('touchend'))
+  })
+
+  await expect(page.locator('.carousel-item:nth-child(2)')).toBeVisible()
+})
+```
+
 ### ピンチズーム
 
 ```typescript
@@ -539,19 +610,55 @@ test('ピンチズーム', async ({ page }) => {
 })
 ```
 
-### 画面回転
+### 画面回転（Orientation Change）
+
+縦向き（portrait）と横向き（landscape）でレイアウトが変わるアプリをテストします。
 
 ```typescript
-test('横向き表示', async ({ page, context }) => {
-  // 縦向き → 横向き
-  await context.addInitScript(() => {
-    Object.defineProperty(window.screen.orientation, 'type', {
-      get: () => 'landscape-primary'
-    })
+test('縦向き表示', async ({ page, browser }) => {
+  const context = await browser.newContext({
+    ...devices['iPhone 12'],
+    screen: {
+      width: 390,  // Portrait幅
+      height: 844  // Portrait高さ
+    }
   })
+  const page = await context.newPage()
 
   await page.goto('/video-player')
-  // 横向きレイアウトを確認
+  await expect(page.locator('.portrait-layout')).toBeVisible()
+  await context.close()
+})
+
+test('横向き表示', async ({ page, browser }) => {
+  const context = await browser.newContext({
+    ...devices['iPhone 12'],
+    screen: {
+      width: 844,  // Landscape幅（縦横入れ替え）
+      height: 390  // Landscape高さ
+    }
+  })
+  const page = await context.newPage()
+
+  await page.goto('/video-player')
+  await expect(page.locator('.landscape-layout')).toBeVisible()
+  await context.close()
+})
+```
+
+動的な画面回転シミュレーション:
+
+```typescript
+test('画面回転の動的切替', async ({ page }) => {
+  await page.goto('/responsive-demo')
+
+  // 縦向き
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('.mobile-menu')).toBeVisible()
+
+  // 横向き（iPhone 15 landscape）
+  await page.setViewportSize({ width: 852, height: 393 })
+  await expect(page.locator('.desktop-nav')).toBeVisible()
 })
 ```
 
@@ -595,8 +702,43 @@ test('位置情報の更新', async ({ page, context }) => {
 
 ### 3G 回線のシミュレーション（CDP）
 
+Chromiumでは、Chrome DevTools Protocol (CDP)を使用して詳細なネットワークスロットリングが可能です。
+
 ```typescript
-test('3G環境でのロード', async ({ page, browserName }) => {
+test('Slow 3G環境でのロード', async ({ page, browserName }) => {
+  test.skip(browserName !== 'chromium', 'CDP is Chromium-only')
+
+  const client = await page.context().newCDPSession(page)
+
+  // Slow 3G相当（厳しい条件）
+  const slow3G = {
+    offline: false,
+    downloadThroughput: 500 * 1024 / 8, // 500 kbps
+    uploadThroughput: 500 * 1024 / 8,   // 500 kbps
+    latency: 400,                        // 400ms
+  }
+
+  await client.send('Network.emulateNetworkConditions', slow3G)
+
+  const startTime = Date.now()
+  await page.goto('https://example.com')
+  const loadTime = Date.now() - startTime
+
+  console.log(`Page loaded in ${loadTime}ms under slow 3G conditions.`)
+
+  // ローディング表示の確認
+  await expect(page.locator('.spinner')).toBeVisible()
+
+  // スロットリング解除
+  await client.send('Network.emulateNetworkConditions', {
+    offline: false,
+    latency: 0,
+    downloadThroughput: -1, // -1でスロットリング無効化
+    uploadThroughput: -1,
+  })
+})
+
+test('3G Fast環境でのロード', async ({ page, browserName }) => {
   test.skip(browserName !== 'chromium', 'CDP is Chromium-only')
 
   const client = await page.context().newCDPSession(page)
@@ -614,6 +756,8 @@ test('3G環境でのロード', async ({ page, browserName }) => {
   await expect(page.locator('.spinner')).toBeVisible()
 })
 ```
+
+**注意**: CDPはChromiumブラウザ限定です。Firefox/WebKitでは`test.skip()`でスキップしてください。
 
 ### オフライン状態のテスト
 
@@ -784,6 +928,56 @@ test('仮想キーボード対応', async ({ page }) => {
   // 入力後に送信ボタンが見えるか確認
   await input.fill('user@example.com')
   await expect(page.getByRole('button', { name: 'Submit' })).toBeInViewport()
+})
+```
+
+### 問題6: カスタムモーダル（HTML/CSSベースのダイアログ）
+
+**症状**: ネイティブダイアログではないため`page.on('dialog')`で捕捉できない
+
+```typescript
+// 解決策: DOM要素として扱う
+test('カスタムクッキー同意バナー', async ({ page }) => {
+  await page.goto('/home')
+
+  // モーダルが表示されるまで待機
+  const cookieBanner = page.locator('#cookie-consent-accept')
+  await cookieBanner.waitFor({ state: 'visible' })
+
+  // タップで閉じる
+  await page.touchscreen.tap(cookieBanner)
+
+  // または外側をタップして閉じる
+  await page.touchscreen.tap(10, 10) // 画面左上隅
+})
+```
+
+### 問題7: システムレベルのパーミッションダイアログ
+
+**症状**: geolocation/camera/notificationsのリクエスト時にダイアログが表示される
+
+```typescript
+// 解決策: 事前にパーミッションを付与してダイアログを回避
+test('位置情報パーミッション', async ({ page, browser }) => {
+  const context = await browser.newContext({
+    ...devices['iPhone 13'],
+    permissions: ['geolocation'], // 事前に許可
+    geolocation: { latitude: 41.889938, longitude: 12.492507 }, // Rome
+  })
+
+  const page = await context.newPage()
+  await page.goto('https://www.openstreetmap.org/')
+  await page.getByRole('button', { name: /Show My Location/i }).click()
+
+  // パーミッションダイアログなしで位置情報が取得される
+  await expect(page).toHaveURL(/41\.88/)
+  await context.close()
+})
+
+// 複数パーミッションを同時に設定
+test.use({
+  permissions: ['geolocation', 'camera', 'notifications'],
+  geolocation: { latitude: 35.6895, longitude: 139.6917 }, // Tokyo
 })
 ```
 

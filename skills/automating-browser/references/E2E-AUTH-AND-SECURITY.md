@@ -24,7 +24,7 @@ test('有効な認証情報でログイン', async ({ page }) => {
 });
 ```
 
-### ログアウトフローのテスト
+### ログアウトフローのテスト（Cookie検証含む）
 
 ```typescript
 test('ログアウトでセッションをクリア', async ({ page }) => {
@@ -41,11 +41,23 @@ test('ログアウトでセッションをクリア', async ({ page }) => {
   await expect(page).toHaveURL('https://www.saucedemo.com/');
   await expect(page.getByPlaceholder('Username')).toBeVisible();
 
-  // セッション無効化の確認
+  // セッションCookieが削除されたことを確認
+  await expect.poll(async () =>
+    (await page.context().cookies()).some(
+      cookie => cookie.name === 'session-username'
+    )
+  ).toBeFalsy();
+
+  // セッション無効化の確認（保護されたルートへのアクセス拒否）
   await page.goto('https://www.saucedemo.com/inventory.html');
   await expect(page).toHaveURL('https://www.saucedemo.com/');  // リダイレクト
 });
 ```
+
+**重要な注意点:**
+- ログアウト処理は非同期に実行される場合があるため、Cookie削除は `expect.poll()` で確認
+- Cookie削除だけでなく、保護されたルートへの再アクセスでサーバー側のセッション無効化も検証すること
+- テスト用ユーザーは専用のアカウントを使用し、他のテストで保存したstorageStateを無効化しないよう注意
 
 ---
 
@@ -66,9 +78,25 @@ setup('authenticate as standard user', async ({ page }) => {
   // ログイン成功を確認
   await expect(page).toHaveURL(/inventory/);
 
-  // セッション状態を保存
-  await page.context().storageState({ path: 'auth/standard-user.json' });
+  // セッション状態を保存（Cookie、localStorage、IndexedDBを含む）
+  await page.context().storageState({
+    path: '.auth/standard-user.json',
+    indexedDB: true  // IndexedDB も保存（Playwright 1.51+）
+  });
 });
+```
+
+**storageStateの対象範囲:**
+- **Cookie:** セッショントークン、認証トークン
+- **localStorage:** フロントエンドの永続化データ
+- **sessionStorage:** ⚠️ **含まれない**（別途カスタムヘルパー関数が必要）
+- **IndexedDB:** `indexedDB: true` で有効化（v1.51+）
+
+**`.auth/` ディレクトリ管理:**
+- 認証ファイルは `.auth/` に集約し、`.gitignore` に追加して機密情報を保護
+```bash
+# .gitignore
+.auth/
 ```
 
 ### playwright.config.ts で設定
@@ -80,13 +108,13 @@ export default defineConfig({
   projects: [
     {
       name: 'setup',
-      testMatch: /auth\.setup\.ts/,
+      testMatch: /.*\.setup\.ts/,  // すべての .setup.ts を実行
     },
     {
       name: 'authenticated tests',
       dependencies: ['setup'],
       use: {
-        storageState: 'auth/standard-user.json',
+        storageState: '.auth/standard-user.json',
       },
     },
   ],
@@ -163,11 +191,35 @@ export default defineConfig({
 
 ## 複雑な認証メソッドのハンドリング
 
-### OAuth 2.0 フロー
+### OAuth 2.0 / SSO フロー
 
 OAuth認証は通常、サードパーティプロバイダー（Google、GitHub等）を経由するため、テスト環境では以下の戦略を使用します。
 
-**1. トークン直接設定（推奨）**
+**1. 永続コンテキストで手動ログイン → storageState保存（推奨）**
+
+```typescript
+// 初回のみ手動ログイン（ブラウザ起動）
+import { chromium } from '@playwright/test';
+
+async function setupOAuthSession() {
+  const browser = await chromium.launch({ headless: false });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  // OAuth ログイン画面へ遷移
+  await page.goto('https://example.com/login');
+  await page.click('button:has-text("Login with Google")');
+
+  // 手動でGoogleログインを完了（CAPTCHA、MFA対応）
+  // ...ログイン完了後、ダッシュボードへリダイレクトされる
+
+  // セッションを保存
+  await context.storageState({ path: '.auth/oauth-user.json' });
+  await browser.close();
+}
+```
+
+**2. トークン直接設定（API経由）**
 
 ```typescript
 test.beforeEach(async ({ page }) => {
@@ -182,7 +234,7 @@ test.beforeEach(async ({ page }) => {
 });
 ```
 
-**2. モックプロバイダー使用**
+**3. モックプロバイダー使用（テスト環境専用）**
 
 ```typescript
 test('OAuth経由でログイン', async ({ page, context }) => {
@@ -202,6 +254,11 @@ test('OAuth経由でログイン', async ({ page, context }) => {
   await expect(page).toHaveURL(/dashboard/);
 });
 ```
+
+**MFA（多要素認証）対応:**
+- **TOTP（Time-based OTP）:** `otplib` 等のライブラリで動的にコード生成
+- **SMS/Email OTP:** Mailosaur等のAPIでテスト用メールアカウントからコード取得
+- **CAPTCHA:** テスト環境でCAPTCHAを無効化、または専用テストアカウントで回避
 
 ### SAML認証
 
@@ -331,11 +388,81 @@ test('CSRFトークンなしでPOSTリクエスト拒否', async ({ page, contex
 
 ---
 
+## 環境変数による認証情報管理
+
+### 基本的な環境変数設定
+
+**Linux/macOS:**
+```bash
+export USERNAME="standard_user"
+export PASSWORD="secret_sauce"
+```
+
+**Windows:**
+```cmd
+set USERNAME=standard_user
+set PASSWORD=secret_sauce
+```
+
+### `.env` ファイルによる管理（推奨）
+
+```bash
+# .env
+USERNAME=standard_user
+PASSWORD=secret_sauce
+API_TOKEN=your_api_token_here
+```
+
+**dotenvパッケージで読み込み:**
+```bash
+npm install dotenv
+```
+
+```typescript
+// playwright.config.ts
+import { defineConfig } from '@playwright/test';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+export default defineConfig({
+  use: {
+    baseURL: process.env.BASE_URL || 'https://www.saucedemo.com',
+  },
+});
+```
+
+**テストで使用:**
+```typescript
+import { test } from '@playwright/test';
+
+test.beforeAll(() => {
+  if (!process.env.USERNAME || !process.env.PASSWORD) {
+    throw new Error('USERNAME or PASSWORD not defined in environment variables');
+  }
+});
+
+test('環境変数を使ったログイン', async ({ page }) => {
+  await page.goto('https://www.saucedemo.com/');
+  await page.fill('[name="username"]', process.env.USERNAME!);
+  await page.fill('[name="password"]', process.env.PASSWORD!);
+  await page.click('button[type="submit"]');
+});
+```
+
+**重要な注意点:**
+- `.env` ファイルは `.gitignore` に追加して機密情報を保護
+- CI/CD環境（GitHub Actions、Jenkins等）では環境変数を直接設定
+- 本番環境の認証情報は**絶対にハードコードしない**
+
+---
+
 ## チェックリスト: 認証とセキュリティテスト
 
 - [ ] ログイン/ログアウトフローをカバー
 - [ ] 無効な認証情報でエラーメッセージを検証
 - [ ] セッション永続化（storageState）を活用してテスト高速化
+- [ ] `.auth/` ディレクトリを `.gitignore` に追加
 - [ ] 複数ユーザーロールを個別にテスト
 - [ ] OAuth/SAML等の複雑な認証フローをモック化
 - [ ] MFA（多要素認証）コード入力をテスト
@@ -344,6 +471,8 @@ test('CSRFトークンなしでPOSTリクエスト拒否', async ({ page, contex
 - [ ] CSRFトークン検証等のセキュリティ機構をテスト
 - [ ] 認証情報を環境変数で管理（ハードコード禁止）
 - [ ] パスワード等の機密情報をGit履歴に含めない
+- [ ] sessionStorageを使用している場合はカスタムヘルパー関数を実装
+- [ ] IndexedDBストレージが必要な場合は `indexedDB: true` を設定
 
 ---
 

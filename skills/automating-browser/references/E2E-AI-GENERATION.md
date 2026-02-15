@@ -62,7 +62,11 @@ npx playwright codegen --lang=python
 - **Eyes (目)**: 構造化されたWebページスナップショットでページを「見る」
 - **Hands (手)**: クリック、入力、ファイルアップロード等で「操作する」
 
-### VS Code CLIでのインストール
+MCPはPlaywrightのaccessibility treeを解析し、AIが直接Webページと対話できるようにします。
+
+### インストール方法
+
+#### VS Code CLIでのインストール（推奨）
 
 ```bash
 code --add-mcp '{"name":"playwright","command":"npx","args": ["@playwright/mcp@latest"]}'
@@ -73,6 +77,12 @@ code --add-mcp '{"name":"playwright","command":"npx","args": ["@playwright/mcp@l
 1. VS Codeのコマンドパレット (`Ctrl+Shift+P` / `Cmd+Shift+P`) を開く
 2. `Shell Command: Install 'code' command in PATH` を実行
 3. ターミナルを再起動
+
+#### GitHubリポジトリからの直接インストール
+
+1. [Playwright MCP GitHub](https://github.com/microsoft/playwright-mcp) にアクセス
+2. **Install in VS Code** ボタンをクリック
+3. VS Codeが自動的にMCPサーバーを設定
 
 ### GitHub Copilotとの統合
 
@@ -93,9 +103,49 @@ Playwrightを使って、mashable.comのブログページが読み込まれ、
 Copilotは以下を実行します:
 
 1. ブラウザを起動してページに移動
-2. ページのスナップショットを取得してDOM構造を分析
-3. テストスクリプトを生成
-4. テストを実行するかどうか確認
+2. Playwrightのスナップショットツールでページ構造を取得
+3. DOM構造を分析（ログインフォーム、ボタン、入力フィールド等を識別）
+4. テストスクリプトを生成
+5. テストを実行するかどうか確認
+
+**認証が必要なページの処理**:
+
+- Copilotは自動的に「Sign In」ボタンを検出
+- パスワード入力はAIに共有しない（セキュリティ警告）
+- 手動でログイン→Copilotが続きを処理
+
+### MCP利用時の実行プロセス
+
+```typescript
+// Copilotが生成したテストをCLIで実行
+npx playwright test
+```
+
+Copilotはテスト実行も支援できますが、失敗した場合は:
+
+1. **Copy Prompt** ボタンでエラー詳細をコピー
+2. LLM（ChatGPT/Claude等）に貼り付け
+3. 根本原因の分析と修正案を取得
+
+### プロンプトエンジニアリングのコツ
+
+**明確な指示**:
+```
+❌ 悪い例: "テストを作って"
+✅ 良い例: "ブログページの検索機能が動作し、タグフィルタが正しく動くことを確認するテストを生成"
+```
+
+**段階的な指示**:
+```
+1. "GitHubリポジトリを開く"
+2. "Watchボタンをクリック"
+3. "All activityを選択"
+```
+
+**リトライと改善**:
+- Copilotが生成したコードが不完全な場合
+- 「エッジケースを追加してください」
+- 「エラーハンドリングを強化してください」
 
 ### リポジトリコンテキストの追加
 
@@ -105,7 +155,9 @@ Copilotは以下を実行します:
 - テスト・デプロイ方法
 - コーディング規約
 
-参考: [github/awesome-copilot](https://github.com/github/awesome-copilot) にフレームワーク別のテンプレートが用意されています。
+参考:
+- [github/awesome-copilot](https://github.com/github/awesome-copilot) にフレームワーク別のテンプレートが用意
+- [Playwright TypeScript Instructions](https://github.com/github/awesome-copilot/blob/main/instructions/playwright-typescript.instructions.md)
 
 ---
 

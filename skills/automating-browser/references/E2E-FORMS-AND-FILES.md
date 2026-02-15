@@ -203,6 +203,15 @@ test('不正なログイン情報でエラーメッセージを表示', async ({
 });
 ```
 
+**動的コンテンツの待機**: フォームは非同期でエラーメッセージを表示することが多い。`toBeVisible()` は自動的に要素が表示されるまで待機します。
+
+**CSSクラスの検証**（バリデーション状態の確認）:
+
+```typescript
+const emailInput = page.locator('input#email');
+await expect(emailInput).toHaveClass(/is-invalid/);
+```
+
 ### 成功ケースのテスト
 
 ```typescript
@@ -217,48 +226,132 @@ test('有効なフォーム送信でリダイレクト', async ({ page }) => {
 });
 ```
 
+### マルチステップフォーム（ウィザード）のテスト
+
+複数ページにわたるフォームでは、各ステップのバリデーションと進行を確認:
+
+```typescript
+test('マルチステップフォームの完了', async ({ page }) => {
+  await page.goto('https://example.com/signup');
+
+  // ステップ1: 個人情報
+  await page.fill('#first-name', 'John');
+  await page.fill('#last-name', 'Doe');
+  await page.click('button[type="submit"]');
+
+  // ステップ2: 住所
+  await expect(page.locator('h2')).toContainText('Address Information');
+  await page.fill('#street', '123 Main St');
+  await page.fill('#city', 'New York');
+  await page.click('button[type="submit"]');
+
+  // ステップ3: 確認
+  await expect(page.locator('h2')).toContainText('Confirmation');
+  await expect(page.locator('.summary')).toContainText('John Doe');
+  await expect(page.locator('.summary')).toContainText('123 Main St');
+});
+```
+
 ---
 
 ## ファイルアップロード
 
 ### setInputFiles() を使った基本アップロード
 
+**重要**: OS-levelのファイルピッカーダイアログは表示されず、直接ファイルを設定できます。
+
 ```typescript
+import path from 'node:path';
+
 const fileInput = page.locator('input[type="file"]');
-await fileInput.setInputFiles('path/to/file.pdf');
+
+// 絶対パスの構築（OS間の互換性を確保）
+const filePath = path.join(__dirname, 'document.pdf');
+await fileInput.setInputFiles(filePath);
+
+// 検証
+await expect(page.locator('#file-name-display')).toContainText('document.pdf');
 ```
 
 ### 複数ファイルアップロード
 
+**前提条件**: `<input type="file" multiple>` 属性が必要。
+
 ```typescript
 await fileInput.setInputFiles([
-  'document1.pdf',
-  'document2.pdf',
-  'document3.pdf'
+  'tests/sample1.jpg',
+  'tests/sample2.jpg',
+  'tests/sample3.jpg'
 ]);
+
+// UIでファイル名が表示されることを確認
+await expect(page.getByRole('link', { name: 'sample1.jpg' })).toBeVisible();
+await expect(page.getByRole('link', { name: 'sample2.jpg' })).toBeVisible();
 ```
 
 ### ファイル選択のクリア
 
+エッジケース（必須ファイルが未選択の場合のエラー）をテスト:
+
 ```typescript
 await fileInput.setInputFiles([]);  // 選択を解除
+
+// バリデーションエラーを確認
+await page.click('button[type="submit"]');
+await expect(page.locator('.error-message')).toContainText('File is required');
 ```
 
 ### メモリ上のファイルオブジェクトを使用
 
+ディスクにファイルを保存せずにテスト可能:
+
 ```typescript
-await fileInput.setInputFiles({
-  name: 'test.txt',
-  mimeType: 'text/plain',
-  buffer: Buffer.from('file content here')
+await fileInput.setInputFiles([
+  {
+    name: 'file1.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('Hey, this is the first file content!')
+  },
+  {
+    name: 'data.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from('id,name,value\n1,test,123')
+  }
+]);
+```
+
+**用途**: 動的なテストデータ生成、異なるファイルサイズ/形式のテスト。
+
+### ファイルタイプバリデーションのテスト
+
+```typescript
+test('不正なファイル形式を拒否', async ({ page }) => {
+  await page.goto('https://example.com/upload');
+
+  // PDFのみ許可されているが、DOCXをアップロード
+  await page.locator('input[type="file"]').setInputFiles('invalid.docx');
+  await page.click('button[type="submit"]');
+
+  await expect(page.locator('.error-message')).toContainText(
+    'Only PDF files are allowed'
+  );
 });
 ```
 
 ### ドラッグ&ドロップアップロード
 
+ドロップゾーンが `<input type="file">` をラップしている場合:
+
 ```typescript
 const dropZone = page.locator('.drop-zone');
 await dropZone.setInputFiles('file.pdf');  // 内部的に同じメカニズム
+
+// カスタムドロップゾーン（input要素なし）の場合はドラッグイベントを発火
+await page.dispatchEvent('.custom-drop-zone', 'drop', {
+  dataTransfer: {
+    files: [{ name: 'file.pdf', type: 'application/pdf' }]
+  }
+});
 ```
 
 ---
@@ -267,23 +360,93 @@ await dropZone.setInputFiles('file.pdf');  // 内部的に同じメカニズム
 
 ### download イベントを使った検証
 
-```typescript
-test('ファイルダウンロードを検証', async ({ page }) => {
-  const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download Report' }).click();
+**基本フロー**:
+1. `download` イベントをリッスン
+2. ダウンロードをトリガー
+3. ファイル名・内容を検証
 
+```typescript
+import fs from 'node:fs/promises';
+
+test('ファイルダウンロードを検証', async ({ page }) => {
+  // ダウンロードイベントをリッスン（タイムアウト30秒）
+  const downloadPromise = page.waitForEvent('download', { timeout: 30000 });
+
+  // ダウンロードボタンをクリック
+  await page.getByRole('link', { name: 'Download', exact: true }).click();
+
+  // ダウンロード完了を待機
   const download = await downloadPromise;
 
-  // ファイル名検証
-  expect(download.suggestedFilename()).toBe('report.pdf');
+  // ファイル名検証（正規表現も可）
+  const fileName = download.suggestedFilename();
+  expect(fileName).toMatch(/report-\d{4}-\d{2}-\d{2}\.pdf/);
 
-  // ファイルを保存
-  await download.saveAs('downloads/report.pdf');
+  // ファイルを保存（ディレクトリは事前に存在する必要あり）
+  await download.saveAs(`./downloads/${fileName}`);
 
-  // ファイル内容検証
-  const path = await download.path();
-  const content = fs.readFileSync(path, 'utf-8');
+  // ファイルパス取得
+  const downloadPath = await download.path();
+  expect(downloadPath).not.toBeNull();
+
+  // ファイルサイズ検証
+  const stats = await fs.stat(downloadPath);
+  const fileSizeInMB = stats.size / (1024 * 1024);
+  expect(fileSizeInMB).toBeGreaterThan(0.1);    // 100KB以上
+  expect(fileSizeInMB).toBeLessThan(100);        // 100MB未満
+
+  // テキストファイルの内容検証
+  const content = await fs.readFile(downloadPath, 'utf-8');
   expect(content).toContain('Expected data');
+});
+```
+
+### バイナリファイル（PDF/画像）の検証
+
+```typescript
+test('PDFダウンロードの検証', async ({ page }) => {
+  const downloadPromise = page.waitForEvent('download');
+  await page.click('a#download-pdf');
+  const download = await downloadPromise;
+
+  const downloadPath = await download.path();
+
+  // ファイルサイズのみ検証（内容の詳細検証は pdf-parse 等のライブラリが必要）
+  const stats = await fs.stat(downloadPath);
+  expect(stats.size).toBeGreaterThan(1000); // 1KB以上のPDF
+});
+```
+
+### ダウンロード失敗の処理
+
+サーバーエラー（404/403等）の場合:
+
+```typescript
+test('ダウンロード失敗を検知', async ({ page }) => {
+  const downloadPromise = page.waitForEvent('download');
+  await page.click('a#broken-download-link');
+  const download = await downloadPromise;
+
+  // 失敗を検証
+  const error = await download.failure();
+  expect(error).toContain('404'); // エラーメッセージ確認
+});
+```
+
+### 新規タブ/ウィンドウでのダウンロード
+
+```typescript
+test('新規タブでのダウンロード', async ({ page, context }) => {
+  const [newPage] = await Promise.all([
+    context.waitForEvent('page'),
+    page.click('a[target="_blank"]')
+  ]);
+
+  const downloadPromise = newPage.waitForEvent('download');
+  await newPage.click('button#download');
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename()).toBe('file.pdf');
 });
 ```
 
@@ -301,11 +464,75 @@ test.describe('フォームテストスイート', () => {
 
   test.afterEach(async ({ page }) => {
     // テスト間のデータ分離
-    await page.evaluate(() => sessionStorage.clear());
+    await page.evaluate(() => {
+      sessionStorage.clear();
+      localStorage.clear();
+    });
   });
 
   test('test 1', async ({ page }) => { /* ... */ });
   test('test 2', async ({ page }) => { /* ... */ });
+});
+```
+
+### ダウンロードファイルのクリーンアップ
+
+**CI環境での注意**: ダウンロードディレクトリをクリーンアップしないとストレージを圧迫。
+
+```typescript
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+test.describe('ファイルダウンロードテスト', () => {
+  const downloadDir = path.join(__dirname, 'downloads');
+
+  test.beforeAll(async () => {
+    // ダウンロードディレクトリを作成
+    await fs.mkdir(downloadDir, { recursive: true });
+  });
+
+  test.afterEach(async () => {
+    // テスト後にダウンロードファイルを削除
+    const files = await fs.readdir(downloadDir);
+    for (const file of files) {
+      await fs.unlink(path.join(downloadDir, file));
+    }
+  });
+
+  test.afterAll(async () => {
+    // テストスイート終了後にディレクトリを削除
+    await fs.rm(downloadDir, { recursive: true, force: true });
+  });
+
+  test('download test', async ({ page }) => {
+    const downloadPromise = page.waitForEvent('download');
+    await page.click('a#download-link');
+    const download = await downloadPromise;
+    await download.saveAs(path.join(downloadDir, download.suggestedFilename()));
+  });
+});
+```
+
+### アップロードテストファイルの準備とクリーンアップ
+
+```typescript
+test.describe('ファイルアップロードテスト', () => {
+  const testFilePath = path.join(__dirname, 'temp-test-file.txt');
+
+  test.beforeEach(async () => {
+    // テストファイルを動的生成
+    await fs.writeFile(testFilePath, 'Test file content', 'utf-8');
+  });
+
+  test.afterEach(async () => {
+    // テストファイルを削除
+    await fs.unlink(testFilePath).catch(() => {});
+  });
+
+  test('upload test', async ({ page }) => {
+    await page.locator('input[type="file"]').setInputFiles(testFilePath);
+    // ... アップロード検証
+  });
 });
 ```
 
@@ -323,11 +550,34 @@ test.describe('フォームテストスイート', () => {
 
 ## チェックリスト: フォームとファイル処理テスト
 
+### フォーム操作
 - [ ] すべての入力タイプをカバー（text, email, password, date, select, checkbox, radio）
 - [ ] バリデーションエラーメッセージを検証
 - [ ] 成功時のリダイレクト/成功メッセージを確認
-- [ ] ファイルアップロードの上限サイズをテスト
-- [ ] 不正なファイル形式の拒否を確認
-- [ ] ダウンロードファイルの内容検証
+- [ ] マルチステップフォーム（ウィザード）の各ステップを検証
+- [ ] カスタムウィジェット（日付ピッカー、ドロップダウン）の操作確認
 - [ ] アクセシビリティ（ARIA、スクリーンリーダー対応）を考慮
 - [ ] 動的フォーム要素の待機処理を実装
+
+### ファイルアップロード
+- [ ] 単一ファイルアップロードの成功ケース
+- [ ] 複数ファイルアップロード（`multiple` 属性）
+- [ ] ファイル選択のクリア（バリデーションエラー）
+- [ ] ファイルタイプバリデーション（許可されていない形式の拒否）
+- [ ] ファイルサイズ上限のテスト
+- [ ] ドラッグ&ドロップアップロード
+- [ ] アップロード後のUI反映確認
+
+### ファイルダウンロード
+- [ ] ダウンロードイベントの捕捉
+- [ ] ファイル名の検証
+- [ ] ファイルサイズの検証
+- [ ] ファイル内容の検証（テキストファイル）
+- [ ] ダウンロード失敗時のエラーハンドリング
+- [ ] 新規タブ/ウィンドウでのダウンロード対応
+
+### テスト環境
+- [ ] テスト前のセットアップ（`beforeEach`）
+- [ ] テスト後のクリーンアップ（`afterEach`）
+- [ ] ダウンロードファイルの削除
+- [ ] 一時ファイルの削除

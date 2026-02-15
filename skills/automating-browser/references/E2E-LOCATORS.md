@@ -521,11 +521,23 @@ await page
   .click()
 ```
 
+### Shadow DOM Piercing（CSS `>>>` 演算子）
+
+CSS で Shadow DOM を貫通する場合、`>>>` 演算子を使用できますが、通常は getBy\* ロケーターの自動貫通に依存すべきです：
+
+```typescript
+// CSS piercing（非推奨：可読性・保守性が低い）
+await page.locator('custom-element >>> .inner-button').click()
+
+// ✅ 推奨：getBy* ロケーターを使用
+await page.locator('custom-element').getByRole('button', { name: 'Click' }).click()
+```
+
 ### 注意点
 
 - PlaywrightのgetBy\*ロケーターは自動的にShadow DOMを貫通します
 - XPathはShadow DOM内では機能しません
-- CSSセレクタは`:shadow`疑似セレクタでアクセス可能ですが、非推奨です
+- CSSセレクタは`>>>`でアクセス可能ですが、非推奨です（構造依存で壊れやすい）
 
 ---
 
@@ -567,6 +579,19 @@ if (frame) {
 ```
 
 **推奨**: `frameLocator()` を使用する方がシンプルで、チェーニングが可能です。
+
+### 複数ネストされたフレームの深い階層
+
+```typescript
+// 3層以上のネストされたフレーム
+const level1 = page.frameLocator('frame[name="outer"]')
+const level2 = level1.frameLocator('frame[name="middle"]')
+const level3 = level2.frameLocator('frame[name="inner"]')
+
+// 最深部のコンテンツにアクセス
+await expect(level3.locator('body')).toContainText('Deep nested content')
+await level3.getByRole('button', { name: 'Action' }).click()
+```
 
 ---
 
@@ -634,9 +659,19 @@ await page.locator('.submit-button').click()
 
 // 属性セレクタ
 await page.locator('[data-automation-id="checkout-btn"]').click()
+await page.locator('input[type="password"]').fill('secret')
 
 // 複合セレクタ（可能な限り避ける）
 await page.locator('div.container > form#login input[type="email"]').fill('test@example.com')
+
+// nth-child / nth-of-type（構造依存で壊れやすい）
+await page.locator('ul > li:nth-child(3)').click()
+
+// ❌ 悪い例：深くネストされたセレクタ（リファクタリングで壊れる）
+await page.locator('#tsf > div:nth-child(2) > button').click()
+
+// ✅ 良い例：セマンティックなロケーターを優先
+await page.getByRole('button', { name: 'Submit' }).click()
 ```
 
 ### XPath（最終手段）
@@ -650,28 +685,50 @@ await page.locator('//form[@id="login"]//input[@type="password"]').fill('secret'
 
 // 属性ベース
 await page.locator('//div[@data-testid="user-card"]//button').click()
+
+// 特定の子要素を持つ要素（CSSで表現困難な場合）
+await page.locator('//form[@id="login-form"]//button').click()
+
+// テキスト内容による要素選択
+await page.locator('//div[contains(text(), "Welcome")]').click()
+
+// 明示的な XPath プレフィックス（可読性向上）
+await page.locator('xpath=//button[@type="submit"]').click()
 ```
 
 **XPathの制限**:
 - Shadow DOMに対応していない
 - パフォーマンスがCSS/getByRoleより劣る
 - 可読性が低い
+- 構造変更に脆弱（例: `//*[@id="tsf"]/div[2]/button` は避けるべき）
 
 ### テキストベースセレクタ
 
 ```typescript
-// 部分一致（デフォルト）
+// 部分一致（デフォルト・ホワイトスペース正規化）
 await page.getByText('Welcome').click()
 
 // 完全一致
 await page.getByText('Login', { exact: true }).click()
 
-// 正規表現
+// 正規表現（大文字小文字区別なし）
 await page.getByText(/sign in/i).click()
+
+// 正規表現（動的なテキスト対応）
+await page.getByText(/welcome, [A-Za-z]+$/i).click()  // "Welcome, John", "welcome, alice" 等
 
 // フィルタリングと組み合わせ
 await page.getByRole('button').filter({ hasText: 'Submit' }).click()
+
+// 複数フィルター組み合わせ
+await page
+  .getByRole('listitem')
+  .filter({ hasText: 'In stock' })
+  .filter({ has: page.getByRole('button', { name: 'Buy' }) })
+  .click()
 ```
+
+**注意**: テキストが頻繁に変わる場合（ローカライゼーション、動的コンテンツ）、テストが壊れやすくなる
 
 ### data-testid の戦略的使用
 

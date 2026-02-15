@@ -111,31 +111,37 @@ WCAGは4つの基本原則で構成されています:
 
 ### 適合レベル
 
-WCAGには3つの適合レベルがあります:
+WCAGには3つの適合レベルがあり、累積的な構造になっています（Level AAはLevel Aを含み、Level AAAはLevel A+AAを含む）:
 
 #### Level A (最低限)
 
-- 基本的なアクセシビリティ
-- 主要な障壁を除去するが、すべての障壁は除去しない
-- 例: 画像のalt text (Success Criterion 1.1.1: Non-text Content)
+- **対象**: 基本的なアクセシビリティ
+- **カバー範囲**: 主要な障壁を除去するが、すべての障壁は除去しない
+- **実装の難易度**: Webサイトがアクセス可能と見なされる最低限のレベル
+- **例**:
+  - 画像のalt text (Success Criterion 1.1.1: Non-text Content)
+  - キーボードアクセス (SC 2.1.1: Keyboard)
 
 #### Level AA (推奨)
 
-- 最も一般的な目標レベル
-- 多くの国の法令で要求される（米国 Section 508、欧州 EN 301 549）
-- Level A + 追加基準
-- 例:
-  - 色コントラスト比の確保 (SC 1.4.3: Contrast Minimum)
+- **対象**: 最も一般的な目標レベル
+- **法的要件**: 多くの国の法令で要求される（米国 Section 508、欧州 EN 301 549）
+- **カバー範囲**: Level A + より広範なユーザーをサポートする追加基準
+- **例**:
+  - 色コントラスト比4.5:1以上 (SC 1.4.3: Contrast Minimum)
   - 2次元スクロール不要 (SC 1.4.10: Reflow)
+  - ページタイトルの提供 (SC 2.4.2: Page Titled)
 
 #### Level AAA (最高)
 
-- 最も包括的なレベル
-- すべてのコンテンツには実用的でない場合もある
-- Level A + AA + 追加基準
-- 例:
-  - 音声コンテンツへの手話通訳 (SC 1.2.6: Sign Language)
-  - より高い色コントラスト比 (SC 1.4.6: Contrast Enhanced)
+- **対象**: 最も包括的なアクセシビリティレベル
+- **適用範囲**: すべてのコンテンツに適用するのは実用的でない場合が多い
+- **推奨事項**: WCAG自体もすべてのコンテンツでLevel AAAを推奨していない
+- **カバー範囲**: Level A + AA + 最高水準の追加基準
+- **例**:
+  - 音声コンテンツへの手話通訳 (SC 1.2.6: Sign Language Prerecorded)
+  - 色コントラスト比7:1以上 (SC 1.4.6: Contrast Enhanced)
+  - 文脈に応じたヘルプの提供 (SC 3.3.5: Help)
 
 ### WCAGバージョン
 
@@ -155,6 +161,16 @@ WCAGには3つの適合レベルがあります:
 | **Enhanced quality** | `['wcag21aa', 'best-practice']` | 推奨。法的基準 + 業界ベストプラクティス |
 | **Future-proof** | `['wcag22aa']` | WCAG 2.2 AA準拠。将来の規制に備える |
 
+### 推奨プロファイル
+
+実際のプロジェクトでは以下のプロファイルを使用することが推奨されます:
+
+| プロファイル | タグ | 使用場面 |
+|------------|-----|---------|
+| **Standard baseline** | `['wcag21aa']` | デフォルト。WCAG 2.1 AA準拠（法的要件）|
+| **Enhanced quality** | `['wcag21aa', 'best-practice']` | 推奨。法的基準 + 業界ベストプラクティス |
+| **Future-proof** | `['wcag22aa']` | WCAG 2.2 AA準拠。将来の規制に備える |
+
 ### タグの説明
 
 - **`wcag2a`**: WCAG 2.0/2.1 Level A
@@ -162,7 +178,7 @@ WCAGには3つの適合レベルがあります:
 - **`wcag21a`**: WCAG 2.1 Level A（モバイル、視覚障害、認知障害対応）
 - **`wcag21aa`**: WCAG 2.1 Level AA
 - **`wcag22aa`**: WCAG 2.2 Level AA (axe-core 4.5+)
-- **`best-practice`**: WCAGに明記されていない業界ベストプラクティス（例: すべてのページに`<h1>`）
+- **`best-practice`**: WCAGに明記されていない業界ベストプラクティス（例: すべてのページに`<h1>`、厳密な見出し階層）
 
 **重要**: WCAGレベルは累積的です。Level AAを指定すれば、Level Aも自動的に含まれます。
 
@@ -204,12 +220,16 @@ test('Login form should be accessible', async ({ page }) => {
 
 ### 特定のルールを除外
 
+開発途中で特定ルールを一時的に除外したい場合:
+
 ```typescript
 const results = await new AxeBuilder({ page })
   .withTags(['wcag21aa'])
   .disableRules(['color-contrast']) // 色コントラストルールを除外
   .analyze();
 ```
+
+**注意**: 本番環境ではすべてのルールを有効化してください。`disableRules()` は開発中の一時的な回避策としてのみ使用し、Issue trackingで管理すること。
 
 ### CI/CDへの統合
 
@@ -319,22 +339,47 @@ background-color: #fff;
 
 ### 手動テストが必要なもの
 
-- **キーボードナビゲーション**: Tabキーで全要素に到達できるか
-- **スクリーンリーダー体験**: 読み上げ順序が論理的か
-- **フォーカス表示**: フォーカスが視覚的に明確か
-- **コンテキストの適切性**: alt textが文脈に合っているか
+axe-coreは50%以上のWCAG問題を検出できますが、以下は手動テストが必要です:
+
+- **キーボードナビゲーション**: Tabキーで全インタラクティブ要素に到達できるか
+- **スクリーンリーダー体験**: 読み上げ順序が論理的か、情報の欠落がないか
+- **フォーカス表示**: フォーカスが視覚的に明確で、フォーカス順序が論理的か
+- **コンテキストの適切性**: alt textが画像の目的と文脈に合っているか
+- **ARIAロール/属性の正確性**: ARIA属性が正しく動作しているか
+- **動的コンテンツ**: 動的に追加されるコンテンツがスクリーンリーダーに通知されるか
+
+### 手動テストのアプローチ
+
+**キーボードナビゲーションテスト**:
+1. マウスを使わずにTabキーで全要素を巡回
+2. Enterキーでリンク・ボタンが動作するか確認
+3. フォーカスがトラップされていないか確認
+
+**スクリーンリーダーテスト**:
+```typescript
+// Playwrightでスクリーンリーダー互換性を確認
+test('screen reader accessible navigation', async ({ page }) => {
+  await page.goto('https://example.com');
+
+  // ARIA属性の検証
+  const nav = page.locator('nav');
+  await expect(nav).toHaveAttribute('role', 'navigation');
+  await expect(nav).toHaveAttribute('aria-label');
+});
+```
 
 **ベストプラクティス**:
 1. 自動テストをCI/CDに組み込む（継続的チェック）
 2. 手動テストを定期的に実施（ユーザー体験の検証）
 3. 実際の支援技術（スクリーンリーダー等）でテスト
+4. 自動テスト→手動テストの順で実行（効率化）
 
 ### 手動テストツール
 
 - **NVDA** (Windows): 無料のスクリーンリーダー
-- **JAWS** (Windows): 商用スクリーンリーダー
+- **JAWS** (Windows): 商用スクリーンリーダー（業界標準）
 - **VoiceOver** (macOS/iOS): OS標準のスクリーンリーダー
-- **axe DevTools** (ブラウザ拡張): 手動でのAxe-core実行
+- **axe DevTools** (ブラウザ拡張): 手動でのAxe-core実行、要素の検査
 
 ---
 

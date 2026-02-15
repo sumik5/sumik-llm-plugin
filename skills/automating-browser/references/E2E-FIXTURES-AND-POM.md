@@ -43,6 +43,53 @@ export const test = base.extend<MyFixtures>({
 2. **テスト実行**: `await use(value)` で制御をテストに渡す
 3. **テアダウン**: `use()` 呼び出し後のコード（テスト完了後に実行）
 
+### Fixtureスコープの選択
+
+Fixtureには**test**と**worker**、**session**の3つのスコープがあり、リソースの生存期間と共有範囲を決定します。
+
+| スコープ | 生存期間 | 用途 | 例 |
+|---------|---------|------|-----|
+| `test` | テストごとに新規作成（デフォルト） | 完全な独立性が必要な場合 | `page` Fixture |
+| `worker` | Workerプロセス内で共有 | 高コストなリソースの再利用 | `browser` Fixture |
+| `session` | 全Worker間で共有 | グローバルな設定や認証トークン | セッション設定 |
+
+**Worker Scopeの例:**
+
+```typescript
+import { test as base } from '@playwright/test';
+
+type WorkerFixtures = {
+  sharedBrowserContext: BrowserContext;
+};
+
+export const test = base.extend<{}, WorkerFixtures>({
+  sharedBrowserContext: [
+    async ({ browser }, use) => {
+      const context = await browser.newContext();
+      await use(context);
+      await context.close();
+    },
+    { scope: 'worker' } // Workerプロセス内で1回のみ作成
+  ],
+});
+
+// 同じWorker内の複数テストで同じcontextを共有
+test('test 1', async ({ sharedBrowserContext }) => {
+  const page = await sharedBrowserContext.newPage();
+  // ...
+});
+
+test('test 2', async ({ sharedBrowserContext }) => {
+  const page = await sharedBrowserContext.newPage();
+  // 同じcontextが再利用される
+});
+```
+
+**注意点:**
+- Worker scopeは状態の共有を許容するため、テスト間の干渉に注意
+- Test scopeは毎回新規作成されるため遅いが、完全な独立性を保証
+- Session scopeは全Worker間で共有されるため、グローバル設定に使用
+
 ---
 
 ## カスタムFixture作成
@@ -272,6 +319,46 @@ export const test = base.extend<MyFixtures>({
 });
 ```
 
+**自動Fixtureの実用例: コンソールエラー検出**
+
+```typescript
+type MyFixtures = {
+  noConsoleErrors: void;
+};
+
+export const test = base.extend<MyFixtures>({
+  noConsoleErrors: [
+    async ({ page }, use) => {
+      const consoleErrors: string[] = [];
+
+      page.on('console', msg => {
+        if (msg.type() === 'error') {
+          consoleErrors.push(msg.text());
+        }
+      });
+
+      await use();
+
+      // テスト完了後に自動チェック
+      expect(consoleErrors, `Unexpected console errors: ${consoleErrors.join()}`).toHaveLength(0);
+    },
+    { auto: true } // 全テストで自動実行
+  ],
+});
+
+// テストコード側は変更不要
+test('page loads without console errors', async ({ page }) => {
+  await page.goto('https://example.com/');
+  // コンソールエラーは自動検出される
+});
+```
+
+**自動Fixtureのユースケース:**
+- コンソールエラー/警告の監視
+- アナリティクストラッキングのモック
+- ページロード時間の計測
+- スクリーンショット自動保存（失敗時）
+
 ### Test Options（プロジェクト単位のパラメタライズ）
 
 ```typescript
@@ -304,6 +391,104 @@ export default defineConfig({
       },
     },
   ],
+});
+```
+
+### Fixtureのオーバーライドとパラメタライズ
+
+既存のFixtureを上書きして振る舞いをカスタマイズできます。
+
+**組み込みFixtureのオーバーライド例:**
+
+```typescript
+// pageFixtureを拡張して、すべてのページでデフォルトでログイン済みにする
+export const test = base.extend({
+  page: async ({ page }, use) => {
+    await page.goto('/login');
+    await page.fill('[name="username"]', 'standard_user');
+    await page.fill('[name="password"]', 'secret_sauce');
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.waitForURL('/dashboard');
+
+    await use(page); // ログイン済みページをテストに渡す
+  },
+});
+
+// すべてのテストで自動的にログイン済み状態
+test('access dashboard', async ({ page }) => {
+  // pageは既にログイン済み
+  await expect(page.getByText('Dashboard')).toBeVisible();
+});
+```
+
+**Parametrized Fixtures（パラメータ付きFixture）:**
+
+```typescript
+type MyFixtures = {
+  userRole: 'admin' | 'user' | 'guest';
+  authenticatedPage: Page;
+};
+
+export const test = base.extend<MyFixtures>({
+  userRole: ['user', { option: true }], // デフォルト値
+
+  authenticatedPage: async ({ page, userRole }, use) => {
+    const credentials = {
+      admin: { username: 'admin', password: 'admin123' },
+      user: { username: 'user', password: 'user123' },
+      guest: { username: 'guest', password: 'guest123' },
+    };
+
+    const { username, password } = credentials[userRole];
+
+    await page.goto('/login');
+    await page.fill('[name="username"]', username);
+    await page.fill('[name="password"]', password);
+    await page.getByRole('button', { name: 'Login' }).click();
+
+    await use(page);
+  },
+});
+
+// テストごとにロールを変更可能
+test.use({ userRole: 'admin' });
+test('admin can access settings', async ({ authenticatedPage }) => {
+  await authenticatedPage.goto('/settings');
+  await expect(authenticatedPage.getByText('Admin Settings')).toBeVisible();
+});
+
+test.use({ userRole: 'guest' });
+test('guest cannot access settings', async ({ authenticatedPage }) => {
+  await authenticatedPage.goto('/settings');
+  await expect(authenticatedPage.getByText('Access Denied')).toBeVisible();
+});
+```
+
+### Box Fixtures（値なしFixture）
+
+値を返さないFixtureは、セットアップとティアダウンのみを実行するために使用されます。
+
+```typescript
+type MyFixtures = {
+  setupMockServer: void;
+};
+
+export const test = base.extend<MyFixtures>({
+  setupMockServer: async ({}, use) => {
+    // セットアップ: モックサーバー起動
+    const mockServer = startMockServer();
+
+    await use(); // 値は渡さない
+
+    // ティアダウン: モックサーバー停止
+    await mockServer.stop();
+  },
+});
+
+// Fixtureを使うだけでモックサーバーが起動・停止される
+test('API calls are mocked', async ({ page, setupMockServer }) => {
+  await page.goto('/');
+  // モックサーバーが自動的に動作中
 });
 ```
 
@@ -575,6 +760,78 @@ test.describe('Login Functionality', () => {
 - 曖昧な名前（`test1`、`loginTest`）は避ける
 - 意図が一目で分かるようにする
 
+### テスト命名とメタデータ戦略
+
+テスト名とdescribeブロックのネスティングにより、テストの分類と実行制御が可能になります。
+
+**構造化命名規約:**
+
+```typescript
+test.describe('Feature: User Authentication', () => {
+  test.describe('Scenario: Successful login', () => {
+    test('Given valid credentials, When user logs in, Then dashboard is displayed', async ({ page }) => {
+      // Given
+      await page.goto('/login');
+
+      // When
+      await page.fill('[name="username"]', 'user');
+      await page.fill('[name="password"]', 'pass');
+      await page.click('button[type="submit"]');
+
+      // Then
+      await expect(page).toHaveURL('/dashboard');
+    });
+  });
+
+  test.describe('Scenario: Failed login', () => {
+    test('Given invalid credentials, When user logs in, Then error message is shown', async ({ page }) => {
+      // ...
+    });
+  });
+});
+```
+
+**タグによるテスト分類:**
+
+```typescript
+test.describe('@smoke @critical', () => {
+  test('user can login', async ({ page }) => {
+    // ...
+  });
+});
+
+test.describe('@regression @api', () => {
+  test('user profile is updated', async ({ page }) => {
+    // ...
+  });
+});
+```
+
+```bash
+# タグでフィルタ実行
+npx playwright test --grep "@smoke"
+npx playwright test --grep "@critical"
+npx playwright test --grep-invert "@slow"  # @slowを除外
+```
+
+**Arrange-Act-Assertパターンの明示:**
+
+```typescript
+test('should add item to cart', async ({ page }) => {
+  // Arrange (準備)
+  await page.goto('/products');
+  const productName = 'Sauce Labs Backpack';
+
+  // Act (実行)
+  await page.getByText(productName).click();
+  await page.getByRole('button', { name: 'Add to cart' }).click();
+
+  // Assert (検証)
+  const cartBadge = page.locator('.shopping_cart_badge');
+  await expect(cartBadge).toHaveText('1');
+});
+```
+
 ### Fixtureによるセットアップとテアダウン
 
 Fixtureはセットアップとテアダウンの管理を簡素化します。Playwrightは`page`、`browser`、`context`などの組み込みFixtureを提供し、カスタムFixtureも定義できます。
@@ -836,6 +1093,164 @@ test('register new user', async ({ page }) => {
 - データ衝突の回避
 - 要件変更時はFaker呼び出しのみ更新
 
+### Factory PatternとBuilder Patternによるテストデータ管理
+
+複雑なテストデータは、Factory PatternやBuilder Patternでカプセル化すると保守性が向上します。
+
+**Factory Pattern:**
+
+```typescript
+// test/factories/user-factory.ts
+import { faker } from '@faker-js/faker';
+
+export class UserFactory {
+  static create(overrides?: Partial<User>): User {
+    return {
+      id: faker.string.uuid(),
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      createdAt: new Date(),
+      ...overrides, // 必要なフィールドのみ上書き
+    };
+  }
+
+  static createAdmin(overrides?: Partial<User>): User {
+    return this.create({
+      role: 'admin',
+      permissions: ['read', 'write', 'delete'],
+      ...overrides,
+    });
+  }
+
+  static createGuest(overrides?: Partial<User>): User {
+    return this.create({
+      role: 'guest',
+      permissions: ['read'],
+      ...overrides,
+    });
+  }
+}
+
+// テストでの使用
+test('admin can delete users', async ({ page }) => {
+  const admin = UserFactory.createAdmin();
+  const targetUser = UserFactory.create({ username: 'target-user' });
+
+  // APIでユーザー作成
+  await page.request.post('/api/users', { data: admin });
+  await page.request.post('/api/users', { data: targetUser });
+
+  // UIでテスト実行
+  await page.goto('/admin/users');
+  await page.getByText(targetUser.username).click();
+  await page.getByRole('button', { name: 'Delete' }).click();
+
+  await expect(page.getByText('User deleted')).toBeVisible();
+});
+```
+
+**Builder Pattern:**
+
+```typescript
+// test/builders/product-builder.ts
+export class ProductBuilder {
+  private product: Partial<Product> = {};
+
+  withName(name: string): this {
+    this.product.name = name;
+    return this;
+  }
+
+  withPrice(price: number): this {
+    this.product.price = price;
+    return this;
+  }
+
+  withCategory(category: string): this {
+    this.product.category = category;
+    return this;
+  }
+
+  inStock(quantity: number): this {
+    this.product.stock = quantity;
+    this.product.available = true;
+    return this;
+  }
+
+  outOfStock(): this {
+    this.product.stock = 0;
+    this.product.available = false;
+    return this;
+  }
+
+  build(): Product {
+    return {
+      id: faker.string.uuid(),
+      name: this.product.name || faker.commerce.productName(),
+      price: this.product.price || parseFloat(faker.commerce.price()),
+      category: this.product.category || 'General',
+      stock: this.product.stock ?? 100,
+      available: this.product.available ?? true,
+      createdAt: new Date(),
+    };
+  }
+}
+
+// テストでの使用
+test('out of stock product cannot be purchased', async ({ page }) => {
+  const outOfStockProduct = new ProductBuilder()
+    .withName('Limited Edition Item')
+    .withPrice(99.99)
+    .outOfStock()
+    .build();
+
+  await page.request.post('/api/products', { data: outOfStockProduct });
+
+  await page.goto(`/products/${outOfStockProduct.id}`);
+  const addToCartButton = page.getByRole('button', { name: 'Add to cart' });
+
+  await expect(addToCartButton).toBeDisabled();
+  await expect(page.getByText('Out of stock')).toBeVisible();
+});
+```
+
+**Fixtureとの統合:**
+
+```typescript
+type TestDataFixtures = {
+  userFactory: typeof UserFactory;
+  productBuilder: typeof ProductBuilder;
+};
+
+export const test = base.extend<TestDataFixtures>({
+  userFactory: async ({}, use) => await use(UserFactory),
+  productBuilder: async ({}, use) => await use(ProductBuilder),
+});
+
+test('user can purchase in-stock products', async ({ page, userFactory, productBuilder }) => {
+  const user = userFactory.create();
+  const product = productBuilder.inStock(5).build();
+
+  // テストデータのセットアップはファクトリに委譲
+  await setupTestData({ user, product });
+
+  // UIテストに集中
+  await page.goto('/products');
+  await page.getByText(product.name).click();
+  await page.getByRole('button', { name: 'Add to cart' }).click();
+
+  await expect(page.locator('.cart-count')).toHaveText('1');
+});
+```
+
+**メリット:**
+- テストデータの生成ロジックを一元管理
+- デフォルト値とカスタム値を柔軟に切り替え
+- テストコードの可読性向上
+- データモデル変更時の修正箇所を局所化
+
 ### APIモッキングによる外部依存排除
 
 外部APIへの依存はテストの不安定性を引き起こします。Playwrightの`page.route()`でAPIレスポンスをモックできます。
@@ -891,6 +1306,130 @@ test('displays mocked blog posts from JSONPlaceholder API', async ({ page }) => 
 - 複数のテストケース用に異なるモックを用意
 - エラー状態や空データのエッジケーステスト
 
+### テストの独立性とクリーンアップ戦略
+
+テストの独立性を確保するには、共有状態の排除と適切なクリーンアップが不可欠です。
+
+**アンチパターン: 共有状態による汚染**
+
+```typescript
+// ❌ 悪い例: グローバル変数による共有状態
+let currentUser: User;
+
+test('create user', async ({ page }) => {
+  currentUser = await createUser('john');
+  // 次のテストがcurrentUserに依存してしまう
+});
+
+test('delete user', async ({ page }) => {
+  // 前のテストの実行順序に依存
+  await deleteUser(currentUser.id);
+});
+```
+
+**ベストプラクティス: 各テストで独立したデータ作成**
+
+```typescript
+// ✅ 良い例: 各テストで独立したデータを作成
+test('create user', async ({ page }) => {
+  const user = await createUser('john');
+  // このテストのみで使用
+  await expect(page.getByText(user.name)).toBeVisible();
+});
+
+test('delete user', async ({ page }) => {
+  // 独自のデータを作成
+  const user = await createUser('jane');
+  await deleteUser(user.id);
+  await expect(page.getByText('User deleted')).toBeVisible();
+});
+```
+
+**Fixtureによる自動クリーンアップ**
+
+```typescript
+type MyFixtures = {
+  testUser: User;
+};
+
+export const test = base.extend<MyFixtures>({
+  testUser: async ({ request }, use) => {
+    // セットアップ: テスト用ユーザー作成
+    const response = await request.post('/api/users', {
+      data: UserFactory.create(),
+    });
+    const user = await response.json();
+
+    await use(user); // テストに渡す
+
+    // ティアダウン: 自動クリーンアップ
+    await request.delete(`/api/users/${user.id}`);
+  },
+});
+
+// テストは自動的にクリーンアップされる
+test('user can update profile', async ({ page, testUser }) => {
+  await page.goto(`/profile/${testUser.id}`);
+  await page.fill('[name="bio"]', 'New bio');
+  await page.click('button[type="submit"]');
+
+  await expect(page.getByText('Profile updated')).toBeVisible();
+  // testUserは自動的に削除される
+});
+```
+
+**並列実行時の分離戦略**
+
+```typescript
+// データに一意性を持たせる
+test('user registration', async ({ page }) => {
+  const uniqueEmail = `test-${Date.now()}@example.com`;
+  const user = UserFactory.create({ email: uniqueEmail });
+
+  await page.goto('/signup');
+  await page.fill('[name="email"]', user.email);
+  await page.fill('[name="password"]', user.password);
+  await page.click('button[type="submit"]');
+
+  await expect(page.getByText('Registration successful')).toBeVisible();
+});
+
+// または、テストごとに専用のデータベーススキーマを使用
+test.use({ dbSchema: `test_${Date.now()}` });
+```
+
+**共有リソースの適切な管理**
+
+```typescript
+// Worker scopeで共有しても安全なリソース
+export const test = base.extend({
+  sharedApiClient: [
+    async ({}, use) => {
+      const client = new ApiClient({ baseURL: 'https://api.example.com' });
+      await use(client);
+      await client.close();
+    },
+    { scope: 'worker' } // 状態を持たないクライアントは共有可能
+  ],
+});
+
+// Test scopeで毎回新規作成すべきリソース
+export const test = base.extend({
+  isolatedDbConnection: async ({}, use) => {
+    const db = await createTestDatabase();
+    await use(db);
+    await db.drop(); // 必ずクリーンアップ
+  },
+});
+```
+
+**原則:**
+- 各テストは独立して実行可能であるべき
+- テスト順序に依存してはならない
+- グローバル変数や共有状態を避ける
+- リソースは必ずクリーンアップする
+- 並列実行を考慮してデータに一意性を持たせる
+
 ---
 
 ## まとめ: 保守性の高いテストスイート構築
@@ -900,6 +1439,8 @@ test('displays mocked blog posts from JSONPlaceholder API', async ({ page }) => 
 - **POM**: ページ固有のロジックをカプセル化、UI変更への耐性を向上
 - **設定ファイル**: テストデータを集約し、環境別管理を容易化
 - **Faker.js**: 動的データ生成で一意性を保証し、データ衝突を回避
+- **Factory/Builder Pattern**: テストデータ生成ロジックを一元管理
 - **APIモッキング**: 外部依存を排除し、テストの安定性と速度を向上
+- **テストの独立性**: 共有状態を排除し、並列実行可能な設計を実現
 
 これらのベストプラクティスにより、テストスイートは保守性が高く、変更に強く、長期的に信頼できる資産となります。

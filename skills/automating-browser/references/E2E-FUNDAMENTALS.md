@@ -516,7 +516,16 @@ await popup.close()
 
 **用途区別:**
 - **Playwright Test** (`@playwright/test`): テストランナー内蔵、オールインワンソリューション
+  - 自動テストファイル認識（`*.spec.ts`, `*.test.ts`）
+  - 並列実行（複数ワーカー）
+  - ビジュアルレポート生成
+  - CLI オプション（デバッグ、ビデオ録画等）
+  - Web-First Assertions（自動リトライ機能付き）
 - **Playwright Library** (`playwright`): ブラウザ自動化API、Jest/Mocha等と組み合わせ可能
+  - ブラウザ起動（headless/headed モード）
+  - Web ページ操作（クリック、フォーム入力、スクリーンショット）
+  - JavaScript 実行（ブラウザコンテキスト内）
+  - 任意のテストランナーと組み合わせ可能
 
 **選択基準:**
 | 用途 | 推奨 |
@@ -525,6 +534,7 @@ await popup.close()
 | Web スクレイピング・データ抽出 | Playwright Library |
 | 既存テストフレームワーク統合 | Playwright Library |
 | CI/CD パイプライン組み込み | Playwright Test |
+| カスタムスクリプト・自動化パイプライン | Playwright Library |
 
 **Playwright Test の主要機能:**
 - 自動テストファイル認識（`*.spec.ts`, `*.test.ts`）
@@ -827,6 +837,41 @@ export default defineConfig({
   },
   retries: process.env.CI ? 2 : 0,
 })
+```
+
+### 環境別テスト設定パターン
+
+```typescript
+// playwright.config.ts（環境別設定）
+export default defineConfig({
+  // 開発環境
+  ...(process.env.ENV === 'dev' && {
+    use: { baseURL: 'http://localhost:3000' },
+    webServer: {
+      command: 'npm run dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: true,
+    },
+  }),
+
+  // ステージング環境
+  ...(process.env.ENV === 'staging' && {
+    use: { baseURL: 'https://staging.example.com' },
+  }),
+
+  // 本番環境
+  ...(process.env.ENV === 'prod' && {
+    use: { baseURL: 'https://example.com' },
+    retries: 2, // 本番では2回リトライ
+  }),
+})
+```
+
+**実行例:**
+```bash
+ENV=dev npx playwright test       # 開発環境
+ENV=staging npx playwright test   # ステージング環境
+ENV=prod npx playwright test      # 本番環境
 ```
 
 ---

@@ -343,11 +343,15 @@ jobs:
 
 ### 1. フォントのロード待機
 
+**問題**: Webフォントのロードタイミングにより、スクリーンショットが不安定になる。
+
+**解決策**: `document.fonts.ready` を使用してフォントロード完了を待機。
+
 ```typescript
-test('stable screenshot', async ({ page }) => {
+test('stable screenshot with font loading', async ({ page }) => {
   await page.goto('https://example.com');
 
-  // Webフォントのロード待機
+  // Webフォントのロード待機（必須）
   await page.evaluate(() => document.fonts.ready);
 
   await expect(page).toHaveScreenshot('stable.png');
@@ -355,6 +359,10 @@ test('stable screenshot', async ({ page }) => {
 ```
 
 ### 2. アニメーションの無効化
+
+**問題**: CSS animations、transitions、Web animations がスクリーンショットを不安定にする。
+
+**グローバル設定**:
 
 ```typescript
 // playwright.config.ts
@@ -368,11 +376,31 @@ export default defineConfig({
 });
 ```
 
-または個別に:
+**個別設定**:
 
 ```typescript
 await expect(page).toHaveScreenshot('homepage.png', {
-  animations: 'disabled',
+  animations: 'disabled',  // CSS animations/transitions/Web animations を停止
+});
+```
+
+**CSSによる完全停止**（最も確実）:
+
+```typescript
+test('stable screenshot with animations disabled', async ({ page }) => {
+  await page.goto('https://example.com');
+
+  // すべてのアニメーションを完全停止
+  await page.addStyleTag({
+    content: `
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+    `
+  });
+
+  await expect(page).toHaveScreenshot('stable.png');
 });
 ```
 
@@ -489,9 +517,33 @@ export default defineConfig({
 
 ### 問題: OS間で差分が出る
 
-**対処**:
-- Dockerコンテナで環境統一
-- OS固有のスナップショットを許容
+**原因**:
+- OS固有のフォントレンダリング
+- アンチエイリアシング差異
+- ブラウザバージョン差異
+
+**対処法1: Dockerコンテナで環境統一**
+
+ローカル開発・CI環境で同じLinuxコンテナを使用:
+
+```bash
+# ローカルでDockerコンテナ内でスナップショット更新
+docker run --rm --ipc=host --shm-size=1gb \
+  -v $(pwd):/work/ -w /work/ \
+  mcr.microsoft.com/playwright:v1.56.1-noble \
+  /bin/bash -c "npm ci && npx playwright install --with-deps && npx playwright test --update-snapshots"
+```
+
+**対処法2: OS固有のスナップショットを許容**
+
+Playwrightは自動的にOS別にスナップショットを保存:
+
+```
+tests/example.spec.ts-snapshots/
+  homepage-chromium-darwin.png   # macOS
+  homepage-chromium-linux.png    # Linux
+  homepage-chromium-win32.png    # Windows
+```
 
 ### 問題: CI/CDで失敗するがローカルでは成功
 

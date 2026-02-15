@@ -606,50 +606,91 @@ export default defineConfig({
 
 ## Playwright Inspector の使用法
 
-Playwright Inspectorは、テストをステップ実行しながらリアルタイムで要素を検査できるビジュアルデバッガです。
+Playwright Inspectorは、テストをステップ実行しながらリアルタイムで要素を検査できるビジュアルデバッガです。ロケーター検証、ステップ実行、アクションログ分析に最適です。
 
 ### Inspector の起動方法
 
-**方法1: PWDEBUG環境変数**
+**方法1: --debug フラグ（最も一般的）**
 
 ```bash
-PWDEBUG=1 npx playwright test
-```
-
-**方法2: --debug フラグ**
-
-```bash
+# すべてのテストをデバッグ
 npx playwright test --debug
+
+# 特定ファイルをデバッグ
+npx playwright test example.spec.ts --debug
+
+# 特定行のテストをデバッグ
+npx playwright test example.spec.ts:10 --debug
 ```
+
+**方法2: PWDEBUG環境変数**
+
+```bash
+# Bash/Zsh (Linux/macOS)
+PWDEBUG=1 npx playwright test
+
+# PowerShell (Windows)
+$env:PWDEBUG=1; npx playwright test
+
+# Batch (Windows)
+set PWDEBUG=1 && npx playwright test
+```
+
+`PWDEBUG=1` を設定すると:
+- ブラウザが自動的にheadedモードで起動
+- タイムアウトが無制限（`timeout: 0`）に設定
+- Inspector が自動起動
 
 **方法3: コード内でpage.pause()を使用**
 
 ```typescript
 test('デバッグテスト', async ({ page }) => {
   await page.goto('/login')
+
   await page.pause()  // ここでInspectorが開く
+
   await page.fill('[name="email"]', 'user@example.com')
+  await page.fill('[name="password"]', 'password')
+  await page.click('button[type="submit"]')
 })
 ```
 
+`page.pause()` は `PWDEBUG` の有無に関わらず Inspector を起動します。デバッグ完了後は `page.pause()` を削除してテストを通常実行に戻します。
+
 ### Inspector の主要機能
 
-| 機能 | 説明 |
-|-----|------|
-| **Step Over** | 次のアクションに進む |
-| **Resume** | 次のpause()まで実行 |
-| **Pick Locator** | 要素をクリックしてロケーターを取得 |
-| **Console** | ブラウザコンソールログを表示 |
-| **Source** | テストコードを表示 |
+| 機能 | 説明 | ショートカット |
+|-----|------|--------------|
+| **Play/Resume** | 次の `page.pause()` または終了まで実行 | F8 |
+| **Step Over** | 次のPlaywrightアクションを実行して停止 | F10 |
+| **Pick Locator** | 要素をクリックしてロケーターを取得 | - |
+| **Actionability Logs** | 要素がインタラクト不可の理由を表示 | - |
+| **Locator Tab** | ロケーターをライブ編集・検証 | - |
+| **Source** | テストコードを表示 | - |
 
-### ロケーターのテスト
+### ロケーターのテスト・検証
 
 ```typescript
-// Inspectorのロケーター入力欄で試す
-page.getByRole('button', { name: /submit/i })
+// 1. Inspector の「Pick Locator」ボタンをクリック
+// 2. ブラウザでターゲット要素をホバー → Playwrightが推奨ロケーターを提示
+// 3. 要素をクリック → ロケーターが「Locator」タブに表示
+// 4. ライブ編集: タイプすると該当要素がブラウザでハイライト
+// 5. コピーボタンでテストコードにペースト
+```
 
-// マッチした要素がハイライトされる
-// コピーしてテストコードに貼り付け可能
+**実践例: 失敗するログインテストの修正**
+
+```typescript
+// ❌ 間違ったロケーター
+await page.fill('#username-input', 'standard_user')  // 要素が見つからない
+
+// 1. `npx playwright test login.spec.ts --debug` で起動
+// 2. Pick Locator で username フィールドをクリック
+// 3. Inspector が `locator('[data-test="username"]')` を提示
+// 4. Copy してコードに反映
+
+// ✅ 修正後
+await page.locator('[data-test="username"]').fill('standard_user')
 ```
 
 ### 部分実行デバッグ
@@ -659,7 +700,7 @@ test('ログインフロー', async ({ page }) => {
   await page.goto('/login')
   await page.fill('[name="email"]', 'user@example.com')
 
-  await page.pause()  // ここまで正常に動作するか確認
+  await page.pause()  // ここまでの動作を確認
 
   await page.fill('[name="password"]', 'password')
   await page.click('button[type="submit"]')
@@ -670,26 +711,14 @@ test('ログインフロー', async ({ page }) => {
 
 ## UI Mode でのデバッグ
 
-UI Modeは、テストスイート全体を対話的に実行・デバッグできるGUIツールです。
+UI Modeは、テストスイート全体を対話的に実行・デバッグできるGUIツールです。Playwright Inspector との最大の違いは**タイムトラベルデバッグ**と**Watch Mode**による高速イテレーションです。
 
 ### UI Mode の起動
 
 ```bash
+# UI Modeでテストスイート実行
 npx playwright test --ui
-```
 
-### UI Mode の特徴
-
-- **テスト一覧**: すべてのテストをツリー表示
-- **Watch Mode**: ファイル変更で自動再実行
-- **タイムライン**: 各ステップの実行時間を可視化
-- **スクリーンショット**: 各ステップのスナップショット
-- **ネットワークログ**: リクエスト/レスポンスを確認
-- **トレース**: 詳細な実行履歴
-
-### フィルタリングとソート
-
-```bash
 # 特定のテストのみ実行
 npx playwright test --ui --grep "login"
 
@@ -697,30 +726,111 @@ npx playwright test --ui --grep "login"
 npx playwright test --ui --last-failed
 ```
 
-### タイムトラベルデバッグ
+### UI Mode の特徴
 
-UI Modeでは、各ステップの時点でのDOM状態・ネットワーク・コンソールログを遡って確認できます。
+| 機能 | 説明 |
+|-----|------|
+| **テスト一覧** | すべてのテストをツリー表示、個別・グループ実行可能 |
+| **Watch Mode** | ファイル変更を検知して自動再実行（手動再実行不要） |
+| **タイムトラベルデバッグ** | 各ステップの時点でのDOMスナップショット、過去の状態を遡って確認 |
+| **タイムライン** | 各ステップの実行時間を可視化、ボトルネック特定 |
+| **スクリーンショット** | 各ステップのスナップショット自動保存 |
+| **ネットワークログ** | リクエスト/レスポンスを確認、APIエラー診断 |
+| **コンソールログ** | ブラウザコンソール出力を表示 |
+| **DOM Explorer** | 各ステップのDOM状態を検査 |
+| **統合情報パネル** | DOM、コンソール、ネットワーク、エラー、ソースコードを一箇所で確認 |
+
+### タイムトラベルデバッグ（Inspectorとの差別化ポイント）
+
+UI Modeの最大の強みは、テスト実行後に**過去の任意の時点に戻って状態を確認できる**ことです。
 
 **手順**:
-1. テストを実行
+1. テストを実行（成功・失敗問わず）
 2. タイムラインで任意のステップをクリック
-3. その時点のページ状態を確認
+3. **その時点のページ状態がスナップショットから復元される**
 4. DOM Explorer でセレクタを検証
+5. ネットワークタブで該当ステップのAPIコールを確認
+6. コンソールタブでJavaScriptエラーを診断
+
+**具体例: Flakyテストの調査**
+
+```typescript
+test('ときどき失敗するテスト', async ({ page }) => {
+  await page.goto('/checkout')
+  await page.click('[data-test="submit-order"]')
+  await expect(page.locator('.success-message')).toBeVisible()  // ここで失敗
+})
+```
+
+UI Modeで実行:
+1. 失敗したステップ（`toBeVisible()` アサーション）をクリック
+2. その時点のDOMを確認 → `.success-message` は存在するがCSSで `display: none`
+3. ネットワークタブを確認 → `/api/submit` リクエストが `pending` 状態
+4. **原因判明**: APIレスポンス待機せずにアサーション実行
+
+### Watch Mode による高速イテレーション
+
+```bash
+npx playwright test --ui  # Watch Modeは自動有効
+```
+
+コードを編集して保存すると:
+- **自動的に該当テストを再実行**
+- 手動で `npx playwright test` を叩く必要なし
+- 結果を即座に UI Mode で確認
+
+**開発ワークフロー**:
+1. UI Mode 起動
+2. コードを修正
+3. ファイル保存 → 自動実行
+4. 結果確認・タイムライン分析
+5. さらに修正 → 自動実行（繰り返し）
+
+### 依存関係エラーの可視化
+
+ライブラリ更新時に動作が変わった場合:
+- **ビジュアルタイムライン**: エラー発生箇所がハイライト
+- **コンソールログ**: ライブラリの警告・エラーメッセージ
+- **ネットワークトレース**: API仕様変更の影響を特定
+
+**例**: React 19 へのアップグレード後、`useEffect` の挙動変更で特定コンポーネントがレンダリングされない問題を UI Mode で即座に発見・診断可能。
 
 ---
 
 ## 失敗テストのスクリーンショット自動キャプチャ
+
+スクリーンショットは、スタックトレースだけでは分からない**視覚的証拠**を提供します。「なぜ失敗したのか」を一目で理解可能にします。
 
 ### グローバル設定（playwright.config.ts）
 
 ```typescript
 export default defineConfig({
   use: {
-    screenshot: 'only-on-failure',  // 失敗時のみ
+    screenshot: 'only-on-failure',  // 失敗時のみ（推奨）
     // または
-    // screenshot: 'on',  // 全テストで撮影
+    // screenshot: 'on',               // 全テストで撮影（ビジュアルリグレッションテスト向け）
+    // screenshot: 'off',              // 撮影しない（デフォルト）
+    // screenshot: 'on-first-retry',   // 最初のリトライ時のみ（Playwright 1.49+）
   },
 })
+```
+
+**オプション解説**:
+| オプション | 説明 | 用途 |
+|-----------|------|------|
+| `'off'` | スクリーンショット無効（デフォルト） | 通常開発時 |
+| `'on'` | 全テストで撮影（成功・失敗問わず） | ビジュアルリグレッションテスト、UI変更の記録 |
+| `'only-on-failure'` | 失敗時のみ撮影 | **最も一般的**。デバッグ用途 |
+| `'on-first-retry'` | 最初のリトライ時のみ撮影 | リトライ設定有効時、冗長なスクリーンショットを削減 |
+
+### 保存先
+
+デフォルトで `test-results/` ディレクトリに保存されます:
+
+```
+test-results/
+  example-should-log-in-successfully-chromium/
+    test-finished-1.png
 ```
 
 ### テスト内での手動スクリーンショット
@@ -743,6 +853,33 @@ test('手動スクリーンショット', async ({ page }) => {
 })
 ```
 
+**`page.screenshot()` パラメータ**:
+| パラメータ | 説明 |
+|-----------|------|
+| `path` | ファイルパス |
+| `fullPage` | フルスクロールページ撮影（デフォルト: `false`、ビューポートのみ） |
+| `clip` | 撮影範囲を指定（例: `{ x: 0, y: 0, width: 1280, height: 720 }`） |
+| `omitBackground` | 背景を透明化（デフォルト: 白背景） |
+| `quality` | JPEG品質（0-100、PNG非適用） |
+| `type` | 画像形式（`'jpeg'` or `'png'`） |
+
+### カスタムエラーハンドリング付きスクリーンショット
+
+```typescript
+test('エラー時カスタムスクリーンショット', async ({ page }) => {
+  await page.goto('https://playwright.dev/')
+
+  try {
+    await expect(page.locator('#undefined!')).toBeVisible()
+  } catch (error) {
+    // 失敗時にカスタムスクリーンショット
+    await page.screenshot({ path: 'custom-error.png', fullPage: true })
+    console.error('Test failed, custom screenshot taken!')
+    throw error  // テストを失敗としてマーク
+  }
+})
+```
+
 ### カスタムパス生成
 
 ```typescript
@@ -756,6 +893,16 @@ test('カスタムパス', async ({ page }, testInfo) => {
   await page.screenshot({ path: screenshotPath })
 })
 ```
+
+### HTMLレポートでのスクリーンショット表示
+
+Playwrightの HTMLレポートは、失敗時のスクリーンショットを**自動埋め込み**します:
+
+```bash
+npx playwright show-report
+```
+
+ブラウザでレポートが開き、失敗テストをクリックすると**スクリーンショットが埋め込まれた詳細画面**が表示されます。
 
 ### CI環境でのアーティファクト保存
 
@@ -771,9 +918,12 @@ export default defineConfig({
 })
 ```
 
-GitHub Actionsの場合:
+**GitHub Actions の場合**:
 
 ```yaml
+- name: Run Playwright tests
+  run: npx playwright test
+
 - name: Upload screenshots
   if: failure()
   uses: actions/upload-artifact@v3
@@ -786,19 +936,30 @@ GitHub Actionsの場合:
 
 ## テスト実行のビデオ録画
 
+ビデオ録画は、スクリーンショットでは捉えられない**時系列の動きと遷移**を記録します。Flakyテストの調査やUIアニメーション確認に有効です。
+
 ### ビデオ録画設定
 
 ```typescript
 export default defineConfig({
   use: {
-    video: 'on-first-retry',  // 最初のリトライ時のみ
+    video: 'on-first-retry',  // 最初のリトライ時のみ（推奨）
     // オプション:
-    // 'on' - 全テストで録画
-    // 'retain-on-failure' - 失敗時のみ保持
-    // 'off' - 録画なし
+    // video: 'off',                // 録画なし（デフォルト）
+    // video: 'on',                 // 全テストで録画
+    // video: 'retain-on-failure',  // 失敗時のみ保持（成功したテストのビデオは自動削除）
+    // video: 'on-first-retry',     // リトライ時のみ録画（Flakyテスト調査用）
   },
 })
 ```
+
+**オプション解説**:
+| オプション | 説明 | 用途 |
+|-----------|------|------|
+| `'off'` | ビデオ録画無効（デフォルト） | 通常開発時 |
+| `'on'` | 全テストで録画（成功・失敗問わず） | UI動作の全体記録、デモ用 |
+| `'retain-on-failure'` | 全テストで録画するが、**成功したテストのビデオは削除** | **バランスの取れた選択** |
+| `'on-first-retry'` | 最初のリトライ時のみ録画 | Flakyテスト調査用、ディスク容量節約 |
 
 ### ビデオサイズとフレームレート
 
@@ -807,7 +968,27 @@ export default defineConfig({
   use: {
     video: {
       mode: 'on',
+      size: { width: 1280, height: 720 },  // 解像度指定
+    },
+  },
+})
+```
+
+指定しない場合、Playwrightはビューポートサイズを800x800に収まるようスケールダウンします。
+
+### ディレクトリ指定（Node.js 直接実行）
+
+```typescript
+export default defineConfig({
+  use: {
+    video: {
+      mode: 'on',
       size: { width: 1280, height: 720 },
+    },
+    contextOptions: {
+      recordVideo: {
+        dir: 'test-results/my-videos/',  // 保存先ディレクトリ
+      },
     },
   },
 })
@@ -826,10 +1007,61 @@ test('ビデオパス確認', async ({ page }, testInfo) => {
 })
 ```
 
+**注意**: `playwright.config.ts` で `video` 設定を有効化する必要があります。
+
+### Node.js での直接録画
+
+```typescript
+import { chromium } from 'playwright'
+
+(async () => {
+  const browser = await chromium.launch()
+  const context = await browser.newContext({
+    recordVideo: {
+      dir: 'test-results/my-videos/',
+      size: { width: 1280, height: 720 },
+    },
+  })
+  const page = await context.newPage()
+
+  await page.goto('https://playwright.dev/')
+  await page.getByText('Get started').click()
+
+  // ビデオを保存するため context.close() 必須
+  await context.close()
+  await browser.close()
+})()
+```
+
+**重要**: `context.close()` を呼ばないとビデオファイルが保存されません。ランタイムエラーでスクリプトが途中終了すると、ビデオは保存されません。
+
+**トラブルシューティング**:
+- ビデオが保存されない → コンソールエラーを確認、`context.close()` が呼ばれているか確認
+- ディレクトリが存在しない → 保存先ディレクトリの権限・存在を確認
+
+### 保存場所とファイル形式
+
+- **保存先**: `test-results/videos/` または指定ディレクトリ
+- **ファイル形式**: WebM（現代のブラウザ・メディアプレーヤーでサポート）
+- **ファイル名**: ランダムなID（例: `128d168173888fb.webm`）
+
+### パフォーマンス・ストレージ考慮事項
+
+- **ファイルサイズ**: ビデオは大容量（特に長時間テスト）
+- **推奨設定**: `retain-on-failure` または `on-first-retry` でディスク節約
+- **定期クリーンアップ**: `test-results/videos/` を定期削除
+
+```bash
+# 古いビデオを削除（例: 7日以上前）
+find test-results/videos -name "*.webm" -mtime +7 -delete
+```
+
 ### CI環境でのビデオ保存
 
+**GitHub Actions の場合**:
+
 ```yaml
-- name: Run tests
+- name: Run Playwright tests
   run: npx playwright test
 
 - name: Upload videos
@@ -840,30 +1072,61 @@ test('ビデオパス確認', async ({ page }, testInfo) => {
     path: test-results/**/video.webm
 ```
 
+**GitLab CI の場合**:
+
+```yaml
+test:
+  script:
+    - npx playwright test
+  artifacts:
+    when: on_failure
+    paths:
+      - test-results/**/video.webm
+```
+
 ---
 
 ## Headless vs Headful モードの使い分け
 
+Playwrightは、ブラウザをGUIあり（Headful）またはGUIなし（Headless）で実行できます。
+
 ### Headless Mode（デフォルト）
+
+ブラウザウィンドウを表示せず、バックグラウンドで実行します。
 
 ```typescript
 export default defineConfig({
   use: {
-    headless: true,  // ブラウザUIを表示しない
+    headless: true,  // ブラウザUIを表示しない（デフォルト）
   },
 })
 ```
 
+または:
+
+```bash
+npx playwright test --headless
+```
+
 **利点**:
-- 高速実行
-- CI/CD環境に最適
-- リソース消費が少ない
+- **高速実行**: UI描画のオーバーヘッドなし
+- **低リソース消費**: CPU・メモリ使用量削減
+- **CI/CD環境に最適**: 多くのCI環境はGUIなし
+- **並列実行に有利**: 複数ブラウザを同時起動しやすい
 
 **欠点**:
-- デバッグが困難
-- 視覚的な確認ができない
+- **デバッグが困難**: 画面が見えないため、スクリーンショット・ビデオ・トレースに依存
+- **視覚的確認不可**: UIのアニメーション・レイアウト崩れを直接確認できない
+- **Bot検出リスク**: 一部のサイトはHeadlessブラウザを検出（Playwrightは対策済み）
+
+**使用すべきケース**:
+- CI/CDパイプライン
+- 大規模テストスイート（高速実行重視）
+- Webスクレイピング（視覚的確認不要）
 
 ### Headful Mode
+
+ブラウザウィンドウを表示します。
 
 ```typescript
 export default defineConfig({
@@ -880,13 +1143,19 @@ npx playwright test --headed
 ```
 
 **利点**:
-- 視覚的にテストの動きを確認
-- デバッグが容易
-- UIのアニメーションを確認可能
+- **視覚的デバッグ**: テストの動きをリアルタイムで確認
+- **UIアニメーション確認**: アニメーション・トランジションの検証
+- **インタラクティブ開発**: テスト作成時の動作確認
 
 **欠点**:
-- 実行速度が遅い
-- CI環境では使用不可（通常）
+- **実行速度が遅い**: UI描画のオーバーヘッド
+- **高リソース消費**: CPU・メモリ使用量増加
+- **CI環境で使用不可**: GUIなし環境では起動失敗
+
+**使用すべきケース**:
+- ローカル開発・デバッグ
+- インタラクティブ機能のテスト
+- UIビジュアルの確認
 
 ### 環境に応じた切り替え
 
@@ -898,10 +1167,13 @@ export default defineConfig({
 })
 ```
 
+GitHub Actions では `CI` 環境変数が自動的に `true` に設定されるため、この設定でローカルはheadful、CI環境はheadlessに自動切り替わります。
+
 ### SlowMo（スロー再生）
 
+Headfulモードで各アクションを意図的に遅延させ、視覚的に追いやすくします。
+
 ```typescript
-// playwright.config.ts
 export default defineConfig({
   use: {
     headless: false,
@@ -914,24 +1186,92 @@ export default defineConfig({
 
 **用途**: デバッグ時にテストの動きを目で追いやすくする
 
+### Node.js 直接実行での設定
+
+```typescript
+import { chromium } from 'playwright'
+
+(async () => {
+  const browser = await chromium.launch({
+    headless: false,  // Headful
+    devtools: true,   // DevToolsを自動起動
+    slowMo: 50,       // 各アクション50ms遅延
+  })
+  const page = await browser.newPage()
+  await page.goto('https://playwright.dev/')
+  await page.screenshot({ path: 'example.png' })
+  await browser.close()
+})()
+```
+
+### プロジェクト別設定
+
+```typescript
+export default defineConfig({
+  projects: [
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        headless: false,  // Chromiumのみheadful
+      },
+    },
+    {
+      name: 'firefox',
+      use: {
+        ...devices['Desktop Firefox'],
+        headless: true,   // Firefoxはheadless
+      },
+    },
+  ],
+})
+```
+
 ---
 
 ## まとめ
 
 ### デバッグツールの選択基準
 
-| ツール | 用途 |
-|--------|------|
-| **Inspector** | ロケーター検証、ステップ実行 |
-| **UI Mode** | 複数テストの対話的デバッグ、Watch Mode |
-| **Screenshot** | 失敗時の視覚的証拠、CI/CDレポート |
-| **Video** | 再現困難なバグの記録 |
-| **Headful Mode** | ローカル開発、UIアニメーション確認 |
-| **Headless Mode** | CI/CD、高速実行 |
+| ツール | 最適用途 | 主な機能 |
+|--------|---------|---------|
+| **Inspector** | ロケーター検証、ステップ実行 | Pick Locator、Actionability Logs、ステップ実行 |
+| **UI Mode** | 複数テストの対話的デバッグ、Watch Mode | タイムトラベルデバッグ、自動再実行、タイムライン |
+| **Screenshot** | 失敗時の視覚的証拠、CI/CDレポート | 失敗時スナップショット、HTMLレポート統合 |
+| **Video** | 再現困難なバグの記録、UIアニメーション検証 | 時系列の動作記録、Flakyテスト調査 |
+| **Headful Mode** | ローカル開発、UIアニメーション確認 | リアルタイム視覚的デバッグ、SlowMo |
+| **Headless Mode** | CI/CD、高速実行 | 高速・低リソース、並列実行に有利 |
 
 ### ベストプラクティス
 
-1. **開発時**: Headful + Inspector + SlowMo
-2. **CI/CD**: Headless + Screenshot on failure + Video on retry
-3. **Flaky調査**: Video recording + UI Mode でタイムライン分析
-4. **ロケーター修正**: Inspector の Pick Locator機能を活用
+| シチュエーション | 推奨設定 |
+|---------------|---------|
+| **開発時** | Headful + Inspector + SlowMo + Watch Mode (UI Mode) |
+| **CI/CD** | Headless + `screenshot: 'only-on-failure'` + `video: 'on-first-retry'` |
+| **Flaky調査** | Headful + Video recording + UI Mode でタイムライン分析 |
+| **ロケーター修正** | Inspector の Pick Locator機能 |
+| **複数テストの並行デバッグ** | UI Mode + Watch Mode |
+| **過去の状態を遡って調査** | UI Mode のタイムトラベルデバッグ |
+
+### 設定例（推奨）
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  use: {
+    headless: !!process.env.CI,         // CI環境では自動headless
+    screenshot: 'only-on-failure',      // 失敗時のみスクリーンショット
+    video: 'on-first-retry',            // リトライ時のみビデオ録画
+    trace: 'on-first-retry',            // トレース記録（リトライ時のみ）
+  },
+  retries: process.env.CI ? 2 : 0,      // CI環境でのみリトライ
+})
+```
+
+### デバッグフロー
+
+1. **テスト失敗** → HTMLレポート確認（スクリーンショット・ログ）
+2. **原因不明** → UI Mode で実行、タイムライン分析
+3. **ロケーター問題** → Inspector の Pick Locator で検証
+4. **Flaky** → Video録画 + タイムトラベルで過去の状態を確認
+5. **修正** → Watch Mode で自動再実行、即座にフィードバック

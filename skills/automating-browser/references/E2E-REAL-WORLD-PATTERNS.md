@@ -372,6 +372,193 @@ test('商品追加からチェックアウトまでの完全フロー', async ({
 });
 ```
 
+### 決済処理のテスト
+
+```typescript
+// tests/payment/checkout-flow.spec.ts
+test('チェックアウトフロー（カード決済）', async ({ page }) => {
+  // カート内に商品を準備
+  await page.goto('https://example.com/cart');
+  await expect(page.locator('.cart-item')).toHaveCount(1);
+
+  // チェックアウト開始
+  await page.click('button:has-text("Proceed to Checkout")');
+
+  // 配送先情報入力
+  await page.fill('[name="address"]', '123 Main St');
+  await page.fill('[name="city"]', 'San Francisco');
+  await page.fill('[name="zip"]', '94102');
+  await page.click('button:has-text("Continue to Payment")');
+
+  // 決済情報入力（テスト用カード番号）
+  await page.fill('[name="card_number"]', '4111111111111111');  // Visa test card
+  await page.fill('[name="expiry"]', '12/25');
+  await page.fill('[name="cvv"]', '123');
+
+  // 注文確定
+  await page.click('button:has-text("Place Order")');
+
+  // 注文完了画面の検証
+  await expect(page).toHaveURL(/order-confirmation/);
+  await expect(page.getByText('Order placed successfully')).toBeVisible();
+  await expect(page.locator('.order-number')).toBeVisible();
+});
+```
+
+**決済テストのベストプラクティス:**
+- 本番の決済ゲートウェイは**使用しない** → テスト環境専用のサンドボックスAPIを使用
+- Stripe/PayPalのテストモードを有効化
+- テスト用カード番号: `4111111111111111`（Visa）、`5555555555554444`（Mastercard）
+
+### 在庫管理のテスト
+
+```typescript
+// tests/inventory/stock-validation.spec.ts
+test('在庫切れ商品はカートに追加できない', async ({ page }) => {
+  await page.goto('https://example.com/products/out-of-stock-item');
+
+  // カート追加ボタンが無効化されていることを確認
+  await expect(page.getByRole('button', { name: 'Add to Cart' })).toBeDisabled();
+  await expect(page.getByText('Out of Stock')).toBeVisible();
+});
+
+test('在庫数制限を超えて追加できない', async ({ page }) => {
+  await page.goto('https://example.com/products/limited-item');
+
+  // 在庫数上限まで追加
+  for (let i = 0; i < 5; i++) {
+    await page.click('button:has-text("Add to Cart")');
+  }
+
+  // 在庫上限超過時のエラーメッセージ
+  await page.click('button:has-text("Add to Cart")');
+  await expect(page.getByText('Maximum stock reached')).toBeVisible();
+});
+```
+
+---
+
+## TypeScript型安全パターン
+
+### 厳密な型定義
+
+```typescript
+// types/test-data.ts
+export interface User {
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  inStock: boolean;
+}
+
+export interface CheckoutData {
+  address: string;
+  city: string;
+  zip: string;
+  cardNumber: string;
+  expiry: string;
+  cvv: string;
+}
+```
+
+### データファクトリーの型安全化
+
+```typescript
+// helpers/data-factory.ts
+import { faker } from '@faker-js/faker';
+import type { User, Product, CheckoutData } from '../types/test-data';
+
+export class DataFactory {
+  static createUser(overrides?: Partial<User>): User {
+    return {
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      password: faker.internet.password({ length: 12 }),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      ...overrides
+    };
+  }
+
+  static createProduct(overrides?: Partial<Product>): Product {
+    return {
+      id: faker.string.uuid(),
+      name: faker.commerce.productName(),
+      price: parseFloat(faker.commerce.price()),
+      category: faker.commerce.department(),
+      inStock: true,
+      ...overrides
+    };
+  }
+
+  static createCheckoutData(overrides?: Partial<CheckoutData>): CheckoutData {
+    return {
+      address: faker.location.streetAddress(),
+      city: faker.location.city(),
+      zip: faker.location.zipCode(),
+      cardNumber: '4111111111111111',  // Visa test card
+      expiry: '12/25',
+      cvv: '123',
+      ...overrides
+    };
+  }
+}
+```
+
+### 環境変数の型安全な管理
+
+```typescript
+// config/env.ts
+interface EnvConfig {
+  BASE_URL: string;
+  API_URL: string;
+  USERNAME: string;
+  PASSWORD: string;
+  TEST_TIMEOUT: number;
+}
+
+function getEnv(): EnvConfig {
+  const requiredEnvVars = ['USERNAME', 'PASSWORD'] as const;
+
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      throw new Error(`Environment variable ${envVar} is not defined`);
+    }
+  }
+
+  return {
+    BASE_URL: process.env.BASE_URL || 'https://example.com',
+    API_URL: process.env.API_URL || 'https://api.example.com',
+    USERNAME: process.env.USERNAME!,
+    PASSWORD: process.env.PASSWORD!,
+    TEST_TIMEOUT: parseInt(process.env.TEST_TIMEOUT || '30000', 10),
+  };
+}
+
+export const env = getEnv();
+```
+
+**型安全なテストでの使用:**
+```typescript
+import { test } from '@playwright/test';
+import { env } from '../config/env';
+
+test('環境変数を使った型安全なログイン', async ({ page }) => {
+  await page.goto(env.BASE_URL);
+  await page.fill('[name="username"]', env.USERNAME);  // 型チェック済み
+  await page.fill('[name="password"]', env.PASSWORD);  // 型チェック済み
+});
+```
+
 ---
 
 ## チェックリスト: 実践的テストパターン
@@ -386,6 +573,10 @@ test('商品追加からチェックアウトまでの完全フロー', async ({
 - [ ] 環境ごとの設定ファイルを分離（dev/staging/prod）
 - [ ] CI/CD パイプラインとの統合を考慮
 - [ ] テストレポート自動生成（HTML/JSON形式）
+- [ ] TypeScript型定義で型安全性を確保
+- [ ] 環境変数の必須チェックと型安全な管理
+- [ ] 決済テストはサンドボックス環境で実行
+- [ ] 在庫管理ロジックのエッジケースをカバー
 
 ---
 
