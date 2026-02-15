@@ -1,6 +1,6 @@
 ---
 name: searching-web
-description: Advanced web search via gemini CLI tool for complex queries and detailed information gathering. Use when performing web searches, researching technologies, or comparing libraries. Preferred over built-in Web Search for multi-step research and detailed queries.
+description: Fallback web search via gemini CLI tool for complex queries and detailed information gathering. Use when Exa MCP is unavailable or for multi-step research requiring gemini's reasoning. For primary web search, use searching-with-exa instead.
 ---
 
 # Web Search

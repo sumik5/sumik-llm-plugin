@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (58個)
+└── skills/             # ナレッジスキル (60個)
 ```
 
 ---
@@ -58,7 +58,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (58個)
+### Skills (60個)
 
 #### コア開発
 
@@ -126,7 +126,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `designing-monitoring` | 監視・オブザーバビリティシステム設計（アンチパターン、デザインパターン、レイヤー別戦略、テレメトリーパイプライン、アラート・オンコール・インシデント管理、オブザーバビリティ概念、SLO、サンプリング戦略、成熟度モデル） |
-| `developing-google-cloud` | Google Cloud 開発・セキュリティ包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ: IAM・VPC・KMS・DLP・SCC・コンテナセキュリティ・コンプライアンス・15リファレンスファイル） |
+| `developing-google-cloud` | Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ + データエンジニアリング + ネットワークエンジニアリング: VPC設計・ハイブリッド接続・LB/CDN・ネットワーク監視・Traffic Director/Service Mesh・25リファレンスファイル） |
 | `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm含む） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
@@ -134,6 +134,7 @@ sumik-claude-plugin/
 | `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 | `practicing-devops` | DevOps方法論・IaCツール選定・オーケストレーション比較・CI/CD・プラットフォームエンジニアリング |
 | `using-anki-mcp` | Anki MCP Server統合（デッキ管理・カードレビュー・ノートタイプ・メディア管理・GUI統合） |
+| `using-drawio-mcp` | draw.io MCP Server統合（XML/CSV/Mermaid形式でダイアグラム作成・ブラウザ表示） |
 | `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
 
 #### ドキュメント・品質
@@ -150,7 +151,8 @@ sumik-claude-plugin/
 | `slidekit-create` | HTMLスライドプレゼンテーション生成（1スライド=1HTML、Tailwind CSS、15レイアウトパターン、5スタイル×5テーマ） |
 | `slidekit-templ` | PDFプレゼンテーション→HTMLスライドテンプレート変換（視覚再現アプローチ） |
 | `authoring-skills` | スキル作成・ソース変換・利用状況レビュー統合ガイド |
-| `searching-web` | Web検索（gemini） |
+| `searching-with-exa` | Exa MCP統合（7カテゴリ検索: 企業・コード・人物・財務・学術・個人サイト・Tweet/X、Web検索第一優先ツール） |
+| `searching-web` | Web検索 fallback（gemini CLI、Exa MCP使用不可時） |
 | `reviewing-with-coderabbit` | CodeRabbitコードレビュー |
 
 ### Scripts (1個)
@@ -168,7 +170,7 @@ sumik-claude-plugin/
 | `notify-complete` | Stop | タスク完了時のデスクトップ通知 |
 | `notify-waiting` | Stop | 待機状態の通知 |
 
-### MCP Servers (10個)
+### MCP Servers (11個)
 
 | サーバー | 用途 |
 |---------|------|
@@ -182,6 +184,7 @@ sumik-claude-plugin/
 | docker | Dockerコンテナ管理 |
 | terraform | Terraformインフラ管理 |
 | sequentialthinking | 複雑な問題の構造化思考 |
+| drawio | draw.ioダイアグラム作成・表示 |
 
 ---
 

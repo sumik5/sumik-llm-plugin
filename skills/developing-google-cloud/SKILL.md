@@ -1,13 +1,13 @@
 ---
 description: >-
-  Comprehensive Google Cloud development guide covering Cloud Run deployment (architecture, scaling, CI/CD, cost optimization) and GCP platform security (IAM, VPC, KMS, DLP, SCC, container security, compliance).
-  MUST load when Dockerfile is detected alongside google-cloud or @google-cloud packages, or when cloudbuild.yaml is present.
-  For Docker-specific patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For code-level security (OWASP, CodeGuard), use securing-code instead.
+  Comprehensive Google Cloud development guide covering Cloud Run deployment (architecture, scaling, CI/CD, cost optimization), GCP platform security (IAM, VPC, KMS, DLP, SCC, container security, compliance), data engineering (storage selection, BigQuery warehousing, data pipelines, migrations, governance), and network engineering (VPC design, hybrid connectivity, load balancing, CDN, network monitoring, advanced networking with Traffic Director and Service Mesh).
+  MUST load when Dockerfile is detected alongside google-cloud or @google-cloud packages, when cloudbuild.yaml is present, or when working with BigQuery, Dataflow, Dataproc, GCP data services, VPC networking, Cloud Interconnect, Cloud VPN, or GCP load balancing.
+  For Docker-specific patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For code-level security (OWASP, CodeGuard), use securing-code instead. For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
 ---
 
-# Google Cloud 開発・セキュリティガイド
+# Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワークガイド
 
-このスキルは、Google Cloud Platform（GCP）でのアプリケーション開発・デプロイ・プラットフォームセキュリティを包括的にカバーします。**Cloud Run中心のサーバーレスデプロイメント**と**GCPセキュリティサービス活用**の2本柱で構成されています。
+このスキルは、Google Cloud Platform（GCP）でのアプリケーション開発・デプロイ・プラットフォームセキュリティ・データエンジニアリング・ネットワークエンジニアリングを包括的にカバーします。**Cloud Run中心のサーバーレスデプロイメント**、**GCPセキュリティサービス活用**、**データエンジニアリング**、**ネットワークエンジニアリング（VPC設計・ハイブリッド接続・LB・CDN・監視・高度なネットワーキング）**の4本柱で構成されています。
 
 ---
 
@@ -310,11 +310,135 @@ gcloud run deploy cost-optimized-api \
 | **[LOGGING-MONITORING.md](references/LOGGING-MONITORING.md)** | Cloud Logging、Security Command Center、監査ログ、アラート |
 | **[WORKLOAD-SECURITY.md](references/WORKLOAD-SECURITY.md)** | Image Hardening、Container Security、Binary Authorization、Shielded VM |
 
+### データエンジニアリング（5ファイル）
+
+| ファイル | 内容 |
+|---------|------|
+| **[DATA-STORAGE-SELECTION.md](references/DATA-STORAGE-SELECTION.md)** | GCPストレージサービス選択フレームワーク、決定木、アクセスパターン、ライフサイクル管理 |
+| **[DATA-WAREHOUSING.md](references/DATA-WAREHOUSING.md)** | BigQuery設計（テーブル種別・パーティショニング・クラスタリング・BigQuery ML・コスト最適化） |
+| **[DATA-PIPELINES.md](references/DATA-PIPELINES.md)** | EL/ELT/ETLパターン、バッチ/ストリーミング、Dataflow/Dataproc/Cloud Composer |
+| **[DATA-MIGRATION.md](references/DATA-MIGRATION.md)** | ネットワーク接続（VPN/Interconnect）、マイグレーションツール、Database Migration Service |
+| **[DATA-GOVERNANCE.md](references/DATA-GOVERNANCE.md)** | Dataplex Catalog、メタデータ管理、データリネージ、マルチクラウド設計 |
+
+### ネットワークエンジニアリング（6ファイル）
+
+| ファイル | 内容 |
+|---------|------|
+| **[VPC-DESIGN.md](references/VPC-DESIGN.md)** | VPCアーキテクチャ設計、CIDR計画、IPアドレッシング、ルーティング（静的/動的/Cloud Router）、Shared VPC vs VPC Peering、NAT、ファイアウォール実装 |
+| **[HYBRID-CONNECTIVITY.md](references/HYBRID-CONNECTIVITY.md)** | Cloud Interconnect（Dedicated/Partner）、IPsec VPN（Route-based/HA）、Cloud Router/BGP、フェイルオーバー/DR戦略 |
+| **[LOAD-BALANCING-CDN.md](references/LOAD-BALANCING-CDN.md)** | ロードバランサー選択（External/Internal、L4/L7）、HTTP(S) Global LB、Internal TCP/UDP LB、Cloud CDN、レイテンシ最適化 |
+| **[NETWORK-SECURITY.md](references/NETWORK-SECURITY.md)** | VPC基礎、サブネット設計、ファイアウォール戦略、Cloud Armor、VPC Service Controls、Private Google Access、IAMネットワーク権限、NGFWインサーション |
+| **[NETWORK-MONITORING.md](references/NETWORK-MONITORING.md)** | VPC Flow Logs、Firewall Rules Logging、VPC Audit Logs、Packet Mirroring、ログエクスポート（Logs Router） |
+| **[ADVANCED-NETWORKING.md](references/ADVANCED-NETWORKING.md)** | Traffic Director、Istio/Service Mesh、Service Directory、Network Connectivity Center（Hub and Spoke） |
+
+---
+
+## データエンジニアリング概要
+
+GCPのデータエンジニアリングは、データの取り込み・保存・変換・分析・ガバナンスを統合的にカバーします。
+
+### ストレージサービス選択テーブル
+
+| サービス | データモデル | 最適なユースケース | スケーリング |
+|---------|------------|------------------|------------|
+| **Cloud Storage** | オブジェクト（非構造化） | メディア、バックアップ、データレイク | 自動（無制限） |
+| **Cloud SQL** | リレーショナル | OLTP、小〜中規模アプリケーション | 垂直（最大128 vCPU） |
+| **Cloud Spanner** | リレーショナル（分散） | グローバルトランザクション、金融 | 水平（自動） |
+| **Bigtable** | ワイドカラム | IoT、時系列、大規模分析 | 水平（ノード追加） |
+| **BigQuery** | カラムナー（分析） | OLAP、データウェアハウス、BI | 自動（サーバーレス） |
+| **Firestore** | ドキュメント | モバイル/Web、リアルタイム同期 | 自動 |
+| **Memorystore** | Key-Value（インメモリ） | キャッシュ、セッション管理 | 垂直/水平 |
+| **AlloyDB** | リレーショナル（PostgreSQL互換） | 高性能OLTP+分析ハイブリッド | 垂直+読み取りレプリカ |
+
+### データウェアハウス設計の要点
+
+- BigQueryはサーバーレスのカラムナーストレージで、ペタバイト規模のOLAPに最適
+- **料金モデル**: オンデマンド（クエリデータ量課金）/ 定額（スロット予約）
+- **テーブル設計**: ネイティブテーブル、外部テーブル、マテリアライズドビュー
+- **パーティショニング**: 時間ベース（日/月/年）、整数範囲、取り込み時間
+- **クラスタリング**: 最大4カラム、パーティション内のデータ再編成
+- **BigQuery ML**: SQL内で機械学習モデルの作成・評価・予測が可能
+
+### データパイプラインパターン
+
+| パターン | 処理方式 | GCPサービス | ユースケース |
+|---------|---------|------------|------------|
+| **EL (Extract-Load)** | バッチ | BigQuery Data Transfer | 定期的データ取り込み |
+| **ELT (Extract-Load-Transform)** | バッチ | BigQuery + dbt | 変換をDWH内で実行 |
+| **ETL (Extract-Transform-Load)** | バッチ | Dataflow / Dataproc | 複雑な変換が必要 |
+| **ストリーミング** | リアルタイム | Pub/Sub + Dataflow | IoT、ログ、イベント |
+| **オーケストレーション** | ワークフロー | Cloud Composer (Airflow) | 複雑な依存関係管理 |
+
+### ユーザー確認の原則（データエンジニアリング）
+
+以下の判断が必要な場合は AskUserQuestion ツールで確認すること:
+
+- **BigQuery料金モデル**: オンデマンド vs 定額（ワークロード特性による）
+- **パイプラインツール選択**: Dataflow vs Dataproc（既存スキルセット・ワークロードによる）
+- **ストレージサービス選択**: 上記テーブルの複数候補が該当する場合
+- **マイグレーション方式**: オンライン vs オフライン（ダウンタイム許容度による）
+
+---
+
+## ネットワークエンジニアリング概要
+
+GCPのネットワークエンジニアリングは、VPC設計・ハイブリッド接続・ロードバランシング・セキュリティ・監視・高度なネットワーキングの6領域で構成されます。
+
+### ネットワーク設計の判断フロー
+
+```
+ネットワーク要件
+    ↓
+【VPC設計】
+    ├─ シングルプロジェクト？ → スタンドアロンVPC
+    ├─ マルチプロジェクト・中央管理？ → Shared VPC
+    └─ プロジェクト間通信（分散管理）？ → VPC Peering
+    ↓
+【外部接続】
+    ├─ 低帯域（< 300 Mbps）？ → HA VPN
+    ├─ 中帯域（300 Mbps - 10 Gbps）？ → Partner Interconnect
+    └─ 高帯域（10-200 Gbps）？ → Dedicated Interconnect
+    ↓
+【ロードバランシング】
+    ├─ グローバルHTTP(S)？ → External HTTP(S) LB
+    ├─ 内部L4？ → Internal TCP/UDP LB
+    └─ 内部L7？ → Internal HTTP(S) LB
+    ↓
+【監視】
+    ├─ フロー分析？ → VPC Flow Logs
+    ├─ セキュリティ監視？ → Firewall Rules Logging + Cleanup Rule
+    └─ 深層パケット解析？ → Packet Mirroring（一時的使用）
+```
+
+### 主要サービス一覧
+
+| カテゴリ | サービス | 用途 |
+|---------|---------|------|
+| **VPC** | VPC Network | グローバルプライベートネットワーク |
+| | Shared VPC | マルチプロジェクト集中管理 |
+| | VPC Peering | VPC間接続（分散管理） |
+| **接続** | Cloud Interconnect | 専用線接続（Dedicated/Partner） |
+| | Cloud VPN | IPsec VPNトンネル（HA/Classic） |
+| | Cloud Router | BGP動的ルーティング |
+| | Cloud NAT | プライベートインスタンスの外部通信 |
+| **LB/CDN** | HTTP(S) LB | グローバルL7ロードバランシング |
+| | TCP/UDP LB | L4ロードバランシング |
+| | Cloud CDN | コンテンツ配信・キャッシュ |
+| **セキュリティ** | Cloud Armor | DDoS/WAF防御 |
+| | VPC Service Controls | サービス境界・データ流出防止 |
+| **監視** | VPC Flow Logs | ネットワークトラフィック分析 |
+| | Packet Mirroring | 完全パケットキャプチャ |
+| **高度** | Traffic Director | サービスメッシュ管理プレーン |
+| | Service Directory | サービスレジストリ |
+| | Network Connectivity Center | Hub and Spoke ネットワーク |
+
+詳細な実装ガイドは `references/` ディレクトリの各ファイルを参照してください。
+
 ---
 
 ## まとめ
 
-Google Cloud は、**サーバーレスデプロイメント（Cloud Run）** と **包括的なセキュリティサービス** を組み合わせることで、スケーラブルかつセキュアなアプリケーションを構築できます。
+Google Cloud は、**サーバーレスデプロイメント（Cloud Run）**、**包括的なセキュリティサービス**、**データエンジニアリング基盤**、**ネットワークエンジニアリング** を組み合わせることで、スケーラブルかつセキュアなデータドリブンアプリケーションを構築できます。
 
 **Cloud Run デプロイの要点:**
 1. サービス選択テーブルで適切なGCPサービスを判断
@@ -327,5 +451,18 @@ Google Cloud は、**サーバーレスデプロイメント（Cloud Run）** �
 1. 6つの柱（運用・ネットワーク・データ・ID・物理・脅威）を理解
 2. サービスマップで要件に応じた適切なサービスを選択
 3. 詳細な実装は各リファレンスファイルを参照
+
+**データエンジニアリングの要点:**
+1. ストレージ選択テーブルでユースケースに合ったサービスを選択
+2. BigQueryのパーティショニング・クラスタリングでコストとパフォーマンスを最適化
+3. パイプラインパターン（EL/ELT/ETL/ストリーミング）を要件に応じて選択
+4. Dataplex Catalogでメタデータ管理・データガバナンスを実現
+
+**ネットワークエンジニアリングの要点:**
+1. VPC設計（Shared VPC vs Peering）はプロジェクト管理モデルに応じて選択
+2. ハイブリッド接続は帯域要件でVPN / Partner Interconnect / Dedicated Interconnectを選択
+3. ロードバランサーはトラフィックタイプ（L4/L7、External/Internal）で選択
+4. VPC Flow LogsとFirewall Logsで日常監視、Packet Mirroringは調査時のみ
+5. Traffic Director/Service Meshでマイクロサービス間通信を制御
 
 詳細な実装ガイドは `references/` ディレクトリの各ファイルを参照してください。

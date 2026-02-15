@@ -66,6 +66,11 @@
       ],
       "env": {}
     },
+    "mcp-docker": {
+      "command": "docker",
+      "args": ["mcp", "gateway", "run"],
+      "type": "stdio"
+    },
     "terraform": {
       "command": "docker",
       "args": [
@@ -83,6 +88,10 @@
         "@modelcontextprotocol/server-sequential-thinking"
       ],
       "env": {}
+    },
+    "drawio": {
+      "command": "npx",
+      "args": ["@drawio/mcp"]
     }
   }
 }
