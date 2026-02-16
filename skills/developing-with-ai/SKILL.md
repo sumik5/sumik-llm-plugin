@@ -12,6 +12,7 @@ description: >-
   frameworks, governance, AI-SPM), use securing-ai-development instead. For
   PM-specific Claude Code workflows (codebase investigation, feedback synthesis,
   competitive analysis, requirements generation), use using-claude-code-as-pm instead.
+  For LLM application production operations, use practicing-llmops.
 ---
 
 # developing-with-ai

@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (60個)
+└── skills/             # ナレッジスキル (61個)
 ```
 
 ---
@@ -58,7 +58,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (60個)
+### Skills (61個)
 
 #### コア開発
 
@@ -94,6 +94,7 @@ sumik-claude-plugin/
 | `building-green-software` | グリーンソフトウェアエンジニアリング（カーボン効率・運用効率・カーボンアウェアネス・測定方法論・GSMM・グリーンAI） |
 | `building-rag-systems` | RAGシステム構築ガイド（11種データソース読み込み・5種チャンキング戦略・パイプラインアーキテクチャ・Python実装） |
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
+| `practicing-llmops` | LLMOps運用フレームワーク（データ・モデル適応・API・評価・セキュリティ・スケーリング） |
 
 #### フレームワーク
 
@@ -126,7 +127,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `designing-monitoring` | 監視・オブザーバビリティシステム設計（アンチパターン、デザインパターン、レイヤー別戦略、テレメトリーパイプライン、アラート・オンコール・インシデント管理、オブザーバビリティ概念、SLO、サンプリング戦略、成熟度モデル） |
-| `developing-google-cloud` | Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ深掘り: IAM・VPC・KMS・DLP・SCC・DevSecOps CI/CD・Zero Trust/BeyondCorp・Anthos・Incident Response + データエンジニアリング + ネットワークエンジニアリング: VPC設計・ハイブリッド接続・LB/CDN・ネットワーク監視・Traffic Director/Service Mesh・29リファレンスファイル） |
+| `developing-google-cloud` | Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク・キャッシング包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ深掘り: IAM・VPC・KMS・DLP・SCC・DevSecOps CI/CD・Zero Trust/BeyondCorp・Anthos・Incident Response + データエンジニアリング + ネットワークエンジニアリング: VPC設計・ハイブリッド接続・LB/CDN・ネットワーク監視・Traffic Director/Service Mesh + Memorystore: マネージドRedis/Memcachedキャッシング・パフォーマンスエンジニアリング・レジリエンス・32リファレンスファイル） |
 | `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm含む） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |

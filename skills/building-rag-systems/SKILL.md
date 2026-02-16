@@ -5,7 +5,7 @@ description: >-
   (metadata enrichment, text quality enhancement, 5 chunking strategies from character to agentic),
   and full RAG architecture overview with Python. Use when building RAG applications, designing data
   ingestion pipelines, or implementing text chunking strategies. For Python language best practices,
-  use developing-python instead.
+  use developing-python instead. For LLMOps operational framework, use practicing-llmops.
 ---
 
 # RAGシステム構築ガイド

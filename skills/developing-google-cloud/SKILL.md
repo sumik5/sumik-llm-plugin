@@ -1,13 +1,13 @@
 ---
 description: >-
-  Comprehensive Google Cloud development guide covering Cloud Run deployment (architecture, scaling, CI/CD, cost optimization), GCP platform security (IAM, VPC, KMS, DLP, SCC, container security, compliance, DevSecOps CI/CD pipeline security, Zero Trust / BeyondCorp Enterprise, Anthos multi-cloud security, incident response and forensics, Chronicle threat hunting), data engineering (storage selection, BigQuery warehousing, data pipelines, migrations, governance), and network engineering (VPC design, hybrid connectivity, load balancing, CDN, network monitoring, advanced networking with Traffic Director and Service Mesh).
-  MUST load when Dockerfile is detected alongside google-cloud or @google-cloud packages, when cloudbuild.yaml is present, or when working with BigQuery, Dataflow, Dataproc, GCP data services, VPC networking, Cloud Interconnect, Cloud VPN, or GCP load balancing.
+  Comprehensive Google Cloud development guide covering Cloud Run deployment (architecture, scaling, CI/CD, cost optimization), GCP platform security (IAM, VPC, KMS, DLP, SCC, container security, compliance, DevSecOps CI/CD pipeline security, Zero Trust / BeyondCorp Enterprise, Anthos multi-cloud security, incident response and forensics, Chronicle threat hunting), data engineering (storage selection, BigQuery warehousing, data pipelines, migrations, governance), network engineering (VPC design, hybrid connectivity, load balancing, CDN, network monitoring, advanced networking with Traffic Director and Service Mesh), and Memorystore (managed Redis/Memcached caching, cache patterns, performance engineering, resilience, cloud-native integration).
+  MUST load when Dockerfile is detected alongside google-cloud or @google-cloud packages, when cloudbuild.yaml is present, or when working with BigQuery, Dataflow, Dataproc, GCP data services, VPC networking, Cloud Interconnect, Cloud VPN, GCP load balancing, or Memorystore/Redis/Memcached caching.
   For Docker-specific patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For code-level security (OWASP, CodeGuard), use securing-code instead. For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
 ---
 
-# Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワークガイド
+# Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク・キャッシングガイド
 
-このスキルは、Google Cloud Platform（GCP）でのアプリケーション開発・デプロイ・プラットフォームセキュリティ・データエンジニアリング・ネットワークエンジニアリングを包括的にカバーします。**Cloud Run中心のサーバーレスデプロイメント**、**GCPセキュリティサービス活用**、**データエンジニアリング**、**ネットワークエンジニアリング（VPC設計・ハイブリッド接続・LB・CDN・監視・高度なネットワーキング）**の4本柱で構成されています。
+このスキルは、Google Cloud Platform（GCP）でのアプリケーション開発・デプロイ・プラットフォームセキュリティ・データエンジニアリング・ネットワークエンジニアリング・インメモリキャッシングを包括的にカバーします。**Cloud Run中心のサーバーレスデプロイメント**、**GCPセキュリティサービス活用**、**データエンジニアリング**、**ネットワークエンジニアリング（VPC設計・ハイブリッド接続・LB・CDN・監視・高度なネットワーキング）**、**Memorystore（マネージドRedis/Memcachedキャッシング）**の5本柱で構成されています。
 
 ---
 
@@ -346,6 +346,14 @@ gcloud run deploy cost-optimized-api \
 | **[NETWORK-MONITORING.md](references/NETWORK-MONITORING.md)** | VPC Flow Logs、Firewall Rules Logging、VPC Audit Logs、Packet Mirroring、ログエクスポート（Logs Router） |
 | **[ADVANCED-NETWORKING.md](references/ADVANCED-NETWORKING.md)** | Traffic Director、Istio/Service Mesh、Service Directory、Network Connectivity Center（Hub and Spoke） |
 
+### Memorystore キャッシング（3ファイル）
+
+| ファイル | 内容 |
+|---------|------|
+| **[MEMORYSTORE-FUNDAMENTALS.md](references/MEMORYSTORE-FUNDAMENTALS.md)** | アーキテクチャ概要、Redis vs Memcached比較、データ型・ユースケース、キャッシュパターン（Cache-Aside/Write-Through/Write-Behind）、無効化戦略、エビクションポリシー、GCPサービス統合 |
+| **[MEMORYSTORE-OPERATIONS.md](references/MEMORYSTORE-OPERATIONS.md)** | プロビジョニング（gcloud/Terraform/Cloud Build）、インスタンス構成（Basic/Standard ティア）、VPCネットワーキング、パフォーマンスエンジニアリング（ベンチマーク・レイテンシ最適化）、スケーリング、セキュリティ（暗号化・IAM・監査） |
+| **[MEMORYSTORE-RESILIENCE.md](references/MEMORYSTORE-RESILIENCE.md)** | 高可用性（SLA 99.9%・マルチゾーン・自動フェイルオーバー）、DR（バックアップ・RPO/RTO設計）、監視（Cloud Monitoring・Prometheus・SLOアラート）、インシデント管理、クラウドネイティブ統合（マイクロサービス・サーバーレス） |
+
 ---
 
 ## データエンジニアリング概要
@@ -453,7 +461,7 @@ GCPのネットワークエンジニアリングは、VPC設計・ハイブリ�
 
 ## まとめ
 
-Google Cloud は、**サーバーレスデプロイメント（Cloud Run）**、**包括的なセキュリティサービス**、**データエンジニアリング基盤**、**ネットワークエンジニアリング** を組み合わせることで、スケーラブルかつセキュアなデータドリブンアプリケーションを構築できます。
+Google Cloud は、**サーバーレスデプロイメント（Cloud Run）**、**包括的なセキュリティサービス**、**データエンジニアリング基盤**、**ネットワークエンジニアリング**、**Memorystore（インメモリキャッシング）** を組み合わせることで、スケーラブルかつセキュアなデータドリブンアプリケーションを構築できます。
 
 **Cloud Run デプロイの要点:**
 1. サービス選択テーブルで適切なGCPサービスを判断
@@ -483,5 +491,12 @@ Google Cloud は、**サーバーレスデプロイメント（Cloud Run）**、
 3. ロードバランサーはトラフィックタイプ（L4/L7、External/Internal）で選択
 4. VPC Flow LogsとFirewall Logsで日常監視、Packet Mirroringは調査時のみ
 5. Traffic Director/Service Meshでマイクロサービス間通信を制御
+
+**Memorystoreキャッシングの要点:**
+1. エンジン選択: 複雑なデータ構造・永続化 → Redis、シンプルKVキャッシュ → Memcached
+2. キャッシュパターン: 読取ヘビー → Cache-Aside + TTL、書込ヘビー → Write-Behind/Write-Through
+3. ティア選択: 本番 → Standard（SLA 99.9%、自動フェイルオーバー）、開発 → Basic
+4. パフォーマンス: memtier_benchmarkでベースライン測定、パイプライニングで最適化
+5. 監視: `redis.googleapis.com` メトリクスでSLOベースアラート設定
 
 詳細な実装ガイドは `references/` ディレクトリの各ファイルを参照してください。

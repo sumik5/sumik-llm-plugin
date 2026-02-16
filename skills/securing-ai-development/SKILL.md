@@ -6,7 +6,7 @@ description: >-
   AI coding assistants, agentic systems, or AI-accelerated SDLC workflows.
   For code-level security (OWASP, CodeGuard), use securing-code instead.
   For AI development methodology (prompts, context engineering), use
-  developing-with-ai instead.
+  developing-with-ai instead. For LLM-specific security (prompt injection, LLMSecOps), use practicing-llmops.
 ---
 
 # AI開発セキュリティ戦略

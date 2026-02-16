@@ -11,6 +11,7 @@ description: >
   For OpenTelemetry SDK/API implementation, use implementing-opentelemetry instead.
   For green software carbon metrics and sustainability monitoring, use building-green-software instead.
   For Google Cloud monitoring (Cloud Logging, Security Command Center, Cloud Run), use developing-google-cloud instead.
+  For LLM-specific evaluation and monitoring, use practicing-llmops.
 ---
 
 # Designing Monitoring
