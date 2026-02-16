@@ -2,9 +2,9 @@
 name: authoring-skills
 description: >-
   Creates effective Claude Code Skills with proper structure, naming, and evaluation.
-  Use when creating new skills, converting source material (Markdown/PDF/EPUB/URL) into skills,
+  Use when creating new skills, converting source material (Markdown/PDF/EPUB/URL/multiple files/folders) into skills,
   or reviewing skill usage analytics.
-  Covers naming conventions, progressive disclosure, source conversion, and lifecycle management.
+  Covers naming conventions, progressive disclosure, multi-file grouping, source conversion, and lifecycle management.
 ---
 
 # Claude Skills Authoring Guide
@@ -294,11 +294,19 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 
 ## Source Conversion Workflow
 
-既存のMarkdown、PDF、EPUB、URLからスキルを作成する場合:
+既存のMarkdown、PDF、EPUB、URL、複数ファイル、またはフォルダからスキルを作成する場合:
 
-1. ソース形式を特定（MD/PDF/EPUB/URL/フォルダ）
-2. 必要に応じてスクリプトでMarkdown変換（`scripts/`配下）
-3. 6フェーズの変換ワークフローを実行
+1. **入力形式の特定**（MD/PDF/EPUB/URL/複数ファイル/フォルダ）
+2. **Markdown変換**（PDF/EPUB等の場合、`scripts/`配下のツールまたはpandocで変換）
+3. **複数ファイル入力の場合**: Phase 0.5で全ファイル概要分析 & グルーピング実施
+   - 全ファイルの概要テーブル作成
+   - 意味的グルーピング分析（同一スキルにまとめるべきファイル群を提案）
+   - 既存スキルとの一括重複チェック
+   - AskUserQuestionでグルーピング・統合方針を確認
+4. **6フェーズの変換ワークフロー**を各スキルグループごとに実行（Phase 1→2→3→3.5→4→5）
+5. **Phase 4（生成）**: Team Builder並列実行を積極活用
+   - 単一スキル・複数ファイル分割 → Team Builder（SKILL.md + サブファイル並列）
+   - 複数スキルグループ → Team Builder（Phase 4の生成部分を並列化）
 
 詳細は [CONVERTING.md](references/CONVERTING.md) を参照。
 
