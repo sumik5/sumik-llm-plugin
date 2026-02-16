@@ -92,7 +92,7 @@ Organization: Alice = compute.networkAdmin → instance_a, instance_b に適用
 
 ---
 
-## Organization Policy Service
+## Organization Policy Service（組織ポリシーによるガバナンス）
 
 ### 概要
 
@@ -104,14 +104,79 @@ IAMが「誰が何にアクセスできるか」を制御するのに対し、Or
 | 用途 | 認可・アクセス制御 | ガードレール・構成制約 |
 | 適用方法 | Role binding | Constraint適用 |
 
-### 推奨Constraint例
+### セキュリティ強化Constraint集
+
+#### Identity & Access Management
+
+| Constraint | 説明 | ビジネス影響 |
+|------------|------|------------|
+| `iam.disableServiceAccountKeyCreation` | SAキー作成を禁止 | WIF/Impersonation移行を強制 |
+| `iam.disableServiceAccountKeyUpload` | 外部SAキーアップロード禁止 | キー管理を完全にGCP内に限定 |
+| `iam.allowedPolicyMemberDomains` | 許可ドメイン制限（例: `@example.com`のみ） | 外部アカウント付与を防止 |
+| `iam.restrictCrossProjectServiceAccountUsage` | プロジェクト横断SA使用禁止 | Project境界を強制 |
+
+#### Compute Engine
 
 | Constraint | 説明 | セキュリティ効果 |
 |------------|------|------------------|
-| `compute.disableSerialPortAccess` | シリアルポートアクセス無効化 | 不正アクセス防止 |
-| `compute.vmExternalIpAccess` | 外部IP割当制限 | 攻撃面縮小 |
-| `storage.uniformBucketLevelAccess` | Bucket統一アクセス制御強制 | ACL複雑性回避 |
-| `iam.disableServiceAccountKeyCreation` | Service Accountキー作成禁止 | キー漏洩リスク削減 |
+| `compute.disableSerialPortAccess` | シリアルポートアクセス無効化 | 管理者権限でのログインパス遮断 |
+| `compute.vmExternalIpAccess` | 外部IP割当制限（Allow List） | インターネット公開VM制限 |
+| `compute.requireShieldedVm` | Shielded VM強制 | ブートレベル攻撃防御 |
+| `compute.requireOsLogin` | OS Loginログイン強制 | SSH鍵スプロール防止 |
+| `compute.trustedImageProjects` | イメージプロジェクト制限 | 非承認イメージ使用禁止 |
+
+#### Storage & Data
+
+| Constraint | 説明 | リスク削減 |
+|------------|------|----------|
+| `storage.uniformBucketLevelAccess` | Bucket統一アクセス制御強制 | ACL複雑性排除 |
+| `storage.publicAccessPrevention` | 公開アクセス禁止（`enforced`） | データ漏洩防止 |
+| `sql.restrictPublicIp` | Cloud SQL外部IP禁止 | DB直接公開禁止 |
+
+### Folder階層を活用したガバナンス戦略
+
+#### 推奨階層パターン（環境別）
+
+```
+Organization
+ ├─ Shared Services Folder（共有サービス）
+ │   ├─ Logging Project（集約ログ）
+ │   ├─ Monitoring Project（集約監視）
+ │   └─ Security Project（KMS、Secret Manager）
+ ├─ Production Folder
+ │   ├─ Frontend Project
+ │   ├─ Backend Project
+ │   └─ Data Project
+ ├─ Staging Folder
+ │   └─ （Production同構成）
+ └─ Development Folder
+     └─ （Production同構成）
+```
+
+#### Folder階層別ポリシー例
+
+| 階層 | 適用Policy | 理由 |
+|------|-----------|------|
+| **Organization** | `iam.allowedPolicyMemberDomains`, `compute.trustedImageProjects` | 全組織で遵守すべき基盤ルール |
+| **Production Folder** | `compute.requireShieldedVm`, `compute.vmExternalIpAccess=DENY_ALL`, `sql.restrictPublicIp=true` | 本番環境の厳格化 |
+| **Staging Folder** | `compute.vmExternalIpAccess=ALLOW_LIST`（Bastion Host限定） | 本番同等+CI/CDアクセス許可 |
+| **Development Folder** | 制約緩和（外部IP許可、イメージ制限なし） | 開発柔軟性確保 |
+
+### Policy継承とオーバーライド
+
+```
+Organization Policy（deny external IPs for all VMs）
+    ↓
+Production Folder（inherit + require Shielded VM）
+    ↓
+Backend Project（inherit、追加制約なし）
+    ↓
+VM Instance（全ポリシー適用：外部IP不可 + Shielded VM必須）
+```
+
+**Deny優先ルール:**
+- 上位でDENYされたConstraintは下位でALLOWできない
+- 下位で追加のDENYを設定可能
 
 ### Policy継承ルール
 
@@ -122,6 +187,44 @@ IAMが「誰が何にアクセスできるか」を制御するのに対し、Or
 | **inheritFromParent = false** | ノードレベルポリシーのみ適用 |
 | **競合（Allow vs Deny）** | **DENY優先** |
 | **Boolean constraint** | マージせず、最も具体的なポリシーを適用 |
+
+### Policy as Code実装例（Terraform）
+
+```hcl
+# Organization-level Policy
+resource "google_organization_policy" "restrict_sa_key_creation" {
+  org_id     = var.org_id
+  constraint = "iam.disableServiceAccountKeyCreation"
+
+  boolean_policy {
+    enforced = true
+  }
+}
+
+# Folder-level Policy（Production）
+resource "google_folder_organization_policy" "prod_deny_external_ips" {
+  folder     = google_folder.production.name
+  constraint = "compute.vmExternalIpAccess"
+
+  list_policy {
+    deny {
+      all = true
+    }
+  }
+}
+
+# Project-level Policy Override（一部VM許可）
+resource "google_project_organization_policy" "bastion_allow_external_ip" {
+  project    = google_project.backend.project_id
+  constraint = "compute.vmExternalIpAccess"
+
+  list_policy {
+    allow {
+      values = ["projects/PROJECT_ID/zones/us-central1-a/instances/bastion"]
+    }
+  }
+}
+```
 
 ### gcloud CLI例
 
@@ -134,6 +237,36 @@ gcloud resource-manager org-policies describe \
 # Policyの設定
 gcloud resource-manager org-policies set-policy policy.yaml \
   --project=PROJECT_ID
+
+# Folder-level Policy設定
+gcloud resource-manager org-policies set-policy policy.yaml \
+  --folder=FOLDER_ID
+
+# Policy評価シミュレーション（適用前確認）
+gcloud asset search-all-resources \
+  --scope=organizations/ORG_ID \
+  --asset-types=compute.googleapis.com/Instance \
+  --query="NOT name:projects/*/zones/*/instances/bastion-*"
+```
+
+### Policy Compliance監視
+
+```bash
+# 全プロジェクトのPolicy違反検出
+gcloud asset analyze-org-policies \
+  --organization=ORG_ID \
+  --constraint=constraints/compute.vmExternalIpAccess
+
+# BigQueryでPolicy違反レポート
+bq query --use_legacy_sql=false '
+SELECT
+  REGEXP_EXTRACT(resource.name, r"projects/([^/]+)") AS project_id,
+  resource.name AS resource,
+  constraint AS violated_constraint
+FROM `PROJECT_ID.org_policy_violations`
+WHERE timestamp > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
+ORDER BY timestamp DESC
+'
 ```
 
 ---
@@ -179,6 +312,73 @@ gcloud asset search-all-iam-policies \
 - コンプライアンス監査の証跡として活用
 
 ---
+
+## Cloud Identity vs 外部IdP比較
+
+### Identity Provider選択基準
+
+| 評価軸 | Cloud Identity | 外部IdP（Okta/Azure AD） | 推奨シナリオ |
+|-------|---------------|------------------------|-------------|
+| **管理コスト** | 低（GCP統合） | 中（追加管理層） | GCP専用組織 → Cloud Identity |
+| **既存インフラ統合** | Limited | 高（既存AD/LDAP統合） | マルチクラウド → 外部IdP |
+| **高度なセキュリティ** | Basic | 高（Adaptive Auth, Risk-based MFA） | エンタープライズセキュリティ → 外部IdP |
+| **ライセンス費用** | 低（Free/$6/user/month） | 高（$2-15/user/month） | コスト重視 → Cloud Identity |
+| **SLA** | 99.9%（Premium） | 99.9%+ | ミッションクリティカル → 両者同等 |
+
+### Cloud Identity単独構成
+
+```
+User → Cloud Identity（認証） → Google Cloud IAM（認可） → GCP Resources
+```
+
+**適用場面:**
+- GCP専用組織（マルチクラウドなし）
+- 既存Active Directory不在
+- 中小規模（100-1000ユーザー）
+
+**利点:**
+- セットアップ簡易
+- GCDS（Google Cloud Directory Sync）でAD/LDAP同期可能
+- 追加IdPライセンス不要
+
+**制約:**
+- 条件付きアクセス機能がBasic
+- デバイス信頼レベル管理が限定的
+- サードパーティアプリSAML統合が手動
+
+### 外部IdP統合（Workload Identity Federation）
+
+```
+User → External IdP（Okta/Azure AD） → OIDC/SAML → GCP IAM → Resources
+```
+
+**適用場面:**
+- マルチクラウド（AWS/Azure/GCP併用）
+- 既存IdP資産活用（Okta/Azure AD Enterprise）
+- 高度なセキュリティ要件（Zero Trust、Risk-based Auth）
+
+**利点:**
+- 統一IdP管理（全クラウド横断）
+- 高度な条件付きアクセス（地域・デバイス・リスクスコア）
+- SIEM連携・監査証跡統合
+
+**制約:**
+- IdPライセンス費用
+- IdP障害時のGCPアクセス影響
+- 設定・保守の複雑性
+
+### ハイブリッド構成（推奨パターン）
+
+```
+Admin User → Cloud Identity Super Admin（Break-glass Account）
+             ↓
+Regular User → External IdP → Federation → Cloud Identity → GCP IAM
+```
+
+**ベストプラクティス:**
+- 管理者用Break-glassアカウントはCloud Identity直接管理（IdP障害時の復旧手段）
+- 一般ユーザーは外部IdP経由（SSO・条件付きアクセス適用）
+- Cloud Identity Premiumで外部IdPログ連携
 
 ## Cloud Identity
 
@@ -475,6 +675,43 @@ Who（Principal） + What（Role） + Which（Resource） = Access
 | **削除** | `gcloud iam service-accounts delete SA_EMAIL` | Role bindingは60日後自動削除 |
 | **復元** | `gcloud iam service-accounts undelete SA_NUMERIC_ID` | 30日以内、同名SAがない場合のみ |
 
+### Default Service Accountの扱い
+
+GCPサービス作成時に自動生成されるデフォルトService Accountは過剰な権限を持つことが多く、セキュリティリスクとなる。
+
+| サービス | デフォルトSA | デフォルトRole | リスク |
+|---------|-------------|--------------|--------|
+| **Compute Engine** | `PROJECT_NUMBER-compute@developer.gserviceaccount.com` | Editor | プロジェクト全体への変更権限 |
+| **App Engine** | `PROJECT_ID@appspot.gserviceaccount.com` | Editor | アプリ外リソース変更可能 |
+| **Cloud Run** | `PROJECT_NUMBER-compute@developer.gserviceaccount.com` | Editor | コンテナから全リソース操作可 |
+
+#### 推奨対策
+
+| 施策 | 実装方法 |
+|------|---------|
+| **専用SA作成** | ワークロード単位で最小権限SAを作成 |
+| **デフォルトSA無効化** | 使用しない場合は削除または無効化 |
+| **Predefined Role使用** | Editorの代わりに特定サービスRole（例: `roles/storage.objectViewer`） |
+| **Custom Role作成** | 必要な権限のみを含む独自Role |
+
+#### 実装例（Compute Engineインスタンス）
+
+```bash
+# 専用Service Account作成
+gcloud iam service-accounts create vm-reader \
+  --display-name="VM Reader Service Account"
+
+# 最小権限Role付与（例: Cloud Storage読み取り専用）
+gcloud projects add-iam-policy-binding PROJECT_ID \
+  --member="serviceAccount:vm-reader@PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/storage.objectViewer"
+
+# VMインスタンス作成時に専用SA指定
+gcloud compute instances create my-instance \
+  --service-account=vm-reader@PROJECT_ID.iam.gserviceaccount.com \
+  --scopes=cloud-platform
+```
+
 ### Service Account Keys
 
 #### ⚠️ キー使用回避の決定木
@@ -493,6 +730,47 @@ Who（Principal） + What（Role） + Which（Resource） = Access
         └─ Service Account Key（最終手段）⚠️
 ```
 
+#### 短命認証情報の活用（推奨）
+
+Service Account Keyの代わりに、IAM Credentials APIで短命トークンを生成する。
+
+**メリット:**
+- トークン有効期限が短い（最大1時間）
+- キーファイル漏洩リスクなし
+- 自動更新可能
+
+**実装例（OAuth 2.0 Access Token生成）:**
+```bash
+# Impersonation経由で短命トークン生成
+gcloud auth print-access-token \
+  --impersonate-service-account=SA_EMAIL
+
+# APIから直接生成（最大3600秒）
+curl -X POST \
+  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "Content-Type: application/json" \
+  -d '{"lifetime": "3600s", "scope": ["https://www.googleapis.com/auth/cloud-platform"]}' \
+  "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/SA_EMAIL:generateAccessToken"
+```
+
+**Pythonクライアントライブラリ例:**
+```python
+from google.auth import impersonated_credentials
+from google.auth.transport import requests
+
+source_credentials, _ = google.auth.default()
+
+target_credentials = impersonated_credentials.Credentials(
+    source_credentials=source_credentials,
+    target_principal='SA_EMAIL',
+    target_scopes=['https://www.googleapis.com/auth/cloud-platform'],
+    lifetime=3600
+)
+
+target_credentials.refresh(requests.Request())
+access_token = target_credentials.token
+```
+
 #### キー管理ベストプラクティス
 
 | ルール | 推奨値 | 理由 |
@@ -503,6 +781,32 @@ Who（Principal） + What（Role） + Which（Resource） = Access
 | **キー監査** | serviceAccount.keys.list() API使用 | 不正使用検出 |
 | **Git コミット防止** | git secretsツール導入 | 漏洩防止 |
 | **定期スキャン** | Trufflehog等で検出 | 漏洩検知 |
+
+#### 自動キーローテーション実装
+
+```bash
+# Cloud Schedulerで定期実行するスクリプト例
+#!/bin/bash
+SA_EMAIL="my-app@PROJECT_ID.iam.gserviceaccount.com"
+KEY_MAX_AGE_DAYS=7
+
+# 古いキーを削除
+for key_id in $(gcloud iam service-accounts keys list \
+  --iam-account=$SA_EMAIL \
+  --managed-by=user \
+  --format="value(name)" \
+  --filter="validAfterTime<-P${KEY_MAX_AGE_DAYS}D"); do
+  gcloud iam service-accounts keys delete $key_id \
+    --iam-account=$SA_EMAIL \
+    --quiet
+done
+
+# 新規キー生成・Secret Managerに格納
+gcloud iam service-accounts keys create /tmp/new-key.json \
+  --iam-account=$SA_EMAIL
+gcloud secrets versions add my-app-key --data-file=/tmp/new-key.json
+rm /tmp/new-key.json
+```
 
 #### キーローテーション実装
 
@@ -539,6 +843,13 @@ git secrets --scan
 
 # Trufflehog使用（GitHub等リポジトリ全体スキャン）
 trufflehog git https://github.com/myorg/myrepo
+
+# Pre-commit hook統合
+cat <<'EOF' > .git/hooks/pre-commit
+#!/bin/bash
+git secrets --pre_commit_hook -- "$@"
+EOF
+chmod +x .git/hooks/pre-commit
 ```
 
 ---
@@ -889,6 +1200,116 @@ gsutil uniformbucketlevelaccess get gs://BUCKET_NAME
 - Domain Restricted Sharing対応
 
 ---
+
+## IAM変更監査（Cloud Audit Logs連携）
+
+### Cloud Audit Logsの4タイプ
+
+| ログタイプ | デフォルト有効 | 課金 | 用途 |
+|----------|--------------|------|------|
+| **Admin Activity** | ✅ | 無料 | IAM Policy変更、SA作成・削除 |
+| **Data Access** | ❌ | 有料 | データ読み書き（BigQuery/GCS等） |
+| **System Event** | ✅ | 無料 | GCPシステム操作（自動スケーリング等） |
+| **Policy Denied** | ✅ | 無料 | 権限不足によるアクセス拒否 |
+
+### IAM変更監査クエリ集
+
+#### 危険なRole付与を検出（Owner/Editor）
+
+```sql
+-- BigQuery Logging Sink経由
+SELECT
+  protoPayload.authenticationInfo.principalEmail AS actor,
+  resource.labels.project_id AS project,
+  ARRAY(
+    SELECT role
+    FROM UNNEST(JSON_EXTRACT_ARRAY(protoPayload.serviceData.policyDelta.bindingDeltas)) AS delta
+    WHERE JSON_EXTRACT_SCALAR(delta, '$.action') = 'ADD'
+  ) AS granted_roles,
+  timestamp
+FROM `PROJECT_ID.cloudaudit_googleapis_com_activity_*`
+WHERE protoPayload.methodName = 'SetIamPolicy'
+  AND JSON_EXTRACT(protoPayload.serviceData, '$.policyDelta.bindingDeltas') LIKE '%roles/owner%'
+   OR JSON_EXTRACT(protoPayload.serviceData, '$.policyDelta.bindingDeltas') LIKE '%roles/editor%'
+ORDER BY timestamp DESC
+LIMIT 100
+```
+
+#### Service Account Key作成検出
+
+```sql
+SELECT
+  protoPayload.authenticationInfo.principalEmail AS who_created_key,
+  protoPayload.request.name AS service_account,
+  timestamp
+FROM `PROJECT_ID.cloudaudit_googleapis_com_activity_*`
+WHERE protoPayload.methodName = 'google.iam.admin.v1.CreateServiceAccountKey'
+ORDER BY timestamp DESC
+```
+
+#### 外部ユーザーへのRole付与検出（gmail.com等）
+
+```sql
+SELECT
+  protoPayload.authenticationInfo.principalEmail AS actor,
+  JSON_EXTRACT_SCALAR(delta, '$.member') AS external_user,
+  JSON_EXTRACT_SCALAR(delta, '$.role') AS granted_role,
+  timestamp
+FROM `PROJECT_ID.cloudaudit_googleapis_com_activity_*`,
+  UNNEST(JSON_EXTRACT_ARRAY(protoPayload.serviceData.policyDelta.bindingDeltas)) AS delta
+WHERE protoPayload.methodName = 'SetIamPolicy'
+  AND JSON_EXTRACT_SCALAR(delta, '$.action') = 'ADD'
+  AND (JSON_EXTRACT_SCALAR(delta, '$.member') LIKE '%gmail.com%'
+    OR JSON_EXTRACT_SCALAR(delta, '$.member') LIKE '%allUsers%'
+    OR JSON_EXTRACT_SCALAR(delta, '$.member') LIKE '%allAuthenticatedUsers%')
+ORDER BY timestamp DESC
+```
+
+### ログベース監視アラート設定
+
+```bash
+# Log-based Metric作成（危険なRole付与）
+gcloud logging metrics create risky_iam_grant \
+  --description="Owner/Editor role grants" \
+  --log-filter='
+protoPayload.methodName="SetIamPolicy"
+AND (protoPayload.serviceData.policyDelta.bindingDeltas.role="roles/owner"
+     OR protoPayload.serviceData.policyDelta.bindingDeltas.role="roles/editor")
+'
+
+# Alerting Policy作成（Cloud Monitoring）
+gcloud alpha monitoring policies create \
+  --notification-channels=CHANNEL_ID \
+  --display-name="Risky IAM Grant Alert" \
+  --condition-display-name="Owner/Editor granted" \
+  --condition-threshold-value=1 \
+  --condition-threshold-duration=0s \
+  --condition-filter='
+metric.type="logging.googleapis.com/user/risky_iam_grant"
+resource.type="global"
+'
+```
+
+### Organization-level Logging Sink設定
+
+全プロジェクトのIAM変更ログを集約し、BigQueryで分析可能にする。
+
+```bash
+# Organization-level Logging Sink作成
+gcloud logging sinks create iam-audit-sink \
+  bigquery.googleapis.com/projects/AUDIT_PROJECT_ID/datasets/iam_audit \
+  --organization=ORG_ID \
+  --log-filter='
+protoPayload.serviceName="iam.googleapis.com"
+OR protoPayload.serviceName="cloudresourcemanager.googleapis.com"
+' \
+  --include-children
+
+# Sink Service AccountにBigQuery権限付与
+gcloud projects add-iam-policy-binding AUDIT_PROJECT_ID \
+  --member=serviceAccount:SINK_SERVICE_ACCOUNT \
+  --role=roles/bigquery.dataEditor
+```
 
 ## IAM Logging
 

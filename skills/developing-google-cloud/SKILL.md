@@ -1,6 +1,6 @@
 ---
 description: >-
-  Comprehensive Google Cloud development guide covering Cloud Run deployment (architecture, scaling, CI/CD, cost optimization), GCP platform security (IAM, VPC, KMS, DLP, SCC, container security, compliance), data engineering (storage selection, BigQuery warehousing, data pipelines, migrations, governance), and network engineering (VPC design, hybrid connectivity, load balancing, CDN, network monitoring, advanced networking with Traffic Director and Service Mesh).
+  Comprehensive Google Cloud development guide covering Cloud Run deployment (architecture, scaling, CI/CD, cost optimization), GCP platform security (IAM, VPC, KMS, DLP, SCC, container security, compliance, DevSecOps CI/CD pipeline security, Zero Trust / BeyondCorp Enterprise, Anthos multi-cloud security, incident response and forensics, Chronicle threat hunting), data engineering (storage selection, BigQuery warehousing, data pipelines, migrations, governance), and network engineering (VPC design, hybrid connectivity, load balancing, CDN, network monitoring, advanced networking with Traffic Director and Service Mesh).
   MUST load when Dockerfile is detected alongside google-cloud or @google-cloud packages, when cloudbuild.yaml is present, or when working with BigQuery, Dataflow, Dataproc, GCP data services, VPC networking, Cloud Interconnect, Cloud VPN, or GCP load balancing.
   For Docker-specific patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For code-level security (OWASP, CodeGuard), use securing-code instead. For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
 ---
@@ -26,16 +26,22 @@ GCPのセキュリティは6つの柱で構成され、各柱に対応するサ�
 | | Cloud Armor | DDoS防御、WAF、カスタムセキュリティポリシー |
 | | VPC Service Controls | サービス境界の設定、データ流出防止 |
 | | Cloud NAT | プライベートインスタンスの外部通信 |
+| **Zero Trust** | BeyondCorp Enterprise | コンテキストアウェアアクセス |
+| | Identity-Aware Proxy (IAP) | 内部アプリケーション保護 |
 | **Data Protection** | Cloud KMS | 暗号鍵管理（CMEK：顧客管理暗号鍵） |
 | | Cloud DLP | 機密データ検出・匿名化（PII、クレジットカード等） |
 | | Secret Manager | APIキー、パスワード、証明書の安全な保管 |
 | **Monitoring & Logging** | Cloud Logging | 統合ログ管理、監査ログ |
 | | Cloud Monitoring | メトリクス収集、アラート |
 | | Security Command Center (SCC) | 包括的なセキュリティポスチャ管理、脆弱性検出 |
+| **Threat Detection** | Chronicle | 脅威ハンティング、SIEM/SOAR |
 | **Workload Security** | Shielded VM | 検証済みブート、vTPM、整合性監視 |
 | | Binary Authorization | コンテナイメージの署名検証 |
 | | GKE Security | Pod Security Policy、Workload Identity、ネットワークポリシー |
 | | Artifact Registry | コンテナイメージの脆弱性スキャン |
+| **DevSecOps** | Cloud Build + Binary Authorization | セキュアCI/CDパイプライン |
+| **Multi-Cloud** | Anthos | マルチクラウドセキュリティ管理 |
+| | Anthos Config Management | ポリシー一貫性 |
 | **Compliance & Governance** | Resource Manager | 組織階層、プロジェクト管理、ポリシー継承 |
 | | Cloud Asset Inventory | リソース棚卸、変更履歴追跡 |
 | | Policy Intelligence | IAMポリシー分析、推奨事項 |
@@ -47,10 +53,15 @@ GCPのセキュリティは6つの柱で構成され、各柱に対応するサ�
     ↓
 【カテゴリ判定】
     ├─ ユーザー認証・認可？ → Cloud Identity + IAM + Workload Identity Federation
+    ├─ Zero Trust導入？ → BeyondCorp Enterprise + IAP
     ├─ ネットワーク境界防御？ → VPC + Cloud Armor + VPC Service Controls
     ├─ データ保護？ → Cloud KMS + Cloud DLP + Secret Manager
     ├─ 監視・検出？ → Cloud Logging + SCC + Cloud Monitoring
+    ├─ 脅威ハンティング？ → Chronicle
     ├─ ワークロード保護？ → Binary Authorization + Artifact Registry + Shielded VM
+    ├─ DevSecOps CI/CD？ → Cloud Build + Binary Authorization
+    ├─ マルチクラウド？ → Anthos + Anthos Config Management
+    ├─ インシデント対応？ → VPC Flow Logs + Cloud Logging + Chronicle
     └─ コンプライアンス？ → Resource Manager + Cloud Asset Inventory + Policy Intelligence
 ```
 
@@ -299,7 +310,7 @@ gcloud run deploy cost-optimized-api \
 | **[CLOUDRUN-COST-OPTIMIZATION.md](references/CLOUDRUN-COST-OPTIMIZATION.md)** | 料金計算、コスト分析、最適化テクニック |
 | **[CLOUDRUN-ADVANCED-TOPICS.md](references/CLOUDRUN-ADVANCED-TOPICS.md)** | 将来トレンド、エコシステム統合、マルチクラウド、エッジ、AI/ML |
 
-### GCP プラットフォームセキュリティ（6ファイル）
+### GCP プラットフォームセキュリティ（10ファイル）
 
 | ファイル | 内容 |
 |---------|------|
@@ -309,6 +320,10 @@ gcloud run deploy cost-optimized-api \
 | **[DATA-PROTECTION.md](references/DATA-PROTECTION.md)** | Cloud KMS、Cloud DLP、Secret Manager、暗号化戦略 |
 | **[LOGGING-MONITORING.md](references/LOGGING-MONITORING.md)** | Cloud Logging、Security Command Center、監査ログ、アラート |
 | **[WORKLOAD-SECURITY.md](references/WORKLOAD-SECURITY.md)** | Image Hardening、Container Security、Binary Authorization、Shielded VM |
+| **[DEVSECOPS-PIPELINES.md](references/DEVSECOPS-PIPELINES.md)** | DevSecOps CI/CD、Terraform IaCセキュリティ、設定スキャン、シークレット管理 |
+| **[ANTHOS-SECURITY.md](references/ANTHOS-SECURITY.md)** | Anthosマルチクラウドセキュリティ、ACM/Gatekeeper、Service Mesh |
+| **[ZERO-TRUST-BEYONDCORP.md](references/ZERO-TRUST-BEYONDCORP.md)** | Zero Trust原則、BeyondCorp Enterprise、IAP、デバイスポスチャ |
+| **[INCIDENT-RESPONSE.md](references/INCIDENT-RESPONSE.md)** | インシデント対応計画、フォレンジック分析、VPC Flow Logs、証拠保全 |
 
 ### データエンジニアリング（5ファイル）
 
@@ -450,7 +465,11 @@ Google Cloud は、**サーバーレスデプロイメント（Cloud Run）**、
 **GCP セキュリティの要点:**
 1. 6つの柱（運用・ネットワーク・データ・ID・物理・脅威）を理解
 2. サービスマップで要件に応じた適切なサービスを選択
-3. 詳細な実装は各リファレンスファイルを参照
+3. Zero Trust / BeyondCorp の導入でVPN依存を脱却
+4. DevSecOps で CI/CD パイプラインにセキュリティを組み込む
+5. Anthos でマルチクラウド環境の統一ポリシー管理
+6. インシデント対応計画の事前策定とフォレンジック体制
+7. 詳細な実装は各リファレンスファイルを参照
 
 **データエンジニアリングの要点:**
 1. ストレージ選択テーブルでユースケースに合ったサービスを選択

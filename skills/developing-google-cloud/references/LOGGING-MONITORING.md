@@ -615,3 +615,278 @@ SCC Findings → Pub/Sub → SIEM/SOAR → 自動レスポンス
 | Premium | 組織/プロジェクト単位課金 |
 
 **注意**: ログIngestionはCloud Logging料金（SCC自体はスキャン無料）
+
+---
+
+## SCC Premium Tier 機能詳細
+
+### Premium専用機能
+
+| 機能 | 説明 |
+|------|------|
+| **Event Threat Detection (ETD)** | ログベースのリアルタイム脅威検出（IAM異常、データ流出、Log4j等） |
+| **Container Threat Detection (KTD)** | GKEランタイム脅威検出（不正バイナリ実行、リバースシェル） |
+| **VM Threat Detection (VMTD)** | ハイパーバイザーレベルの仮想通貨マイニング検出 |
+| **Security Health Analytics (SHA)** | CMEK未使用検出等のPremium検出ルール |
+| **Compliance Dashboard** | CIS/PCI DSS/ISO 27001/NIST 800-53準拠状況の可視化 |
+| **SIEM Export** | サードパーティSIEM（Splunk/Elastic/QRadar）へのストリーミング |
+
+### SCC組織レベルアラート統合
+
+**Pub/Sub継続エクスポート設定**:
+```bash
+# 組織レベルで特定カテゴリのFindingsをPub/Subに自動エクスポート
+gcloud scc notifications create critical-findings-alert \
+  --organization=ORGANIZATION_ID \
+  --pubsub-topic=projects/PROJECT_ID/topics/scc-critical \
+  --filter='severity="CRITICAL" OR severity="HIGH"' \
+  --description="Critical/High severity findings for immediate response"
+```
+
+**Cloud Monitoringアラートポリシー連携**:
+```bash
+# Log-based metricからCloud Monitoringアラート作成
+gcloud logging metrics create scc_high_severity_count \
+  --log-filter='resource.type="security_command_center_finding" AND severity="HIGH"'
+
+# アラートポリシー（5分間で10件以上のHigh Findingsでアラート）
+gcloud alpha monitoring policies create \
+  --notification-channels=CHANNEL_ID \
+  --display-name="SCC High Severity Spike" \
+  --condition-display-name="High findings > 10 in 5min" \
+  --condition-threshold-value=10 \
+  --condition-threshold-duration=300s
+```
+
+---
+
+## Chronicle 脅威ハンティング
+
+### Chronicle概要
+
+**Chronicle**は、Google の脅威インテリジェンスを活用したクラウドネイティブSIEM/SOAR プラットフォーム。ペタバイト規模のログ保持・高速検索・後方視的脅威ハンティングを実現。
+
+| 機能 | 説明 |
+|------|------|
+| **Unified Data Model (UDM)** | 正規化されたログスキーマ（Cloud Logging/VPC Flow/DNS等を統一） |
+| **YARA-L** | 脅威検出用のルール言語（YARAベース） |
+| **Retrospective Detection** | 過去ログに新しいIOC/ルールを適用して脅威を検出 |
+| **エンタープライズインサイト** | Google脅威インテリジェンスとの自動相関 |
+
+### YARA-Lルール例
+
+**不正なIAMロール昇格検出**:
+```yara
+rule iam_privilege_escalation {
+  meta:
+    author = "Security Team"
+    description = "Detect IAM privilege escalation attempts"
+    severity = "HIGH"
+
+  events:
+    $grant = metadata.event_type = "iam.ServiceAccountKey.CreateServiceAccountKey"
+      or metadata.event_type = "iam.Role.SetIamPolicy"
+
+  match:
+    $grant over 10m
+
+  condition:
+    $grant and #grant > 5
+}
+```
+
+**データエクスフィルトレーション検出**:
+```yara
+rule bigquery_data_exfiltration {
+  meta:
+    description = "Large BigQuery data export to external destination"
+    severity = "CRITICAL"
+
+  events:
+    $export = metadata.event_type = "bigquery.tables.export"
+      and principal.user.email_addresses != /.*@company\.com$/
+
+  match:
+    $export over 1h
+
+  condition:
+    $export and #export > 3
+}
+```
+
+### UDM（Unified Data Model）
+
+**標準化されたフィールド**:
+| カテゴリ | フィールド例 |
+|---------|------------|
+| **Principal** | user.email_addresses, user.userid, ip |
+| **Target** | resource.name, resource.type, ip |
+| **Event** | metadata.event_type, metadata.event_timestamp |
+| **Network** | network.ip_protocol, network.sent_bytes |
+| **Security** | security_result.action, security_result.severity |
+
+**Cloud LoggingからChronicle UDMへのマッピング**:
+```json
+{
+  "protoPayload": {
+    "authenticationInfo": {
+      "principalEmail": "user@example.com"
+    }
+  },
+  "resource": {
+    "type": "bigquery_dataset"
+  }
+}
+```
+↓
+```json
+{
+  "principal": {
+    "user": {
+      "email_addresses": ["user@example.com"]
+    }
+  },
+  "target": {
+    "resource": {
+      "type": "CLOUD_PROJECT",
+      "product_object_id": "bigquery_dataset"
+    }
+  }
+}
+```
+
+---
+
+## 自動レスポンス/修復ワークフロー
+
+### アーキテクチャパターン
+
+```
+SCC Findings → Pub/Sub → Cloud Functions/Cloud Run → GCP API呼び出し
+                   ↓
+            SOAR (Splunk/Cortex/Demisto)
+                   ↓
+         自動修復 or 承認ワークフロー
+```
+
+### 自動修復タクティクス
+
+| Finding | 自動修復アクション | gcloud/API |
+|---------|-----------------|-----------|
+| **OPEN_FIREWALL** | パブリックIPアクセスを削除 | `gcloud compute firewall-rules update` |
+| **PUBLIC_SQL_INSTANCE** | パブリックIPを無効化 | `gcloud sql instances patch --no-assign-ip` |
+| **WEAK_SSL_POLICY** | TLS 1.2以上を強制 | `gcloud compute ssl-policies update --min-tls-version=1.2` |
+| **BUCKET_CMEK_DISABLED** | CMEKを有効化（承認後） | `gsutil encryption set` |
+| **MFA_NOT_ENFORCED** | 管理者に通知 + チケット起票 | Pub/Sub → ServiceNow API |
+
+### Cloud Functions自動修復例
+
+**Pub/Subトリガーで公開バケットを自動修正**:
+```python
+import base64
+import json
+from google.cloud import storage
+
+def remediate_public_bucket(event, context):
+    """
+    SCC Findingで検出されたパブリックバケットのACLを削除
+    """
+    pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+    finding = json.loads(pubsub_message)
+
+    if finding['category'] == 'PUBLIC_BUCKET_ACL':
+        bucket_name = finding['resourceName'].split('/')[-1]
+
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+
+        # allUsersアクセスを削除
+        policy = bucket.get_iam_policy(requested_policy_version=3)
+        policy.bindings = [
+            b for b in policy.bindings
+            if 'allUsers' not in b['members']
+        ]
+        bucket.set_iam_policy(policy)
+
+        print(f"Remediated public access for bucket: {bucket_name}")
+```
+
+**デプロイ**:
+```bash
+gcloud functions deploy remediate-public-bucket \
+  --runtime python39 \
+  --trigger-topic scc-findings \
+  --entry-point remediate_public_bucket \
+  --service-account remediation-sa@project.iam.gserviceaccount.com
+```
+
+---
+
+## サードパーティSIEM連携
+
+### Splunk連携
+
+**Pub/Sub → Dataflow → Splunk HEC**:
+```bash
+# Pub/Sub → Splunk HEC用Dataflowジョブ起動
+gcloud dataflow jobs run scc-to-splunk \
+  --gcs-location gs://dataflow-templates/latest/PubSub_to_Splunk \
+  --region us-central1 \
+  --parameters \
+inputSubscription=projects/PROJECT_ID/subscriptions/scc-splunk-sub,\
+url=https://splunk.example.com:8088,\
+token=SPLUNK_HEC_TOKEN,\
+batchCount=100
+```
+
+### Elastic SIEM連携
+
+**Logstash + GCP Pub/Sub Input Plugin**:
+```ruby
+input {
+  google_pubsub {
+    project_id => "PROJECT_ID"
+    topic => "scc-findings"
+    subscription => "elastic-siem-sub"
+    json_key_file => "/path/to/service-account.json"
+  }
+}
+
+filter {
+  json {
+    source => "message"
+    target => "scc"
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["https://elastic.example.com:9200"]
+    index => "scc-findings-%{+YYYY.MM.dd}"
+    user => "elastic"
+    password => "${ELASTIC_PASSWORD}"
+  }
+}
+```
+
+---
+
+## ベストプラクティス（更新版）
+
+### Premium機能活用
+
+| プラクティス | 実装 |
+|------------|------|
+| Chronicle統合 | 長期保存ログでの後方視的脅威ハンティング |
+| YARA-Lカスタムルール | 組織固有の脅威パターンを検出 |
+| 自動修復の段階的導入 | 低リスクFindingから自動化開始 → 高リスクは承認フロー |
+| SIEM双方向連携 | SCC → SIEM（エクスポート）、SIEM → GCP（修復API呼び出し） |
+
+### 組織レベル運用
+
+| プラクティス | 実装 |
+|------------|------|
+| 統一アラート戦略 | SCC + Cloud Monitoring + Chronicle を統合ダッシュボードで管理 |
+| MTTD/MTTR追跡 | BigQueryにFindingsをエクスポート → Data Studioでメトリクス可視化 |
+| エスカレーションパス明確化 | Pub/Sub → Cloud Functions → Slack/PagerDuty/ServiceNow |
+| コンプライアンスレポート自動化 | SCC Compliance Dashboard + 定期BigQueryクエリ |

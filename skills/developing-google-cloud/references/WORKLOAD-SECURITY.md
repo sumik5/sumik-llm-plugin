@@ -476,8 +476,54 @@ spec:
   containers:
   - name: app
     image: gcr.io/my-project/my-app:latest
-    # GOOGLE_APPLICATION_CREDENTIALS不要！
+    # GOOGLE_APPLICATION_credentials不要！
 ```
+
+#### Workload Identity vs. サービスアカウントキー（決定判断基準）
+
+| 評価項目 | Workload Identity（推奨） | サービスアカウントJSON鍵 |
+|---------|-------------------------|----------------------|
+| **認証方式** | 短命トークン（1時間、自動ローテーション） | 長命静的鍵（無期限、手動管理） |
+| **鍵流出リスク** | ✅ トークンのみ（短命）| ❌ JSON鍵永続化、Git誤コミットリスク |
+| **ローテーション** | ✅ 自動（GKE管理） | ❌ 手動（90日推奨だが忘れやすい） |
+| **権限スコープ** | ✅ Pod単位で細分化可能 | ⚠ プロジェクト全体で共有されがち |
+| **監査ログ** | ✅ Pod identityでトレース可能 | ⚠ SA全体で集約、Pod特定困難 |
+| **初期設定複雑度** | ⚠ KSA↔GSAバインディング必要 | ✅ 単純（JSON鍵ダウンロードのみ） |
+| **GKE Autopilot** | ✅ デフォルト有効 | ❌ 非対応 |
+| **コンプライアンス** | ✅ PCI-DSS/HIPAAで推奨 | ❌ 静的鍵は要追加統制 |
+
+**移行パターン（レガシー→Workload Identity）**:
+
+```bash
+# ステップ1: 既存JSON鍵使用Podの特定
+kubectl get pods -A -o json | jq -r '
+  .items[] |
+  select(.spec.volumes[]?.secret?.secretName // false) |
+  "\(.metadata.namespace)/\(.metadata.name)"
+'
+
+# ステップ2: Workload Identity有効化（既存クラスタ）
+gcloud container clusters update CLUSTER_NAME \
+  --workload-pool=PROJECT_ID.svc.id.goog
+
+# ステップ3: ノードプール再作成（Workload Identity metadata有効化）
+gcloud container node-pools update NODE_POOL_NAME \
+  --cluster=CLUSTER_NAME \
+  --workload-metadata=GKE_METADATA
+
+# ステップ4: KSA→GSAバインディング（上記手順参照）
+
+# ステップ5: Pod manifestからGOOGLE_APPLICATION_CREDENTIALS削除
+# PodをWorkload Identity対応に移行後、K8s Secretのjson鍵削除
+kubectl delete secret SERVICE_ACCOUNT_KEY_SECRET -n NAMESPACE
+```
+
+**セキュリティ監査チェックリスト**:
+| 監査項目 | コマンド例 |
+|---------|-----------|
+| JSON鍵使用Pod検出 | `kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.volumes[*].secret.secretName}{"\n"}{end}' \| grep -i key` |
+| Workload Identity未設定Pod検出 | `kubectl get sa -A -o json \| jq -r '.items[] \| select(.metadata.annotations["iam.gke.io/gcp-service-account"] == null) \| "\(.metadata.namespace)/\(.metadata.name)"'` |
+| GSA過剰権限チェック | `gcloud projects get-iam-policy PROJECT_ID --flatten="bindings[].members" --filter="bindings.members:serviceAccount:*" --format="table(bindings.role,bindings.members)"` |
 
 ---
 
@@ -671,6 +717,626 @@ gcloud container clusters create-auto autopilot-cluster \
 # Security Command Center PremiumでContainer Threat Detection有効化
 gcloud services enable containerthreatdetection.googleapis.com
 ```
+
+---
+
+### GKEクラスタセキュリティレイヤー（ノード・Podレベル詳細）
+
+#### セキュリティ防御の階層構造
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Layer 5: アプリケーション/Pod                        │
+│  ├─ Pod Security Standards (Restricted)            │
+│  ├─ Resource Limits (CPU/Memory)                   │
+│  ├─ Read-only root filesystem                      │
+│  ├─ runAsNonRoot: true (UID ≠ 0)                   │
+│  └─ securityContext.capabilities.drop: [ALL]       │
+├─────────────────────────────────────────────────────┤
+│  Layer 4: ネットワークポリシー                         │
+│  ├─ Default-deny ingress/egress                    │
+│  ├─ NetworkPolicy (Pod→Pod制御)                    │
+│  ├─ mTLS (Istio/Anthos Service Mesh)               │
+│  └─ AuthorizationPolicy (L7 RBAC)                  │
+├─────────────────────────────────────────────────────┤
+│  Layer 3: クラスタ制御                                │
+│  ├─ Workload Identity (Pod→GCP SA binding)         │
+│  ├─ Kubernetes RBAC (Role/RoleBinding)             │
+│  ├─ Binary Authorization (署名済みイメージのみ)        │
+│  └─ Admission Controllers (OPA Gatekeeper)         │
+├─────────────────────────────────────────────────────┤
+│  Layer 2: ノードセキュリティ                          │
+│  ├─ Shielded GKE Nodes (Secure Boot + vTPM)        │
+│  ├─ Node Auto-Upgrade (CVE自動パッチ)               │
+│  ├─ COS/Container-Optimized OS (最小攻撃面)         │
+│  └─ Private nodes (外部IP無し)                      │
+├─────────────────────────────────────────────────────┤
+│  Layer 1: コントロールプレーン                         │
+│  ├─ Private endpoint (API server内部IP)            │
+│  ├─ Master Authorized Networks (IP制限)            │
+│  ├─ Certificate-based authentication              │
+│  └─ Audit Logging (K8s API全操作記録)              │
+└─────────────────────────────────────────────────────┘
+```
+
+#### ノードレベルセキュリティ設定
+
+**ノードプール分離戦略**:
+
+| パターン | 設定 | 使用ケース |
+|---------|------|-----------|
+| **テナント専用ノードプール** | `node-taints=tenant=A:NoSchedule`, `node-labels=tenant=A` | SaaSマルチテナンシー |
+| **セキュリティゾーン分離** | `node-taints=zone=dmz:NoSchedule`, `node-labels=zone=dmz` | PCI-DSS準拠DMZ分離 |
+| **ワークロード種別分離** | `node-taints=workload=gpu:NoSchedule` | GPU/バッチ処理分離 |
+
+**Terraform実装例（セキュアノードプール）**:
+```hcl
+resource "google_container_node_pool" "secure_pool" {
+  name       = "secure-prod-pool"
+  cluster    = google_container_cluster.primary.id
+  node_count = 3
+
+  node_config {
+    machine_type = "n2-standard-4"
+    image_type   = "COS_CONTAINERD"
+
+    # Shielded VM有効化
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_integrity_monitoring = true
+    }
+
+    # Workload Identity有効化
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
+
+    # ノードラベル・Taints設定
+    labels = {
+      environment = "production"
+      compliance  = "pci-dss"
+    }
+
+    taints {
+      key    = "compliance"
+      value  = "pci-dss"
+      effect = "NO_SCHEDULE"
+    }
+
+    # サービスアカウント（最小権限）
+    service_account = google_service_account.gke_node_sa.email
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+    ]
+
+    # ノードメタデータセキュリティ
+    metadata = {
+      disable-legacy-endpoints = "true"
+    }
+  }
+
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+
+  upgrade_settings {
+    max_surge       = 1
+    max_unavailable = 0
+  }
+}
+```
+
+#### Podレベルセキュリティ強化
+
+**Restricted Pod Security Policy（ベストプラクティス）**:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-app
+  namespace: production
+spec:
+  serviceAccountName: app-ksa  # Workload Identity
+  automountServiceAccountToken: false  # トークン自動マウント無効
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault  # syscallフィルタリング
+
+  containers:
+  - name: app
+    image: gcr.io/my-project/app:v1.2.3  # ダイジェスト指定推奨
+    imagePullPolicy: Always
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL  # 全capability削除
+
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+      readOnly: false
+
+  volumes:
+  - name: tmp
+    emptyDir: {}
+```
+
+**セキュリティコンテキスト判断基準**:
+
+| 設定 | 値 | セキュリティ影響 | トレードオフ |
+|------|----|--------------|-----------  |
+| `runAsNonRoot` | `true` | ✅ root実行禁止（特権昇格防止） | 一部レガシーアプリ非互換 |
+| `readOnlyRootFilesystem` | `true` | ✅ ファイル改ざん防止 | `/tmp`, `/var`等emptyDirマウント必要 |
+| `allowPrivilegeEscalation` | `false` | ✅ setuid/setgid無効化 | デバッグツール制限 |
+| `capabilities.drop: [ALL]` | `true` | ✅ Linux capabilities全削除 | ネットワーク操作不可 |
+| `seccompProfile: RuntimeDefault` | `true` | ✅ 危険syscall制限 | ごく一部カーネル機能使用不可 |
+
+---
+
+### セキュアコンテナビルドパイプライン実装
+
+#### エンドツーエンドセキュリティゲート
+
+```
+┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+│   Source    │      │    Build    │      │    Scan     │      │   Deploy    │
+│   Control   │─────>│   Image     │─────>│  & Sign     │─────>│   to GKE    │
+└─────────────┘      └─────────────┘      └─────────────┘      └─────────────┘
+      │                     │                     │                     │
+      ▼                     ▼                     ▼                     ▼
+Git commit ──────> Cloud Build ──────> Trivy scan ──────> Binary Auth
+（署名済み）      （SLSA L2+）       （CRITICAL:0）      （Attestation）
+```
+
+#### Cloud Build パイプライン実装
+
+**cloudbuild.yaml（SLSA準拠ビルド）**:
+```yaml
+steps:
+  # ステップ1: イメージビルド
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/app:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/app:latest'
+      - '--build-arg'
+      - 'BUILDKIT_INLINE_CACHE=1'
+      - '.'
+    id: 'build-image'
+
+  # ステップ2: イメージプッシュ（Artifact Registryで自動スキャン開始）
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/app:$SHORT_SHA']
+    id: 'push-image'
+    waitFor: ['build-image']
+
+  # ステップ3: Trivyスキャン（CRITICAL脆弱性検出時にfail）
+  - name: 'aquasec/trivy'
+    args:
+      - 'image'
+      - '--exit-code'
+      - '1'  # CRITICAL検出時にfail
+      - '--severity'
+      - 'CRITICAL,HIGH'
+      - '--format'
+      - 'json'
+      - '--output'
+      - 'trivy-results.json'
+      - 'gcr.io/$PROJECT_ID/app:$SHORT_SHA'
+    id: 'trivy-scan'
+    waitFor: ['push-image']
+
+  # ステップ4: SBOM生成（Software Bill of Materials）
+  - name: 'aquasec/trivy'
+    args:
+      - 'image'
+      - '--format'
+      - 'cyclonedx'
+      - '--output'
+      - 'sbom.json'
+      - 'gcr.io/$PROJECT_ID/app:$SHORT_SHA'
+    id: 'generate-sbom'
+    waitFor: ['trivy-scan']
+
+  # ステップ5: cosignでイメージ署名
+  - name: 'gcr.io/projectsigstore/cosign'
+    env:
+      - 'COSIGN_EXPERIMENTAL=1'  # keyless署名（Fulcio CA）
+    args:
+      - 'sign'
+      - '--yes'
+      - 'gcr.io/$PROJECT_ID/app:$SHORT_SHA'
+    id: 'sign-image'
+    waitFor: ['generate-sbom']
+
+  # ステップ6: Binary Authorization Attestation作成
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        DIGEST=$(gcloud container images describe gcr.io/$PROJECT_ID/app:$SHORT_SHA \
+          --format='get(image_summary.digest)')
+        gcloud container binauthz attestations create \
+          --artifact-url="gcr.io/$PROJECT_ID/app@$${DIGEST}" \
+          --attestor=projects/$PROJECT_ID/attestors/build-attestor \
+          --signature-file=signature.sig \
+          --public-key-id=projects/$PROJECT_ID/locations/global/keyRings/binauthz/cryptoKeys/attestor-key/cryptoKeyVersions/1
+    id: 'create-attestation'
+    waitFor: ['sign-image']
+
+images:
+  - 'gcr.io/$PROJECT_ID/app:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/app:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'N1_HIGHCPU_8'
+```
+
+#### Binary Authorization Policy（厳格版）
+
+**policy.yaml（本番環境）**:
+```yaml
+admissionWhitelistPatterns:
+  - namePattern: "gcr.io/my-project/*"
+
+defaultAdmissionRule:
+  evaluationMode: REQUIRE_ATTESTATION
+  enforcementMode: ENFORCED_BLOCK_AND_AUDIT_LOG
+  requireAttestationsBy:
+    - projects/my-project/attestors/build-attestor
+    - projects/my-project/attestors/security-attestor
+
+globalPolicyEvaluationMode: ENABLE
+
+clusterAdmissionRules:
+  us-central1.prod-cluster:
+    evaluationMode: REQUIRE_ATTESTATION
+    enforcementMode: ENFORCED_BLOCK_AND_AUDIT_LOG
+    requireAttestationsBy:
+      - projects/my-project/attestors/build-attestor
+      - projects/my-project/attestors/security-attestor
+
+  # 開発環境は緩和（スピード優先）
+  us-central1.dev-cluster:
+    evaluationMode: ALWAYS_ALLOW
+    enforcementMode: DRYRUN_AUDIT_LOG_ONLY
+```
+
+#### セキュアビルド監視クエリ（BigQuery）
+
+**脆弱性検出率トラッキング**:
+```sql
+-- CI/CDパイプラインの脆弱性ブロック率
+SELECT
+  DATE(timestamp) as build_date,
+  COUNT(*) as total_builds,
+  COUNTIF(status = 'FAILURE' AND
+    REGEXP_CONTAINS(logName, 'trivy-scan')) as blocked_builds,
+  ROUND(COUNTIF(status = 'FAILURE' AND
+    REGEXP_CONTAINS(logName, 'trivy-scan')) / COUNT(*) * 100, 2) as block_rate_pct
+FROM `project.dataset.cloudbuild_logs`
+WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+GROUP BY build_date
+ORDER BY build_date DESC
+```
+
+---
+
+### マイクロサービス間ネットワークポリシー実装パターン
+
+#### 3層アプリケーション分離（デフォルト拒否 + 明示的許可）
+
+```yaml
+# ステップ1: 全通信拒否（ベースライン）
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+# ステップ2: Frontend → Backend通信許可
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      tier: backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: frontend
+      ports:
+        - protocol: TCP
+          port: 8080
+
+---
+# ステップ3: Backend → Database通信許可
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-database
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      tier: database
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: backend
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# ステップ4: 全サービス → DNS解決許可（egress）
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+
+---
+# ステップ5: Backend → 外部API通信許可（HTTPS egress）
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-external-api
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      tier: backend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+```
+
+#### Istio AuthorizationPolicy統合（L7制御）
+
+**HTTPメソッド・パスレベル制御**:
+```yaml
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: payment-api-authz
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: payment-service
+  action: ALLOW
+  rules:
+    # ルール1: frontend-service から GET /api/v1/payments/* のみ許可
+    - from:
+        - source:
+            principals: ["cluster.local/ns/production/sa/frontend-sa"]
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/api/v1/payments/*"]
+    # ルール2: backend-service から POST /api/v1/payments のみ許可
+    - from:
+        - source:
+            principals: ["cluster.local/ns/production/sa/backend-sa"]
+      to:
+        - operation:
+            methods: ["POST"]
+            paths: ["/api/v1/payments"]
+```
+
+#### ネットワークポリシー検証スクリプト
+
+```bash
+#!/bin/bash
+# network-policy-test.sh: ネットワークポリシー動作確認
+
+# テスト1: frontend → backend 通信（許可されるべき）
+kubectl run test-frontend --image=busybox --labels=tier=frontend -n production \
+  --restart=Never --rm -it -- wget -qO- http://backend-service:8080/health
+
+# テスト2: frontend → database 直接通信（拒否されるべき）
+kubectl run test-frontend --image=busybox --labels=tier=frontend -n production \
+  --restart=Never --rm -it -- nc -zv database-service 5432
+
+# テスト3: backend → database 通信（許可されるべき）
+kubectl run test-backend --image=busybox --labels=tier=backend -n production \
+  --restart=Never --rm -it -- nc -zv database-service 5432
+
+# テスト4: 不正ラベルPod → backend 通信（拒否されるべき）
+kubectl run test-attacker --image=busybox --labels=tier=attacker -n production \
+  --restart=Never --rm -it -- wget -qO- --timeout=5 http://backend-service:8080/health
+```
+
+---
+
+### マルチテナントGKEセキュリティ境界設計
+
+#### テナント分離アーキテクチャ比較
+
+| アーキテクチャ | 分離レベル | コスト | 管理複雑度 | 使用ケース |
+|--------------|----------|-------|-----------|-----------|
+| **クラスタ分離** | ✅✅✅ 最高（物理分離） | 高 | 高 | 規制産業、エンタープライズ |
+| **Namespace分離 + Network Policy** | ✅✅ 高（論理分離） | 中 | 中 | SaaS、中規模マルチテナント |
+| **ノードプール分離** | ✅✅ 高（ノードレベル） | 中 | 中 | セキュリティゾーン分離 |
+| **Pod Security Policy** | ✅ 中（Pod制約） | 低 | 低 | 開発環境、軽量分離 |
+
+#### Namespace分離 + Network Policy実装
+
+**テナントA/B分離設定**:
+```yaml
+# Tenant A Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tenant-a
+  labels:
+    tenant: a
+    pod-security.kubernetes.io/enforce: restricted
+
+---
+# Tenant A: default-deny-all
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: tenant-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+# Tenant A: 共有サービスへのegress許可
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-shared-services
+  namespace: tenant-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: shared-services
+      ports:
+        - protocol: TCP
+          port: 443
+
+---
+# Shared Services Namespace: Tenant A/B両方からアクセス許可
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-tenants
+  namespace: shared-services
+spec:
+  podSelector:
+    matchLabels:
+      app: auth-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchExpressions:
+              - key: tenant
+                operator: In
+                values: ["a", "b"]
+      ports:
+        - protocol: TCP
+          port: 443
+```
+
+#### Resource Quota強制（テナント別リソース制限）
+
+```yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: tenant-a-quota
+  namespace: tenant-a
+spec:
+  hard:
+    requests.cpu: "100"
+    requests.memory: 200Gi
+    requests.storage: 500Gi
+    persistentvolumeclaims: "50"
+    pods: "100"
+    services.loadbalancers: "5"
+```
+
+#### Hierarchical Namespace Controller（HNC）導入
+
+**テナント階層構造管理**:
+```yaml
+apiVersion: hnc.x-k8s.io/v1alpha2
+kind: HierarchyConfiguration
+metadata:
+  name: hierarchy
+  namespace: tenant-a
+spec:
+  parent: root-org
+
+---
+apiVersion: hnc.x-k8s.io/v1alpha2
+kind: SubnamespaceAnchor
+metadata:
+  name: tenant-a-dev
+  namespace: tenant-a
+```
+
+**セキュリティ監査チェックリスト（マルチテナント）**:
+| チェック項目 | 検証コマンド |
+|------------|-------------|
+| Namespace分離確認 | `kubectl get ns --show-labels` |
+| Network Policy適用確認 | `kubectl get networkpolicies -A` |
+| Resource Quota設定確認 | `kubectl get resourcequotas -A` |
+| クロステナント通信検証 | `kubectl run test-pod -n tenant-a --image=busybox --rm -it -- wget -qO- http://service.tenant-b:80` （失敗すべき） |
+| Pod Security Standards強制確認 | `kubectl get ns -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.metadata.labels.pod-security\.kubernetes\.io/enforce}{"\n"}{end}'` |
 
 ---
 

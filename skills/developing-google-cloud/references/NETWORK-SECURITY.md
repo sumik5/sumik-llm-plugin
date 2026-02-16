@@ -197,6 +197,64 @@ gcloud projects add-iam-policy-binding HOST_PROJECT_ID \
   --role=roles/compute.networkUser
 ```
 
+#### Shared VPCセキュリティコントロール
+
+**最小権限原則（Least Privilege）**:
+
+| ロール | 権限レベル | 付与対象 | セキュリティ影響 |
+|--------|----------|---------|----------------|
+| `compute.networkUser` | サブネット使用のみ | Service Project SA | リソース作成可能、ネットワーク変更不可 |
+| `compute.networkViewer` | 読み取り専用 | 監視・監査ユーザー | ネットワーク構成の可視性のみ |
+| `compute.xpnAdmin` | Shared VPC管理 | ネットワークチーム | Host Project全体制御（慎重に付与） |
+
+**サブネットレベル権限の細分化**:
+```bash
+# 特定サブネットのみ使用権付与（Project全体ではなくSubnetレベル）
+gcloud compute networks subnets add-iam-policy-binding SUBNET_NAME \
+  --region=REGION \
+  --member=serviceAccount:SA@PROJECT_ID.iam.gserviceaccount.com \
+  --role=roles/compute.networkUser
+```
+
+**ファイアウォールルール適用パターン**:
+
+| パターン | 実装 | 使用ケース |
+|---------|------|-----------|
+| **Host Projectで集中管理** | Host側でルール定義、全Service Projectに適用 | 組織標準セキュリティポリシー適用 |
+| **Service Project個別管理** | Service Project管理者が個別定義 | アプリケーション固有要件 |
+| **ハイブリッド** | Host側でベースライン、Service側で追加 | 柔軟性と統制のバランス |
+
+**Service Project分離戦略**:
+```
+Host Project (networking-hub)
+├── VPC Network (shared-vpc)
+│   ├── Subnet: dev-subnet (10.1.0.0/24)    # 開発環境専用
+│   ├── Subnet: staging-subnet (10.2.0.0/24) # ステージング環境専用
+│   └── Subnet: prod-subnet (10.3.0.0/24)    # 本番環境専用
+├── Service Project: app-dev → dev-subnet
+├── Service Project: app-staging → staging-subnet
+└── Service Project: app-prod → prod-subnet
+```
+
+**タグベース分離（Network Tags）**:
+```bash
+# タグ付きVMへのファイアウォールルール（環境分離）
+gcloud compute firewall-rules create allow-prod-to-db \
+  --network=shared-vpc \
+  --allow=tcp:5432 \
+  --source-tags=prod-app \
+  --target-tags=prod-db \
+  --direction=INGRESS \
+  --priority=1000
+```
+
+**セキュリティ監査ポイント**:
+| チェック項目 | コマンド例 |
+|------------|-----------|
+| Host Project IAM監査 | `gcloud projects get-iam-policy HOST_PROJECT_ID` |
+| 紐付けService Project一覧 | `gcloud compute shared-vpc list-associated-resources HOST_PROJECT_ID` |
+| サブネットレベル権限確認 | `gcloud compute networks subnets get-iam-policy SUBNET --region=REGION` |
+
 ### VPC Peering
 
 ```
@@ -654,6 +712,260 @@ gcloud compute routers add-bgp-peer my-router \
 |--------|--------------|
 | **Regional** | Cloud Routerと同一リージョンのサブネットのみ |
 | **Global** | VPC全体（全リージョン）のサブネット |
+
+### ハイブリッド接続のセキュリティ設計
+
+#### VPN暗号化とIKE設定
+
+**IPSec/IKE暗号化強度比較**:
+
+| IKEバージョン | 暗号化 | 完全性 | DHグループ | 推奨度 |
+|--------------|-------|-------|----------|--------|
+| **IKEv2**（推奨） | AES-GCM-256 | SHA2-512 | 20,21（Curve25519） | ✅ 最高 |
+| IKEv1 | AES-CBC-256 | SHA2-256 | 14（2048-bit MODP） | ⚠ 互換性優先 |
+| IKEv1（Legacy） | 3DES-CBC | SHA1 | 2（1024-bit MODP） | ❌ 非推奨 |
+
+**VPN Tunnel設定例（強化版）**:
+```bash
+# HA VPN with強化暗号設定
+gcloud compute vpn-tunnels create secure-tunnel \
+  --peer-gcp-gateway=PEER_GATEWAY \
+  --region=us-central1 \
+  --ike-version=2 \
+  --shared-secret=SECRET \
+  --router=my-router \
+  --vpn-gateway=my-vpn-gateway \
+  --interface=0
+```
+
+**共有シークレット管理**:
+```bash
+# Secret Managerでシークレット管理
+gcloud secrets create vpn-shared-secret \
+  --data-file=secret.txt \
+  --replication-policy=automatic
+
+# Cloud Functionsで自動ローテーション（90日周期推奨）
+```
+
+#### Cloud Interconnect暗号化戦略
+
+**暗号化オプション比較**:
+
+| 方式 | 実装 | パフォーマンス | 複雑度 | 使用ケース |
+|------|------|--------------|--------|-----------|
+| **アプリケーションレベルTLS** | HTTPS/gRPC TLS | 最高（IPSecなし） | 低 | 推奨・デフォルト |
+| **MACsec** | Layer 2暗号化（専用HW） | 高 | 高 | コンプライアンス要求 |
+| **IPSec over Interconnect** | GCE VMでIPSecトンネル | 中 | 中 | 既存VPN統合 |
+| **Cloud VPN Overlay** | VPN Gateway + Interconnect | 低（二重カプセル化） | 中 | セキュリティ最優先 |
+
+**MACsec設定（Partner Interconnect）**:
+```bash
+# MACsec有効なInterconnect Attachment作成
+gcloud compute interconnects attachments partner create secure-attachment \
+  --region=us-central1 \
+  --router=my-router \
+  --edge-availability-domain=AVAILABILITY_DOMAIN_1 \
+  --encryption=IPSEC
+```
+
+#### ハイブリッド接続アクセス制御
+
+**ファイアウォールルール設計**:
+```bash
+# オンプレミスからのアクセス制限（特定サービスのみ）
+gcloud compute firewall-rules create allow-onprem-to-db \
+  --network=my-vpc \
+  --allow=tcp:5432 \
+  --source-ranges=192.168.0.0/16 \  # オンプレCIDR
+  --target-tags=cloud-db \
+  --direction=INGRESS \
+  --priority=1000 \
+  --enable-logging
+
+# GCPからオンプレへのアクセス（egress制御）
+gcloud compute firewall-rules create allow-cloud-to-onprem \
+  --network=my-vpc \
+  --allow=tcp:443 \
+  --destination-ranges=192.168.0.0/16 \
+  --source-service-accounts=app-sa@project.iam.gserviceaccount.com \
+  --direction=EGRESS \
+  --priority=1000
+```
+
+**VPC Service Controls統合**:
+```yaml
+# Service Perimeter設定（Interconnect経由アクセス制限）
+ingressPolicies:
+  - ingressFrom:
+      sources:
+        - accessLevel: accessPolicies/POLICY_ID/accessLevels/onprem_network
+      identityType: ANY_IDENTITY
+    ingressTo:
+      resources:
+        - projects/PROJECT_NUMBER
+      operations:
+        - serviceName: storage.googleapis.com
+          methodSelectors:
+            - method: google.storage.objects.get
+```
+
+**Cloud Router BGPセキュリティ**:
+```bash
+# BGP認証（MD5）設定
+gcloud compute routers update my-router \
+  --region=us-central1 \
+  --set-bgp-peer-authentication-key=bgp-peer-1 \
+  --authentication-key-type=MD5 \
+  --authentication-key-value=SECRET_KEY
+
+# BGPルートフィルタ（不正ルート広告防止）
+gcloud compute routers update-bgp-peer my-router \
+  --peer-name=bgp-peer-1 \
+  --region=us-central1 \
+  --import-custom-routes
+```
+
+---
+
+## ネットワークセグメンテーション戦略
+
+### セグメンテーション階層
+
+```
+Organization（組織レベル）
+├── 機能別セグメンテーション
+│   ├── Frontend VPC（10.1.0.0/16）
+│   ├── Application VPC（10.2.0.0/16）
+│   └── Database VPC（10.3.0.0/16）
+├── 環境別セグメンテーション
+│   ├── Production VPC（10.10.0.0/16）
+│   ├── Staging VPC（10.20.0.0/16）
+│   └── Development VPC（10.30.0.0/16）
+└── テナント別セグメンテーション（マルチテナント）
+    ├── Tenant A VPC（10.101.0.0/16）
+    ├── Tenant B VPC（10.102.0.0/16）
+    └── Shared Services VPC（10.100.0.0/16）
+```
+
+### セグメンテーション戦略判断基準
+
+| 戦略 | 分離単位 | 実装方法 | メリット | デメリット | 使用ケース |
+|------|---------|---------|---------|-----------|-----------|
+| **機能別（Functional）** | アプリケーション層 | 別VPC | レイヤー間トラフィック制御容易 | 管理複雑化 | 3-tier構成（Web/App/DB） |
+| **環境別（Environment）** | 開発ステージ | 別VPC | 環境隔離、本番影響ゼロ | VPC数増加 | Dev/Staging/Prod分離 |
+| **テナント別（Tenant）** | 顧客・組織 | 別VPC or Shared VPC | データ主権、マルチテナンシー | スケーラビリティ課題 | SaaS、マネージドサービス |
+| **ポリシー駆動（Policy-Driven）** | セキュリティゾーン | 階層型FWP + VPC Service Controls | 一元管理、コンプライアンス | 初期設計複雑 | 規制産業（金融、医療） |
+
+### マイクロセグメンテーション実装
+
+**ワークロードレベル分離（Zero Trust）**:
+
+```
+単一VPC内でのマイクロセグメンテーション
+├── Namespace/Subnet分離
+│   ├── frontend-subnet (10.1.1.0/24)
+│   ├── api-subnet (10.1.2.0/24)
+│   └── data-subnet (10.1.3.0/24)
+├── ファイアウォールルール細分化
+│   ├── default-deny-all（priority 2147483647）
+│   ├── allow-frontend-to-api（priority 1000）
+│   └── allow-api-to-data（priority 1001）
+└── サービスアカウントベースACL
+    ├── frontend-sa → api-sa のみ通信許可
+    └── api-sa → db-sa のみ通信許可
+```
+
+**GKE Networkポリシー統合**:
+```yaml
+# マイクロセグメンテーション例（default-deny + allow）
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      tier: backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: frontend
+      ports:
+        - protocol: TCP
+          port: 8080
+```
+
+**Terraformでのマイクロセグメンテーション実装**:
+```hcl
+# ファイアウォールルール: default-deny-all
+resource "google_compute_firewall" "default_deny_all" {
+  name    = "default-deny-all"
+  network = google_compute_network.vpc.name
+  priority = 65535
+
+  deny {
+    protocol = "all"
+  }
+
+  direction = "INGRESS"
+  source_ranges = ["0.0.0.0/0"]
+}
+
+# allow-frontend-to-api（サービスアカウントベース）
+resource "google_compute_firewall" "allow_frontend_to_api" {
+  name    = "allow-frontend-to-api"
+  network = google_compute_network.vpc.name
+  priority = 1000
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+
+  direction = "INGRESS"
+  source_service_accounts = [google_service_account.frontend_sa.email]
+  target_service_accounts = [google_service_account.api_sa.email]
+}
+```
+
+### セグメンテーション監視・監査
+
+**VPC Flow Logs有効化**:
+```bash
+# サブネットレベルでFlow Logs有効化（マイクロセグメンテーション検証）
+gcloud compute networks subnets update SUBNET_NAME \
+  --region=REGION \
+  --enable-flow-logs \
+  --logging-aggregation-interval=interval-5-sec \
+  --logging-flow-sampling=1.0 \
+  --logging-metadata=include-all
+```
+
+**異常トラフィック検出クエリ（BigQuery）**:
+```sql
+-- 許可されていないサブネット間通信検出
+SELECT
+  jsonPayload.connection.src_ip,
+  jsonPayload.connection.dest_ip,
+  jsonPayload.connection.src_port,
+  jsonPayload.connection.dest_port,
+  COUNT(*) as connection_count
+FROM `project.dataset.vpc_flows`
+WHERE
+  jsonPayload.reporter = 'DEST'
+  AND jsonPayload.disposition = 'ALLOWED'
+  AND NOT (
+    jsonPayload.src_instance.zone = jsonPayload.dest_instance.zone
+  )
+GROUP BY 1,2,3,4
+ORDER BY connection_count DESC
+LIMIT 100
+```
 
 ---
 
