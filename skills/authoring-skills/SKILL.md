@@ -44,8 +44,11 @@ The context window is a shared resource. Challenge each piece of information:
 ### 2. Progressive Disclosure
 
 SKILL.md serves as an overview that points to detailed materials as needed:
-- Keep SKILL.md body under **500 lines**
-- Split content into separate files when approaching this limit
+- SKILL.md body は **500行以下** を目安とする
+- 500行に近づいた場合や超える場合、自動的に圧縮・分割せず **AskUserQuestionツールでユーザーに対応方針を確認** する:
+  - **ファイル分割**: references/ へ詳細を分離（Progressive Disclosure）
+  - **内容の圧縮・要約**: 冗長な箇所を削減
+  - **500行超を許容**: 内容が不可分で分割すると品質が下がる場合
 - Claude loads additional files only when needed
 
 ### 3. Appropriate Degrees of Freedom

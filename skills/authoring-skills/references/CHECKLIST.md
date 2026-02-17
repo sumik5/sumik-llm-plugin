@@ -15,7 +15,7 @@ CORE QUALITY
 - [ ] Description explains what skill does
 - [ ] Description includes trigger conditions
 - [ ] Description is specific with key terms
-- [ ] SKILL.md body is under 500 lines
+- [ ] SKILL.md body is under 500 lines (if exceeded, user confirmed the approach via AskUserQuestion)
 
 FRONTMATTER (advanced fields - if applicable)
 - [ ] argument-hint set if skill takes arguments
@@ -120,7 +120,7 @@ USAGE REVIEW (if reviewing skill portfolio)
 
 | Requirement | Verification |
 |-------------|--------------|
-| Under 500 lines | `wc -l SKILL.md` |
+| Under 500 lines (目安。超過時はユーザー確認) | `wc -l SKILL.md` |
 | No outdated info | Search for dates, versions |
 | Consistent terms | One term per concept |
 | Concrete examples | Input/output pairs |

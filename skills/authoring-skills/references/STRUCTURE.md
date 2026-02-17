@@ -234,7 +234,7 @@ stuff.md
 | Simple | 50-150 |
 | Standard | 150-300 |
 | Complex | 300-500 |
-| Maximum | 500 (hard limit) |
+| Maximum | 500 (目安。超過時はAskUserQuestionでユーザーに確認) |
 
 ### Essential Sections
 
@@ -314,4 +314,4 @@ See `analyze_form.py` for the extraction algorithm
 | Example files | < 200 lines each |
 | Script files | As needed |
 
-If a file exceeds these limits, consider splitting by subtopic.
+ファイルがこれらの目安を超える場合、AskUserQuestionでユーザーに対応方針（ファイル分割/内容圧縮/超過許容）を確認する。

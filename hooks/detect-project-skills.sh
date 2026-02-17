@@ -86,6 +86,7 @@ get_skill_description() {
         "designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
         "developing-go") echo "Go開発ガイド" ;;
         "developing-python") echo "Python開発ガイド" ;;
+        "developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
         "developing-terraform") echo "Terraform IaC開発" ;;
         "managing-docker") echo "Docker開発環境・コンテナ管理" ;;
         "writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
@@ -217,6 +218,15 @@ check_python() {
     if [[ -f "$WORK_DIR/pyproject.toml" ]] || [[ -f "$WORK_DIR/requirements.txt" ]]; then
         HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("developing-python")
+    fi
+}
+
+# Bash スクリプトプロジェクトチェック
+check_bash() {
+    # .sh ファイルを検出（hooks/ ディレクトリは除外）
+    if find "$WORK_DIR" -maxdepth 3 -name "*.sh" ! -path "*/hooks/*" 2>/dev/null | grep -q .; then
+        HAS_LANGUAGE_PROJECT=true
+        PROJECT_SKILLS+=("developing-bash")
     fi
 }
 
@@ -403,6 +413,7 @@ check_playwright_config
 check_go
 check_python
 check_python_deps
+check_bash
 check_terraform
 check_docker
 check_cloud_run
