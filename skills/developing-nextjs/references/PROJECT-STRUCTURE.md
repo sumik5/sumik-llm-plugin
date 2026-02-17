@@ -58,13 +58,20 @@ project-root/
 │   ├── test/                  # テストユーティリティ
 │   │   └── setup.ts           # Vitestセットアップ
 │   └── instrumentation.ts     # Next.js起動時初期化（Prismaマイグレーション等）
+├── test/                      # テスト（src外）
+│   └── e2e/                   # Playwright E2Eテスト
+│       ├── example.spec.ts    # E2Eテストファイル
+│       └── fixtures/          # テストフィクスチャ
+├── scripts/                   # ヘルパースクリプト（マイグレーション生成等）
 ├── .mise.toml                 # miseツール設定（推奨）
 ├── components.json            # shadcn/ui設定
 ├── docker-compose.yml         # Docker Compose（開発環境）
 ├── Dockerfile                 # マルチステージビルド
 ├── eslint.config.mjs          # ESLint設定（Flat Config）
 ├── next.config.js             # Next.js設定
-├── package.json               # npm依存関係
+├── package.json               # パッケージ管理（"type": "module"）
+├── prisma.config.ts           # Prisma 7.x設定ファイル
+├── proxy.ts                   # Next.js 16 プロキシ設定（旧middleware.ts）
 ├── tsconfig.json              # TypeScript設定
 ├── postcss.config.cjs         # PostCSS設定（@tailwindcss/postcss）
 ├── tailwind.config.js         # Tailwind CSS設定（プラグイン・shadcn/ui互換）
@@ -225,13 +232,14 @@ src/types/
     └── prisma.d.ts        # Prisma型の拡張
 ```
 
-### 6. テスト（`src/test/`、`src/**/*.test.tsx`）
+### 6. テスト（`src/test/`、`src/**/*.test.tsx`、`test/e2e/`）
 
 **テストファイル配置：**
-- **ユニットテスト**: 対象ファイルと同じディレクトリに配置
+- **ユニット/コンポーネントテスト（Vitest）**: 対象ファイルと同じディレクトリに配置（コロケーション）
 - **セットアップファイル**: `src/test/setup.ts`
+- **E2Eテスト（Playwright）**: `test/e2e/` にまとめて配置（`src/`外）
 
-**例:**
+**ユニット/コンポーネントテスト（Vitest）:**
 ```
 src/lib/
 ├── logger.ts
@@ -241,6 +249,17 @@ src/components/ui/
 ├── Button.tsx
 └── Button.test.tsx        # コンポーネントテスト
 ```
+
+**E2Eテスト（Playwright）:**
+```
+test/e2e/
+├── auth.spec.ts           # 認証フローE2E
+├── dashboard.spec.ts      # ダッシュボードE2E
+└── fixtures/              # テストフィクスチャ（認証状態等）
+    └── auth.ts
+```
+
+> **配置ルール**: Vitest（ユニット/コンポーネント）は `src/` 内にコロケーション、Playwright（E2E）は `test/e2e/` にまとめる。テスト種別で配置場所を明確に分離する。
 
 ## 命名規則
 
@@ -321,6 +340,40 @@ wt-*/
 - **`.env.example`**: テンプレート（コミット可能）
 - **`.env`**: 開発環境用（Git無視）
 - **`.env.production`**: 本番環境用（Git無視、デプロイ時に設定）
+
+## package.json 設定
+
+### `"type": "module"` の設定
+
+```json
+{
+  "type": "module"
+}
+```
+
+Next.js 16.x プロジェクトでは `"type": "module"` を設定し、ESM（ES Modules）をデフォルトにする。これにより `.ts` / `.mjs` ファイルがESMとして解釈され、`import`/`export` 構文がそのまま使用できる。
+
+> **注意**: CommonJSが必要な設定ファイル（例: `postcss.config.cjs`）は `.cjs` 拡張子を使用すること。
+
+### pnpm overrides パターン
+
+```json
+{
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.7",
+      "@types/react-dom": "19.2.3"
+    },
+    "ignoredBuiltDependencies": [
+      "msw",
+      "prisma"
+    ]
+  }
+}
+```
+
+- **overrides**: `@types/react` と `@types/react-dom` のバージョンを固定し、依存パッケージ間の型不整合を防ぐ。React 19.x では特に重要（複数バージョンの型定義が混在するとビルドエラーになる）
+- **ignoredBuiltDependencies**: `msw` や `prisma` のようにpostinstallスクリプトを持つパッケージの不要な再ビルドを抑制する
 
 ## ベストプラクティス
 

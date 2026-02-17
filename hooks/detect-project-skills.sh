@@ -90,7 +90,8 @@ get_skill_description() {
         "managing-docker") echo "Docker開発環境・コンテナ管理" ;;
         "writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
         "developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
-        "automating-browser") echo "Playwright ブラウザ自動化・E2Eテスト" ;;
+        "automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
+        "testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
         "implementing-opentelemetry") echo "OpenTelemetry 分散トレーシング" ;;
         "building-adk-agents") echo "Google ADK AIエージェント開発" ;;
         "building-nextjs-saas") echo "Next.js SaaSアプリケーション構築" ;;
@@ -156,7 +157,7 @@ check_package_json() {
 
     # Playwright チェック（package.json内）
     if echo "$deps" | grep -qx "@playwright/test"; then
-        PROJECT_SKILLS+=("automating-browser")
+        PROJECT_SKILLS+=("testing-e2e-with-playwright")
     fi
 
     # OpenTelemetry チェック（JS）
@@ -269,7 +270,7 @@ check_writing() {
 # Playwright 設定ファイルチェック
 check_playwright_config() {
     if find "$WORK_DIR" -maxdepth 2 -name "playwright.config.*" 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("automating-browser")
+        PROJECT_SKILLS+=("testing-e2e-with-playwright")
     fi
 }
 

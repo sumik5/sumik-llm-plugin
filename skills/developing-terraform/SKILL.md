@@ -1,6 +1,6 @@
 ---
 name: developing-terraform
-description: Terraform IaC development with HCL syntax, module design, and state management. MUST load when .tf files are detected or go.mod contains 'terraform'. Covers AWS infrastructure patterns. For Docker infrastructure, use managing-docker instead. For broader DevOps methodology and IaC tool comparison, use practicing-devops instead.
+description: Terraform IaC development with HCL syntax, module design, state management, and Terragrunt wrapper patterns. MUST load when .tf files or terragrunt.hcl are detected, or go.mod contains 'terraform'. Covers AWS/GCP infrastructure patterns and mise task automation. For Docker infrastructure, use managing-docker instead. For broader DevOps methodology and IaC tool comparison, use practicing-devops instead.
 ---
 
 # Terraform IaC開発ガイド
@@ -14,6 +14,26 @@ TerraformはHCL（HashiCorp Configuration Language）による宣言的IaCツー
 - **宣言的記述**: あるべき状態を定義、差分は自動計算
 - **ステート管理**: 現在のインフラ状態を追跡
 - **モジュール化**: 再利用可能なコンポーネント
+
+---
+
+## ツール選択（AskUserQuestion）
+
+新規プロジェクト構築時、以下をAskUserQuestionで確認:
+
+### Terraform vs Terragrunt
+
+| 選択肢 | 説明 |
+|--------|------|
+| **素のTerraform（推奨: 小規模）** | 単一環境、モジュール数5未満 |
+| **Terragrunt（推奨: 中〜大規模）** | 複数環境、モジュール間依存、DRY原則 |
+
+Terragrunt選択時の追加確認:
+- **mise使用有無**: タスクランナーとしてmiseを使うか
+- **クラウドプロバイダ**: AWS / GCP / Azure / マルチクラウド
+
+→ Terragrunt詳細: [TERRAGRUNT.md](./references/TERRAGRUNT.md)
+→ ディレクトリ構成・mise: [TERRAGRUNT-STRUCTURE.md](./references/TERRAGRUNT-STRUCTURE.md)
 
 ---
 
@@ -55,6 +75,23 @@ TerraformはHCL（HashiCorp Configuration Language）による宣言的IaCツー
 - **CloudFormation/Bicep**: 単一クラウド特化
 - **Ansible**: OSレイヤー構成管理
 - **Pulumi**: プログラミング言語で記述
+
+---
+
+## Terraform vs Terragrunt
+
+| 観点 | 素のTerraform | Terragrunt |
+|------|-------------|------------|
+| **設定の共通化** | モジュール + 変数ファイル | root.hcl による一元管理 |
+| **環境分離** | workspace / ディレクトリ / tfvars | _env/ + include による自動注入 |
+| **依存管理** | data.terraform_remote_state | dependency ブロック + mock_outputs |
+| **一括実行** | 手動で順次実行 | `run --all` で依存順に自動実行 |
+| **Provider/Backend生成** | 各モジュールに手動配置 | generate ブロックで自動生成 |
+| **学習コスト** | 低 | 中（Terraform + Terragrunt両方） |
+
+**選択基準:**
+- **素のTerraform**: モジュール5未満、単一環境、シンプル構成
+- **Terragrunt**: モジュール5以上、複数環境、DRY重視、チーム開発
 
 ---
 
@@ -283,6 +320,7 @@ removed {
 ### バックエンド設定（推奨）
 
 ```hcl
+# S3 バックエンド（AWS）
 terraform {
   backend "s3" {
     bucket         = "my-terraform-state"
@@ -292,11 +330,19 @@ terraform {
     dynamodb_table = "terraform-state-lock"
   }
 }
+
+# GCS バックエンド（GCP）
+terraform {
+  backend "gcs" {
+    bucket = "my-terraform-state"
+    prefix = "prod/terraform.tfstate"
+  }
+}
 ```
 
 **主要バックエンド:**
 - **S3 + DynamoDB**: AWS標準（ロック機能付き）
-- **GCS**: Google Cloud
+- **GCS**: Google Cloud（ロック機能内蔵）
 - **Azure Blob Storage**: Azure
 - **Terraform Cloud**: HashiCorp公式SaaS
 
@@ -355,8 +401,9 @@ resource "aws_vpc" "main" {
 | **ワークスペース** | 同一コード、切り替え簡単 | 誤操作リスク |
 | **ディレクトリ分離** | 完全分離 | コード重複 |
 | **tfvarsファイル** | 変数のみ分離 | 実行時にファイル指定必要 |
+| **Terragrunt** | DRY、依存自動解決 | 追加ツール学習コスト |
 
-**推奨:** 小規模=ワークスペース、中規模=ディレクトリ分離+モジュール共有、大規模=ディレクトリ分離+Terraform Cloud
+**推奨:** 小規模=ワークスペース、中規模=ディレクトリ分離+モジュール共有、大規模=Terragrunt + mise
 
 ---
 
@@ -366,15 +413,18 @@ resource "aws_vpc" "main" {
 
 ### 確認すべき場面
 
-1. **プロバイダー選択**: AWS / GCP / Azure / マルチクラウド
-2. **ステート管理方式**: S3 / GCS / Azure Blob / Terraform Cloud
-3. **モジュール分割粒度**: 機能単位 / レイヤー単位 / サービス単位
-4. **環境分離方式**: ワークスペース / ディレクトリ分離 / tfvarsファイル
-5. **ECS起動タイプ**: Fargate / EC2
-6. **CI/CDツール**: GitHub Actions / GitLab CI / CircleCI
-7. **既存リソース取り込み**: importブロック / terraform import コマンド
-8. **ネットワーク構成**: パブリックのみ / パブリック+プライベート
-9. **命名規則**: `${service_name}-${env}-${resource}` / その他
+1. **ツール選択**: 素のTerraform / Terragrunt
+2. **mise使用有無**: タスクランナー利用
+3. **Terragrunt構成パターン**: 番号付きプレフィックス / フラット構成
+4. **プロバイダー選択**: AWS / GCP / Azure / マルチクラウド
+5. **ステート管理方式**: S3 / GCS / Azure Blob / Terraform Cloud
+6. **モジュール分割粒度**: 機能単位 / レイヤー単位 / サービス単位
+7. **環境分離方式**: ワークスペース / ディレクトリ分離 / tfvarsファイル
+8. **ECS起動タイプ**: Fargate / EC2
+9. **CI/CDツール**: GitHub Actions / GitLab CI / CircleCI
+10. **既存リソース取り込み**: importブロック / terraform import コマンド
+11. **ネットワーク構成**: パブリックのみ / パブリック+プライベート
+12. **命名規則**: `${service_name}-${env}-${resource}` / その他
 
 ### 確認不要（常に実行）
 
@@ -394,6 +444,9 @@ resource "aws_vpc" "main" {
 - **[COMMANDS.md](./references/COMMANDS.md)** - Terraformコマンドの包括的リファレンス
 - **[MODULES.md](./references/MODULES.md)** - モジュール設計パターンと実践例
 - **[AWS-PRACTICE.md](./references/AWS-PRACTICE.md)** - AWS環境での実践的な構築ガイド
+- **[GCP-PRACTICE.md](./references/GCP-PRACTICE.md)** - GCP環境での実践的な構築ガイド
+- **[TERRAGRUNT.md](./references/TERRAGRUNT.md)** - Terragruntコア概念、root.hcl/terragrunt.hclテンプレート、パターン集
+- **[TERRAGRUNT-STRUCTURE.md](./references/TERRAGRUNT-STRUCTURE.md)** - ディレクトリ構成テンプレート、miseタスク定義、依存関係設計
 - **[TESTING.md](./references/TESTING.md)** - テスト、ツール、ドキュメンテーション
 - **[PLAN-AND-GRAPH.md](./references/PLAN-AND-GRAPH.md)** - Plan/Applyの内部動作、DAG、リソースグラフ、落とし穴
 - **[STATE-IN-DEPTH.md](./references/STATE-IN-DEPTH.md)** - ステート内部構造、バックエンド移行、ドリフト対策、プロジェクト間連携
@@ -409,12 +462,13 @@ resource "aws_vpc" "main" {
 
 1. **IaC化判断**: 繰り返し回数、更新頻度、環境数で判断
 2. **ツール選択**: プロビジョニング、構成管理、コンテナの役割分担
-3. **HCL構文**: resource, variable, module等の基本ブロック
-4. **変数制御**: 型システムとvalidationによる厳格な制御
-5. **繰り返し構文**: `for_each`優先、`count`は条件分岐のみ
-6. **メンテナンス**: moved/import/removedブロック活用
-7. **ステート管理**: リモートバックエンド + ロック機能
-8. **ワークスペース**: 環境分離の選択肢と使い分け
-9. **ユーザー確認**: 判断分岐では必ずAskUserQuestion
+3. **Terraform vs Terragrunt**: 規模・環境数・DRY要求に応じて選択
+4. **HCL構文**: resource, variable, module等の基本ブロック
+5. **変数制御**: 型システムとvalidationによる厳格な制御
+6. **繰り返し構文**: `for_each`優先、`count`は条件分岐のみ
+7. **メンテナンス**: moved/import/removedブロック活用
+8. **ステート管理**: リモートバックエンド（S3/GCS）+ ロック機能
+9. **ワークスペース**: 環境分離の選択肢と使い分け
+10. **ユーザー確認**: 判断分岐では必ずAskUserQuestion
 
-次のステップ: [COMMANDS.md](./references/COMMANDS.md)でコマンド詳細を学び、[MODULES.md](./references/MODULES.md)でモジュール設計を実践し、[AWS-PRACTICE.md](./references/AWS-PRACTICE.md)で実際のインフラを構築してください。
+次のステップ: [COMMANDS.md](./references/COMMANDS.md)でコマンド詳細を学び、[MODULES.md](./references/MODULES.md)でモジュール設計を実践し、[AWS-PRACTICE.md](./references/AWS-PRACTICE.md)または[GCP-PRACTICE.md](./references/GCP-PRACTICE.md)で実際のインフラを構築してください。大規模プロジェクトでは[TERRAGRUNT.md](./references/TERRAGRUNT.md)と[TERRAGRUNT-STRUCTURE.md](./references/TERRAGRUNT-STRUCTURE.md)でTerragruntパターンを検討してください。

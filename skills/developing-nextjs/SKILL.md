@@ -1,13 +1,13 @@
 ---
 name: developing-nextjs
-description: Next.js 16 / React 19 development guide covering App Router, Server Components, React performance optimization, and React internals. MUST load when package.json contains 'next' or next.config.* is detected. Covers Cache Components, strict TypeScript, Tailwind CSS, Vercel performance rules, rendering mechanisms, and advanced React patterns. For SaaS patterns (auth, payments, AI), use building-nextjs-saas instead.
+description: Next.js 16.x / React 19.x development guide covering App Router, Server Components, Turbopack, React Compiler, proxy.ts, and React internals. MUST load when package.json contains 'next' or next.config.* is detected. Covers Cache Components, opt-in caching APIs (updateTag/revalidateTag/refresh), strict TypeScript, Tailwind CSS 4.x, Prisma 7.x, Zod 4.x, Vitest 4.x, Playwright, Docker, Vercel performance rules, and advanced React patterns. For SaaS patterns (auth, payments, AI), use building-nextjs-saas instead.
 ---
 
-# Next.js 16 / React 19 Modern Web Development Skill
+# Next.js 16.x / React 19.x Modern Web Development Skill
 
 ## 概要
 
-このスキルは、Next.js 16.0.0 + React 19.2.0を使用した最新のWebアプリケーション開発のベストプラクティスを提供します。
+このスキルは、Next.js 16.x + React 19.xを使用した最新のWebアプリケーション開発のベストプラクティスを提供します。
 
 ## 使用タイミング
 
@@ -21,16 +21,19 @@ description: Next.js 16 / React 19 development guide covering App Router, Server
 
 ## 対象技術スタック
 
-- **Next.js**: 16.0.0（App Router、Server Components、Cache Components）
-- **React**: 19.2.0（Actions、useActionState、ref as prop等の新機能）
-- **TypeScript**: 5.9.3（strict mode、厳格な型チェック）
-- **Tailwind CSS**: 最新版 + shadcn/ui 3.4.2
+- **Next.js**: 16.x（App Router、Server Components、Cache Components、Turbopack default、proxy.ts）
+- **React**: 19.x（Actions、useActionState、ref as prop、View Transitions）
+- **TypeScript**: 5.x（strict mode + noUncheckedIndexedAccess等の厳格オプション）
+- **Tailwind CSS**: 4.x（CSS-first、`@import "tailwindcss"`）+ shadcn/ui 3.x
 
-> **重要**: Tailwind CSS最新版はCSS-first設定。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。詳細は[STYLING.md](./references/STYLING.md)参照。
-- **Prisma ORM**: 6.18.0（PostgreSQL）
-- **Vitest + MSW**: テスト環境
-- **Docker**: マルチステージビルド、GCPデプロイ対応
-- **mise**: ツールバージョン管理
+> **重要**: Tailwind CSS 4.xはCSS-first設定。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。詳細は[STYLING.md](./references/STYLING.md)参照。
+- **Prisma ORM**: 7.x（PostgreSQL、prisma.config.ts）
+- **Zod**: 4.x（バリデーション）
+- **Vitest**: 4.x + **Playwright**: テスト環境（ユニット + E2E）
+- **Docker**: マルチステージビルド、tini、GCPデプロイ対応
+- **Node.js**: 開発 24.x（Current）/ 本番 22.x（LTS）
+- **pnpm**: 最新版（Corepack経由）
+- **mise**: ツールバージョン管理 + タスクランナー
 
 ## ドキュメント構成（Progressive Disclosure）
 
@@ -98,8 +101,8 @@ description: Next.js 16 / React 19 development guide covering App Router, Server
 # 1. Next.js 16プロジェクト作成
 npx create-next-app@latest my-app
 
-# 2. mise初期化（推奨）
-mise use node@24.5.0 pnpm@10.14.0 pre-commit@latest
+# 2. mise初期化（推奨。バージョンは参考値、最新を確認）
+mise use node@24 pnpm@latest pre-commit@latest
 
 # 3. shadcn/ui初期化
 pnpm dlx shadcn@latest init
@@ -160,6 +163,12 @@ pnpm add -D vitest @vitejs/plugin-react vite-tsconfig-paths jsdom
 | スタイリング | Tailwind CSS, CSS Modules, styled-components |
 | 状態管理 | React state, Zustand, Jotai |
 | テスト戦略 | Vitest + RTL, Playwright E2E, 両方 |
+| Linting | ESLintフル構成（推奨）, ESLint最小構成, Biome |
+| パッケージマネージャ | pnpm（推奨）, npm, yarn, bun |
+| pre-commitツール | pre-commit framework（推奨）, husky + lint-staged |
+| Node.jsバージョン戦略 | Current + LTS併用（推奨）, LTS統一 |
+| ORM | Prisma（推奨）, Drizzle, TypeORM |
+| バリデーション | Zod（推奨）, Valibot |
 
 ### 確認不要な場面
 
@@ -194,4 +203,4 @@ Reactの内部メカニズム、高度パターン、データ管理。
 
 ---
 
-**対象バージョン**: Next.js 16.x / React 19.x（詳細なバージョンは上記「対象技術スタック」を参照）
+**対象バージョン**: Next.js 16.x / React 19.x（詳細は上記「対象技術スタック」を参照）

@@ -1,17 +1,30 @@
-# Vitest + MSW テストガイド
+# Vitest + MSW + Playwright テストガイド
 
 ## 概要
 
-このプロジェクトでは、Vitestをテストランナー、MSW（Mock Service Worker）をAPIモックツールとして使用します。
+Next.jsプロジェクトのテスト戦略。Vitest（ユニット/統合テスト）、MSW（APIモック）、Playwright（E2Eテスト）の三層構成。
+
+## テスト配置戦略
+
+| テスト種別 | ツール | 配置場所 | 例 |
+|-----------|--------|---------|-----|
+| ユニット/統合 | Vitest | `src/` 内コロケーション | `src/lib/utils.test.ts` |
+| コンポーネント | Vitest + Testing Library | `src/` 内コロケーション | `src/components/button.test.tsx` |
+| E2E | Playwright | `test/e2e/` （プロジェクトルート直下） | `test/e2e/login.spec.ts` |
+
+**使い分けガイド:**
+- **Vitest（ユニット/統合）**: 関数のロジック、Server Action、コンポーネントの振る舞いをテスト。MSWでAPIモック
+- **Playwright（E2E）**: ユーザーフローの検証。ログイン→操作→結果確認のような画面横断テスト
 
 ## セットアップ
 
-### インストール
+### Vitestインストール
 
 ```bash
 pnpm add -D vitest @vitejs/plugin-react vite-tsconfig-paths jsdom
 pnpm add -D @testing-library/react @testing-library/jest-dom @testing-library/user-event
-pnpm add -D msw@2.11.6
+pnpm add -D @vitest/coverage-istanbul
+pnpm add -D msw
 ```
 
 ### Vitest設定
@@ -53,15 +66,17 @@ export default defineConfig({
     hookTimeout: 10000,
     teardownTimeout: 10000,
     fileParallelism: false,
-    pool: "forks",
+    pool: "threads",
     poolOptions: {
-      forks: {
-        singleFork: true, // メモリ不足対策
-        maxWorkers: 1,
-        minWorkers: 1,
+      threads: {
+        singleThread: true,
         isolate: false,
       },
     },
+    environmentMatchGlobs: [
+      ["src/**/*.test.ts", "node"],
+      ["src/**/*.test.tsx", "jsdom"],
+    ],
   },
   resolve: {
     alias: {
@@ -71,6 +86,13 @@ export default defineConfig({
 });
 ```
 
+**設定のポイント:**
+- `pool: "threads"`: ワーカースレッドを使用（forksよりメモリ効率が良い）
+- `singleThread: true` + `isolate: false`: メモリ消費を最小化
+- `fileParallelism: false`: ファイルレベルの並列実行を無効化（メモリ不足対策）
+- `environmentMatchGlobs`: `.test.ts` → `node`（高速）、`.test.tsx` → `jsdom`（DOM必要時のみ）
+- `coverage.provider: "istanbul"`: 安定したカバレッジ計測
+
 ### テストセットアップ
 
 ```typescript
@@ -79,7 +101,6 @@ import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
-// 各テスト後にクリーンアップ
 afterEach(() => {
   cleanup();
 });
@@ -90,7 +111,6 @@ afterEach(() => {
 ### セットアップ
 
 ```bash
-# MSWワーカー初期化
 npx msw init public/ --save
 ```
 
@@ -101,7 +121,6 @@ npx msw init public/ --save
 import { http, HttpResponse } from "msw";
 
 export const usersHandlers = [
-  // GET /api/users
   http.get("/api/users", () => {
     return HttpResponse.json([
       { id: "1", name: "John Doe", email: "john@example.com" },
@@ -109,7 +128,6 @@ export const usersHandlers = [
     ]);
   }),
 
-  // POST /api/users
   http.post("/api/users", async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json(
@@ -118,7 +136,6 @@ export const usersHandlers = [
     );
   }),
 
-  // GET /api/users/:id
   http.get("/api/users/:id", ({ params }) => {
     const { id } = params;
     return HttpResponse.json({
@@ -231,7 +248,6 @@ describe("Button", () => {
 import { describe, it, expect, vi } from "vitest";
 import { createUser } from "./create";
 
-// Prismaをモック
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     user: {
@@ -289,12 +305,124 @@ describe("UsersPage", () => {
 });
 ```
 
+## Playwright E2Eテスト
+
+### セットアップ
+
+```bash
+pnpm add -D @playwright/test
+npx playwright install chromium
+```
+
+### Playwright設定
+
+```typescript
+// playwright.config.ts
+import { defineConfig, devices } from "@playwright/test";
+
+const E2E_PORT = process.env.E2E_PORT ?? "13000";
+
+export default defineConfig({
+  testDir: "./test/e2e",
+
+  // CI環境は遅いため60秒に延長
+  timeout: 60 * 1000,
+
+  expect: {
+    timeout: 15000,
+  },
+
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+
+  // 失敗時の再試行回数（フレーキーテスト対策）
+  retries: process.env.CI ? 2 : 1,
+
+  // CI環境ではワーカーを1に制限して安定性向上
+  ...(process.env.CI ? { workers: 1 } : {}),
+
+  reporter: [
+    ["html", { outputFolder: "playwright-report" }],
+    ["junit", { outputFile: "test-results/junit.xml" }],
+    ["list"],
+  ],
+
+  use: {
+    baseURL: process.env.BASE_URL ?? `http://localhost:${E2E_PORT}`,
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
+
+    // テスト用認証スキップヘッダー
+    extraHTTPHeaders: {
+      "x-skip-auth": "true",
+    },
+  },
+
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+    // 必要に応じて追加
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
+    // },
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
+  ],
+
+  // テスト実行時に開発サーバーを自動起動
+  webServer: {
+    command: `NODE_ENV=test pnpm dev -p ${E2E_PORT}`,
+    url: `http://localhost:${E2E_PORT}`,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
+});
+```
+
+**設定のポイント:**
+- `testDir: "./test/e2e"`: プロジェクトルート直下に配置（Vitestのsrc内コロケーションと分離）
+- `E2E_PORT = 13000`: 開発サーバー（3000）との競合回避
+- `extraHTTPHeaders`: テスト用認証スキップパターン（proxy.tsで検査）
+- `webServer`: テスト実行時に開発サーバーを自動起動。CI環境では毎回新規起動
+- `retries`: CI環境で2回リトライ（フレーキーテスト対策）
+
+### E2Eテスト実行コマンド
+
+```bash
+# E2Eテスト実行
+pnpm test:e2e
+
+# UIモード（対話的にテストを実行）
+pnpm test:e2e:ui
+
+# ブラウザ表示ありで実行
+pnpm test:e2e:headed
+```
+
+### package.json設定
+
+```json
+{
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
+  }
+}
+```
+
 ## テスト実行
 
 ### 基本的なコマンド
 
 ```bash
-# すべてのテストを実行
+# すべてのユニットテストを実行
 pnpm test
 
 # UIモード（推奨）
@@ -307,14 +435,14 @@ pnpm coverage
 pnpm test:watch
 ```
 
-### package.json設定
+### package.json設定（Vitest）
 
 ```json
 {
   "scripts": {
-    "test": "vitest",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
     "test:ui": "vitest --ui",
-    "coverage": "vitest --coverage",
+    "coverage": "vitest run --coverage",
     "test:watch": "vitest --watch"
   }
 }
@@ -383,12 +511,10 @@ it("should create a user", async () => {
 **各テストは独立して実行可能:**
 ```typescript
 beforeEach(() => {
-  // テストごとに初期化
   localStorage.clear();
 });
 
 afterEach(() => {
-  // テストごとにクリーンアップ
   cleanup();
 });
 ```
@@ -396,10 +522,10 @@ afterEach(() => {
 ### 3. 意味のあるテスト名
 
 ```typescript
-// ✅ 良い例
+// 良い例
 it("should return error when email is invalid", () => {});
 
-// ❌ 悪い例
+// 悪い例
 it("test1", () => {});
 ```
 
@@ -482,7 +608,6 @@ import { createUser } from './create'
 import { createUserFixture } from '@/test/fixtures'
 import { UserRole, UserStatus } from '@/types/user'
 
-// Prismaモック
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
@@ -652,13 +777,22 @@ describe('createProject', () => {
 ```typescript
 {
   fileParallelism: false,
-  pool: "forks",
+  pool: "threads",
   poolOptions: {
-    forks: {
-      singleFork: true,
-      maxWorkers: 1,
+    threads: {
+      singleThread: true,
+      isolate: false,
     },
   },
+}
+```
+
+**NODE_OPTIONSでヒープサイズを拡大:**
+```json
+{
+  "scripts": {
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run"
+  }
 }
 ```
 
@@ -667,14 +801,30 @@ describe('createProject', () => {
 ```bash
 # MSWワーカー再初期化
 npx msw init public/ --save
-
-# 開発サーバー再起動
 ```
+
+### Playwright E2Eテストが不安定
+
+- `retries: 2`（CI環境）でフレーキーテスト対策
+- `timeout: 60 * 1000` でCI環境のタイムアウトを延長
+- `workers: 1`（CI環境）でリソース競合を回避
+
+---
+
+## AskUserQuestion（テスト構成の確認）
+
+プロジェクト初期設定時に確認する項目:
+
+| 確認項目 | 選択肢 | デフォルト |
+|---------|--------|----------|
+| E2Eフレームワーク | Playwright / Cypress | Playwright（推奨） |
+| カバレッジプロバイダ | istanbul / v8 | istanbul（推奨） |
 
 ## 参考資料
 
 - **Vitest公式**: https://vitest.dev
 - **MSW公式**: https://mswjs.io
+- **Playwright公式**: https://playwright.dev
 - **Testing Library**: https://testing-library.com
 
 ---

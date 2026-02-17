@@ -1,10 +1,10 @@
 # 開発ツール設定ガイド
 
-## mise（ツールバージョン管理）
+## mise（ツールバージョン管理 + タスクランナー）
 
 ### 概要
 
-miseは、Node.js、pnpm、pre-commit等のツールバージョンを統一管理するツールです（asdf、rtxの代替）。
+miseは、Node.js、pnpm、pre-commit等のツールバージョン統一管理に加え、タスクランナー機能も備えたツール（asdf、rtxの代替）。
 
 ### インストール
 
@@ -23,23 +23,26 @@ curl https://mise.run | sh
 
 **.mise.toml（プロジェクトルート）:**
 ```toml
-# mise configuration
-# https://mise.jdx.dev/configuration.html
+[settings]
+experimental = true
 
 [tools]
-node = "24.5.0"
-pnpm = "10.14.0"
+node = "24"      # Current（開発用）
+pnpm = "10"
 pre-commit = "latest"
 
 # 環境変数
 [env]
 _.file = ".env"
 
-# タスク定義
+# --- タスクランナー ---
+
+# 依存関係
 [tasks.install]
 description = "依存関係のインストール"
-run = ["pnpm install"]
+run = "pnpm install"
 
+# 開発サーバー
 [tasks.dev]
 description = "Next.js開発サーバーの起動"
 run = "pnpm dev"
@@ -48,14 +51,24 @@ run = "pnpm dev"
 description = "Next.jsアプリケーションのビルド"
 run = "pnpm build"
 
+[tasks.start]
+description = "Next.js本番サーバーの起動"
+run = "pnpm start"
+
+# テスト
 [tasks.test]
 description = "Vitestでテストを実行"
 run = "pnpm test"
+
+[tasks."test:e2e"]
+description = "PlaywrightでE2Eテストを実行"
+run = "pnpm test:e2e"
 
 [tasks."test:coverage"]
 description = "テストカバレッジレポートの生成"
 run = "pnpm coverage"
 
+# Lint/Format
 [tasks.lint]
 description = "ESLintの実行"
 run = "pnpm lint"
@@ -64,8 +77,9 @@ run = "pnpm lint"
 description = "Prettierでコードをフォーマット"
 run = "pnpm fmt"
 
-[tasks."check-app"]
-description = "すべてのチェックを実行（lint, format, test）"
+# 一括チェック
+[tasks."check-all"]
+description = "すべてのチェックを実行（build, lint, format, test）"
 run = [
   "SKIP_ENV_VALIDATION=true pnpm build || true",
   "pnpm lint",
@@ -73,27 +87,10 @@ run = [
   "pnpm test"
 ]
 
-# Docker tasks
-[tasks."docker:up"]
-description = "Dockerコンテナの起動（PostgreSQL + Keycloak）"
-run = "docker-compose up -d"
-
-[tasks."docker:down"]
-description = "Dockerコンテナの停止"
-run = "docker-compose down"
-
-[tasks."docker:logs"]
-description = "Dockerコンテナのログを表示"
-run = "docker-compose logs -f"
-
-[tasks."docker:clean"]
-description = "コンテナの停止とボリュームの削除"
-run = "docker-compose down -v"
-
+# クリーンアップ
 [tasks.clean]
 description = "プロジェクトのクリーンアップ"
 run = [
-  "docker-compose down -v",
   "rm -rf node_modules",
   "rm -rf .next"
 ]
@@ -106,10 +103,12 @@ run = [
 mise install
 
 # タスク実行
-mise run dev          # 開発サーバー起動
-mise run test         # テスト実行
-mise run build        # ビルド
-mise run docker:up    # Docker起動
+mise run dev            # 開発サーバー起動
+mise run test           # テスト実行
+mise run test:e2e       # E2Eテスト実行
+mise run build          # ビルド
+mise run check-all      # 全チェック実行
+mise run clean          # クリーンアップ
 ```
 
 ## TypeScript設定
@@ -139,7 +138,6 @@ mise run docker:up    # Docker起動
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
 
     "plugins": [
       {
@@ -155,9 +153,11 @@ mise run docker:up    # Docker起動
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "postcss.config.cjs"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "eslint.config.mjs"]
 }
 ```
 
@@ -167,15 +167,23 @@ mise run docker:up    # Docker起動
 |------|------|
 | `strict: true` | 厳格な型チェック有効（必須） |
 | `noUnusedLocals: true` | 未使用変数エラー |
-| `noUncheckedIndexedAccess: true` | 配列・オブジェクトアクセス時の安全性向上 |
-| `exactOptionalPropertyTypes: true` | オプションプロパティの厳格化 |
+| `noUnusedParameters: true` | 未使用パラメータエラー |
+| `noImplicitReturns: true` | 暗黙的なreturnの禁止 |
+| `noFallthroughCasesInSwitch: true` | switch文のフォールスルー禁止 |
+| `noUncheckedIndexedAccess: true` | 配列・オブジェクトアクセス時の安全性向上（`T \| undefined`を強制） |
 | `paths` | パスエイリアス設定（`@/`でsrcディレクトリ参照） |
+
+> **注意**: `exactOptionalPropertyTypes`はライブラリ互換性の問題が多いため、プロダクションでは使用していない。
 
 ## ESLint設定（Flat Config）
 
 ### eslint.config.mjs
 
 ```javascript
+/* eslint-disable import-x/no-named-as-default-member */
+
+import comments from "@eslint-community/eslint-plugin-eslint-comments/configs";
+import react from "@eslint-react/eslint-plugin";
 import js from "@eslint/js";
 import nextPlugin from "@next/eslint-plugin-next";
 import prettierConfig from "eslint-config-prettier";
@@ -187,6 +195,10 @@ import security from "eslint-plugin-security";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+// Tailwind CSS v4との互換性: eslint-plugin-tailwindcss は
+// まだv4に完全対応していないため一時的に無効化（安定版リリースを待つ）
+// import tailwind from "eslint-plugin-tailwindcss";
+
 const config = tseslint.config(
   {
     ignores: [
@@ -196,13 +208,16 @@ const config = tseslint.config(
       "public/mockServiceWorker.js",
       "coverage",
       "wt-*/**",
+      "playwright-report/**",
     ],
   },
+  // Base
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   eslintPluginImportX.flatConfigs.recommended,
   eslintPluginImportX.flatConfigs.typescript,
+  comments.recommended,
   regexPlugin.configs["flat/recommended"],
   security.configs.recommended,
 
@@ -220,12 +235,17 @@ const config = tseslint.config(
     plugins: {
       "react-compiler": reactCompilerPlugin,
     },
-    rules: {
-      "react-compiler/react-compiler": "error", // 必須
-    },
   },
+  react.configs["recommended-type-checked"],
+
+  // Tailwind CSS v4との互換性: eslint-plugin-tailwindcss は
+  // まだv4に完全対応していないため一時的に無効化（安定版リリースを待つ）
+  // ...tailwind.configs["flat/recommended"],
 
   {
+    linterOptions: {
+      reportUnusedDisableDirectives: false,
+    },
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
@@ -241,6 +261,16 @@ const config = tseslint.config(
         ...globals.node,
       },
     },
+    // Tailwind CSS v4との互換性: eslint-plugin-tailwindcss は
+    // まだv4に完全対応していないため一時的に無効化（安定版リリースを待つ）
+    // settings: {
+    //   tailwindcss: {
+    //     callees: ["classnames", "clsx", "ctl", "cn", "cva"],
+    //     config: "tailwind.config.js",
+    //     cssFiles: ["src/app/globals.css"],
+    //     skipClassAttribute: false,
+    //   },
+    // },
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
@@ -257,6 +287,18 @@ const config = tseslint.config(
         { checksVoidReturn: { attributes: false } },
       ],
 
+      "@typescript-eslint/no-unnecessary-condition": [
+        "error",
+        {
+          allowConstantLoopConditions: true,
+        },
+      ],
+
+      "@typescript-eslint/consistent-type-exports": [
+        "error",
+        { fixMixedExportsWithInlineTypeSpecifier: true },
+      ],
+
       // 型安全性の強化（any型の使用禁止）
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unsafe-assignment": "error",
@@ -265,7 +307,28 @@ const config = tseslint.config(
       "@typescript-eslint/no-unsafe-return": "error",
       "@typescript-eslint/no-unsafe-argument": "error",
 
+      "import-x/no-unresolved": [
+        "error",
+        { ignore: ["geist", "./.next/types/routes.d.ts"] },
+      ],
       "react-compiler/react-compiler": "error",
+    },
+  },
+
+  // CJSファイル用override
+  {
+    files: ["**/*.cjs", "**/*.cts"],
+    languageOptions: {
+      sourceType: "commonjs",
+    },
+  },
+
+  // テストファイル用override（テストではany関連を緩和）
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: {
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
     },
   },
 
@@ -275,6 +338,24 @@ const config = tseslint.config(
 export default config;
 ```
 
+### 必要パッケージ
+
+```bash
+pnpm add -D \
+  @eslint/js \
+  typescript-eslint \
+  eslint-plugin-import-x \
+  @eslint-community/eslint-plugin-eslint-comments \
+  eslint-plugin-regexp \
+  eslint-plugin-security \
+  @next/eslint-plugin-next \
+  eslint-plugin-react-hooks \
+  eslint-plugin-react-compiler \
+  @eslint-react/eslint-plugin \
+  eslint-config-prettier \
+  globals
+```
+
 ### 重要なルール
 
 | ルール | 説明 |
@@ -282,33 +363,62 @@ export default config;
 | `react-compiler/react-compiler: "error"` | React Compiler最適化（必須） |
 | `@typescript-eslint/no-explicit-any: "error"` | any型禁止（`enforcing-type-safety`スキル参照） |
 | `@typescript-eslint/consistent-type-imports` | 型インポート分離 |
+| `@typescript-eslint/no-unnecessary-condition` | 不要な条件式検出（型情報ベース） |
+| `@typescript-eslint/consistent-type-exports` | 型エクスポート分離 |
+| `import-x/no-unresolved` | 未解決インポート検出（geist等は除外） |
+| `comments.recommended` | ESLintディレクティブコメントの品質管理 |
+| `react.configs["recommended-type-checked"]` | 型チェック付きReactルール |
 
 ## Prettier設定
 
-### .prettierrc
+### 方針
+
+Prettierはデフォルト設定を推奨する。設定ファイルを最小化することで、チーム間の不要な議論を減らし、Prettierのバージョンアップ時の互換性を維持する。
+
+### .prettierrc（最小構成）
+
+空ファイルまたはファイルなし（デフォルト設定を使用）。明示的に設定する場合:
 
 ```json
-{
-  "semi": true,
-  "singleQuote": false,
-  "tabWidth": 2,
-  "trailingComma": "es5",
-  "printWidth": 100
-}
+{}
 ```
+
+### .prettierignore
+
+```
+.next
+node_modules
+coverage
+pnpm-lock.yaml
+playwright-report
+```
+
+### 参考: デフォルト設定値
+
+| 設定 | デフォルト値 |
+|------|-------------|
+| `printWidth` | 80 |
+| `tabWidth` | 2 |
+| `useTabs` | false |
+| `semi` | true |
+| `singleQuote` | false |
+| `trailingComma` | "all" |
 
 ### package.jsonスクリプト
 
 ```json
 {
   "scripts": {
-    "fmt": "prettier --write .",
-    "fmt:check": "prettier --check ."
+    "fmt": "prettier --write ."
   }
 }
 ```
 
 ## pre-commit（Git Hooks）
+
+### 概要
+
+pre-commit frameworkを使用してコミット時の品質チェックを自動化する。`fail_fast: true`により最初のエラーで停止し、無駄な実行を避ける。
 
 ### セットアップ
 
@@ -323,50 +433,97 @@ pre-commit install
 ### .pre-commit-config.yaml
 
 ```yaml
+# 最初のエラーで停止する（後続のフックを実行しない）
+fail_fast: true
+
 repos:
+  # ローカルフック（prettier → eslint → vitest の順序）
+  - repo: local
+    hooks:
+      # Prettier - コードフォーマット（自動修正 + 自動ステージング）
+      - id: prettier
+        name: prettier
+        entry: bash -c 'eval "$(mise activate bash)" && pnpm fmt && git diff --name-only | xargs git add'
+        language: system
+        pass_filenames: false
+        files: \.(js|jsx|ts|tsx|json|css|md)$
+
+      # ESLint - 静的解析（自動修正 + 自動ステージング）
+      - id: eslint
+        name: eslint
+        entry: bash -c 'eval "$(mise activate bash)" && pnpm lint --fix && git diff --name-only | xargs git add'
+        language: system
+        pass_filenames: false
+        files: \.(js|jsx|ts|tsx)$
+
+      # Vitest - ユニットテスト実行
+      - id: vitest
+        name: vitest
+        entry: bash -c 'eval "$(mise activate bash)" && pnpm test'
+        language: system
+        pass_filenames: false
+        files: \.(js|jsx|ts|tsx)$
+
+      # Playwright - E2Eテスト（手動実行のみ）
+      # 実行: pre-commit run --hook-stage manual playwright
+      - id: playwright
+        name: playwright e2e (manual)
+        entry: bash -c 'eval "$(mise activate bash)" && pnpm test:e2e'
+        language: system
+        pass_filenames: false
+        files: \.(js|jsx|ts|tsx)$
+        stages: [manual]
+
+  # 汎用フック（プロジェクト全体）
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+        args: ["--unsafe"]
+      - id: check-json
       - id: check-added-large-files
-
-  - repo: local
-    hooks:
-      - id: eslint
-        name: eslint
-        entry: pnpm lint
-        language: system
-        files: \.(ts|tsx|js|jsx)$
-
-      - id: prettier
-        name: prettier
-        entry: pnpm fmt
-        language: system
-        files: \.(ts|tsx|js|jsx|json|md)$
+        args: ["--maxkb=5120"]
+      - id: check-merge-conflict
 ```
+
+> **ポイント**: `eval "$(mise activate bash)"`によりhook内でmise管理のツールバージョンを使用する。CIとローカルでツールバージョンの差異が発生しない。
 
 ## package.json スクリプト
 
 ```json
 {
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "coverage": "vitest --coverage",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
+    "test:e2e": "playwright test",
+    "coverage": "vitest run --coverage",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "fmt": "prettier --write .",
-    "fmt:check": "prettier --check .",
-    "type-check": "tsc --noEmit",
-    "check-app": "pnpm type-check && pnpm lint && pnpm test"
+    "migrate:create": "tsx scripts/create-migration.ts",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:status": "prisma migrate status",
+    "postinstall": "prisma generate",
+    "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not installed, skipping hook installation'"
   }
 }
 ```
+
+### スクリプト解説
+
+| スクリプト | 説明 |
+|-----------|------|
+| `test` | `--max-old-space-size=4096`でメモリ上限を拡張してVitest実行 |
+| `test:e2e` | Playwright E2Eテスト |
+| `coverage` | Vitestカバレッジレポート生成 |
+| `migrate:create` | Prismaマイグレーション作成（カスタムスクリプト経由） |
+| `migrate:deploy` | Prismaマイグレーション適用 |
+| `migrate:status` | Prismaマイグレーション状態確認 |
+| `postinstall` | `pnpm install`後に自動でPrismaクライアント生成 |
+| `prepare` | Git hook（pre-commit）の自動インストール |
 
 ## 環境変数管理
 
@@ -374,14 +531,14 @@ repos:
 
 ```bash
 # Next.js
-NEXT_PUBLIC_BASE_URL=http://localhost:3001
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
 NODE_ENV=development
 
 # Database
 DATABASE_URL=postgresql://user:password@localhost:5432/dbname
 
-# NextAuth
-NEXTAUTH_URL=http://localhost:3001
+# Authentication
+NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-secret-here
 
 # Logging
@@ -419,8 +576,7 @@ export const env = envSchema.parse(process.env);
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "eslint.experimental.useFlatConfig": true
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
 ```
 
@@ -444,6 +600,7 @@ export const env = envSchema.parse(process.env);
 - **TypeScript公式**: https://www.typescriptlang.org
 - **ESLint公式**: https://eslint.org
 - **Prettier公式**: https://prettier.io
+- **pre-commit公式**: https://pre-commit.com
 
 ---
 

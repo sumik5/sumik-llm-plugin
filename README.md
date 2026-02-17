@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (8個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (61個)
+└── skills/             # ナレッジスキル (64個)
 ```
 
 ---
@@ -58,7 +58,7 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 
-### Skills (61個)
+### Skills (64個)
 
 #### コア開発
 
@@ -120,7 +120,8 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `automating-browser` | ブラウザ自動化統合（Playwright MCP・CLIエージェント・E2Eテスト・アクセシビリティ・ビジュアルリグレッション・認証・フォーム） |
+| `automating-browser` | Browser Agent CLIによるブラウザ操作自動化（セマンティックロケーター、状態永続化、ネットワーク傍受） |
+| `testing-e2e-with-playwright` | Playwright Testによる包括的E2Eテスト（ロケーター戦略・フィクスチャ/POM・モッキング・エミュレーション・信頼性・CI/CD・拡張・アクセシビリティ・ビジュアルリグレッション・認証・フォーム・AI生成・実践パターン） |
 
 #### インフラ・ツール
 
@@ -131,7 +132,7 @@ sumik-claude-plugin/
 | `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm含む） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
-| `developing-terraform` | Terraform IaC開発（HCL構文/モジュール設計/ステート管理/AWS構築） |
+| `developing-terraform` | Terraform/Terragrunt IaC開発（HCL・モジュール・ステート・Terragrunt・mise・AWS/GCP） |
 | `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 | `practicing-devops` | DevOps方法論・IaCツール選定・オーケストレーション比較・CI/CD・プラットフォームエンジニアリング |
 | `using-anki-mcp` | Anki MCP Server統合（デッキ管理・カードレビュー・ノートタイプ・メディア管理・GUI統合） |

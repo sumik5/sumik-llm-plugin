@@ -2,13 +2,13 @@
 
 ## 概要
 
-このプロジェクトでは、Tailwind CSS（最新版）とshadcn/uiを使用してスタイリングを行います。
+Tailwind CSS 4.x + shadcn/ui 3.x を使用したスタイリングガイド。
 
-## Tailwind CSS（最新版）
+## Tailwind CSS 4.x
 
 ### セットアップ
 
-> **重要**: Tailwind CSS最新版はCSS-first設定を採用。`@tailwind`ディレクティブは廃止され、`@import "tailwindcss"`を使用する。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。
+> **重要**: Tailwind CSS 4.xはCSS-first設定を採用。`@tailwind`ディレクティブは廃止され、`@import "tailwindcss"`を使用する。`tailwind.config.js`はプラグインやshadcn/ui互換のために共存可能。
 
 **インストール:**
 ```bash
@@ -137,14 +137,14 @@ export default {
 ```
 
 > **構成のポイント:**
-> - `@import "tailwindcss"` + `@theme`ブロック: CSS-first設定（最新版の標準）
+> - `@import "tailwindcss"` + `@theme`ブロック: CSS-first設定（4.xの標準）
 > - `tailwind.config.js`: プラグイン（`tailwindcss-animate`）、`darkMode`設定、shadcn/ui互換のために共存
 > - CSS変数 `hsl(var(--xxx))` 形式: shadcn/uiとの統合パターン
 > - `:root` / `.dark` セレクタ: ライト/ダークモードの切り替え
 
 ### 旧バージョンとの主な違い（旧バージョンの書き方は使わないこと）
 
-| 項目 | ❌ 旧バージョン（禁止） | ✅ 最新版（必須） |
+| 項目 | ❌ 旧バージョン（禁止） | ✅ 4.x（必須） |
 |---|---|---|
 | CSS読み込み | `@tailwind base/components/utilities;` | `@import "tailwindcss";` |
 | テーマトークン | JS内のみで定義 | CSS内の`@theme { }`で定義可能 |
@@ -178,7 +178,7 @@ export default {
 pnpm dlx shadcn@latest init
 ```
 
-**components.json（自動生成）:**
+**components.json:**
 ```json
 {
   "$schema": "https://ui.shadcn.com/schema.json",
