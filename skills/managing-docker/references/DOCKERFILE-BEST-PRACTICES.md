@@ -503,3 +503,372 @@ docker build --target production -t myapp:prod .
 - COPY前の.dockerignore確認（常に必須）
 - 不要パッケージの削除（常に実施）
 - LABELメタデータの付与（常に推奨）
+
+---
+
+## ベースイメージ選択ガイド
+
+### イメージ種類の比較
+
+| イメージ種類 | サイズ | 含まれるもの | 適用場面 | 注意点 |
+|------------|--------|------------|---------|--------|
+| **slim** | 中 | OSパッケージマネージャー、基本ライブラリ | 一般的な本番環境 | デバッグツールなし |
+| **alpine** | 小 | musl libc、apkパッケージマネージャー | サイズ最優先の環境 | glibc非互換、一部ツール動作不可 |
+| **distroless** | 最小 | ランタイムのみ（シェルなし） | セキュリティ最優先 | デバッグ困難、マルチステージビルド必須 |
+
+### 選択基準
+
+**slim を選ぶべき場合:**
+- 幅広いライブラリ互換性が必要
+- デバッグツールが必要
+- glibc依存のバイナリを使用
+
+**alpine を選ぶべき場合:**
+- イメージサイズ削減が最優先
+- シンプルな依存関係
+- musl libc互換のアプリケーション
+
+**distroless を選ぶべき場合:**
+- セキュリティが最優先（攻撃対象領域最小化）
+- 静的バイナリまたはランタイムのみ必要
+- 本番環境の最終イメージ
+
+### 具体例
+
+```dockerfile
+# slim例（Node.js）
+FROM node:20-slim
+# メリット: npm、基本ツール含む
+# デメリット: 200MB程度
+
+# alpine例（Node.js）
+FROM node:20-alpine
+# メリット: 40MB程度
+# デメリット: native拡張でビルドツール追加が必要
+
+# distroless例（Go）
+FROM gcr.io/distroless/static:nonroot
+# メリット: 10MB以下、シェルなし
+# デメリット: デバッグ不可
+```
+
+---
+
+## レイヤー解析ツール
+
+### docker history
+
+**用途:** イメージのレイヤー構造とサイズを確認
+
+```bash
+# 基本構文
+docker history myimage:latest
+
+# サイズを人間が読みやすい形式で表示
+docker history --human myimage:latest
+
+# 完全なコマンドを表示（省略なし）
+docker history --no-trunc myimage:latest
+```
+
+**出力例:**
+```
+IMAGE          CREATED        CREATED BY                                      SIZE
+abc123         2 hours ago    /bin/sh -c npm install                          45.2MB
+def456         2 hours ago    /bin/sh -c #(nop) COPY . /app                   1.2MB
+ghi789         3 days ago     /bin/sh -c #(nop) FROM node:20-alpine           40MB
+```
+
+### Dive
+
+**用途:** レイヤーごとのファイル変更を可視化
+
+**インストール:**
+```bash
+# macOS
+brew install dive
+
+# Linux
+wget https://github.com/wagoodman/dive/releases/download/v0.11.0/dive_0.11.0_linux_amd64.deb
+sudo dpkg -i dive_0.11.0_linux_amd64.deb
+```
+
+**使用方法:**
+```bash
+# イメージ解析
+dive myimage:latest
+
+# CI/CD統合（効率スコアチェック）
+CI=true dive myimage:latest --ci-config .dive-ci.yaml
+```
+
+**画面操作:**
+- `Tab`: レイヤービュー ↔ ファイルビュー切り替え
+- `Ctrl+U`: 未変更ファイル表示切り替え
+- `Ctrl+W`: 無駄なファイル表示
+
+### DockerSlim
+
+**用途:** イメージの自動最適化（最大30倍削減）
+
+**インストール:**
+```bash
+curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -
+```
+
+**使用方法:**
+```bash
+# 基本的な最適化
+slim build --target myimage:latest
+
+# HTTPプローブ付き
+slim build --target myimage:latest --http-probe
+
+# 特定ファイル保持
+slim build --target myimage:latest --include-path /app/config
+```
+
+### Hadolint
+
+**用途:** Dockerfileの静的解析
+
+**インストール:**
+```bash
+# macOS
+brew install hadolint
+
+# Docker経由
+docker run --rm -i hadolint/hadolint < Dockerfile
+```
+
+**よく検出される問題:**
+- DL3006: `:latest`タグの使用
+- DL3008: `--no-install-recommends`未使用
+- DL3009: `apt-get clean`未実施
+- DL3015: `yum clean all`未実施
+
+**CI/CD統合（GitHub Actions）:**
+```yaml
+- name: Lint Dockerfile
+  uses: hadolint/hadolint-action@v3.1.0
+  with:
+    dockerfile: Dockerfile
+```
+
+---
+
+## ARGパターン
+
+### 基本構文
+
+```dockerfile
+# ビルド引数定義
+ARG PYTHON_VERSION=3.12
+ARG NODE_ENV=production
+
+# ベースイメージで使用
+FROM python:${PYTHON_VERSION}-slim
+
+# レイヤー内で使用
+RUN echo "Environment: ${NODE_ENV}"
+```
+
+### 柔軟なビルド設定
+
+```dockerfile
+# バージョン指定
+ARG GO_VERSION=1.23
+FROM golang:${GO_VERSION}-alpine AS builder
+
+# 環境別ビルド
+ARG BUILD_ENV=production
+RUN if [ "$BUILD_ENV" = "development" ]; then \
+      go build -tags dev -o app; \
+    else \
+      go build -ldflags "-w -s" -o app; \
+    fi
+```
+
+### ビルド時の指定
+
+```bash
+# カスタムバージョンでビルド
+docker build --build-arg PYTHON_VERSION=3.11 -t myapp:latest .
+
+# 複数ARG指定
+docker build \
+  --build-arg NODE_ENV=staging \
+  --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+  -t myapp:staging .
+```
+
+### セキュリティ注意点
+
+```dockerfile
+# ❌ 機密情報をARGに含めない（履歴に残る）
+ARG DATABASE_PASSWORD=secret123
+
+# ✅ BuildKit secretsを使用
+# syntax=docker/dockerfile:1
+FROM alpine
+RUN --mount=type=secret,id=db_password \
+    export PASSWORD=$(cat /run/secrets/db_password) && \
+    setup-database
+```
+
+---
+
+## 本番最適化
+
+### 開発依存の削除
+
+**Node.js:**
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app .
+USER node
+CMD ["node", "server.js"]
+```
+
+**Python:**
+```dockerfile
+FROM python:3.12-slim AS builder
+WORKDIR /app
+RUN pip install --no-cache-dir uv
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+
+FROM python:3.12-slim
+WORKDIR /app
+COPY --from=builder /app/.venv /app/.venv
+COPY . .
+USER nobody
+CMD ["python", "-m", "app"]
+```
+
+### 非rootユーザー実行
+
+```dockerfile
+# パターン1: 既存ユーザー使用（Node.js）
+FROM node:20-alpine
+WORKDIR /app
+COPY --chown=node:node . .
+USER node
+CMD ["node", "app.js"]
+
+# パターン2: カスタムユーザー作成
+FROM alpine
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+WORKDIR /app
+COPY --chown=appuser:appgroup . .
+USER appuser
+CMD ["./app"]
+
+# パターン3: 数値UID使用（distroless）
+FROM gcr.io/distroless/static:nonroot
+COPY --chown=65532:65532 app /app
+USER 65532:65532
+ENTRYPOINT ["/app"]
+```
+
+### 環境変数の設定
+
+```dockerfile
+FROM node:20-alpine
+
+# 本番環境設定
+ENV NODE_ENV=production \
+    PORT=3000 \
+    LOG_LEVEL=info
+
+# パフォーマンスチューニング
+ENV NODE_OPTIONS="--max-old-space-size=2048" \
+    UV_THREADPOOL_SIZE=4
+
+WORKDIR /app
+COPY . .
+RUN npm ci --only=production
+
+USER node
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
+
+### ヘルスチェック設定
+
+```dockerfile
+FROM nginx:alpine
+
+# ヘルスチェック追加
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:80/health || exit 1
+
+COPY nginx.conf /etc/nginx/nginx.conf
+```
+
+### セキュリティ強化
+
+```dockerfile
+FROM node:20-alpine
+
+# セキュリティパッケージ更新
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache dumb-init && \
+    rm -rf /var/cache/apk/*
+
+# 非rootユーザー
+USER node
+WORKDIR /app
+
+# 読み取り専用ファイルシステム対応
+COPY --chown=node:node . .
+RUN npm ci --only=production
+
+# dumb-init使用（PID 1問題回避）
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["node", "server.js"]
+```
+
+### 完全な本番最適化例
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:20-alpine AS builder
+WORKDIR /build
+COPY package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+COPY . .
+
+FROM node:20-alpine AS production
+# セキュリティ更新
+RUN apk update && apk upgrade && rm -rf /var/cache/apk/*
+
+# dumb-init追加
+RUN apk add --no-cache dumb-init
+
+WORKDIR /app
+COPY --from=builder --chown=node:node /build .
+
+# 環境変数設定
+ENV NODE_ENV=production \
+    PORT=3000
+
+# ヘルスチェック
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD node healthcheck.js
+
+# 非rootユーザー
+USER node
+EXPOSE 3000
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]
+```

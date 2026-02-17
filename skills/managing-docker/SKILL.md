@@ -1,13 +1,15 @@
 ---
 name: managing-docker
 description: >-
-  Comprehensive Docker development and operations guide covering Engine internals, images, containers, Compose, networking, volumes, security, AI (Model Runner), and Wasm.
+  Comprehensive Docker development and operations guide covering Engine internals, images, containers, Compose, networking, volumes, security, AI (Model Runner), Wasm,
+  development workflows (hot reload, debugging, CI/CD), database containerization (PostgreSQL, MySQL, MongoDB, Redis), monitoring/logging (Prometheus, Grafana, ELK), and deployment strategies (Blue-Green, Canary, private registries).
   MUST load when Dockerfile, docker-compose.yml, docker-compose.yaml, or .dockerignore is detected.
-  Covers container management via Docker MCP, multi-stage builds, cache optimization, security hardening, and image size minimization.
+  Covers container management via Docker MCP, multi-stage builds, cache optimization, security hardening, supply chain security, and image size minimization.
   For Terraform IaC, use developing-terraform instead.
   For Google Cloud development and security (Cloud Run, IAM, VPC, KMS), use developing-google-cloud instead.
   For AWS development (EKS, Lambda, CDK), use developing-aws instead.
   For broader DevOps methodology and orchestration strategy, use practicing-devops instead.
+  For general monitoring design and SLO strategy, use designing-monitoring instead.
 ---
 
 # Docker開発環境管理
@@ -148,13 +150,17 @@ Dockerの各トピックについて、詳細なリファレンスを用意し�
 | Engine内部構造 | [ENGINE.md](./references/ENGINE.md) | containerd, runc, shimアーキテクチャ |
 | イメージ管理 | [IMAGES.md](./references/IMAGES.md) | レイヤー、レジストリ、マニフェスト |
 | コンテナ管理 | [CONTAINERS.md](./references/CONTAINERS.md) | ライフサイクル、再起動ポリシー |
-| Dockerfile | [DOCKERFILE-BEST-PRACTICES.md](./references/DOCKERFILE-BEST-PRACTICES.md) | マルチステージビルド、キャッシュ最適化 |
+| Dockerfile | [DOCKERFILE-BEST-PRACTICES.md](./references/DOCKERFILE-BEST-PRACTICES.md) | マルチステージビルド、キャッシュ最適化、ベースイメージ選択、レイヤー解析ツール |
 | Compose | [COMPOSE.md](./references/COMPOSE.md) | マルチコンテナアプリ管理 |
 | ネットワーク | [NETWORKING.md](./references/NETWORKING.md) | CNM, bridge, overlay, service discovery |
-| ボリューム | [VOLUMES.md](./references/VOLUMES.md) | 永続データ管理 |
-| セキュリティ | [SECURITY.md](./references/SECURITY.md) | namespaces, cgroups, Scout, DCT |
+| ボリューム | [VOLUMES.md](./references/VOLUMES.md) | 永続データ管理、ステートフルコンテナパターン、ホストボリューム |
+| セキュリティ | [SECURITY.md](./references/SECURITY.md) | namespaces, cgroups, Scout, DCT, サプライチェーンセキュリティ |
 | AI & Wasm | [AI-WASM.md](./references/AI-WASM.md) | Docker Model Runner, WebAssembly |
 | Swarm | [SWARM.md](./references/SWARM.md) | オーケストレーション基礎（軽量版） |
+| 開発ワークフロー | [DEV-WORKFLOWS.md](./references/DEV-WORKFLOWS.md) | ホットリロード、デバッグ、CI/CD統合、テスト実行 |
+| DB連携 | [DATABASES.md](./references/DATABASES.md) | PostgreSQL, MySQL, MongoDB, Redis コンテナ化、レプリケーション |
+| 監視・ロギング | [MONITORING-LOGGING.md](./references/MONITORING-LOGGING.md) | ログドライバー、Prometheus+Grafana、ELKスタック |
+| デプロイ戦略 | [DEPLOYMENT.md](./references/DEPLOYMENT.md) | CI/CD、Blue-Green/Canary、プライベートレジストリ |
 
 ## 📝 Dockerfileベストプラクティス
 

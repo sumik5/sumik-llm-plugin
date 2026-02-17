@@ -483,6 +483,290 @@ docker run \
 
 ---
 
+## サプライチェーンセキュリティ
+
+コンテナイメージのライフサイクル全体を通じて、完全性と信頼性を保証するためのプラクティス。
+
+### 主要な脅威
+
+| 脅威 | リスク | 対策 |
+|------|--------|------|
+| **改ざんされたイメージ** | マルウェア混入、バックドア | イメージ署名・検証 |
+| **脆弱な依存関係** | 既知の脆弱性悪用 | SBOM生成・継続的スキャン |
+| **信頼できない提供元** | 悪意あるイメージ | 公式・検証済みイメージのみ使用 |
+| **供給経路攻撃** | ビルドプロセス侵害 | 署名付きビルド、監査ログ |
+
+---
+
+### Docker Content Trust (DCT)
+
+**役割:** イメージの発行元検証と改ざん検知
+
+#### 基本ワークフロー
+
+```bash
+# 1. DCT有効化
+export DOCKER_CONTENT_TRUST=1
+
+# 2. イメージ署名してプッシュ
+docker trust sign myrepo/myimage:v1.0
+
+# 3. プル時に自動検証
+docker pull myrepo/myimage:v1.0
+```
+
+#### 署名の確認
+
+```bash
+# 署名情報表示
+docker trust inspect --pretty myrepo/myimage:v1.0
+
+# 出力例:
+# Signatures for myrepo/myimage:v1.0
+#
+# SIGNED TAG          DIGEST                                                             SIGNERS
+# v1.0                sha256:a12b3c4d...                                                 alice
+```
+
+#### 鍵管理
+
+```bash
+# 新規鍵ペア生成
+docker trust key generate mykey
+
+# 鍵をリポジトリに関連付け
+docker trust signer add --key mykey.pub mykey myrepo/myimage
+
+# 鍵リスト表示
+docker trust key list
+```
+
+---
+
+### Cosign署名
+
+**特徴:** Sigstoreプロジェクトのコンテナ署名ツール（OCI標準）
+
+#### インストール
+
+```bash
+# macOS
+brew install cosign
+
+# Linux
+curl -LO https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
+sudo install cosign-linux-amd64 /usr/local/bin/cosign
+```
+
+#### 基本操作
+
+```bash
+# 1. 鍵ペア生成
+cosign generate-key-pair
+
+# 2. イメージ署名
+cosign sign --key cosign.key myrepo/myimage:v1.0
+
+# 3. 署名検証
+cosign verify --key cosign.pub myrepo/myimage:v1.0
+```
+
+#### Keyless署名（OIDC認証）
+
+```bash
+# GitHub ActionsなどのCI/CD環境で鍵管理不要
+cosign sign --oidc-issuer https://token.actions.githubusercontent.com \
+  myrepo/myimage:v1.0
+
+# 検証
+cosign verify --certificate-identity user@example.com \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  myrepo/myimage:v1.0
+```
+
+---
+
+### SBOM生成
+
+**SBOM (Software Bill of Materials):** イメージ内のすべてのソフトウェアコンポーネントリスト
+
+#### docker sbom
+
+```bash
+# SBOM生成（SPDX形式）
+docker sbom myimage:latest
+
+# JSONファイルに出力
+docker sbom myimage:latest --format spdx-json --output sbom.json
+
+# Syftフォーマット
+docker sbom myimage:latest --format syft-json > sbom-syft.json
+```
+
+#### Syft（高機能SBOM生成）
+
+```bash
+# インストール
+curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+# SBOM生成
+syft myimage:latest -o spdx-json > sbom.spdx.json
+
+# 複数フォーマット出力
+syft myimage:latest -o cyclonedx-json -o spdx-json
+```
+
+#### CI/CD統合
+
+```yaml
+# GitHub Actions例
+- name: Generate SBOM
+  uses: anchore/sbom-action@v0
+  with:
+    image: myrepo/myimage:v1.0
+    format: spdx-json
+    output-file: sbom.spdx.json
+
+- name: Upload SBOM
+  uses: actions/upload-artifact@v4
+  with:
+    name: sbom
+    path: sbom.spdx.json
+```
+
+---
+
+### イメージ来歴検証
+
+#### SLSA (Supply chain Levels for Software Artifacts)
+
+**目的:** ビルドプロセスの完全性検証
+
+```bash
+# SLSA Provenance生成（BuildKitで自動）
+docker buildx build --provenance=true -t myimage:v1.0 .
+
+# Provenance確認
+docker buildx imagetools inspect myimage:v1.0 --format '{{json .Provenance}}'
+```
+
+#### In-toto Attestation
+
+```bash
+# cosignでattestationを付与
+cosign attest --key cosign.key --predicate attestation.json myimage:v1.0
+
+# 検証
+cosign verify-attestation --key cosign.pub myimage:v1.0
+```
+
+---
+
+### 完全なサプライチェーンセキュリティワークフロー
+
+#### 1. ビルド時
+
+```bash
+# マルチステージビルド + SBOM生成
+docker buildx build \
+  --provenance=true \
+  --sbom=true \
+  --platform linux/amd64,linux/arm64 \
+  -t myrepo/myimage:v1.0 \
+  --push .
+```
+
+#### 2. 署名
+
+```bash
+# Cosignで署名
+cosign sign --key cosign.key myrepo/myimage:v1.0
+
+# DCTでも署名（二重検証）
+export DOCKER_CONTENT_TRUST=1
+docker trust sign myrepo/myimage:v1.0
+```
+
+#### 3. スキャン
+
+```bash
+# 脆弱性スキャン
+docker scout cves myrepo/myimage:v1.0
+
+# SBOM基準のスキャン
+syft myrepo/myimage:v1.0 -o json | grype
+```
+
+#### 4. デプロイ時検証
+
+```bash
+# 署名検証
+cosign verify --key cosign.pub myrepo/myimage:v1.0
+
+# ポリシーチェック（Kyverno/OPA）
+kubectl run test --image=myrepo/myimage:v1.0
+# → Admission Controllerで署名検証
+```
+
+---
+
+### ベストプラクティス
+
+| フェーズ | アクション | ツール |
+|---------|----------|--------|
+| **ビルド** | 公式ベースイメージ使用、マルチステージビルド | Dockerfile, BuildKit |
+| **署名** | イメージ署名、SBOM生成 | Cosign, Docker Content Trust |
+| **スキャン** | 脆弱性検出、ポリシー準拠確認 | Docker Scout, Trivy, Grype |
+| **検証** | デプロイ前の署名・SBOM検証 | Cosign, Kyverno, OPA |
+| **監視** | 継続的脆弱性スキャン、更新通知 | Docker Scout, Snyk |
+
+---
+
+### CI/CD統合例（GitHub Actions）
+
+```yaml
+name: Secure Container Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build with SBOM
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          provenance: true
+          sbom: true
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign Image
+        run: |
+          cosign sign --yes ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - name: Scan for Vulnerabilities
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          exit-code: true
+          only-severities: critical,high
+```
+
+---
+
 ## まとめ
 
 Dockerは**多層防御**アプローチでセキュリティを実現：
@@ -490,5 +774,6 @@ Dockerは**多層防御**アプローチでセキュリティを実現：
 1. **Linux技術** (namespaces, cgroups, capabilities, MAC, seccomp): コンテナ分離とリソース制限
 2. **Docker技術** (Scout, DCT, Secrets): 脆弱性検出、イメージ検証、機密情報管理
 3. **Swarm技術** (mTLS, CA, 暗号化): クラスタセキュリティ
+4. **サプライチェーン** (SBOM, Cosign, DCT): イメージ署名・来歴検証
 
 **重要**: デフォルト設定は優れた出発点だが、本番環境では要件に応じたカスタマイズが必須。特にcapabilities、seccomp、MACポリシーのカスタマイズは労力を要するが、強力なセキュリティを提供する。

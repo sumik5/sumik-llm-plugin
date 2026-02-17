@@ -509,4 +509,366 @@ Q: データを保持する必要があるか？
 
 ---
 
+## ステートフルコンテナパターン
+
+永続データを必要とするアプリケーション（DB、設定ファイル、ログ等）のボリューム活用パターン。
+
+### データベース永続化
+
+**PostgreSQL例:**
+```yaml
+# docker-compose.yml
+services:
+  postgres:
+    image: postgres:17
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: example
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+```
+
+**MySQL例:**
+```yaml
+services:
+  mysql:
+    image: mysql:9
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+```
+
+**MongoDB例:**
+```yaml
+services:
+  mongo:
+    image: mongo:8
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  mongo-config:
+```
+
+---
+
+### 設定ファイルマウント
+
+**単一設定ファイル:**
+```bash
+# ホストの設定ファイルをコンテナにマウント
+docker run -d \
+  -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro \
+  nginx
+```
+
+**複数設定ファイル（ディレクトリ）:**
+```yaml
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      - ./config:/etc/myapp:ro  # 読み取り専用
+      - app-data:/var/lib/myapp
+```
+
+**環境別設定:**
+```yaml
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      - ./config/${ENV:-dev}:/etc/myapp:ro
+    environment:
+      - ENV=${ENV:-dev}
+```
+
+---
+
+### ログ永続化
+
+**ログボリュームパターン:**
+```yaml
+services:
+  web:
+    image: nginx
+    volumes:
+      - web-logs:/var/log/nginx
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  log-processor:
+    image: fluentd
+    volumes:
+      - web-logs:/logs:ro  # 読み取り専用
+    depends_on:
+      - web
+
+volumes:
+  web-logs:
+```
+
+**ログローテーション対応:**
+```bash
+# ホストでcronによるローテーション
+docker run -d \
+  -v /var/log/app:/var/log/app \
+  --log-driver json-file \
+  --log-opt max-size=50m \
+  --log-opt max-file=5 \
+  myapp:latest
+```
+
+---
+
+## ホストボリュームパターン
+
+ホストディレクトリを直接マウントする活用パターン。
+
+### 開発時のbind mount活用
+
+**ホットリロード開発:**
+```yaml
+services:
+  dev:
+    image: node:20
+    volumes:
+      - ./src:/app/src:cached  # ソースコードの同期
+      - /app/node_modules      # node_modulesは除外
+    working_dir: /app
+    command: npm run dev
+```
+
+**Pythonアプリ開発:**
+```yaml
+services:
+  python-dev:
+    image: python:3.12
+    volumes:
+      - .:/app:delegated
+      - /app/.venv  # 仮想環境は除外
+    working_dir: /app
+    command: python -m flask run --debug
+```
+
+---
+
+### パフォーマンス考慮（macOS/Windows）
+
+**パフォーマンスオプション:**
+
+| オプション | 動作 | 適用場面 |
+|-----------|------|---------|
+| `cached` | ホスト→コンテナの書き込みを遅延許容 | 読み取り主体（ソース閲覧） |
+| `delegated` | コンテナ→ホストの書き込みを遅延許容 | 書き込み主体（ログ、ビルド成果物） |
+| `consistent` | デフォルト（完全同期） | データベース等の整合性重視 |
+
+**使用例:**
+```yaml
+services:
+  app:
+    image: myapp:dev
+    volumes:
+      # 読み取り主体
+      - ./src:/app/src:cached
+
+      # 書き込み主体
+      - ./build:/app/build:delegated
+
+      # 完全同期（DB）
+      - db-data:/var/lib/postgresql/data:consistent
+
+volumes:
+  db-data:
+```
+
+---
+
+### tmpfsマウント（高速I/O）
+
+**インメモリストレージ:**
+```bash
+# 一時データ用（コンテナ停止で消失）
+docker run -d \
+  --tmpfs /tmp:rw,noexec,nosuid,size=100m \
+  myapp:latest
+```
+
+**Compose例:**
+```yaml
+services:
+  cache:
+    image: redis:7
+    tmpfs:
+      - /data:size=500M,mode=0755
+```
+
+---
+
+## コンテナ間データ共有
+
+### --volumes-from
+
+**基本パターン:**
+```bash
+# データボリュームコンテナ作成
+docker create -v /data --name data-container alpine
+
+# 他のコンテナから参照
+docker run --volumes-from data-container writer-app
+docker run --volumes-from data-container reader-app
+```
+
+**非推奨理由:**
+- コンテナの依存関係が暗黙的
+- Named volumesの方が管理しやすい
+
+---
+
+### shared named volumes（推奨）
+
+**複数コンテナでの共有:**
+```yaml
+services:
+  producer:
+    image: producer:latest
+    volumes:
+      - shared-data:/data
+
+  consumer:
+    image: consumer:latest
+    volumes:
+      - shared-data:/data:ro  # 読み取り専用
+
+volumes:
+  shared-data:
+```
+
+**並行書き込み対策:**
+```yaml
+services:
+  writer:
+    image: writer:latest
+    volumes:
+      - shared-data:/data
+    deploy:
+      replicas: 1  # 書き込みは1つのみ
+
+  reader:
+    image: reader:latest
+    volumes:
+      - shared-data:/data:ro
+    deploy:
+      replicas: 3  # 読み取りは複数OK
+
+volumes:
+  shared-data:
+```
+
+---
+
+### サイドカーパターン
+
+**ログ収集サイドカー:**
+```yaml
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      - app-logs:/var/log/app
+
+  log-collector:
+    image: fluentd
+    volumes:
+      - app-logs:/logs:ro
+    depends_on:
+      - app
+
+volumes:
+  app-logs:
+```
+
+**設定リロードサイドカー:**
+```yaml
+services:
+  nginx:
+    image: nginx
+    volumes:
+      - config:/etc/nginx:ro
+
+  config-watcher:
+    image: config-watcher:latest
+    volumes:
+      - config:/config
+    command: watch-and-reload /config
+
+volumes:
+  config:
+```
+
+---
+
+## 実践的な組み合わせ例
+
+### 完全なWebアプリケーションスタック
+
+```yaml
+services:
+  # フロントエンド（開発時）
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend/src:/app/src:cached
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+
+  # バックエンド
+  backend:
+    build: ./backend
+    volumes:
+      - ./backend:/app:delegated
+      - backend-uploads:/app/uploads
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db/myapp
+    depends_on:
+      - db
+
+  # データベース
+  db:
+    image: postgres:17
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      POSTGRES_PASSWORD: password
+
+  # Redis（セッション）
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+
+volumes:
+  postgres-data:
+  redis-data:
+  backend-uploads:
+```
+
+---
+
 このガイドは標準的なDockerボリューム管理のベストプラクティスをまとめたものです。具体的な環境に応じて設定を調整してください。
