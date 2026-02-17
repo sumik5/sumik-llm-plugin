@@ -6,6 +6,7 @@ description: >-
   Covers container management via Docker MCP, multi-stage builds, cache optimization, security hardening, and image size minimization.
   For Terraform IaC, use developing-terraform instead.
   For Google Cloud development and security (Cloud Run, IAM, VPC, KMS), use developing-google-cloud instead.
+  For AWS development (EKS, Lambda, CDK), use developing-aws instead.
   For broader DevOps methodology and orchestration strategy, use practicing-devops instead.
 ---
 

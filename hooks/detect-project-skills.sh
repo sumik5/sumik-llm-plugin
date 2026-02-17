@@ -109,6 +109,7 @@ get_skill_description() {
         "designing-monitoring") echo "監視・オブザーバビリティ設計" ;;
         "developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
         "developing-google-cloud") echo "Google Cloud 開発・セキュリティ（Cloud Run + IAM/VPC/KMS/DLP/SCC）" ;;
+        "developing-aws") echo "AWS開発（システム設計・サーバーレス・CDK・EKS・SRE・コスト最適化・Bedrock）" ;;
         "architecting-micro-frontends") echo "マイクロフロントエンドアーキテクチャ" ;;
         *) echo "" ;;
     esac
@@ -310,6 +311,56 @@ check_python_deps() {
     fi
 }
 
+# AWS プロジェクトチェック
+check_aws() {
+    # CDK プロジェクト
+    if [[ -f "$WORK_DIR/cdk.json" ]]; then
+        PROJECT_SKILLS+=("developing-aws")
+        return
+    fi
+
+    # SAM プロジェクト
+    if [[ -f "$WORK_DIR/samconfig.toml" ]] || [[ -f "$WORK_DIR/template.yaml" ]] || [[ -f "$WORK_DIR/template.yml" ]]; then
+        PROJECT_SKILLS+=("developing-aws")
+        return
+    fi
+
+    # Serverless Framework
+    if [[ -f "$WORK_DIR/serverless.yml" ]] || [[ -f "$WORK_DIR/serverless.yaml" ]]; then
+        PROJECT_SKILLS+=("developing-aws")
+        return
+    fi
+
+    # CodeBuild
+    if [[ -f "$WORK_DIR/buildspec.yml" ]]; then
+        PROJECT_SKILLS+=("developing-aws")
+        return
+    fi
+
+    # package.json の AWS SDK / CDK パッケージ
+    local package_json="$WORK_DIR/package.json"
+    if [[ -f "$package_json" ]]; then
+        local deps
+        deps=$(jq -r '(.dependencies // {} | keys[]) , (.devDependencies // {} | keys[])' "$package_json" 2>/dev/null) || return
+        if echo "$deps" | grep -qE '^(@aws-sdk/|aws-cdk|@aws-cdk/)'; then
+            PROJECT_SKILLS+=("developing-aws")
+            return
+        fi
+    fi
+
+    # Python AWS依存関係（boto3, aws-cdk-lib）
+    local deps_content=""
+    if [[ -f "$WORK_DIR/pyproject.toml" ]]; then
+        deps_content+=$(cat "$WORK_DIR/pyproject.toml" 2>/dev/null)
+    fi
+    if [[ -f "$WORK_DIR/requirements.txt" ]]; then
+        deps_content+=$(cat "$WORK_DIR/requirements.txt" 2>/dev/null)
+    fi
+    if [[ -n "$deps_content" ]] && echo "$deps_content" | grep -qE "(boto3|aws-cdk-lib|aws-lambda-powertools)"; then
+        PROJECT_SKILLS+=("developing-aws")
+    fi
+}
+
 # Cedar ポリシーファイルチェック
 check_cedar() {
     if find "$WORK_DIR" -maxdepth 3 -name "*.cedar" 2>/dev/null | grep -q .; then
@@ -417,6 +468,7 @@ check_bash
 check_terraform
 check_docker
 check_cloud_run
+check_aws
 check_writing
 check_cedar
 check_database
