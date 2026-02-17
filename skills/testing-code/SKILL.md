@@ -10,15 +10,18 @@ description: REQUIRED for all feature implementations. Automatically load when w
 このスキルは以下のファイルで構成されています：
 
 - **SKILL.md** (このファイル): 概要と使用タイミング
-- **[VITEST-RTL-GUIDELINES.md](./references/VITEST-RTL-GUIDELINES.md)**: Vitest / React Testing Library コード規約 ⭐NEW
-- **[REACT-TDD-PATTERNS.md](./references/REACT-TDD-PATTERNS.md)**: React コンポーネント TDD パターン ⭐NEW
+- **[VITEST-RTL-GUIDELINES.md](./references/VITEST-RTL-GUIDELINES.md)**: Vitest / React Testing Library コード規約
+- **[REACT-TDD-PATTERNS.md](./references/REACT-TDD-PATTERNS.md)**: React コンポーネント TDD パターン
+- **[RTL-QUERIES.md](./references/RTL-QUERIES.md)**: RTL クエリメソッド・クエリタイプ全網羅リファレンス
+- **[RTL-INTERACTIONS.md](./references/RTL-INTERACTIONS.md)**: RTL ユーザーインタラクション（click/type/hover/blur/waitFor）
+- **[RTL-ADVANCED.md](./references/RTL-ADVANCED.md)**: RTL 高度テスト（セットアップ・within・props・rerender・snapshot・renderHook）
 - **[TDD.md](./references/TDD.md)**: TDDサイクルと実装パターン
 - **[TEST-TYPES.md](./references/TEST-TYPES.md)**: テストピラミッド（単体、統合、E2E）
 - **[TESTABLE-DESIGN.md](./references/TESTABLE-DESIGN.md)**: テスタブルな設計原則
 - **[REFERENCE.md](./references/REFERENCE.md)**: ベストプラクティス、カバレッジ、チェックリスト
 - **[AI-REVIEW-GUIDELINES.md](./references/AI-REVIEW-GUIDELINES.md)**: AIテストコードレビュー観点
-- **[AI-TESTING-STRATEGY.md](./references/AI-TESTING-STRATEGY.md)**: AI活用テスト戦略（マインドセット・判断基準）⭐NEW
-- **[AI-TEST-TECHNIQUES.md](./references/AI-TEST-TECHNIQUES.md)**: AI活用テストテクニック集（データ生成・探索的テスト・UI自動化）⭐NEW
+- **[AI-TESTING-STRATEGY.md](./references/AI-TESTING-STRATEGY.md)**: AI活用テスト戦略（マインドセット・判断基準）
+- **[AI-TEST-TECHNIQUES.md](./references/AI-TEST-TECHNIQUES.md)**: AI活用テストテクニック集（データ生成・探索的テスト・UI自動化）
 
 ## 🎯 使用タイミング
 

@@ -1,5 +1,7 @@
 # React コンポーネント TDD パターン
 
+> **関連ファイル:** クエリメソッド全網羅は [RTL-QUERIES.md](./RTL-QUERIES.md)、インタラクションパターンは [RTL-INTERACTIONS.md](./RTL-INTERACTIONS.md)、高度テスト（within/props/rerender/snapshot/renderHook）は [RTL-ADVANCED.md](./RTL-ADVANCED.md) を参照。
+
 ## 🔄 コンポーネントTDDワークフロー
 
 ### stub → test → pass → iterate
@@ -220,6 +222,8 @@ it("passes `imgUrl` through to the <img>", () => {
 ---
 
 ## 🪝 Custom Hooks テスト
+
+> `renderHook` によるフック単体テストは [RTL-ADVANCED.md](./RTL-ADVANCED.md) を参照。以下はコンポーネント経由の間接テストパターン。
 
 ### as const パターン
 

@@ -305,7 +305,7 @@ it('ナビゲーション構造が正しいべき', () => {
 
 ### クエリの優先順位
 
-**アクセシビリティに基づいた優先順位を守る。**
+**アクセシビリティに基づいた優先順位を守る。** 全8種のクエリタイプの詳細、`getBy`/`queryBy`/`findBy` の使い分け、`getAllBy` バリアントについては **[RTL-QUERIES.md](./RTL-QUERIES.md)** を参照。
 
 ```typescript
 // 優先順位（高い順）
@@ -351,6 +351,8 @@ it('ボタンクリック時、送信されるべき', async () => {
 
 ### 非同期処理の待機
 
+`findBy`/`waitFor` の使い分けガイド、ベストプラクティスの詳細は **[RTL-INTERACTIONS.md](./RTL-INTERACTIONS.md)** を参照。
+
 ```typescript
 // ✅ 良い例: waitFor / findBy を使用
 it('データ取得後、ユーザー名が表示されるべき', async () => {
@@ -376,6 +378,8 @@ it('フォーム送信後、成功メッセージが表示されるべき', asyn
 ```
 
 ### モックの設定
+
+`vi.mock` + `importOriginal` による高度な props テスト、コンポーネントモックの詳細は **[RTL-ADVANCED.md](./RTL-ADVANCED.md)** を参照。
 
 ```typescript
 import { vi } from 'vitest'
@@ -419,6 +423,10 @@ vi.mock('@/services/api', () => ({
 ## 🔗 関連ファイル
 
 - **[SKILL.md](../SKILL.md)** - 概要に戻る
+- **[RTL-QUERIES.md](./RTL-QUERIES.md)** - RTL クエリメソッド・クエリタイプ全網羅リファレンス
+- **[RTL-INTERACTIONS.md](./RTL-INTERACTIONS.md)** - RTL ユーザーインタラクション（click/type/hover/blur/waitFor）
+- **[RTL-ADVANCED.md](./RTL-ADVANCED.md)** - RTL 高度テスト（セットアップ・within・props・rerender・snapshot・renderHook）
+- **[REACT-TDD-PATTERNS.md](./REACT-TDD-PATTERNS.md)** - React コンポーネント TDD パターン
 - **[TDD.md](./TDD.md)** - TDDサイクル
 - **[REFERENCE.md](./REFERENCE.md)** - ベストプラクティス
 - **[AI-REVIEW-GUIDELINES.md](./AI-REVIEW-GUIDELINES.md)** - AIコードレビュー観点
