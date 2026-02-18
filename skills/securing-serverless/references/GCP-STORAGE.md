@@ -499,3 +499,184 @@ Cloud Storage バケットのセキュリティは、設定の正確性と継続
 4. **削除時**: Dangling Bucket 攻撃を防ぐため、参照を事前に確認する
 
 これらのプラクティスを組み合わせることで、GCS バケットの設定ミスによるデータ侵害リスクを大幅に削減できます。
+
+---
+
+## publicAccessPrevention 設定の詳細
+
+### enforced vs inherited の違い
+
+`publicAccessPrevention` には2つの設定値がある。
+
+| 設定値 | 動作 |
+|-------|------|
+| `"enforced"` | `allUsers` および `allAuthenticatedUsers` を含むバインディングを拒否。署名付きURLも機能しなくなる |
+| `"inherited"` | 組織ポリシーの設定を継承（デフォルト）。親レベルで制限がなければ公開アクセスが可能になる |
+
+**注意**: `"enforced"` を設定すると署名付きURL（Signed URL）も無効化される。署名付きURLを使いつつ公開バケットアクセスを制限したい場合は、`allAuthenticatedUsers` バインディングを削除し、特定のサービスアカウントにのみ `objectViewer` を付与するアプローチを取ること。
+
+```bash
+# 誤設定の確認: allAuthenticatedUsers が含まれているバケットを検出
+gcloud storage buckets get-iam-policy gs://my-bucket \
+  --format=json | jq '.bindings[] | select(.members[] | contains("allAuthenticatedUsers"))'
+
+# 安全な代替: サービスアカウントにのみ読み取り権限を付与
+gcloud storage buckets add-iam-policy-binding gs://my-bucket \
+  --member="serviceAccount:app-sa@project.iam.gserviceaccount.com" \
+  --role="roles/storage.objectViewer"
+
+# allAuthenticatedUsers を削除
+gcloud storage buckets remove-iam-policy-binding gs://my-bucket \
+  --member="allAuthenticatedUsers" \
+  --role="roles/storage.objectViewer"
+```
+
+### allUsers / allAuthenticatedUsers を避けるべき理由
+
+- **`allUsers`**: インターネット上の誰でも認証なしでアクセス可能。検索エンジンにインデックスされる可能性もある
+- **`allAuthenticatedUsers`**: Googleアカウントを持つ全ユーザー（約30億人）がアクセス可能。「認証済み」は「信頼できる」を意味しない
+- 攻撃者はGoogleアカウントを無料で作成できるため、`allAuthenticatedUsers` はほぼ `allUsers` に等しい実効的なリスクがある
+
+---
+
+## Dangling Bucket Takeover: DNS・CDN経由の攻撃パターン
+
+既存の説明（バケット直接参照）に加え、DNS レコードや CDN 設定に残る参照が攻撃ベクトルになるケースを補足する。
+
+### CDN 設定残存による Dangling Bucket
+
+CDN（Cloud CDN、Cloudflare等）がオリジンとして GCS バケットを参照している場合、バケットを削除してもCDN設定が残ると問題が発生する。
+
+**攻撃シナリオ:**
+
+1. 組織が `assets.example.com` を CDN 経由で GCS バケット `gs://example-assets` にルーティングしている
+2. バケットリニューアルに伴い `gs://example-assets` を削除するが、CDN の設定更新を忘れる
+3. 攻撃者が `gs://example-assets` という同名バケットを別プロジェクトで作成し `allUsers:objectViewer` を設定
+4. `assets.example.com` 経由でのリクエストが攻撃者のバケットコンテンツを返す
+5. XSSペイロードやマルウェアを配信することで、正規ドメインを悪用した攻撃が成立
+
+**防御策:**
+
+```bash
+# バケット削除前にCDN・DNS設定を検査するスクリプト
+BUCKET_NAME="example-assets"
+
+# Cloud CDN のバックエンドバケット設定を確認
+gcloud compute backend-buckets list --format="table(name,bucketName)" \
+  | grep "$BUCKET_NAME"
+
+# URL マップでの参照を確認
+gcloud compute url-maps list --format=json \
+  | jq --arg bkt "$BUCKET_NAME" '.[] | select(.defaultService | contains($bkt))'
+```
+
+**バケット削除の安全手順（推奨）:**
+
+1. CDN・ロードバランサのバックエンド設定からバケット参照を削除
+2. DNSレコードで直接 `storage.googleapis.com` を CNAME 参照している場合は削除
+3. ソースコード・IaCテンプレート・ドキュメントの参照を全検索して更新
+4. 最後にバケットを削除
+
+### サードパーティライブラリの Dangling Bucket
+
+依存パッケージが GCS バケットからバイナリをダウンロードする場合（ポストインストールスクリプト等）、そのバケットが削除されると同名バケットを攻撃者が作成して悪意あるバイナリを配信できる。
+
+**防御:**
+- 依存関係のポストインストールスクリプトを確認し、外部バケット参照がないかレビューする
+- `npm audit` や `pip-audit` で既知の悪意あるパッケージを定期スキャンする
+- プライベートレジストリを使い、公開リポジトリからの直接インストールを制限する
+
+---
+
+## Checkov による GCS IaC セキュリティ監査の実践
+
+### Checkov が検出する GCS 固有の問題と修正方法
+
+既存の説明に加え、Checkov の段階的な修正フローを示す。
+
+**初期設定（パス: 2件、失敗: 2件の状態）:**
+
+```hcl
+# main.tf（初期状態）
+resource "google_storage_bucket" "default" {
+  name                        = var.bucket_name
+  location                    = var.region
+  force_destroy               = false
+  uniform_bucket_level_access = true   # CKV_GCP_29: PASS
+  storage_class               = "STANDARD"
+  public_access_prevention    = "enforced"  # CKV_GCP_114: PASS
+  # CKV_GCP_78: versioning なし → FAIL
+  # CKV_GCP_62: logging なし → FAIL
+}
+```
+
+**バージョニングを追加（パス: 3件、失敗: 1件）:**
+
+```hcl
+resource "google_storage_bucket" "default" {
+  name                        = var.bucket_name
+  location                    = var.region
+  force_destroy               = false
+  uniform_bucket_level_access = true
+  storage_class               = "STANDARD"
+  public_access_prevention    = "enforced"
+
+  versioning {
+    enabled = true  # CKV_GCP_78: PASS（オブジェクトの誤削除・改ざん後の復元が可能）
+  }
+}
+```
+
+**アクセスログを追加（全チェックパス）:**
+
+```hcl
+resource "google_storage_bucket" "default" {
+  name                        = var.bucket_name
+  location                    = var.region
+  force_destroy               = false
+  uniform_bucket_level_access = true
+  storage_class               = "STANDARD"
+  public_access_prevention    = "enforced"
+
+  versioning {
+    enabled = true
+  }
+
+  logging {
+    log_bucket        = google_storage_bucket.access_logs.name
+    log_object_prefix = "${var.bucket_name}/"  # CKV_GCP_62: PASS
+  }
+}
+
+# ログ保存用の専用バケット（アクセスログバケット自体もセキュアに設定）
+resource "google_storage_bucket" "access_logs" {
+  name                        = "${var.bucket_name}-logs"
+  location                    = var.region
+  force_destroy               = false
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+}
+```
+
+### Checkov をスキップする場合の判断基準
+
+特定のチェックをスキップ（`--skip-check`）することは、意図的なトレードオフとして許容される場合がある。
+
+| チェック | スキップが許容されるケース |
+|---------|--------------------------|
+| `CKV_GCP_62`（アクセスログ） | テスト環境、低リスクの開発用バケット |
+| `CKV_GCP_78`（バージョニング） | 書き込み専用の一時バケット（処理後に削除されるデータ） |
+| `CKV_GCP_29`（UBLA） | レガシーシステムとの互換性が必要で ACL 管理が不可避な場合 |
+
+スキップする場合は、その理由をコードのコメントまたは `checkov:skip` アノテーションで記録すること。
+
+```hcl
+resource "google_storage_bucket" "temp_processing" {
+  # checkov:skip=CKV_GCP_62:一時処理用バケット。アクセスログ不要
+  # checkov:skip=CKV_GCP_78:短命データのため versioning 不要
+  name                        = "temp-processing-${var.suffix}"
+  location                    = var.region
+  force_destroy               = true
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+}

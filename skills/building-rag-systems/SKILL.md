@@ -6,6 +6,7 @@ description: >-
   and full RAG architecture overview with Python. Use when building RAG applications, designing data
   ingestion pipelines, or implementing text chunking strategies. For Python language best practices,
   use developing-python instead. For LLMOps operational framework, use practicing-llmops.
+  For JavaScript/LangChain.js RAG in web apps with Vercel AI SDK, see integrating-ai-web-apps.
 ---
 
 # RAGシステム構築ガイド

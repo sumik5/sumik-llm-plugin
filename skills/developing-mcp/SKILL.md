@@ -8,6 +8,7 @@ description: >-
   (Tool Poisoning, Shadowing, Rug Pull, Prompt Injection).
   MUST load when building MCP servers or clients.
   For Claude Code plugin MCP configuration, use plugin-dev:mcp-integration instead.
+  For MCP integration with Vercel AI SDK in web apps, see integrating-ai-web-apps.
 ---
 
 # MCP (Model Context Protocol) 開発ガイド

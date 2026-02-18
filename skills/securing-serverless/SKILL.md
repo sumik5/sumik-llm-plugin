@@ -153,6 +153,10 @@ OpenTelemetry実装は `implementing-opentelemetry` スキル参照。
 - 暗号化設定（保存時・転送時）
 - ログ保存先の設定
 
+**IaCセキュリティスキャン（Checkov）:**
+
+IaCテンプレートの設定ミスを自動検出するため、CheckovをCI/CDパイプラインに組み込む。Terraform/CloudFormationテンプレートをスキャンし、バージョニング未設定・アクセスログ無効・パブリックアクセス許可などの問題を検出できる。詳細は [CODE-ANALYSIS.md](references/CODE-ANALYSIS.md) を参照。
+
 **詳細は `developing-aws`（AWS）、`developing-google-cloud`（GCP）、`developing-terraform`（Terraform）スキル参照。**
 
 ---
@@ -168,7 +172,7 @@ OpenTelemetry実装は `implementing-opentelemetry` スキル参照。
 | **GCP Storage** | [GCP-STORAGE.md](references/GCP-STORAGE.md) | GCSバケット攻撃、Dangling Bucket Takeover、IaCによる保護 |
 | **GCP Compute** | [GCP-COMPUTE.md](references/GCP-COMPUTE.md) | Cloud Run/Functions権限昇格、Event Trigger悪用、Workload Identity |
 | **Azure** | [AZURE-FUNCTIONS.md](references/AZURE-FUNCTIONS.md) | Azure Functions攻撃、Managed Identity悪用、RBAC権限昇格 |
-| **コード分析** | [CODE-ANALYSIS.md](references/CODE-ANALYSIS.md) | Semgrep/OSV-Scanner、依存関係スキャン、セキュアコーディング |
+| **コード分析** | [CODE-ANALYSIS.md](references/CODE-ANALYSIS.md) | Semgrep/OSV-Scanner、依存関係スキャン（npm/PyPI・Dependency Confusion対策）、IaCスキャン（Checkov）、セキュアコーディング |
 
 ---
 
@@ -217,6 +221,8 @@ OpenTelemetry実装は `implementing-opentelemetry` スキル参照。
 - [ ] パイプライン認証にOIDC使用（長期認証情報を使わない）
 - [ ] デプロイ前にSAST/SCA/DAST実行
 - [ ] IaCテンプレートのセキュリティスキャン（Checkov / tfsec）
+- [ ] npm/PyPI依存関係のサプライチェーンスキャン（`npm audit` / `pip-audit` / OSV-Scanner）
+- [ ] Dependency Confusion対策としてスコープ付きパッケージ名またはプライベートレジストリを使用
 - [ ] デプロイ承認プロセスを実装（本番環境）
 - [ ] パイプライン実行ログを監査ログとして保存
 - [ ] シークレットをCI/CD変数として暗号化保存

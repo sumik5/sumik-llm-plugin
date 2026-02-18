@@ -1,6 +1,6 @@
 ---
 name: developing-nextjs
-description: Next.js 16.x / React 19.x development guide covering App Router, Server Components, Turbopack, React Compiler, proxy.ts, and React internals. MUST load when package.json contains 'next' or next.config.* is detected. Covers Cache Components, opt-in caching APIs (updateTag/revalidateTag/refresh), strict TypeScript, Tailwind CSS 4.x, Prisma 7.x, Zod 4.x, Vitest 4.x, Playwright, Docker, Vercel performance rules, and advanced React patterns. For SaaS patterns (auth, payments, AI), use building-nextjs-saas instead.
+description: Next.js 16.x / React 19.x development guide covering App Router, Server Components, Turbopack, React Compiler, proxy.ts, and React internals. MUST load when package.json contains 'next' or next.config.* is detected. Covers Cache Components, opt-in caching APIs (updateTag/revalidateTag/refresh), strict TypeScript, Tailwind CSS 4.x, Prisma 7.x, Zod 4.x, Vitest 4.x, Playwright, Docker, Vercel performance rules, and advanced React patterns. For SaaS patterns (auth, payments, AI), use building-nextjs-saas instead. For AI integration with Vercel AI SDK and LangChain.js, use integrating-ai-web-apps.
 ---
 
 # Next.js 16.x / React 19.x Modern Web Development Skill

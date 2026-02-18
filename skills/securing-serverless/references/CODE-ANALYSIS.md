@@ -534,6 +534,233 @@ HTMLレポートには以下の情報が含まれます：
 
 ---
 
+## 7. IaCセキュリティスキャン（Checkov）
+
+### なぜIaCのセキュリティスキャンが必要か
+
+IaCテンプレートの設定ミスは、ストレージの公開設定漏れ・暗号化の欠落・ログ無効化など深刻な脆弱性を引き起こす。手動レビューはスケールしないため、自動スキャンツールを活用する。
+
+### Checkovのインストールと基本的な使い方
+
+```bash
+# Python仮想環境でCheckovをインストール
+python3 -m venv checkov-env
+source checkov-env/bin/activate
+pip install checkov
+
+# IaCディレクトリをスキャン
+checkov -d ./infrastructure/
+
+# 特定のチェックをスキップ（False Positive等）
+checkov -d ./infrastructure/ --skip-check CKV_GCP_62
+```
+
+### Terraformテンプレートのスキャン例
+
+以下のようなTerraformリソース定義をCheckovでスキャンすると、セキュリティの問題を自動検出できる：
+
+```hcl
+# ❌ 問題あり: バージョニングなし、アクセスログなし
+resource "google_storage_bucket" "default" {
+  name                        = var.bucket_name
+  location                    = var.region
+  force_destroy               = false
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+}
+```
+
+Checkovの出力例：
+
+```
+terraform scan results:
+Passed checks: 2, Failed checks: 2, Skipped checks: 0
+
+Check: CKV_GCP_78: "Ensure Cloud storage has versioning enabled"
+FAILED for resource: google_storage_bucket.default
+
+Check: CKV_GCP_62: "Bucket should log access"
+FAILED for resource: google_storage_bucket.default
+```
+
+```hcl
+# ✅ 修正後: バージョニングを追加
+resource "google_storage_bucket" "default" {
+  name                        = var.bucket_name
+  location                    = var.region
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+  versioning {
+    enabled = true
+  }
+}
+```
+
+### 主要なCheckovチェック（サーバーレス関連）
+
+| チェックID | 内容 | 対象 |
+|-----------|------|------|
+| `CKV_AWS_18` | S3アクセスログを有効化 | AWS S3 |
+| `CKV_AWS_19` | S3暗号化を有効化 | AWS S3 |
+| `CKV_AWS_56` | S3パブリックアクセスブロック有効化 | AWS S3 |
+| `CKV_AWS_50` | Lambda関数のX-Rayトレース有効化 | AWS Lambda |
+| `CKV_GCP_29` | Cloud Storageのuniform bucket-level access有効化 | GCP Storage |
+| `CKV_GCP_78` | Cloud Storageのバージョニング有効化 | GCP Storage |
+| `CKV_GCP_62` | Cloud Storageのアクセスログ有効化 | GCP Storage |
+| `CKV_GCP_114` | Cloud Storageのパブリックアクセス防止 | GCP Storage |
+
+### CI/CDパイプラインへの統合
+
+```yaml
+# .github/workflows/iac-security.yml
+name: IaC Security Scan
+on: [push, pull_request]
+
+jobs:
+  checkov-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infrastructure/
+          soft_fail: false          # 問題検出時にビルドを失敗させる
+          skip_check: CKV_GCP_62   # プロジェクトポリシーで承認済みのスキップ
+```
+
+---
+
+## 8. Semgrepルール拡張（サーバーレス固有パターン）
+
+### 機密情報の過剰なログ出力を検出
+
+サーバーレス関数では、デバッグ目的で環境変数やリクエスト全体をログに出力するコードが混入しやすい。これらはCloudWatch Logs等に機密情報を露出させる危険なパターンである。
+
+```yaml
+# custom-rules/no-sensitive-logging.yml
+rules:
+  - id: no-env-logging
+    patterns:
+      - pattern: console.log(process.env)
+      - pattern: console.log(process.env.$VAR)
+      - pattern: context.log(process.env)
+    message: "Avoid logging environment variables — may expose secrets to CloudWatch/Application Insights logs."
+    languages: [javascript, typescript]
+    severity: ERROR
+
+  - id: no-full-request-logging
+    patterns:
+      - pattern: console.log($REQ)
+      - pattern: context.log($REQ)
+    message: "Avoid logging entire request objects — may expose sensitive headers or body data."
+    languages: [javascript, typescript]
+    severity: WARNING
+```
+
+```yaml
+# custom-rules/no-sensitive-logging-python.yml
+rules:
+  - id: no-env-logging-python
+    patterns:
+      - pattern: print(os.environ)
+      - pattern: logging.info(os.environ)
+      - pattern: logger.info(os.environ)
+    message: "Avoid logging os.environ — may expose secrets to cloud logging services."
+    languages: [python]
+    severity: ERROR
+```
+
+### 動的コード実行パターンの拡張検出
+
+既存の `eval()` ルールに加え、Python固有の危険パターンも検出する：
+
+```yaml
+# custom-rules/no-dynamic-exec-python.yml
+rules:
+  - id: no-exec-python
+    patterns:
+      - pattern: exec($EXPR)
+    message: "Avoid using exec() — enables arbitrary code execution."
+    languages: [python]
+    severity: ERROR
+
+  - id: no-compile-with-exec-python
+    patterns:
+      - pattern: compile($CODE, ...)
+    message: "Avoid using compile() with untrusted input — can be used for code injection."
+    languages: [python]
+    severity: WARNING
+```
+
+---
+
+## 9. サプライチェーン攻撃の検出アプローチ拡張
+
+### PyPI（Python）向けの検出スクリプト
+
+npmだけでなく、Pythonプロジェクトでも同様の悪意パッケージ検出が必要。`pip-audit`ツールを活用する：
+
+```bash
+# pip-auditのインストール
+pip install pip-audit
+
+# プロジェクトの依存関係をスキャン
+pip-audit -r requirements.txt
+
+# JSON形式で出力
+pip-audit -r requirements.txt -f json -o audit-report.json
+```
+
+### Dependency Confusion攻撃への対策
+
+Dependency Confusion攻撃では、プライベートパッケージと同名の高バージョン偽パッケージをパブリックレジストリに公開することで、正規パッケージに置き換える手法を使う。
+
+**攻撃パターン**:
+- 内部パッケージ名（例: `mycompany-utils`）がパブリックレジストリに存在しない
+- 攻撃者が同名のパッケージをnpm/PyPIに公開（高いバージョン番号を指定）
+- npm/pipがパブリックレジストリの高バージョンを優先して取得
+
+**防御策**:
+
+```bash
+# npm: スコープ付きパッケージを使用（@mycompany/utils）
+# 内部パッケージは必ずスコープを付けてパブリックレジストリと名前空間を分離する
+# npm install @mycompany/utils
+
+# .npmrc でプライベートレジストリを強制
+# @mycompany:registry=https://npm.mycompany.internal/
+
+# pip: --index-url でプライベートインデックスを強制
+# pip install mypackage --index-url https://pypi.mycompany.internal/simple/
+# ※ --extra-index-url ではなく --index-url を使用（後者はパブリックへフォールバックしない）
+```
+
+### Typosquattingパッケージの警戒
+
+Typosquattingでは、よく使われるパッケージ名の誤字バリエーションを悪意あるパッケージ名として登録する（例: `requests` → `requets`, `reqeusts`）。
+
+**防御策**:
+- パッケージ名はオートコンプリートや公式サイトURLから確認する
+- package.jsonやrequirements.txtをコードレビューの必須対象とする
+- Dependabotや`npm audit`で継続的に依存関係を監視する
+- lockファイル（`package-lock.json`/`poetry.lock`）をコミットして意図しないバージョン変更を防ぐ
+
+### bad_versions.jsonの管理ベストプラクティス
+
+```json
+// bad_versions.jsonの管理方針
+// - セキュリティアドバイザリ（GitHub Advisory Database等）を定期監視
+// - 悪意パッケージが検出されたらすぐに追加
+// - チームで共有されるCIパイプラインで自動参照する
+{
+  "compromised-package": ["1.2.3"],
+  "typosquatted-lib": ["0.0.1", "0.0.2"]
+}
+```
+
+---
+
 ## ベストプラクティス
 
 ### ツールの組み合わせ

@@ -111,6 +111,7 @@ get_skill_description() {
         "developing-google-cloud") echo "Google Cloud 開発・セキュリティ（Cloud Run + IAM/VPC/KMS/DLP/SCC）" ;;
         "developing-aws") echo "AWS開発（システム設計・サーバーレス・CDK・EKS・SRE・コスト最適化・Bedrock）" ;;
         "architecting-micro-frontends") echo "マイクロフロントエンドアーキテクチャ" ;;
+        "integrating-ai-web-apps") echo "AI web app integration with Vercel AI SDK, LangChain.js, and MCP (streaming, RAG, tool calling, structured data)" ;;
         *) echo "" ;;
     esac
 }
@@ -165,6 +166,11 @@ check_package_json() {
     # OpenTelemetry チェック（JS）
     if echo "$deps" | grep -q "^@opentelemetry/"; then
         PROJECT_SKILLS+=("implementing-opentelemetry")
+    fi
+
+    # AI Web App チェック（Vercel AI SDK / LangChain.js）
+    if echo "$deps" | grep -qx "ai" || echo "$deps" | grep -q "^@langchain/"; then
+        PROJECT_SKILLS+=("integrating-ai-web-apps")
     fi
 }
 
