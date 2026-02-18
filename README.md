@@ -27,10 +27,10 @@ sumik-claude-plugin/
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
 ├── agents/             # Agent定義 (3体)
-├── commands/           # スラッシュコマンド (8個)
+├── commands/           # スラッシュコマンド (9個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (66個)
+└── skills/             # ナレッジスキル (76個)
 ```
 
 ---
@@ -45,7 +45,7 @@ sumik-claude-plugin/
 | **Serena Expert** (serena-expert) | Sonnet | /serenaコマンドを活用したトークン効率重視の開発Agent |
 | **Team Builder** (team-builder) | Opus | チーム編成・タスク分解・Agent協調オーケストレーター。4種のモデル戦略とチーム構成テンプレートで並列開発を最適化 |
 
-### Commands (8個)
+### Commands (9個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -57,8 +57,9 @@ sumik-claude-plugin/
 | `/changelog` | CHANGELOG自動生成（Keep a Changelog形式） |
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
+| `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 
-### Skills (65個)
+### Skills (76個)
 
 #### コア開発
 
@@ -71,6 +72,7 @@ sumik-claude-plugin/
 | `testing-code` | テストファースト（Vitest/RTL/Playwright） |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
+| `securing-serverless` | サーバーレスセキュリティ包括ガイド（AWS Lambda・Google Cloud Run・Azure Functionsの攻撃・防御パターン、コード注入・SSRF・権限昇格・シークレット窃取、IAM最小権限、認証トークン管理、計7リファレンスファイル） |
 | `securing-ai-development` | AI開発セキュリティ戦略（信頼フレームワーク、適応型ガードレール、AI-BOM、AI-SPM、ガバナンス、クロスファンクショナル所有権） |
 | `developing-with-ai` | AI支援開発メソドロジー（プロンプトエンジニアリング・コンテキストエンジニアリング・コード生成・QA・デバッグ・エージェント協調） |
 | `using-claude-code-as-pm` | PM向けClaude Code活用ガイド（コードベース調査・バグトリアージ・競合分析・フィードバック分析・要件生成・PMワークフロー自動化） |
@@ -140,6 +142,7 @@ sumik-claude-plugin/
 | `using-anki-mcp` | Anki MCP Server統合（デッキ管理・カードレビュー・ノートタイプ・メディア管理・GUI統合） |
 | `using-drawio-mcp` | draw.io MCP Server統合（XML/CSV/Mermaid形式でダイアグラム作成・ブラウザ表示） |
 | `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
+| `viewing-diffs` | difit GitHub風差分ビューア（git diff のブラウザ表示・自動インストール対応） |
 
 #### ドキュメント・品質
 

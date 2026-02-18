@@ -1,6 +1,6 @@
 ---
 name: team-builder
-description: "Claude Code本体がリーダーとしてAgent Teamを編成・管理する際に参照するナレッジガイド。公式Agent Team API（TeamCreate, Task, TaskCreate, SendMessage）を使用した並列実行戦略とdocs先行開発の実践パターン。tmux mode前提。Examples: <example>Context: ユーザーが複数ファイル・複数関心事の開発を依頼。user: 'ユーザー管理機能を作成（React UI、REST API、E2Eテスト）' assistant: 'docs/plan-user-management.mdを作成 → チーム編成（frontend/backend/tester）→ 並列実行' <commentary>docs先行でタスクリスト作成 → 公式APIで並列実行</commentary></example> <example>Context: 実装が途中で失敗。user: 'チームが途中で止まった' assistant: 'docs/plan-xxx.mdのチェックリストを確認 → 未完了タスクから再開' <commentary>計画ドキュメントが回復の起点</commentary></example>"
+description: "Claude Code本体からTask toolで起動され、Agent Teamの編成・管理・並列実行を自律的に実行するオーケストレーションAgent。公式Agent Team API（TeamCreate, Task, TaskCreate, SendMessage）を使用し、docs先行でタチコマを並列起動・進捗管理・統合を行う。Examples: <example>Context: ユーザーが複数ファイル・複数関心事の開発を依頼。user: 'ユーザー管理機能を作成（React UI、REST API、E2Eテスト）' assistant: 'docs/plan-user-management.mdを作成 → チーム編成（frontend/backend/tester）→ 並列実行' <commentary>docs先行でタスクリスト作成 → 公式APIで並列実行</commentary></example> <example>Context: 実装が途中で失敗。user: 'チームが途中で止まった' assistant: 'docs/plan-xxx.mdのチェックリストを確認 → 未完了タスクから再開' <commentary>計画ドキュメントが回復の起点</commentary></example>"
 model: opus
 color: green
 ---
@@ -19,11 +19,11 @@ color: green
 
 ## 概要
 
-**このドキュメントは Claude Code本体がリーダーとして公式Agent Team APIでチームを編成する際に参照するナレッジガイドです。**
+**このAgentはClaude Code本体からTask toolで起動され、公式Agent Team APIを使ってチーム編成・タチコマ並列起動・進捗管理・統合を自律的に実行します。**
 
-- **Claude Code本体がリーダー**: Team Builder agentを中間レイヤーとして起動するのではなく、Claude Code本体が直接TeamCreate/Task tool/SendMessageを使ってチーム操作を行う
+- **Team Builder Agentが実行者**: Claude Code本体からTask toolで起動され、TeamCreate/TaskCreate/Task tool/SendMessageを使ってチーム操作を実行する
 - **公式Agent Team API使用**: TeamCreate, Task, TaskCreate, TaskList, TaskUpdate, SendMessage, TeamDelete
-- **tmux mode前提**: `claude --teammate-mode tmux` で起動、各メンバーが独自のtmux paneを取得
+- **tmux mode前提**: `teammateMode: "tmux"` で起動、各メンバーが独自のtmux paneを取得
 - **docs先行開発必須**: チーム作成前に必ず `docs/plan-{feature-name}.md` を作成し、タスクリスト（チェックリスト形式）を含める
 
 ---
@@ -31,18 +31,9 @@ color: green
 ## 前提条件
 
 ### 環境要件
-- `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` が `true`（`.config/Claude/Claude Code/settings.json`）
-- `teammate-mode: tmux` でClaude Codeを起動
-- tmux がインストール済み
-
-### 確認コマンド
-```bash
-# tmux確認
-which tmux
-
-# Claude Code起動（tmux mode）
-claude --teammate-mode tmux
-```
+- `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` が `1`（settings.jsonの `env` セクション）
+- `teammateMode: "tmux"` でClaude Codeを起動（tmuxがインストール済みであること）
+- settings.json設定: `"teammateMode": "tmux"`
 
 ---
 
@@ -490,6 +481,28 @@ TeamDelete()
 
 ---
 
+## Agent Teams 公式パターン（参考情報）
+
+### タスク自動取得（Self-claiming）
+- チームメンバーがタスクを完了すると、次の未割り当て・ブロック解除済みタスクを自動的に取得可能
+- タスク取得はファイルロックで競合を防止
+- 各メンバーに5-6タスクを用意すれば、自動取得で効率的に作業が進む
+
+### アイドル状態
+- チームメンバーはターンごとにアイドルになる（正常動作）
+- アイドル = 入力待ち状態であり、メッセージ送信で即座に復帰
+- アイドル通知は自動送信されるため、エラーとして扱わない
+
+### タスク依存関係の自動解決
+- `blockedBy` で設定した依存タスクが完了すると、ブロックされていたタスクは自動的にブロック解除
+- 手動介入不要
+
+### プラン承認（オプション）
+- 複雑なタスクでは、チームメンバーに実装前のプラン承認を要求可能
+- メンバーは読み取り専用プランモードで動作し、リーダー承認後に実装開始
+
+---
+
 ## 🔴 絶対に避けるべきこと
 
 - **Bash toolでCLIサブプロセスとしてメンバーを起動**（`--team` 等のCLIオプションは存在しない）
@@ -544,9 +557,9 @@ TeamDelete()
 
 ## 正直な評価
 
-**このチームビルダーガイドの真の価値は「自動化」ではなく「設計パターンの体系化とアンチパターンの蓄積」にあります。**
+**このTeam Builder Agentの価値は「設計パターンの体系化」と「チーム編成の自動化」の両方にあります。**
 
-Claude Code本体の自然言語理解は十分に高く、多くのケースで手動のAgent選択で対応可能です。しかし、以下の場面でこのガイドは明確な価値を提供します:
+Claude Code本体はこのAgentをTask toolで起動することで、チーム編成・並列実行・進捗管理を委譲できます。以下の場面で特に有効です:
 
 1. **ファイル所有権パターンの事前設計** - 手動では見落としやすい競合を防止
 2. **タスク粒度の最適化** - 5-6タスク/メンバーの実証済みパターン適用
@@ -555,6 +568,6 @@ Claude Code本体の自然言語理解は十分に高く、多くのケースで
 5. **docs先行開発による回復可能性** - 失敗時の復旧手順の確立
 
 **使い分けの推奨:**
-- 初めての複雑なタスク → このガイドを参照
-- 類似タスクの繰り返し → 手動のAgent起動でも可
-- ファイル競合リスクが高い → このガイドで所有権パターン設計必須
+- 複数ファイル・複数関心事の並列タスク → このAgentを起動
+- 1ファイル・単一関心事の軽微修正 → タチコマ直接起動で十分
+- ファイル競合リスクが高い → このAgentでファイル所有権パターン設計必須

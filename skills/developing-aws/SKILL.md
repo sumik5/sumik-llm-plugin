@@ -2,7 +2,7 @@
 description: >-
   Comprehensive AWS development guide covering system design (architecture patterns, trade-offs, 8 real-world case studies), serverless (Lambda, API Gateway, DynamoDB, Step Functions, S3), CDK infrastructure as code (Constructs, testing, DevSecOps), EKS Kubernetes (cluster management, networking, security, scaling), SRE operations (automation, observability, resilience, incident response), cost optimization (FinOps, rightsizing, Savings Plans, Spot), security (IAM, VPC, KMS, Cognito, GuardDuty), and generative AI (Amazon Bedrock, RAG, Agents, multimodal, fine-tuning).
   MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in package.json, cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), buildspec.yml, or AWS-related infrastructure files (.aws/, eksctl configs).
-  For GCP development, use developing-google-cloud instead. For Terraform IaC, use developing-terraform instead. For Docker container patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For general RAG architecture, use building-rag-systems instead. For general LLMOps operations, use practicing-llmops instead.
+  For GCP development, use developing-google-cloud instead. For Terraform IaC, use developing-terraform instead. For Docker container patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For general RAG architecture, use building-rag-systems instead. For general LLMOps operations, use practicing-llmops instead. For serverless security (IAM attacks, Lambda hacking, privilege escalation), use securing-serverless instead.
 ---
 
 # AWS 開発・アーキテクチャ・運用ガイド
