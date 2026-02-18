@@ -57,6 +57,27 @@ aws s3 cp s3://$BUCKET_NAME/backup/lambda_function.py \
     ./downloaded_files/ --no-sign-request
 ```
 
+**S3バケット静的サイトホスティングにおける公開設定のリスク**
+
+静的WebサイトをS3でホスティングする際、`s3:ListBucket`を含む公開バケットポリシーを設定すると、攻撃者がオブジェクト一覧を取得できる：
+
+```json
+// ❌ 危険：ListBucketを含む公開バケットポリシー
+{
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": "*",
+    "Action": ["s3:GetObject", "s3:ListBucket"],
+    "Resource": ["arn:aws:s3:::bucket-name", "arn:aws:s3:::bucket-name/*"]
+  }]
+}
+```
+
+防御策：
+- `s3:ListBucket` をパブリックバケットポリシーから除外する
+- Webホスティング用バケットにバックアップや機密ファイルを保存しない（バケットを用途ごとに分離する）
+- 本番環境では CloudFront + OAC を使用してS3バケットを直接公開しない
+
 ---
 
 ### 2. コードインジェクション攻撃（eval()悪用等）
@@ -172,6 +193,43 @@ aws secretsmanager get-secret-value \
 
 - `secretsmanager:ListSecrets` 権限を削除：Lambda関数は特定のシークレットのみ取得可能にし、全シークレットの列挙を防ぐ
 - 最小権限の原則：Lambda実行ロールに必要最小限の権限のみを付与
+
+---
+
+### 5. Secrets Manager連携のセキュアな実装パターン
+
+**環境変数 vs Secrets Manager の使い分け**
+
+| 用途 | 推奨 | 理由 |
+|------|------|------|
+| データベースパスワード | Secrets Manager | 自動ローテーション対応 |
+| APIキー（第三者サービス） | Secrets Manager | 監査ログ・アクセス制御 |
+| 機密でない設定値（リージョン等） | 環境変数 | 余分な権限付与不要 |
+| 認証情報（AWS_ACCESS_KEY_ID等） | IAMロール | ハードコード・環境変数は禁止 |
+
+**IAM権限の最小化（特定シークレットのみ許可）**
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "secretsmanager:GetSecretValue",
+            "Resource": "arn:aws:sts::123456789012:secret:prod/myapp-secret-*"
+        }
+    ]
+}
+```
+
+`secretsmanager:ListSecrets` は付与しない。Lambda関数は特定シークレットのARNを知っていれば列挙不要で取得できる。
+
+**セキュアな実装のポイント**
+
+- シークレットをソースコードにハードコードしない
+- 環境変数に機密情報（APIキー、パスワード）を直接設定しない（`env`コマンドで環境変数が取得された場合に露出する）
+- VPCエンドポイントを使用してSecrets Manager APIをプライベートに呼び出す（インターネット経由不要）
+- Secrets Manager取得エラーをハンドリングし、エラーメッセージに機密情報を含めない
 
 ---
 
@@ -343,6 +401,29 @@ aws ec2 create-vpc-endpoint \
 
 ---
 
+### 2-b. Lambda関数をVPCにアタッチする手順（マネジメントコンソール）
+
+VPCとセキュリティグループを作成後、Lambda関数をVPCに接続する。
+
+**操作手順**
+
+1. AWS管理コンソール → Lambda → 対象の関数を開く
+2. **Configuration** タブ → **VPC** → **Edit** をクリック
+3. VPCドロップダウンで作成済みのVPC（例: `NoOutboundVPC`）を選択
+4. Subnets に `PrivateSubnet`（プライベートサブネット）を選択
+5. Security Groups に `lambda-private-sg` を選択
+6. **Save** をクリックして保存を待つ
+
+**事前に必要なIAMポリシー（Lambda実行ロールに付与）**
+
+Lambda関数をVPCに接続するには、実行ロールにネットワークインターフェース作成権限が必要である。AWS管理ポリシー `AWSLambdaVPCAccessExecutionRole` をアタッチするか、「1. VPCアタッチメントの設定手順」に示したインラインポリシーを付与する（`ec2:CreateNetworkInterface`, `ec2:DescribeNetworkInterfaces`, `ec2:DeleteNetworkInterface` の3アクションが必要）。
+
+**アタッチ後の確認**
+
+Testタブでテストを実行し、Secrets Managerへのアクセスが引き続き成功することを確認する。VPCエンドポイントが正しく設定されていれば、インターネットへの接続なしにSecrets Managerからシークレットを取得できる。
+
+---
+
 ### 3. API Gateway経由のルーティング
 
 **API Gateway REST APIの作成**
@@ -418,6 +499,64 @@ aws lambda add-permission \
 
 ---
 
+### 3-b. API Gateway設定のセキュリティリスクと防御策
+
+**CORS設定のリスク**
+
+API GatewayでCORSを設定する際、以下のように`*`（ワイルドカード）を使用するとすべてのオリジンからのアクセスを許可することになる：
+
+```json
+{
+    "method.response.header.Access-Control-Allow-Origin": "'*'",
+    "method.response.header.Access-Control-Allow-Headers": "'*'",
+    "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'"
+}
+```
+
+本番環境では `*` を避け、許可するオリジンを明示的に指定すること：
+
+```json
+{
+    "method.response.header.Access-Control-Allow-Origin": "'https://your-domain.example.com'"
+}
+```
+
+**認証設定のリスク**
+
+```bash
+# ❌ 危険：認証なし（NONE）でメソッドを設定
+aws apigateway put-method \
+  --http-method GET \
+  --authorization-type "NONE"  # 誰でもアクセス可能
+
+# ✅ 本番環境ではIAM認証またはCognitoを使用
+aws apigateway put-method \
+  --http-method GET \
+  --authorization-type "AWS_IAM"  # IAM認証を強制
+```
+
+**API GatewayからLambdaへの呼び出し権限（最小権限の設定）**
+
+`lambda:InvokeFunction` の `source-arn` に具体的なAPI IDを指定し、特定のAPI Gatewayのみが呼び出せるようにする：
+
+```bash
+# source-arn でAPI GatewayのリソースARNを限定
+SARN="arn:aws:execute-api:$REGION:$ACCOUNT_ID:$REST_API_ID/*/*/$ROUTE_PATH"
+
+aws lambda add-permission \
+  --function-name $LAMBDA_NAME \
+  --statement-id "api-gw-invoke" \
+  --action lambda:InvokeFunction \
+  --principal apigateway.amazonaws.com \
+  --source-arn $SARN  # 特定APIのみに限定
+```
+
+**S3ホスティングサイトからAPI Gatewayへの接続パターン**
+
+静的WebサイトをS3でホスティングしつつ、バックエンドをAPI Gateway経由でLambdaに接続する構成がよく使われる。S3バケットのホスティングURLはHTTPであることが多いため、本番環境ではCloudFront（HTTPS）を前段に配置することを推奨する。Lambda Function URLを直接公開するのではなく、API Gatewayを介することでスロットリング・認証・監視を一元管理できる。
+
+---
+
 ### 4. VPC + Lambda構成でのコードインジェクション無効化
 
 **攻撃試行の確認**
@@ -451,6 +590,23 @@ REPORT RequestId: ... Duration: 3000.00 ms ... Status: timeout
 ```
 
 VPC設定により、外部への接続が完全にブロックされ、データのExfiltrationが防止されている。
+
+**VPCなし構成との比較**
+
+| 状況 | VPCなし（デフォルト） | VPC内（NAT Gatewayなし） |
+|------|----------------------|--------------------------|
+| 外部サーバーへのcurl | 成功（データ流出） | タイムアウト（ブロック） |
+| Secrets Managerアクセス | インターネット経由で成功 | VPCエンドポイント経由で成功 |
+| データExfiltration | 可能 | 防止 |
+
+**重要な注意点**
+
+VPC内Lambdaでも、以下の構成ではExfiltrationが可能となる：
+- **NAT Gatewayを追加した場合**：プライベートサブネットからインターネットへの通信が可能になる
+- **インターネットゲートウェイを追加した場合**：同様にインターネット接続が可能になる
+- **セキュリティグループのOutboundルールが緩い場合**：特定ポートへの通信が通過する
+
+VPCによる保護は、コードインジェクション脆弱性そのものを修正する代替手段ではない。ネットワーク制御はコードセキュリティ（eval()の排除、入力バリデーション等）と組み合わせて使用する。
 
 ---
 
