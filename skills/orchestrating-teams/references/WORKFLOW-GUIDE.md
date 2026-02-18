@@ -1,97 +1,77 @@
 # Agent Team ワークフローガイド
 
-Claude Code本体が直接Agent Team APIを操作する詳細なワークフロー（Step 1-8）を提供します。
+Claude Code本体がAgent Team APIを操作する2フェーズ方式のワークフロー。**Phase 1（計画策定）はplanner タチコマに委譲し、Phase 2（実装）でimplementer タチコマを並列起動**します。
 
 ---
 
-## Step 1: 要件分析とタスク分解
+## Phase 1: 計画策定
 
-### 1.1 ユーザー要求の分析
+### Step 1: 並列化判断 + TeamCreate
 
-ユーザーの要求を以下の観点で分析します:
-- **変更対象ファイル数**: 2つ以上か？
-- **関心事の独立性**: UI/API/テストが独立して開発可能か？
-- **依存関係**: タスク間に強い依存関係があるか？
-- **推定工数**: 各タスクの所要時間は？
+Claude Code本体が行うのは**最小限の判断のみ**:
 
-### 1.2 並列化可能性の判定
+1. ユーザー要求が並列実行の条件に該当するか判定
+   - ✅ 2つ以上のファイル変更 かつ 相互独立 → **Agent Team**
+   - ✅ 異なる関心事（UI + API + テスト） → **Agent Team**
+   - ✅ 2つ以上の独立サブタスク → **Agent Team**
+   - ✅ フロントエンド+バックエンド両方変更 → **Agent Team**
+   - ❌ 1ファイルのみ変更 → 単体タチコマ起動
+   - ❌ 密結合（前タスクの出力が次の入力） → 順次実行
 
-「使用タイミング（並列実行の判断基準）」を適用:
-- ✅ 2つ以上のファイル変更 かつ 相互独立 → **並列実行**
-- ✅ 異なる関心事（UI + API + テスト） → **並列実行**
-- ✅ 2つ以上の独立サブタスク → **並列実行**
-- ✅ フロントエンド+バックエンド両方変更 → **並列実行**
-- ❌ 1ファイルのみ変更 → 単体Agent起動
-- ❌ 密結合（前タスクの出力が次の入力） → 順次実行
+2. 該当する場合、**TeamCreate** を呼び出す:
 
-### 1.3 チーム編成パターンの選択
-
-`references/TEAM-PATTERNS.md` から最適なパターンを選択:
-- **feature-dev**: 要件→設計→実装→テストの一貫開発
-- **investigation**: 異なる観点での調査・デバッグ
-- **refactoring**: 分析→リファクタリング→テスト
-- **full-stack**: UI/API/テストが完全独立
-
-### 1.4 モデル戦略の選択
-
-デフォルト: **Adaptive**（Opus リーダー + Sonnet メンバー）
-
-| 状況 | 戦略 |
-|------|------|
-| 要件曖昧・設計判断多数 | Deep |
-| 標準的な機能開発 | Adaptive ⭐ |
-| 要件明確・納期重視 | Fast |
-| ドキュメント生成・定型作業 | Budget |
-
-### 1.5 タスク一覧の作成
-
-**1メンバーあたり5-6タスクを目標**
-
-例（ユーザー管理機能）:
-1. **backend**:
-   - タスク1: ユーザーモデルのスキーマ設計
-   - タスク2: REST API CRUD エンドポイント実装
-   - タスク3: バリデーション・エラーハンドリング
-2. **frontend**:
-   - タスク4: ユーザー一覧コンポーネント実装
-   - タスク5: ユーザー編集フォーム実装
-   - タスク6: API連携・エラー表示
-3. **tester**:
-   - タスク7: E2Eテストシナリオ作成
-   - タスク8: エラーケーステスト
-
-### 1.6 ファイル所有権パターンの定義
-
-**🔴 重要: 同一ファイル同時書き込み禁止**
-
-```
-frontend: src/components/**, src/pages/**
-backend: src/api/**, src/services/**, src/models/**
-tester: tests/e2e/**, tests/integration/**
+```json
+{
+  "team_name": "user-management",
+  "description": "ユーザー管理機能の開発"
+}
 ```
 
-競合が予想される場合は順次実行に変更。
+**注意:**
+- セッションあたり1チームのみ作成可能
+- `team_name` は `docs/plan-{feature-name}.md` の `{feature-name}` と一致させる
 
 ---
 
-## Step 2: 計画ドキュメント作成（docs/plan-*.md）
+### Step 2: planner タチコマ起動（計画策定を委譲）
 
-### 2.1 `docs/plan-{feature-name}.md` を作成
+**Claude Code本体はファイル読み込みや詳細分析を自分では行わず、planner タチコマに委譲する。**
 
-`references/PLAN-TEMPLATE.md` のテンプレートを使用します。
+planner タチコマの起動:
 
-### 2.2 必須セクション
+```json
+{
+  "description": "計画策定",
+  "prompt": "## タスク: 実装計画の策定\n\n**ユーザー要求:** {ユーザーの要求をそのまま記載}\n\n以下を実行してください:\n1. コードベースを分析し、変更対象ファイル・影響範囲を特定\n2. TEAM-PATTERNS.md を参照し、最適なチーム編成パターンを選択\n3. タスク分解（1メンバーあたり5-6タスク目標）\n4. ファイル所有権パターンを定義（同一ファイル同時書込禁止）\n5. docs/plan-{feature-name}.md を PLAN-TEMPLATE.md の形式で作成\n\n参照スキル: orchestrating-teams（references/TEAM-PATTERNS.md, references/PLAN-TEMPLATE.md）\n\n禁止事項:\n- 実装コードの変更（計画策定のみ）\n- jj書込操作",
+  "subagent_type": "sumik:タチコマ",
+  "model": "opus",
+  "team_name": "user-management",
+  "name": "planner",
+  "run_in_background": true,
+  "mode": "bypassPermissions"
+}
+```
 
-- **概要**: 変更の目的・背景
-- **チーム構成**: メンバー・モデル・担当・ファイル所有権
-- **タスクリスト**: `- [ ]` チェックリスト形式（進捗追跡用）
-- **ファイル所有権パターン**: パス別所有権定義
-- **実行ログ**: タイムスタンプ付き進捗記録
-- **回復手順**: 失敗時の再開手順
+**planner タチコマの責務:**
+- コードベースの読み込み・分析
+- 変更対象ファイル・影響範囲の特定
+- `references/TEAM-PATTERNS.md` から最適なチーム編成パターンを選択
+- モデル戦略の選択（デフォルト: Adaptive）
+- タスク分解（1メンバーあたり5-6タスク目標）
+- ファイル所有権パターンの定義
+- `docs/plan-{feature-name}.md` の作成（`references/PLAN-TEMPLATE.md` 形式）
 
-### 2.3 ユーザー確認を取得
+**planner タチコマは実装コードを変更しない（読み取り専用 + docs/ への計画書作成のみ）。**
 
-AskUserQuestion を使用して計画を確認:
+---
+
+### Step 3: 計画レビュー・承認
+
+planner タチコマが `docs/plan-{feature-name}.md` を作成したら、Claude Code本体がレビュー:
+
+1. `docs/plan-{feature-name}.md` の内容を確認
+2. AskUserQuestion でユーザー確認を取得:
+
 ```python
 AskUserQuestion(
     questions=[{
@@ -105,31 +85,15 @@ AskUserQuestion(
 )
 ```
 
----
-
-## Step 3: TeamCreate でチーム作成
-
-**TeamCreate tool を呼び出します:**
-
-```json
-{
-  "team_name": "user-management",
-  "description": "ユーザー管理機能の開発（UI + API + テスト）"
-}
-```
-
-### 注意事項
-- **セッションあたり1チームのみ作成可能**
-- `team_name` は `docs/plan-{feature-name}.md` の `{feature-name}` と一致させる
-- `description` は簡潔に（50文字以内推奨）
+修正が必要な場合は、planner タチコマに SendMessage でフィードバックを送信。
 
 ---
 
-## Step 4: TaskCreate でタスク一覧作成
+## Phase 2: 実装
 
-### 4.1 各タスクを TaskCreate で作成
+### Step 4: TaskCreate でタスク一覧作成
 
-**計画ドキュメントのタスクリストに基づいて作成**
+**planner が作成した `docs/plan-*.md` のタスクリストに基づいて作成**
 
 ```json
 {
@@ -139,7 +103,7 @@ AskUserQuestion(
 }
 ```
 
-### 4.2 フィールド説明
+### フィールド説明
 
 | フィールド | 必須 | 説明 |
 |-----------|------|------|
@@ -147,7 +111,7 @@ AskUserQuestion(
 | `description` | ✅ | 詳細な説明（対象ファイル・具体的な実装内容） |
 | `activeForm` | ✅ | 進捗表示用のステータス（「〜中」形式） |
 
-### 4.3 依存関係の設定（TaskUpdate）
+### 依存関係の設定（TaskUpdate）
 
 タスク間に依存関係がある場合、**TaskUpdate tool の `addBlockedBy`** で設定:
 
@@ -162,11 +126,11 @@ AskUserQuestion(
 
 ---
 
-## Step 5: メンバースポーン（Task tool）
+### Step 5: implementer タチコマ並列起動（Task tool）
 
 ### 🔴 重要: 必ずTask toolを使用（Bash経由禁止）
 
-**Claude Code本体が Task tool を直接呼び出します。**
+**Claude Code本体が Task tool を直接呼び出し、planner の計画に基づいてimplementer タチコマを並列起動します。**
 
 ### 5.1 Task tool パラメータ
 
@@ -244,7 +208,9 @@ AskUserQuestion(
 
 ---
 
-## Step 6: 進捗管理
+## Step 6: 進捗管理（planner シャットダウン → implementer 監視）
+
+**Step 5 で implementer タチコマを起動したら、不要になった planner タチコマをシャットダウンしてリソースを解放する。**
 
 ### 6.1 TaskList で進捗確認
 
