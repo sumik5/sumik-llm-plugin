@@ -26,24 +26,23 @@ sumik-claude-plugin/
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
-├── agents/             # Agent定義 (3体)
+├── agents/             # Agent定義 (2体)
 ├── commands/           # スラッシュコマンド (9個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (76個)
+└── skills/             # ナレッジスキル (77個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Agents (3体)
+### Agents (2体)
 
 | Agent | モデル | 説明 |
 |-------|--------|------|
 | **タチコマ** (tachikoma) | Sonnet | 実装・実行Agent。フロント/バック/テスト等に適応。並列実行対応(1-4体) |
 | **Serena Expert** (serena-expert) | Sonnet | /serenaコマンドを活用したトークン効率重視の開発Agent |
-| **Team Builder** (team-builder) | Opus | チーム編成・タスク分解・Agent協調オーケストレーター。4種のモデル戦略とチーム構成テンプレートで並列開発を最適化 |
 
 ### Commands (9個)
 
@@ -59,7 +58,7 @@ sumik-claude-plugin/
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 
-### Skills (76個)
+### Skills (77個)
 
 #### コア開発
 
@@ -143,6 +142,7 @@ sumik-claude-plugin/
 | `using-drawio-mcp` | draw.io MCP Server統合（XML/CSV/Mermaid形式でダイアグラム作成・ブラウザ表示） |
 | `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
 | `viewing-diffs` | difit GitHub風差分ビューア（git diff のブラウザ表示・自動インストール対応） |
+| `orchestrating-teams` | Agent Teamオーケストレーション（チーム編成・タチコマ並列起動・進捗管理・docs先行開発） |
 
 #### ドキュメント・品質
 

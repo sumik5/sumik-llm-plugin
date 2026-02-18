@@ -1,6 +1,6 @@
 ---
 description: >-
-  Comprehensive AWS development guide covering system design (architecture patterns, trade-offs, 8 real-world case studies), serverless (Lambda, API Gateway, DynamoDB, Step Functions, S3), CDK infrastructure as code (Constructs, testing, DevSecOps), EKS Kubernetes (cluster management, networking, security, scaling), SRE operations (automation, observability, resilience, incident response), cost optimization (FinOps, rightsizing, Savings Plans, Spot), security (IAM, VPC, KMS, Cognito, GuardDuty), and generative AI (Amazon Bedrock, RAG, Agents, multimodal, fine-tuning).
+  Comprehensive AWS development guide covering system design (architecture patterns, trade-offs, 8 real-world case studies), serverless (Lambda, API Gateway, DynamoDB, Step Functions, S3), CDK infrastructure as code (Constructs, testing, DevSecOps), EKS Kubernetes (cluster management, networking, security, scaling), SRE operations (automation, observability, resilience, incident response), cost optimization (FinOps, rightsizing, Savings Plans, Spot), security (IAM, VPC, KMS, Cognito, GuardDuty, incident response, forensics), generative AI (Amazon Bedrock, RAG, Agents, multimodal, fine-tuning), database services (Aurora, DynamoDB advanced, DocumentDB, Neptune, Timestream, ElastiCache, migration with DMS/SCT), data engineering (Glue, Athena, EMR, Redshift, Lake Formation, data pipelines), developer tools (CodePipeline, CodeBuild, CodeDeploy, Elastic Beanstalk, Amplify), SageMaker ML (training, deployment, MLOps, model monitoring), and SysOps operations (Systems Manager, Auto Scaling, patch management).
   MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in package.json, cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), buildspec.yml, or AWS-related infrastructure files (.aws/, eksctl configs).
   For GCP development, use developing-google-cloud instead. For Terraform IaC, use developing-terraform instead. For Docker container patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For general RAG architecture, use building-rag-systems instead. For general LLMOps operations, use practicing-llmops instead. For serverless security (IAM attacks, Lambda hacking, privilege escalation), use securing-serverless instead.
 ---
@@ -216,7 +216,7 @@ AWS上でのアプリケーション設計・構築・運用を包括的にカ�
 ### システム設計
 - [SYSTEM-DESIGN.md](references/SYSTEM-DESIGN.md) — 設計トレードオフ、分散システムの誤謬、アーキテクチャパターン
 - [STORAGE-SELECTION.md](references/STORAGE-SELECTION.md) — RDS/DynamoDB/S3/ElastiCache選定ガイド
-- [NETWORKING.md](references/NETWORKING.md) — VPC/LB/CDN/Route 53設計
+- [NETWORKING.md](references/NETWORKING.md) — VPC/LB/CDN/Route 53設計、ネットワーク監視・トラブルシューティング
 - [COMPUTE-SELECTION.md](references/COMPUTE-SELECTION.md) — EC2/Lambda/ECS/EKS/Fargate選定
 - [MESSAGING-INTEGRATION.md](references/MESSAGING-INTEGRATION.md) — SQS/SNS/EventBridge/Step Functions
 - [DESIGN-CASE-STUDIES.md](references/DESIGN-CASE-STUDIES.md) — 8つの実践的システム設計ケーススタディ
@@ -230,17 +230,28 @@ AWS上でのアプリケーション設計・構築・運用を包括的にカ�
 - [EKS-FUNDAMENTALS.md](references/EKS-FUNDAMENTALS.md) — EKS基礎、クラスタ管理、ネットワーキング
 - [EKS-OPERATIONS.md](references/EKS-OPERATIONS.md) — EKSセキュリティ、デプロイ戦略、HA/DR、スケーリング
 
+### データベース・データエンジニアリング
+- [DATABASE-SERVICES.md](references/DATABASE-SERVICES.md) — RDS/Aurora/DynamoDB/ElastiCache/その他DBサービス詳細
+- [DATABASE-MIGRATION.md](references/DATABASE-MIGRATION.md) — DMS、SCT、移行パターン、Zero-ETL統合
+- [DATA-ENGINEERING.md](references/DATA-ENGINEERING.md) — Kinesis/Firehose/MSK/Glue/EMR、データパイプライン設計
+
+### 開発者ツール
+- [DEVELOPER-TOOLS.md](references/DEVELOPER-TOOLS.md) — CodeCommit/CodeBuild/CodeDeploy/CodePipeline、CI/CD、デプロイ戦略
+
 ### 運用・セキュリティ
 - [SRE-AUTOMATION.md](references/SRE-AUTOMATION.md) — IaC自動化、リリース自動化、インフラメンテナンス
 - [OBSERVABILITY.md](references/OBSERVABILITY.md) — CloudWatch/X-Ray、SLI/SLO、ログ分析
 - [RESILIENCE.md](references/RESILIENCE.md) — レジリエンスパターン、Fault Injection Service、DR戦略
 - [SECURITY.md](references/SECURITY.md) — IAM/VPC Security/KMS/Cognito/EKSセキュリティ
+- [SECURITY-ADVANCED.md](references/SECURITY-ADVANCED.md) — GuardDuty/Macie/Inspector/Security Hub、高度なセキュリティサービス
+- [SYSOPS-OPERATIONS.md](references/SYSOPS-OPERATIONS.md) — Systems Manager、Auto Scaling、コスト管理、バックアップ、トラブルシューティング
 - [COST-OPTIMIZATION.md](references/COST-OPTIMIZATION.md) — FinOps、rightsizing、Savings Plans、コストツール
 
-### Generative AI
+### AI/ML
 - [BEDROCK-API.md](references/BEDROCK-API.md) — Bedrock API、モデル選定、プロンプトエンジニアリング
 - [RAG-AGENTS.md](references/RAG-AGENTS.md) — Knowledge Bases、RAG構築、Bedrock Agents
 - [GENAI-ARCHITECTURE.md](references/GENAI-ARCHITECTURE.md) — GenAIセキュリティ、パフォーマンス、スケーリング
+- [SAGEMAKER-ML.md](references/SAGEMAKER-ML.md) — SageMaker Studio、データ準備、モデル開発・トレーニング・デプロイ・監視、MLOps
 
 ---
 

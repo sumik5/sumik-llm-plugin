@@ -2,6 +2,8 @@
 
 AWSのネットワークサービスを活用し、セキュアで高可用性なネットワークアーキテクチャを構築するための実践的なガイドです。
 
+> **関連**: システム運用は [SYSOPS-OPERATIONS.md](./SYSOPS-OPERATIONS.md)、セキュリティは [SECURITY-ADVANCED.md](./SECURITY-ADVANCED.md) を参照
+
 ---
 
 ## 1. ロードバランシングの基礎
@@ -669,6 +671,237 @@ aws cloudfront create-distribution \
 
 ---
 
+## 7. ネットワーク監視とトラブルシューティング
+
+### 7.1 VPC Flow Logs
+
+**概要**:
+VPC内のネットワークトラフィックをキャプチャするサービス。
+
+**出力先**
+
+| 出力先 | 特徴 | ユースケース |
+|--------|------|------------|
+| CloudWatch Logs | リアルタイム分析、メトリクスフィルター | アラート、ダッシュボード |
+| S3 | 大容量保存、コスト効率 | 長期アーカイブ、Athena分析 |
+| Kinesis Data Firehose | ストリーム処理 | リアルタイム分析基盤 |
+
+**ログフォーマット（デフォルト）**
+
+```
+<version> <account-id> <interface-id> <srcaddr> <dstaddr> <srcport> <dstport> <protocol> <packets> <bytes> <start> <end> <action> <log-status>
+```
+
+| フィールド | 説明 |
+|----------|------|
+| srcaddr/dstaddr | 送信元/宛先IPアドレス |
+| srcport/dstport | 送信元/宛先ポート |
+| protocol | プロトコル番号（6=TCP, 17=UDP） |
+| action | ACCEPT または REJECT |
+| log-status | OK, NODATA, SKIPDATA |
+
+**分析例 - Athenaクエリ**:
+
+```sql
+-- リジェクトされたトラフィック
+SELECT srcaddr, dstaddr, dstport, protocol, COUNT(*) as count
+FROM vpc_flow_logs
+WHERE action = 'REJECT'
+GROUP BY srcaddr, dstaddr, dstport, protocol
+ORDER BY count DESC
+LIMIT 20;
+
+-- 上位通信先
+SELECT dstaddr, SUM(bytes) as total_bytes
+FROM vpc_flow_logs
+WHERE action = 'ACCEPT'
+GROUP BY dstaddr
+ORDER BY total_bytes DESC
+LIMIT 10;
+```
+
+### 7.2 VPC Traffic Mirroring
+
+**概要**:
+ENI（Elastic Network Interface）のトラフィックをミラーリングして分析。
+
+**コンポーネント**
+
+| コンポーネント | 説明 |
+|--------------|------|
+| ミラーソース | トラフィック取得対象のENI |
+| ミラーターゲット | 分析用のENIまたはNLB |
+| ミラーフィルター | キャプチャするトラフィックの条件 |
+| ミラーセッション | ソース、ターゲット、フィルターの組み合わせ |
+
+**ユースケース**
+- セキュリティ監視とフォレンジック
+- ネットワーク侵入検知（IDS/IPS）
+- アプリケーション性能分析
+- コンプライアンス監査
+
+**設定手順**:
+
+```bash
+# ミラーターゲット作成（EC2インスタンスのENI）
+aws ec2 create-traffic-mirror-target \
+    --network-interface-id eni-12345678 \
+    --description "Analysis target"
+
+# ミラーフィルター作成
+aws ec2 create-traffic-mirror-filter \
+    --description "HTTP traffic filter"
+
+# フィルタールール追加（インバウンドHTTP）
+aws ec2 create-traffic-mirror-filter-rule \
+    --traffic-mirror-filter-id tmf-12345678 \
+    --traffic-direction ingress \
+    --rule-number 100 \
+    --rule-action accept \
+    --destination-port-range FromPort=80,ToPort=80 \
+    --protocol 6 \
+    --destination-cidr-block 0.0.0.0/0 \
+    --source-cidr-block 0.0.0.0/0
+
+# ミラーセッション作成
+aws ec2 create-traffic-mirror-session \
+    --network-interface-id eni-source123 \
+    --traffic-mirror-target-id tmt-12345678 \
+    --traffic-mirror-filter-id tmf-12345678 \
+    --session-number 1
+```
+
+### 7.3 AWS Network Manager
+
+**概要**:
+グローバルネットワークの一元管理と可視化。Transit Gateway Network Managerとも呼ばれる。
+
+**機能**
+
+| 機能 | 説明 |
+|------|------|
+| トポロジービュー | グローバルネットワーク可視化 |
+| イベント監視 | ネットワークイベントの追跡 |
+| ルートアナライザー | 経路分析とトラブルシューティング |
+| CloudWatch統合 | メトリクスとアラーム |
+
+**Route Analyzer**
+- パス分析: 送信元から宛先への経路検証
+- 到達可能性の確認
+- ルーティング問題の特定
+
+### 7.4 ネットワーククォータと制限
+
+**VPCクォータ**
+
+| リソース | デフォルト制限 | 備考 |
+|---------|--------------|------|
+| リージョンあたりのVPC | 5 | 引き上げ可能 |
+| VPCあたりのサブネット | 200 | 引き上げ可能 |
+| VPCあたりのルートテーブル | 200 | 引き上げ可能 |
+| ルートテーブルあたりのルート | 50 | 引き上げ可能（最大1,000） |
+| VPCあたりのセキュリティグループ | 2,500 | 引き上げ可能 |
+| セキュリティグループあたりのルール | 60 (in) + 60 (out) | 引き上げ可能 |
+
+**帯域幅とスループット**
+
+| サービス | 制限 | 備考 |
+|---------|------|------|
+| NAT Gateway | 45 Gbps（バースト） | 複数配置で分散 |
+| VPCピアリング | 制限なし（インスタンス依存） | - |
+| Transit Gateway | 50 Gbps（アタッチメントあたり） | - |
+| VPN接続 | 1.25 Gbps | ECMPで複数集約 |
+| Direct Connect | 1/10/100 Gbps | 接続タイプ依存 |
+
+### 7.5 MTUとパケットサイズ
+
+**MTU設定**
+
+| 接続タイプ | MTU | 備考 |
+|-----------|-----|------|
+| VPC内通信 | 9,001（ジャンボフレーム） | インスタンスタイプ依存 |
+| インターネットゲートウェイ | 1,500 | 標準MTU |
+| VPN接続 | 1,400 | IPsecオーバーヘッド |
+| Direct Connect | 9,001 | ジャンボフレーム対応 |
+| Transit Gateway | 8,500 | - |
+
+**Path MTU Discovery (PMTUD)**
+- エンドツーエンドの最適MTU検出
+- ICMP「Fragmentation Needed」メッセージ使用
+- セキュリティグループでICMPタイプ3を許可必要
+
+**トンネルオーバーヘッド考慮**
+
+```
+標準イーサネットMTU: 1,500バイト
+IPsec VPN: 1,500 - 100（オーバーヘッド）≒ 1,400バイト
+GRE+IPsec: 1,500 - 124 ≒ 1,376バイト
+```
+
+### 7.6 ロードバランサーアクセスログ
+
+**ALBアクセスログ**
+
+| フィールド | 説明 |
+|----------|------|
+| request_processing_time | リクエスト受信〜ターゲット送信 |
+| target_processing_time | ターゲット応答時間 |
+| response_processing_time | 応答送信時間 |
+| elb_status_code | ALBのステータスコード |
+| target_status_code | ターゲットのステータスコード |
+| actions_executed | 実行されたアクション |
+
+**NLBアクセスログ**
+- TLS接続のみログ記録可能
+- 5分間隔でS3に出力
+- ベストエフォート配信
+
+**CloudFrontログ**
+
+| タイプ | 特徴 | 出力先 |
+|--------|------|--------|
+| 標準アクセスログ | 全リクエスト記録 | S3 |
+| リアルタイムログ | サンプリング、フィルタリング可 | Kinesis Data Streams |
+
+### 7.7 ネットワークトラブルシューティングフロー
+
+**接続問題診断**
+
+```
+接続できない
+    ↓
+1. セキュリティグループ確認
+    - ポート許可
+    - プロトコル許可
+    ↓
+2. ネットワークACL確認
+    - インバウンド/アウトバウンド両方
+    - エフェメラルポート（1024-65535）
+    ↓
+3. ルートテーブル確認
+    - 宛先へのルート存在
+    - 適切なゲートウェイ設定
+    ↓
+4. VPC Flow Logs分析
+    - ACCEPT/REJECTの確認
+    - トラフィックパターン
+    ↓
+5. エンドポイント確認
+    - DNS解決
+    - サービスエンドポイント
+```
+
+**パフォーマンス問題診断**
+
+| 症状 | 確認ポイント | 対処 |
+|------|------------|------|
+| 高レイテンシ | リージョン間通信、ホップ数 | CloudFront、Global Accelerator |
+| 帯域不足 | インスタンスタイプ、ENA有効化 | 大きいインスタンス、ENA |
+| パケットロス | VPC Flow Logs、Network Manager | ルート最適化、冗長化 |
+| 接続タイムアウト | NAT Gateway、セキュリティグループ | タイムアウト設定調整 |
+
+---
+
 ## まとめ
 
 AWSネットワーキングの設計では、以下の要素を総合的に考慮します:
@@ -679,5 +912,14 @@ AWSネットワーキングの設計では、以下の要素を総合的に考�
 4. **接続性**: VPCピアリング vs Transit Gateway (スケール要件)
 5. **DNS**: Route 53 ルーティングポリシー (レイテンシ、地理的、重み付け)
 6. **CDN**: CloudFront でグローバル配信、キャッシュ戦略
+7. **監視**: VPC Flow Logs、Traffic Mirroring、Network Manager
 
-一般的なベストプラクティスとして、高可用性のためにマルチAZ構成を採用し、セキュリティのために複数の防御層を実装し、パフォーマンスのためにCDNとキャッシュを活用することが推奨されます。
+一般的なベストプラクティスとして、高可用性のためにマルチAZ構成を採用し、セキュリティのために複数の防御層を実装し、パフォーマンスのためにCDNとキャッシュを活用し、運用のためにネットワーク監視を適切に設定することが推奨されます。
+
+---
+
+## 関連リファレンス
+
+- [SYSOPS-OPERATIONS.md](./SYSOPS-OPERATIONS.md) - 運用管理
+- [SECURITY-ADVANCED.md](./SECURITY-ADVANCED.md) - ネットワークセキュリティ
+- [SYSTEM-DESIGN.md](./SYSTEM-DESIGN.md) - システム設計パターン
