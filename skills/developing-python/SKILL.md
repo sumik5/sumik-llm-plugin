@@ -1,10 +1,10 @@
 ---
 name: developing-python
 description: >-
-  Modern Python development guide covering project setup, tooling, 125 Pythonic best practices, OOP design principles, and GoF design patterns.
-  MUST load when pyproject.toml or requirements.txt is detected.
+  Modern Python development guide covering project setup, tooling, 125 Pythonic best practices, 50 practical exercise patterns (file I/O, data manipulation, function design, OOP composition, iterators, comprehension idioms), OOP design principles, GoF design patterns, and software engineering process (SDLC, system modeling, methodologies, project implementation patterns, CI/CD, API design). MUST load when pyproject.toml or requirements.txt is detected.
   Covers Python 3.13 + uv + ruff + mypy, FastAPI/FastMCP, pytest, Docker, Effective Python items (idioms, data structures, concurrency, testing),
-  and software design (encapsulation, Demeter's Law, LSP, Design by Contract, behavioral/creational/structural patterns in Python).
+  software design (encapsulation, Demeter's Law, LSP, Design by Contract, behavioral/creational/structural patterns in Python),
+  and SE practices (SDLC phases, Scrum/Kanban, system architecture, code organization, data persistence, API framework comparison, deployment strategies).
   For language-agnostic clean code principles, use writing-clean-code.
 ---
 
@@ -13,9 +13,13 @@ description: >-
 ## 🎯 使用タイミング
 - **Pythonプロジェクト新規作成時**
 - **FastAPI + FastMCP実装時**
+- **FastAPI DI設計・テスト時**
 - **Python開発環境の構成時**
 - **CI/CDパイプライン構築時**
 - **Dockerイメージ作成時**
+- **システム設計・アーキテクチャ検討時**
+- **開発方法論の選択時（Scrum/Kanban等）**
+- **API標準・フレームワーク選定時**
 
 ## 📚 ドキュメント構成
 
@@ -35,6 +39,14 @@ FastAPIとFastMCPを使用したベストプラクティス：
 - 依存性注入（DI）の活用
 - エラーハンドリング戦略
 - Pydanticによるバリデーション
+
+### 2.5 [FastAPI DI パターン](./references/DI-FASTAPI.md)
+FastAPI の依存性注入を体系的に理解・設計するためのガイド：
+- IoC / DIP の概念とDIコンテナとしての `Depends`
+- 関数依存性・クラス依存性・サブ依存性チェーン
+- エラーハンドリング・バリデーション依存性パターン
+- スコープ管理（リクエストスコープ・Singleton・lifespan）
+- `dependency_overrides` と pytest fixtures によるテスト設計
 
 ### 3. [テスト戦略](./references/TESTING.md)
 pytest + カバレッジ80%以上を達成する方法：
@@ -185,6 +197,36 @@ uv run pytest
 4. **ツール設定**: [開発ツール](./references/TOOLING.md)でuv/ruff/mypy設定
 5. **Docker化**: [Docker構成](./references/DOCKER.md)でマルチステージビルド
 6. **コード例**: [実装例](./references/EXAMPLES.md)で具体的なパターンを確認
+7. **SE プロセス**: [SDLC・方法論](./references/SE-SDLC-METHODOLOGY.md)で開発ライフサイクルを理解
+8. **システム設計**: [システムモデリング](./references/SE-SYSTEM-MODELING.md)でアーキテクチャ設計
+9. **プロジェクト実装**: [実装パターン](./references/SE-PROJECT-PATTERNS.md)でビジネスオブジェクト設計
+10. **API・デプロイ**: [CI/CD・API・デプロイ](./references/SE-API-DEPLOYMENT.md)で本番環境構築
+11. **実践パターン**: [PW-PRACTICAL-IO.md](./references/PW-PRACTICAL-IO.md)からファイルI/Oパターンを確認
+
+## Software Engineering Process（ソフトウェアエンジニアリングプロセス）
+
+開発ライフサイクル、方法論、システム設計、プロジェクト実装パターン。
+
+| ファイル | 内容 |
+|---------|------|
+| [SE-SDLC-METHODOLOGY.md](./references/SE-SDLC-METHODOLOGY.md) | SDLC 10フェーズ、Waterfall/Scrum/Kanban比較、方法論選択基準 |
+| [SE-SYSTEM-MODELING.md](./references/SE-SYSTEM-MODELING.md) | 論理/物理アーキテクチャ、ユースケース、データフロー、IPC設計 |
+| [SE-CODE-STANDARDS.md](./references/SE-CODE-STANDARDS.md) | コード構成、認知負荷管理、データ契約、可観測性 |
+| [SE-PROJECT-PATTERNS.md](./references/SE-PROJECT-PATTERNS.md) | ビジネスオブジェクト設計、データ永続化、ABC/Repositoryパターン |
+| [SE-API-DEPLOYMENT.md](./references/SE-API-DEPLOYMENT.md) | CI/CD、API標準比較、Flask vs FastAPI、デプロイメント戦略 |
+
+## Python実践パターン（Python Practical Patterns）
+
+50の実践的パターンから抽出したPython実践テクニック。
+
+| ファイル | 内容 |
+|---------|------|
+| [PW-PRACTICAL-IO.md](./references/PW-PRACTICAL-IO.md) | ファイルI/O実践（CSV/JSON/構造化テキスト/pathlib/StringIO） |
+| [PW-DATA-MANIPULATION.md](./references/PW-DATA-MANIPULATION.md) | データ操作（sorted+key/Counter/dict蓄積/集合演算） |
+| [PW-FUNCTION-DESIGN.md](./references/PW-FUNCTION-DESIGN.md) | 関数設計（ディスパッチテーブル/クロージャ/operator/LEGB） |
+| [PW-OOP-COMPOSITION.md](./references/PW-OOP-COMPOSITION.md) | OOPコンポジション（has-a/多段構成/dict継承/ICPO） |
+| [PW-ITERATOR-PROTOCOL.md](./references/PW-ITERATOR-PROTOCOL.md) | イテレータプロトコル（__iter__/__next__/ジェネレータ関数） |
+| [PW-COMPREHENSION-IDIOMS.md](./references/PW-COMPREHENSION-IDIOMS.md) | 内包表記イディオム（集合/辞書内包表記/map-filter比較） |
 
 ## Software Design（ソフトウェア設計）
 
