@@ -1,6 +1,11 @@
 ---
 name: developing-python
-description: Modern Python development guide covering project setup, tooling, and 125 Pythonic best practices. MUST load when pyproject.toml or requirements.txt is detected. Covers Python 3.13 + uv + ruff + mypy, FastAPI/FastMCP, pytest, Docker, and Effective Python items (idioms, data structures, concurrency, testing).
+description: >-
+  Modern Python development guide covering project setup, tooling, 125 Pythonic best practices, OOP design principles, and GoF design patterns.
+  MUST load when pyproject.toml or requirements.txt is detected.
+  Covers Python 3.13 + uv + ruff + mypy, FastAPI/FastMCP, pytest, Docker, Effective Python items (idioms, data structures, concurrency, testing),
+  and software design (encapsulation, Demeter's Law, LSP, Design by Contract, behavioral/creational/structural patterns in Python).
+  For language-agnostic clean code principles, use writing-clean-code.
 ---
 
 # Python開発環境（Modern Python Development）
@@ -180,6 +185,20 @@ uv run pytest
 4. **ツール設定**: [開発ツール](./references/TOOLING.md)でuv/ruff/mypy設定
 5. **Docker化**: [Docker構成](./references/DOCKER.md)でマルチステージビルド
 6. **コード例**: [実装例](./references/EXAMPLES.md)で具体的なパターンを確認
+
+## Software Design（ソフトウェア設計）
+
+Python向けOOP設計原則とGoFデザインパターン。
+
+| ファイル | 内容 |
+|---------|------|
+| [SD-FOUNDATIONS.md](./references/SD-FOUNDATIONS.md) | 設計プロセス基礎、反復設計 |
+| [SD-REQUIREMENTS.md](./references/SD-REQUIREMENTS.md) | 要件定義、クラス設計、UML |
+| [SD-PRINCIPLES.md](./references/SD-PRINCIPLES.md) | カプセル化、デメテルの法則、OCP、LSP、契約による設計 |
+| [SD-BEHAVIORAL.md](./references/SD-BEHAVIORAL.md) | Template Method, Strategy, Iterator, Visitor, Observer, State |
+| [SD-CREATIONAL.md](./references/SD-CREATIONAL.md) | Factory Method, Abstract Factory, Singleton |
+| [SD-STRUCTURAL.md](./references/SD-STRUCTURAL.md) | Adapter, Facade, Composite, Decorator |
+| [SD-ALGORITHMS.md](./references/SD-ALGORITHMS.md) | 再帰/バックトラッキング、マルチスレッド |
 
 ## Effective Python
 

@@ -388,12 +388,20 @@ Phase 0.5で確定した各スキルグループに対して、以下のフェ�
 確定グループ: [Group 1, Group 2, Group 3]
 
 for each group in groups:
-    Phase 1: 分析（グループ内全ファイルを対象）
-    Phase 2: ユーザー確認（スキル名・構成）
-    Phase 3: 構造設計
-    Phase 3.5: トリガー設定
-    Phase 4: 生成（Team Builder使用 → タチコマ並列）
-    Phase 5: 品質チェック
+    ── orchestrating-teams Phase 1（計画策定）──
+    Step A: TeamCreate（Claude Code本体）
+    Step B: planner タチコマ起動（model: opus）
+            → Phase 1: 分析 + Phase 3: 構造設計 + Phase 3.5: トリガー設定 + docs/plan作成
+    Step C: Claude Code本体がplannerの計画をレビュー
+    Step D: Phase 2: ユーザー確認（AskUserQuestion）
+
+    ── orchestrating-teams Phase 2（実装）──
+    Step E: TaskCreate（Claude Code本体がplannerの計画に基づき作成）
+    Step F: implementer タチコマ並列起動（model: sonnet）→ Phase 4: ファイル生成
+    Step G: Phase 5: 品質チェック（Claude Code本体）
+
+    ── クリーンアップ ──
+    Step H: SendMessage shutdown_request → TeamDelete
 ```
 
 **注意**: 各グループの処理結果（作成されたスキル名、ファイル構成、成果物パス）を記録し、全グループ完了後に最終レポートを作成する。
@@ -480,44 +488,90 @@ AskUserQuestion(
 
 #### 4.0 実行戦略の選択
 
-生成フェーズの実行戦略は、スキルの複雑度とファイル数に応じて以下のルールで選択する:
+生成フェーズは `orchestrating-teams` スキルの2フェーズ方式に従い、スキルの複雑度とファイル数に応じて実行する:
 
 | 条件 | 実行戦略 | 理由 |
 |------|---------|------|
-| 単一スキル・SKILL.md単体 | タチコマ1体を直接起動 | シンプルなタスク |
-| 単一スキル・複数ファイル分割（SKILL.md + サブファイル） | Team Builder使用（SKILL.md + サブファイル並列生成） | 並列化による効率化 |
-| 複数スキルグループ（2つ以上） | Team Builder使用（Phase 1-3は順次、Phase 4の生成部分を並列化可能） | 大規模変換の効率化 |
+| 単一スキル・SKILL.md単体 | タチコマ1体を直接起動（チーム不要） | シンプルなタスク |
+| 単一スキル・複数ファイル分割 | orchestrating-teams 2フェーズ方式（planner + implementers並列） | 並列化による効率化 |
+| 複数スキルグループ（2つ以上） | orchestrating-teams 2フェーズ方式（グループごとにPhase 1-2実行） | 大規模変換の効率化 |
 
-**デフォルト推奨**: 複数ファイル分割や複数スキル生成の場合は**Team Builderを優先使用**する。
+**デフォルト推奨**: 複数ファイル分割や複数スキル生成の場合は **orchestrating-teams を使用**する。
 
-#### 4.0.1 Team Builder 起動テンプレート
+#### 4.0.1 orchestrating-teams 実行フロー
 
-Team Builderに以下の情報を伝達してタチコマを並列起動する:
+##### Step A: TeamCreate
 
-```markdown
-## Team Builder への指示
-
-**チーム編成:**
-- スキル名: [スキル名]
-- タスク分解: [各ファイルを個別タスクに分割]
-
-**ファイル所有権パターン:**
-- メンバーA: SKILL.md（frontmatter + メインコンテンツ）
-- メンバーB: references/REFERENCE.md（詳細リファレンス）
-- メンバーC: references/EXAMPLES.md（実装例）
-
-**各メンバーの要件:**
-- frontmatter: 英語description、三部構成（What/When/差別化）
-- セクション構成: Phase 3の設計に従う
-- 変換ルール: 4.1〜4.6 に従う（ソース出典除去、AskUserQuestion配置、日本語本文）
-
-**排他情報:**
-- README.md更新: 最後のメンバー（メンバーA）に集約
-- 類似スキルのdescription更新: SKILL.md生成後にメンバーAが実施
-
-**完了条件:**
-- 全メンバーの成果物が生成され、品質チェック（Phase 5）を通過
+```json
+TeamCreate({
+  "team_name": "{skill-name}-conversion",
+  "description": "{skill-name} スキル変換"
+})
 ```
+
+##### Step B: planner タチコマ起動
+
+planner は Phase 0 で変換済みのMarkdownを読み込み、Phase 1（分析）+ Phase 3（構造設計）+ Phase 3.5（トリガー設定）を実行する。
+
+```json
+Task({
+  "description": "計画策定",
+  "prompt": "## タスク: スキル変換計画の策定\n\n**ユーザー要求:** {変換元ファイルパスと変換指示}\n**変換済みMarkdown:** {Phase 0で生成したMDファイルパス}\n\n以下を実行:\n1. ソースMarkdown分析（内容構造、トピック、コード例、推定行数）\n2. 既存スキルとのスコープ比較\n3. スキル名候補生成（gerund形式2-3個）\n4. ファイル構成設計（SKILL.md + サブファイル構成）\n5. Frontmatter設計（英語description、三部構成）\n6. トリガー設定（REQUIRED/SessionStart/Use when）\n7. 類似スキルのdescription相互更新設計\n8. docs/plan-{skill-name}.md を作成\n\n参照: authoring-skills（CONVERTING.mdの変換ルール4.1〜4.6）",
+  "subagent_type": "sumik:タチコマ",
+  "model": "opus",
+  "team_name": "{skill-name}-conversion",
+  "name": "planner",
+  "run_in_background": true,
+  "mode": "bypassPermissions"
+})
+```
+
+**planner の責務:**
+- ソースMarkdownの読み込み・内容構造分析（Phase 1）
+- 既存スキルとのスコープ比較・スキル名候補生成（Phase 1）
+- ファイル構成・Frontmatter・セクション設計（Phase 3）
+- トリガー設定（Phase 3.5）
+- `docs/plan-{skill-name}.md` の作成（PLAN-TEMPLATE.md形式）
+- **注意**: planner は実装ファイルを変更しない（読み取り + docs/ 作成のみ）
+
+##### Step C: 計画レビュー
+
+Claude Code本体が planner の `docs/plan-{skill-name}.md` をレビューし、Phase 2（AskUserQuestion）でユーザー確認を取得。
+
+##### Step D: TaskCreate
+
+planner が作成した計画に基づき、各ファイルのTaskを作成:
+
+```json
+TaskCreate({
+  "subject": "SD-PRINCIPLES.md 生成",
+  "description": "Ch 5-7 の設計原則をPython向け参照ファイルとして生成。ファイル所有権: references/SD-PRINCIPLES.md",
+  "activeForm": "SD-PRINCIPLES.md 生成中"
+})
+```
+
+##### Step E: implementer タチコマ並列起動
+
+1メッセージ内で複数のTask tool呼び出しを並列実行:
+
+```json
+Task({
+  "description": "{file-name}生成",
+  "prompt": "## タスク: {file-name} 生成\n\n**担当タスク:** #{task_id}\n**ファイル所有権:** {target-file-path}\n**ソースファイル:** {source-chapter-paths}\n**変換ルール:** authoring-skills CONVERTING.md 4.1〜4.6 に従う\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- ソース出典を含めない\n- 500行を超えない",
+  "subagent_type": "sumik:タチコマ",
+  "model": "sonnet",
+  "team_name": "{skill-name}-conversion",
+  "name": "implementer-{n}",
+  "run_in_background": true,
+  "mode": "bypassPermissions"
+})
+```
+
+##### Step F: 品質チェック + クリーンアップ
+
+1. 全implementer完了後、Phase 5品質チェックリストを適用
+2. SendMessage で各メンバーにshutdown_request
+3. 全メンバーシャットダウン確認後にTeamDelete
 
 #### 4.1 SKILL.md生成
 

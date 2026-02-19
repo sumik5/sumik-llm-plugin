@@ -5,7 +5,7 @@ description: >-
   Covers SOLID principles (SRP, OCP, LSP, ISP, DIP), 25 code smell categories with MAPPER principles,
   practical refactoring recipes, and software design laws (simplicity, change, defect probability, testing).
   Language-agnostic clean code guide.
-  For language-specific practices, use developing-go, mastering-typescript, or developing-python.
+  For language-specific practices and design patterns, use developing-go, mastering-typescript, or developing-python.
 ---
 
 # クリーンコード実践レシピ

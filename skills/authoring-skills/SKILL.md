@@ -307,9 +307,9 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
    - 既存スキルとの一括重複チェック
    - AskUserQuestionでグルーピング・統合方針を確認
 4. **6フェーズの変換ワークフロー**を各スキルグループごとに実行（Phase 1→2→3→3.5→4→5）
-5. **Phase 4（生成）**: Team Builder並列実行を積極活用
-   - 単一スキル・複数ファイル分割 → Team Builder（SKILL.md + サブファイル並列）
-   - 複数スキルグループ → Team Builder（Phase 4の生成部分を並列化）
+5. **Phase 4（生成）**: orchestrating-teams 2フェーズ方式で並列実行
+   - 単一スキル・複数ファイル分割 → orchestrating-teams（planner + implementers並列）
+   - 複数スキルグループ → orchestrating-teams（グループごとにPhase 1-2を実行）
 
 詳細は [CONVERTING.md](references/CONVERTING.md) を参照。
 
