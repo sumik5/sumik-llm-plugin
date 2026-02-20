@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (9個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (81個)
+└── skills/             # ナレッジスキル (82個)
 ```
 
 ---
@@ -58,7 +58,7 @@ sumik-claude-plugin/
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 
-### Skills (81個)
+### Skills (82個)
 
 #### コア開発
 
@@ -165,6 +165,7 @@ sumik-claude-plugin/
 | `searching-with-exa` | Exa MCP統合（7カテゴリ検索: 企業・コード・人物・財務・学術・個人サイト・Tweet/X、Web検索第一優先ツール） |
 | `searching-web` | Web検索 fallback（gemini CLI、Exa MCP使用不可時） |
 | `reviewing-with-coderabbit` | CodeRabbitコードレビュー |
+| `writing-zenn-articles` | Zenn技術記事の作成・投稿ワークフロー（フロントマター仕様・命名規則・品質チェック・Lint設定） |
 
 ### Scripts (1個)
 
