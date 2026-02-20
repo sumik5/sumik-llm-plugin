@@ -735,6 +735,135 @@ cdktf deploy
 
 ---
 
+---
+
+## マルチクラウドパターン
+
+複数のクラウドプロバイダーを単一のTerraform設定で管理するパターン。ベンダーロックイン回避・サービス特性の活用・コスト最適化が主な動機となる。
+
+### 複数プロバイダー同時宣言
+
+AWS・Azure・GCPを同一configに定義する基本パターン:
+
+```hcl
+# AWS プロバイダー
+provider "aws" {
+  region = "us-east-1"
+}
+
+# Azure プロバイダー
+provider "azurerm" {
+  features {}
+}
+
+# Google Cloud プロバイダー
+provider "google" {
+  project = var.gcp_project_id
+  region  = "us-central1"
+}
+
+# 各プロバイダーのリソースを同一configで管理
+resource "aws_s3_bucket" "storage" {
+  bucket = "my-app-storage"
+}
+
+resource "azurerm_storage_account" "storage" {
+  name                     = "myappstorage"
+  resource_group_name      = var.azure_resource_group
+  location                 = "East US"
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "google_sql_database_instance" "db" {
+  name             = "my-app-db"
+  database_version = "POSTGRES_15"
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+```
+
+### プロバイダーエイリアス（alias）パターン
+
+同一プロバイダーに複数の設定を持つ場合（マルチリージョン・マルチアカウント）:
+
+```hcl
+# デフォルトプロバイダー（aliasなし）
+provider "aws" {
+  region = "ap-northeast-1"
+}
+
+# エイリアス付きプロバイダー（DR用リージョン）
+provider "aws" {
+  alias  = "us_east"
+  region = "us-east-1"
+}
+
+# エイリアス付きプロバイダー（別アカウント）
+provider "aws" {
+  alias   = "prod"
+  region  = "ap-northeast-1"
+  profile = "production"
+}
+
+# リソースでのプロバイダー指定
+resource "aws_s3_bucket" "primary" {
+  bucket = "my-primary-bucket"
+  # デフォルトプロバイダーを使用（ap-northeast-1）
+}
+
+resource "aws_s3_bucket" "replica" {
+  provider = aws.us_east   # エイリアス指定
+  bucket   = "my-replica-bucket"
+}
+```
+
+### マルチクラウドstate管理戦略
+
+| 戦略 | 適用場面 | メリット | デメリット |
+|------|---------|---------|----------|
+| **単一state** | 小規模・密結合 | 管理シンプル | リソース増加で肥大化 |
+| **プロバイダー別分割** | クラウド間が疎結合 | 障害影響局所化 | クロス参照が複雑化 |
+| **環境別分割** | dev/staging/prod分離 | 環境ごとにロック競合なし | 設定の重複が増える |
+| **レイヤー別分割** | 大規模・長期運用 | 変更頻度に応じた管理 | 依存関係の明示が必要 |
+
+**判断基準**: クラウド間でリソースが独立しているならプロバイダー別分割、連携が密ならレイヤー別分割（ネットワーク層 → DB層 → アプリ層）を選択する。
+
+クロスstate参照には `terraform_remote_state` データソースを使用:
+
+```hcl
+# 別stateのoutputを参照
+data "terraform_remote_state" "network" {
+  backend = "s3"
+  config = {
+    bucket = "my-tf-state"
+    key    = "prod/network/terraform.tfstate"
+    region = "ap-northeast-1"
+  }
+}
+
+resource "aws_instance" "app" {
+  subnet_id = data.terraform_remote_state.network.outputs.private_subnet_id
+}
+```
+
+### クロスクラウドネットワーク設計指針
+
+| 接続方式 | 適用場面 | 考慮事項 |
+|---------|---------|---------|
+| **VPN Gateway** | 低〜中トラフィック・コスト重視 | レイテンシあり、暗号化オーバーヘッド |
+| **VPC Peering / VNet Peering** | 同一プロバイダー内・高スループット | プロバイダー間は直接不可 |
+| **専用線 (Direct Connect / ExpressRoute)** | 高トラフィック・本番ワークロード | コスト高、プロビジョニング時間が長い |
+| **サービスメッシュ (Istio等)** | マイクロサービス間通信 | mTLS・トラフィック制御が容易 |
+
+**実践的な選択基準**:
+- 開発・小規模: VPN Gateway（Terraformで自動化しやすい）
+- 大規模本番: 専用線 + Transit Gateway/Hub-Spoke構成
+- コンテナ環境: サービスメッシュで抽象化
+
+---
+
 ## まとめ
 
 - **命名規則**: 階層的スキームで一意性・可読性・識別性・ソート可能性を確保
@@ -745,3 +874,4 @@ cdktf deploy
 - **Checks/Conditions**: Precondition/Postcondition/Checkでバリデーション強化
 - **適切でないケース**: Kubernetes、イメージビルド、アーティファクト管理は専用ツール推奨
 - **代替インターフェース**: JSON設定、CDKTF（複雑なケース向け）
+- **マルチクラウド**: プロバイダーエイリアスで同一プロバイダーの複数設定を管理、state分割戦略はリソース結合度で判断

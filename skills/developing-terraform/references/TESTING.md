@@ -768,31 +768,95 @@ Project: myapp-dev
 
 ### terraform-compliance
 
-BDD（振る舞い駆動開発）スタイルのコンプライアンステスト:
+BDD（振る舞い駆動開発）スタイルのコンプライアンステスト。Gherkin構文でポリシーを記述し、Terraformプランに対してユニットテストを実行する。
+
+#### インストールと基本実行
 
 ```bash
 # インストール
 pip install terraform-compliance
 
-# 実行
-terraform-compliance -f compliance/ -p plan.out
+# planファイルを生成してテスト実行
+terraform plan -out=tfplan.binary
+terraform-compliance -p tfplan.binary -f features/
+
+# または plan.outファイルを使用
+terraform-compliance -p plan.out -f features/
 ```
 
-**テスト例:**
+#### Gherkin構文（`.feature`ファイル）
+
+**Given/When/Then形式の基本パターン:**
 
 ```gherkin
-# compliance/security.feature
-Feature: Security Compliance
+# features/mandatory_tags.feature
+Feature: タグポリシー
 
-  Scenario: S3 buckets must be encrypted
+  Scenario: すべてのリソースにEnvironmentタグが必須
+    Given I have resource that supports tags
+    Then it must contain tags
+    And its value must contain "Environment"
+
+  Scenario: すべてのリソースにOwnerタグが必須
+    Given I have resource that supports tags
+    Then it must contain tags
+    And its value must contain "Owner"
+```
+
+**セキュリティポリシーのfeatureファイル例:**
+
+```gherkin
+# features/security.feature
+Feature: セキュリティコンプライアンス
+
+  Scenario: S3バケットは暗号化必須
     Given I have aws_s3_bucket defined
     Then it must have server_side_encryption_configuration
 
-  Scenario: EC2 instances must not have public IPs
+  Scenario: EC2インスタンスにパブリックIPを割り当てない
     Given I have aws_instance defined
     Then it must not have associate_public_ip_address
     Or associate_public_ip_address must be false
+
+  Scenario: EBSボリュームは暗号化必須
+    Given I have aws_ebs_volume defined
+    Then it must have encrypted
+    And its value must be true
 ```
+
+**コスト制御ポリシーの例:**
+
+```gherkin
+# features/cost_control.feature
+Feature: コスト管理ポリシー
+
+  Scenario: 高コストインスタンスファミリーの禁止
+    Given I have aws_instance defined
+    Then it must have instance_type
+    And its value must not match "^p\d+\."
+    And its value must not match "^g\d+\."
+```
+
+#### featureファイルのディレクトリ構成
+
+```
+features/
+├── mandatory_tags.feature    # タグ必須チェック
+├── security.feature          # 暗号化・公開アクセス制御
+├── cost_control.feature      # コスト最適化ポリシー
+└── networking.feature        # ネットワーク設定ポリシー
+```
+
+#### CI統合
+
+```makefile
+.PHONY: test_compliance
+test_compliance:
+	terraform plan -out=tfplan.binary
+	terraform-compliance -p tfplan.binary -f features/
+```
+
+> **使い分け**: terraform-complianceはプランに対するユニットテスト向け（実リソースを作成しない）。実際のインフラ動作を検証する場合はTerratest等を使用する。
 
 ---
 

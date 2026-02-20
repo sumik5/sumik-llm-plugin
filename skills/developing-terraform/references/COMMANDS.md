@@ -668,19 +668,138 @@ terraform {
 
 ---
 
+### .terraform.lock.hcl の運用
+
+**目的:** プロバイダーの厳密なバージョンをロックし、チーム・環境間での一致を保証する
+
+```hcl
+# .terraform.lock.hcl の内容例（自動生成）
+provider "registry.terraform.io/hashicorp/aws" {
+  version     = "5.31.0"
+  constraints = "~> 5.0"
+  hashes = [
+    "h1:...",
+    "zh:...",
+  ]
+}
+```
+
+**重要ルール:**
+- `.terraform.lock.hcl`は必ずGitにコミットする（`.gitignore`に追加しない）
+- チーム全員が同じプロバイダーバージョンを使うことで「手元では動く」問題を防ぐ
+- ロックファイルはnpmの`package-lock.json`、PythonのPipfile.lockと同じ役割
+
+**lock.hclが自動生成・更新されるタイミング:**
+- `terraform init`実行時（初回）
+- `terraform init -upgrade`実行時
+- `terraform providers lock`実行時
+
+---
+
+### terraform providers lock（クロスプラットフォーム対応）
+
+CI/CDがLinux上で動作し、開発者がmacOSを使う場合、複数プラットフォームのハッシュをlockファイルに記録する:
+
+```bash
+# 複数プラットフォームのハッシュを一括生成
+terraform providers lock \
+  -platform=linux_amd64 \
+  -platform=darwin_arm64 \
+  -platform=windows_amd64
+```
+
+**実行タイミング:** ローカルでlockファイルをCIと揃えたい場合、新プロバイダー追加後
+
+**注意:** `-platform`未指定時は現在のOSのみハッシュ記録 → CI/CDで他OSのハッシュが不足してエラーになる場合がある
+
+---
+
 ### プロバイダーのアップグレード
 
 ```bash
 # ロックファイルの確認
 cat .terraform.lock.hcl
 
-# プロバイダーのアップグレード
+# プロバイダーのアップグレード（required_providersの範囲内で最新へ）
 terraform init -upgrade
 
-# 特定のプロバイダーのみアップグレード
+# 特定のプロバイダーのみアップグレード後、クロスプラットフォーム対応
 terraform providers lock \
   -platform=darwin_arm64 \
   -platform=linux_amd64
+```
+
+**`terraform init -upgrade`の動作:**
+- `required_providers`のバージョン制約を満たす範囲で最新バージョンをダウンロード
+- `.terraform.lock.hcl`のバージョンを更新する（通常の`terraform init`はlockファイルを尊重して更新しない）
+- メジャーバージョンの変更は制約を更新してから実行すること
+
+---
+
+### Terraformバージョンアップグレード手順
+
+**マイナー/パッチバージョンアップグレード（推奨フロー）:**
+
+```bash
+# 1. CHANGELOGで破壊的変更を確認
+#    https://github.com/hashicorp/terraform/blob/main/CHANGELOG.md
+
+# 2. required_versionを更新
+# terraform { required_version = "~> 1.7" }
+
+# 3. Stagingで検証
+terraform init -upgrade
+terraform plan   # 差分がないことを確認
+
+# 4. planに差異がなければ本番に適用
+terraform apply
+```
+
+**メジャーバージョンアップグレード（段階的適用）:**
+
+```
+v1.x → v2.0の例:
+  1. UPGRADE GUIDEを読む（廃止機能・変更点を確認）
+  2. 非推奨（deprecated）の構文を修正
+  3. Staging環境で新バージョンを適用
+  4. terraform planで差分を徹底確認
+  5. 問題がなければ本番に適用
+```
+
+**注意:** 複数のマイナーバージョンをスキップする場合は1バージョンずつ適用（例: 1.3→1.4→1.5）
+
+---
+
+### required_version の活用パターン
+
+```hcl
+# パターン1: マイナーバージョン固定（最も一般的）
+terraform {
+  required_version = "~> 1.5"  # 1.5.x の最新を許可、1.6.0は不可
+}
+
+# パターン2: 最小バージョン指定（寛容な制約）
+terraform {
+  required_version = ">= 1.5.0"  # 1.5.0以上すべて許可
+}
+
+# パターン3: 上限付き制約（メジャーアップを防ぐ）
+terraform {
+  required_version = ">= 1.5.0, < 2.0.0"
+}
+
+# パターン4: 完全固定（CI環境での再現性最優先）
+terraform {
+  required_version = "= 1.6.3"
+}
+```
+
+**推奨:** チーム開発では`~> 1.x`を使用し、CIで`required_version`違反を検出する
+
+```bash
+# CIでのバージョンチェック例
+terraform version
+# Terraform v1.6.3 のように出力 → required_versionと照合
 ```
 
 ---

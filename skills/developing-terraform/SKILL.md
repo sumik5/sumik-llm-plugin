@@ -15,6 +15,8 @@ TerraformはHCL（HashiCorp Configuration Language）による宣言的IaCツー
 - **ステート管理**: 現在のインフラ状態を追跡
 - **モジュール化**: 再利用可能なコンポーネント
 
+**ライセンス注記 (v1.5.5以降):** 2023年8月、TerraformのライセンスがMPL 2.0からBusiness Source License (BSL 1.1)に変更された。競合サービス事業者による商用利用は制限されるため、該当する環境ではOSSフォークの[OpenTofu](https://opentofu.org/)の採用を検討すること。
+
 ---
 
 ## ツール選択（AskUserQuestion）

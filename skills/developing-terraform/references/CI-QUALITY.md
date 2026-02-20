@@ -398,6 +398,85 @@ deny_invalid_s3_bucket_name contains issue if {
 }
 ```
 
+### Sentinel Policy-as-Code（TFC/TFE専用）
+
+**用途:** Terraform Cloud/Enterprise組み込みのポリシーエンジン。プラン・apply前に組織ポリシーを自動評価する。
+
+#### 基本構文
+
+```sentinel
+# enforce_tags.sentinel
+import "tfplan/v2" as tfplan
+
+# すべてのリソース変更に "Environment" タグが存在することを要求
+tag_rule = rule {
+  all tfplan.resource_changes as resource {
+    resource.change.after.tags is not null and
+    "Environment" in resource.change.after.tags.keys()
+  }
+}
+
+main = rule {
+  tag_rule
+}
+```
+
+#### インスタンスタイプ制限ポリシー例
+
+```sentinel
+# restrict_instance_types.sentinel
+import "tfplan/v2" as tfplan
+
+allowed_types = ["t3.micro", "t3.small", "t3.medium"]
+
+main = rule {
+  all tfplan.resource_changes as r {
+    r.type is not "aws_instance" or
+    r.change.after.instance_type in allowed_types
+  }
+}
+```
+
+#### Sentinel主要インポート
+
+| インポート | 用途 |
+|----------|------|
+| `tfplan/v2` | planで予定される変更を評価 |
+| `tfconfig/v2` | HCL設定値を評価 |
+| `tfstate/v2` | 現在のstateを評価 |
+
+#### 実施モード
+
+| モード | 動作 |
+|-------|------|
+| Advisory | 違反を警告するが実行を継続 |
+| Soft-Mandatory | 実行をブロック（管理者が手動オーバーライド可） |
+| Hard-Mandatory | 実行をブロック（オーバーライド不可） |
+
+#### ローカルテスト
+
+```bash
+# Sentinel CLIでポリシーをテスト
+sentinel test enforce_tags.sentinel
+sentinel test -verbose enforce_tags.sentinel
+
+# モックデータを使ったデバッグ
+sentinel mock tfplan=mock-tfplan.json enforce_tags.sentinel
+```
+
+#### OPAとの使い分け
+
+| 観点 | Sentinel | OPA (Rego) |
+|-----|---------|-----------|
+| ライセンス | 有料（TFC/TFE必須） | OSS |
+| 対応環境 | Terraform Cloud/Enterprise のみ | CI/CD全般に統合可能 |
+| 学習コスト | 中（専用言語） | 高（Rego言語） |
+| 推奨場面 | TFC/TFE利用組織 | OSS Terraform + 既存OPA環境 |
+
+> **選択指針**: TFC/TFEを使用している場合はSentinelを第一選択とする。OSS Terraform環境ではCheckov YAMLカスタムルールまたはOPA/TFlintを使用する。
+
+---
+
 ### Checkov カスタムルール（YAML）
 
 **利点:**
@@ -622,6 +701,109 @@ updates:
     schedule:
       interval: "weekly"
 ```
+
+---
+
+## チームワークフロー
+
+### ロール定義
+
+チームでTerraformを運用する際の責任分担:
+
+| ロール | 主な責任 | 権限 |
+|-------|---------|------|
+| Developer | tfファイルの作成・更新 | 設定編集、plan実行 |
+| Reviewer | PRレビュー・承認 | plan確認、マージ承認 |
+| Operator | applyの実行、インフラ管理 | apply実行、workspace管理 |
+| Admin | バックエンド管理、アクセス制御、ポリシー管理 | 全権限、state操作 |
+
+**RBAC設計の原則:**
+- DeveloperはapplyできないCI経由でのみapply可能）
+- 本番環境のapplyはOperator/AdminのみCIまたは手動承認フロー経由）
+- stateの直接操作はAdmin限定
+
+### PRベースTerraformワークフロー
+
+```
+feature branch
+  ↓ push
+PR作成
+  ↓ CI自動実行
+  ├── terraform fmt -check
+  ├── terraform validate
+  ├── tflint
+  ├── checkov / trivy
+  └── terraform plan（結果をPRにコメント）
+  ↓ Reviewerによるコードレビュー + plan確認
+  ↓ 承認後マージ
+main branch
+  ↓ CI自動実行
+  └── terraform apply（または手動承認フロー）
+```
+
+**GitHub Actionsでのplan結果コメント例:**
+
+```yaml
+- name: Terraform Plan
+  id: plan
+  run: terraform plan -no-color 2>&1 | tee plan.txt
+
+- name: Comment Plan on PR
+  uses: actions/github-script@v7
+  with:
+    script: |
+      const plan = require('fs').readFileSync('plan.txt', 'utf8');
+      github.rest.issues.createComment({
+        issue_number: context.issue.number,
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        body: `\`\`\`\n${plan}\n\`\`\``
+      });
+```
+
+### pre-commit hooks設定
+
+コミット前に自動チェックを実行することでCIへの負荷を軽減する。
+
+**インストール:**
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+**設定ファイル** (`.pre-commit-config.yaml`):
+
+```yaml
+repos:
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.96.0  # 最新バージョンを確認して指定
+    hooks:
+      - id: terraform_fmt          # フォーマット自動修正
+      - id: terraform_validate     # 構文検証
+      - id: terraform_tflint       # 静的解析
+      - id: terraform_docs         # ドキュメント自動更新
+      - id: checkov                # セキュリティチェック
+```
+
+**主要hook ID一覧:**
+
+| hook ID | 用途 |
+|---------|------|
+| `terraform_fmt` | `terraform fmt`自動実行 |
+| `terraform_validate` | `terraform validate`実行 |
+| `terraform_tflint` | TFlint静的解析 |
+| `terraform_docs` | terraform-docsでREADME更新 |
+| `checkov` | Checkovセキュリティスキャン |
+| `terraform_trivy` | Trivyセキュリティスキャン |
+
+**全ファイルに対して手動実行:**
+
+```bash
+pre-commit run --all-files
+```
+
+> **重要**: pre-commit hooksは開発者の手元で早期検知するためのもの。CIでの同等チェックは省略せず二重に実行する。
 
 ---
 

@@ -616,6 +616,73 @@ module "app" {
 
 ---
 
+## 大規模stateの性能対策
+
+### 性能劣化のメカニズム
+
+stateファイルに管理リソースが増えると、`terraform plan` / `apply` 実行時のrefreshフェーズ（全リソースをAPIで確認する処理）が線形的に遅くなる。数百リソースを超えると、plan実行だけで数分〜十数分かかるケースがある。
+
+| リソース数の目安 | plan時間の傾向 | 対応の優先度 |
+|----------------|--------------|------------|
+| 〜100リソース | 1分未満 | 対応不要 |
+| 100〜300リソース | 1〜5分 | 分割を検討 |
+| 300リソース超 | 5分以上 | 分割を推奨 |
+
+### 対策パターン
+
+#### 1. `-refresh=false` で一時的に高速化
+
+リソースが変更されていないことが確実な場合、refreshをスキップしてplan時間を短縮できる:
+
+```bash
+# refreshをスキップ（ドリフトの検出は行われない点に注意）
+terraform plan -refresh=false
+terraform apply -refresh=false
+```
+
+**注意:** 実際のリソース状態とstateのずれ（ドリフト）を検出できなくなる。本番環境での常用は避け、あくまで一時的な対処として使う。
+
+#### 2. stateファイルの分割
+
+最も効果的な長期的対策。責務ごとにstateを分割し、各stateの管理対象を減らす:
+
+```
+# 分割前（1つのstateに全リソース）
+prod/terraform.tfstate  # 400リソース → plan 10分
+
+# 分割後（責務ごとにstate）
+prod/network/terraform.tfstate     # 50リソース → plan 1分
+prod/database/terraform.tfstate    # 30リソース → plan 30秒
+prod/application/terraform.tfstate # 80リソース → plan 2分
+prod/monitoring/terraform.tfstate  # 40リソース → plan 1分
+```
+
+プロジェクト間のデータ参照には `terraform_remote_state` データソースか、Data Sources（`data "aws_vpc"` 等）を活用する（詳細は「プロジェクト間ステートアクセス」参照）。
+
+#### 3. Terragruntによる分割の自動化
+
+Terragruntを採用している場合、各モジュールが独立したstateを持つため、大規模state問題は自然に回避される（詳細: [TERRAGRUNT.md](./TERRAGRUNT.md)）。
+
+### state分割の判断基準
+
+以下のいずれかに該当したら分割を検討する:
+
+1. **plan時間が5分を超えた** - 開発サイクルの妨げになる
+2. **異なるチームが同じstateを編集する** - ロック競合・意図しない変更リスク
+3. **リリース頻度が異なるコンポーネントが混在する** - ネットワーク（月1回）とアプリ（毎日）が同じstate
+4. **障害影響範囲を限定したい** - stateが壊れた際の影響を最小化
+
+**分割の粒度ガイドライン:**
+
+| 分割軸 | 適用場面 | 例 |
+|--------|---------|-----|
+| **レイヤー分割** | 責務が明確に分かれる場合 | network / database / application |
+| **チーム分割** | 担当チームが異なる場合 | platform-team / app-team |
+| **サービス分割** | マイクロサービス構成の場合 | service-a / service-b |
+| **環境分割** | dev/staging/prodで完全分離 | 各環境に独立したstate |
+
+---
+
 ## ステートのみのリソース
 
 外部APIを使わず、ステート内でのみ存在するリソース。

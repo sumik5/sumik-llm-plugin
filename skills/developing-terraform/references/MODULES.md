@@ -1111,6 +1111,60 @@ modules/vpc/
 
 ---
 
+---
+
+## モジュールネスト深度とパフォーマンス
+
+### ネスト深度がDAGに与える影響
+
+モジュールを深くネストするほど、Terraformが生成するリソース依存グラフ（DAG）が肥大化し、plan/apply の処理時間が増大する。
+
+**仕組み**: Terraformはモジュール境界を透過してリソース単位でDAGを構築する。モジュールが3層・4層とネストされると、依存関係の解決に必要なグラフトラバーサルのコストが指数的に増加する。
+
+```
+# 3層ネストの例（問題になりうる）
+root
+└── module "app" (layer 1)
+    └── module "service" (layer 2)
+        └── module "container" (layer 3)
+            └── module "task_definition" (layer 4)  ← パフォーマンス劣化の兆候
+
+# 推奨: 2層以内にフラット化
+root
+├── module "app_service"   (layer 1: serviceとcontainerを統合)
+└── module "app_database"  (layer 1)
+```
+
+### 推奨最大ネスト深度
+
+| ネスト深度 | 評価 | 備考 |
+|-----------|------|------|
+| 1〜2層 | 推奨 | plan/applyが高速、依存関係が明快 |
+| 3層 | 許容 | 複雑なインフラでやむを得ない場合のみ |
+| 4層以上 | 非推奨 | DAG肥大化・デバッグ困難・リファクタリングが必要 |
+
+### ネストを減らすリファクタリング指針
+
+1. **統合**: 常に一緒に使われる小さなモジュールは1つに統合する
+2. **フラット化**: ネストを除去し、ルートモジュールから直接呼び出す
+3. **locals活用**: 単純な計算のためだけのモジュールは `locals` ブロックに置き換える
+
+```hcl
+# 改善前: 単純な計算のためだけのモジュール（不要なネスト）
+module "name_generator" {
+  source      = "./modules/name-generator"
+  environment = var.environment
+  service     = var.service_name
+}
+
+# 改善後: localsで代替（モジュール不要）
+locals {
+  base_name = "${var.service_name}-${var.environment}"
+}
+```
+
+---
+
 ## まとめ
 
 このガイドでは以下をカバーしました:
@@ -1123,5 +1177,6 @@ modules/vpc/
 6. **モジュール設計**: 依存関係、ライフサイクル、ステート分割
 7. **セキュリティグループ**: dynamicブロック、ingress/egress分離
 8. **ベストプラクティス**: ドキュメント、validation、バージョニング
+9. **ネスト深度管理**: 2層以内を推奨、DAG肥大化を防ぐリファクタリング
 
 次は[AWS-PRACTICE.md](./AWS-PRACTICE.md)でAWS環境の実践的な構築を学んでください。

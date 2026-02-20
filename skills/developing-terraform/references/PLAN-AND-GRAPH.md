@@ -511,6 +511,69 @@ resource "aws_eip" "example" {
 
 ---
 
+---
+
+## パフォーマンス最適化
+
+大規模インフラでは plan/apply の実行時間が問題になることがある。原因と対策を理解しておく。
+
+### `-parallelism` フラグによる並列度制御
+
+Terraformは依存関係のないリソースをDAGに基づいて並列作成する。デフォルトの並列数は **10**。
+
+```bash
+# デフォルト（10並列）
+terraform apply
+
+# 並列数を増やす（API rate limitに余裕がある場合）
+terraform apply -parallelism=20
+
+# 並列数を減らす（APIスロットリングが発生する場合）
+terraform apply -parallelism=5
+
+# デバッグ時は直列実行（ログが読みやすくなる）
+TF_LOG=debug terraform plan -parallelism=1
+```
+
+**調整指針**:
+
+| 状況 | 推奨値 | 理由 |
+|------|-------|------|
+| APIスロットリングエラーが発生 | 5以下に削減 | プロバイダーのRate Limitを超えている |
+| 依存関係が少なく独立リソースが多い | 20〜30に増加 | 並列化の恩恵を最大化できる |
+| デバッグ・障害調査 | 1（直列） | ログの前後関係が追いやすい |
+| デフォルト | 10 | ほとんどの場合で適切 |
+
+**注意**: 並列数を増やしても依存関係がボトルネックになる場合は改善しない。独立リソースを増やすアーキテクチャの見直しが有効。
+
+### 大規模stateの影響と対策
+
+stateファイルが肥大化すると plan/apply の実行時間が増大する。
+
+**原因**:
+- 1つのstate内のリソース数が増えるほど、Terraformが差分計算するコストが上がる
+- 全リソースのRefresh（APIへの問い合わせ）が並列実行されるが、その総量も増加する
+
+**対策**: ステート分割によるリソース数の上限管理
+
+```
+# 分割前（1つのstateに全リソース）
+environments/prod/
+└── main.tf  ← 200リソース → plan が遅い
+
+# 分割後（レイヤー別に分離）
+environments/prod/
+├── 01-network/    ← 30リソース（VPC, サブネット, NAT GW等）
+├── 02-database/   ← 20リソース（RDS, ElastiCache等）
+└── 03-application/ ← 50リソース（ECS, ALB, Lambda等）
+```
+
+**目安**: 1つのstateで管理するリソース数は **100〜150以内** に収めることを推奨。それ以上になったらレイヤー分割を検討する。
+
+分割後のstate間連携は `terraform_remote_state` で行う（MODULES.mdのステート分割戦略も参照）。
+
+---
+
 ## まとめ
 
 | フェーズ | 主な役割 | 重要コマンド |
@@ -524,3 +587,5 @@ resource "aws_eip" "example" {
 - `forces replacement`に注意
 - 循環依存を避ける設計
 - Speculative Plan時のみlockを無効化
+- APIスロットリングが発生したら `-parallelism` を削減
+- stateが肥大化したらレイヤー別分割を検討

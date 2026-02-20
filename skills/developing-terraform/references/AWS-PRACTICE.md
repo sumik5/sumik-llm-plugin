@@ -1078,6 +1078,133 @@ data "aws_iam_policy_document" "conditional" {
 
 ---
 
+## DB運用パターン
+
+RDS/Auroraをセキュアかつ堅牢に運用するためのパターン。
+
+### AWS Secrets Manager連携
+
+DB認証情報をハードコードせず、Secrets Managerから動的取得するパターン:
+
+```hcl
+# secrets.tf
+resource "aws_secretsmanager_secret" "db_credentials" {
+  name                    = "${var.service_name}-${var.env}-db-credentials"
+  recovery_window_in_days = 7
+
+  tags = merge(local.common_tags, {
+    Name = "${var.service_name}-${var.env}-db-credentials"
+  })
+}
+
+resource "aws_secretsmanager_secret_version" "db_credentials" {
+  secret_id = aws_secretsmanager_secret.db_credentials.id
+  secret_string = jsonencode({
+    username = var.db_username
+    password = var.db_password
+  })
+}
+
+# 既存のシークレットを参照する場合（読み取り専用）
+data "aws_secretsmanager_secret_version" "db_credentials" {
+  secret_id = aws_secretsmanager_secret.db_credentials.id
+  depends_on = [aws_secretsmanager_secret_version.db_credentials]
+}
+
+# RDSインスタンスへの注入
+resource "aws_db_instance" "main" {
+  identifier     = "${var.service_name}-${var.env}-db"
+  engine         = "mysql"
+  engine_version = "8.0"
+  instance_class = var.env == "prod" ? "db.t3.medium" : "db.t3.micro"
+
+  username = jsondecode(data.aws_secretsmanager_secret_version.db_credentials.secret_string)["username"]
+  password = jsondecode(data.aws_secretsmanager_secret_version.db_credentials.secret_string)["password"]
+
+  # バックアップ・DR設定は下記セクション参照
+}
+```
+
+**ECSタスクからSecretsManagerを参照する場合:**
+タスク実行ロールに `secretsmanager:GetSecretValue` 権限を付与し、タスク定義の `secrets` フィールドで参照する。
+
+---
+
+### RDSバックアップ/DR設定
+
+推奨パラメータと本番環境での設定例:
+
+| パラメータ | 開発環境 | 本番環境 | 説明 |
+|-----------|---------|---------|------|
+| `backup_retention_period` | 1 | 7〜35 | バックアップ保持日数 |
+| `backup_window` | 省略可 | `"01:00-02:00"` | 低トラフィック時間帯を指定 |
+| `deletion_protection` | false | true | 誤削除防止 |
+| `skip_final_snapshot` | true | false | 削除時のスナップショット取得 |
+| `multi_az` | false | true | Multi-AZ配置 |
+
+```hcl
+resource "aws_db_instance" "main" {
+  identifier        = "${var.service_name}-${var.env}-db"
+  engine            = "mysql"
+  engine_version    = "8.0"
+  instance_class    = var.db_instance_class
+  allocated_storage = var.env == "prod" ? 100 : 20
+
+  db_name  = replace(var.service_name, "-", "_")
+  username = jsondecode(data.aws_secretsmanager_secret_version.db_credentials.secret_string)["username"]
+  password = jsondecode(data.aws_secretsmanager_secret_version.db_credentials.secret_string)["password"]
+
+  # バックアップ設定
+  backup_retention_period = var.env == "prod" ? 7 : 1
+  backup_window           = "01:00-02:00"
+
+  # DR・保護設定
+  deletion_protection = var.env == "prod" ? true : false
+  skip_final_snapshot = var.env == "prod" ? false : true
+  final_snapshot_identifier = var.env == "prod" ? "${var.service_name}-${var.env}-final-snapshot" : null
+
+  # 可用性設定
+  multi_az = var.env == "prod" ? true : false
+
+  tags = merge(local.common_tags, {
+    Name = "${var.service_name}-${var.env}-db"
+  })
+}
+```
+
+---
+
+### Multi-AZ / Read Replica
+
+```hcl
+# Read Replica（読み取り分離・レポート処理用）
+resource "aws_db_instance" "read_replica" {
+  count = var.env == "prod" ? 1 : 0
+
+  identifier          = "${var.service_name}-${var.env}-db-replica"
+  replicate_source_db = aws_db_instance.main.id
+  instance_class      = var.db_replica_instance_class
+
+  # Read Replicaは以下を継承するため指定不要
+  # engine, engine_version, username, password, allocated_storage
+
+  # Replicaではバックアップ無効が推奨（ソースで管理）
+  backup_retention_period = 0
+  skip_final_snapshot     = true
+
+  tags = merge(local.common_tags, {
+    Name = "${var.service_name}-${var.env}-db-replica"
+    Role = "ReadReplica"
+  })
+}
+```
+
+**Multi-AZ vs Read Replica の使い分け:**
+- **Multi-AZ**: フェイルオーバー目的（可用性向上）。自動昇格で数分以内に復旧
+- **Read Replica**: 読み取り負荷分散・レポート処理。手動昇格が必要
+
+---
+
 ## まとめ
 
 このガイドでは以下をカバーしました:
@@ -1090,5 +1217,6 @@ data "aws_iam_policy_document" "conditional" {
 6. **ECSサービス**: ALB、ターゲットグループ、セキュリティグループ
 7. **CD**: GitHub Actions + OIDC、ECRプッシュ、ECSデプロイ
 8. **IAMガードレール**: 最小権限、OIDC AssumeRole、条件付きポリシー
+9. **DB運用パターン**: Secrets Manager連携、バックアップ/DR設定、Multi-AZ/Read Replica
 
 次は[TESTING.md](./TESTING.md)でテストとツールを学んでください。

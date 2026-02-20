@@ -645,6 +645,91 @@ data "azurerm_key_vault_secret" "example" {
 - HashiCorp Terraform継続利用
 - 他CDプラットフォーム不使用
 
+### HCP Terraform 実践設定パターン
+
+#### cloud blockによる接続設定
+
+`backend "remote"`の代わりに推奨される新しい記法:
+
+```hcl
+terraform {
+  cloud {
+    organization = "my-organization"
+
+    workspaces {
+      name = "my-workspace"
+    }
+  }
+}
+```
+
+| フィールド | 説明 |
+|----------|------|
+| `organization` | HCP Terraform組織名 |
+| `workspaces.name` | 接続するワークスペース名 |
+| `hostname` | デフォルト `app.terraform.io`（カスタムドメイン時に指定） |
+
+**初期化手順:**
+```bash
+terraform login          # HCP Terraformに認証
+terraform init           # cloudバックエンドを初期化
+```
+
+#### リモート実行フロー
+
+`terraform apply`実行時、以下がHCP Terraform側で処理される:
+
+1. ローカルのコードをHCP Terraformにアップロード
+2. マネージド実行環境でplan/applyを実行（ローカル環境非依存）
+3. ステートファイルをHCP Terraform上で管理・バージョン履歴保持
+4. 実行ログをWebUIでリアルタイム確認可能
+
+**メリット:** ローカルの依存関係・ネットワーク環境の影響を受けない
+
+#### コスト見積もり（Cost Estimation）
+
+apply前に予想コストを自動算出する機能（Plus/Businessプラン）:
+
+```
+Cost Estimation:
+  - Instance: t3.micro, $0.01/hour
+  - RDS: db.t3.small, $0.035/hour
+  Monthly estimate: ~$33.12
+```
+
+- PRの段階でコスト変化量を確認可能
+- 予算超過時のポリシー設定（Sentinelと組み合わせ）
+
+#### チーム管理とRBAC
+
+組織内で定義する主要ロール:
+
+| ロール | 権限 |
+|-------|------|
+| Developer | 設定の編集・plan実行可 / apply不可 |
+| Reviewer | plan確認・承認可 / 設定編集不可 |
+| Operator | apply実行・インフラ管理可 |
+| Admin | バックエンド管理・アクセス制御・ポリシー設定 |
+
+**設定箇所:** HCP Terraformの Organization Settings → Teams → ワークスペース権限付与
+
+#### VCS統合ワークフロー
+
+GitHub/GitLab/Bitbucketと連携した自動plan/apply:
+
+```
+PR作成 → Speculative Plan自動実行 → PRにplan結果コメント
+  ↓
+レビュー → マージ → apply自動実行（設定による）
+```
+
+**VCS連携設定手順:**
+1. HCP Terraformのワークスペース → Settings → Version Control
+2. GitHubリポジトリを選択・連携
+3. 自動applyの有無を設定（推奨: 手動承認）
+
+**無料枠:** 最大5ユーザー、500リソース管理まで無料
+
 ### Env0
 
 **特徴:**
