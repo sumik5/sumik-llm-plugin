@@ -18,6 +18,125 @@ pandocはEPUBをMarkdown変換する際に以下のアーティファクトを�
 | Google URL リダイレクト | `[text](https://www.google.com/url?q=...)` | テキストのみ抽出 |
 | エスケープ文字 | `\``, `\*` | エスケープ除去 |
 | 空ブラケット | `[]` | 除去 |
+| 誤記ヘッダー | `### 解説 {.heading_s6S}`（正解用クラスなのにテキストが解説） | CSSクラスベースで`正解`に修正 |
+
+### `<pre>`ブロック保護
+
+`\{[^}]*\}`パターンでpandocクラスを除去する際、**`<pre><code>`ブロック内の`{`や`}`も誤ってマッチする**危険がある（`[^}]`は改行にもマッチするため、遠くの`}`まで横断マッチする）。
+
+**対策**: クリーニング処理の前に`<pre>...</pre>`ブロックをプレースホルダーに退避し、処理後に復元する:
+
+```python
+pre_blocks = {}
+counter = [0]
+def save_pre(m):
+    key = f'\x00PRE{counter[0]}\x00'
+    pre_blocks[key] = m.group(0)
+    counter[0] += 1
+    return key
+text = re.sub(r'<pre[^>]*>.*?</pre>', save_pre, text, flags=re.DOTALL)
+# ... クリーニング処理 ...
+for key, value in pre_blocks.items():
+    text = text.replace(key, value)
+```
+
+### 誤記ヘッダーの自動修正
+
+EPUBソースでセクションヘッダーのテキストが誤っていることがある（例: 「正解」セクションのヘッダーテキストが「解説」になっている）。pandocのCSSクラスで本来の意図を推定できる:
+
+```python
+# heading_s6S = 正解用クラス、heading_s6V = 解説用クラス
+block = re.sub(
+    r'^(#{2,4})\s*解説\s*(\{\.heading_s6S\})',
+    r'\1 正解 \2',
+    block,
+    flags=re.MULTILINE,
+)
+```
+
+---
+
+## pandocスパン注釈コードブロック
+
+pandocはEPUBのコード部分を`[text]{.class_sXXX}`形式のスパン注釈に変換する。このパターンはプレーンテキストのコードブロックとは異なる処理が必要。
+
+### スパン注釈の構造
+
+```
+[variable]{.class_s3CW}[ ]{.class_s3C5}["instance_type"]{.class_s3CX}[
+{]{.class_s3C5}
+```
+
+| クラス種別 | 役割 | 例 |
+|-----------|------|-----|
+| `class_s3CW` | キーワード | `variable`, `resource` |
+| `class_s3C5` | 通常コード | `{`, `}`, スペース |
+| `class_s3CX` | 文字列リテラル | `"instance_type"` |
+| `class_s3E0` | 空白 | スペース、改行 |
+| `class_s3CF` | 演算子 | `=` |
+| `class_s3C9-0` | ハイパーリンク（コードではない） | URL |
+
+### 処理上の3つの罠
+
+#### 罠1: スパンの行分割
+
+pandocはスパンを行をまたいで分割する。ブラケット数を数えてバランスが取れるまで行を結合する:
+
+```python
+def join_split_spans(text):
+    lines = text.split('\n')
+    result = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        temp = line.replace('\\[', '').replace('\\]', '')
+        while temp.count('[') > temp.count(']') and i + 1 < len(lines):
+            i += 1
+            line = line + ' ' + lines[i].strip()
+            temp = line.replace('\\[', '').replace('\\]', '')
+        result.append(line)
+        i += 1
+    return '\n'.join(result)
+```
+
+#### 罠2: エスケープされたブラケット
+
+コード内容に`\[`、`\]`、`\"`が含まれる場合、スパンのブラケットと混同される。プレースホルダーで保護する:
+
+```python
+def extract_code_text(text):
+    text = re.sub(r'\{\.class_s[\w-]+\}', '', text)  # クラス除去
+    text = text.replace('\\[', '\x00LB\x00')          # 保護
+    text = text.replace('\\]', '\x00RB\x00')
+    text = text.replace('\\"', '\x00DQ\x00')
+    text = text.replace('[', '').replace(']', '')      # スパンブラケット除去
+    text = text.replace('\x00LB\x00', '[')             # 復元
+    text = text.replace('\x00RB\x00', ']')
+    text = text.replace('\x00DQ\x00', '"')
+    return text
+```
+
+#### 罠3: コード行間の空行
+
+pandocはコード行間に空行を挿入する。次の非空行もコード行か先読みして、コードブロックの範囲を正しく判定する:
+
+```python
+elif stripped == '' and in_code:
+    # 先読み: 次の非空行がコード行なら継続
+    next_is_code = False
+    for j in range(i + 1, min(i + 4, len(lines))):
+        if lines[j].strip() == '':
+            continue
+        if re.search(r'\{\.class_s\w+\}', lines[j].strip()):
+            next_is_code = True
+        break
+    if next_is_code:
+        continue  # コードブロック継続
+```
+
+### ハイパーリンクとの区別
+
+コードスパンのクラス名は`\w+`パターン（例: `class_s3C5`）、ハイパーリンクは`class_s3C9-0`のようにハイフンを含む。検出時に`\{\.class_s\w+\}`（ハイフンなし）を使うことでコードのみを対象にできる。
 
 ---
 
@@ -348,3 +467,7 @@ with open('/tmp/flashcard-merged.json', 'w') as out:
 - [ ] 正解の数字表記（Correct Response: N）が正しくレターにマッピングされているか
 - [ ] 混在型EPUBで全セクションのQ&Aが漏れなく抽出されているか
 - [ ] 翻訳の並列バッチが全て完了し、マージ後の件数が元の問題数と一致するか
+- [ ] コードブロック（`<pre><code>`）の中身が空でないか（スパン注釈の処理失敗を検出）
+- [ ] エスケープ文字（`\[`, `\]`, `\"`）がコード内で正しく`[`, `]`, `"`に復元されているか
+- [ ] 誤記ヘッダー（CSSクラスとテキストの不一致）が修正されているか
+- [ ] `clean_pandoc`の`\{[^}]*\}`が`<pre>`ブロック内のコードを破壊していないか
