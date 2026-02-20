@@ -15,6 +15,8 @@ ALWAYS_SKILLS=(
     "testing-code"
     "securing-code"
     "writing-effective-prose"
+    "applying-semantic-versioning"
+    "writing-conventional-commits"
 )
 
 # 共通開発スキル（言語プロジェクト検出時に適用）
@@ -75,6 +77,8 @@ get_skill_description() {
         "testing-code") echo "テスト作成・修正時にロード" ;;
         "securing-code") echo "実装完了後に必ずロード" ;;
         "writing-effective-prose") echo "効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書）" ;;
+        "applying-semantic-versioning") echo "SemVer 2.0.0仕様に基づくバージョン判断（MAJOR/MINOR/PATCH判定・プレリリース・範囲指定）" ;;
+        "writing-conventional-commits") echo "Conventional Commits 1.0.0準拠のコミットメッセージフォーマット（type/scope/BREAKING CHANGE・SemVer連携）" ;;
         "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
         "architecting-microservices") echo "CQRS/Saga/粒度決定/データ所有権/ワークフロー・コントラクト" ;;
         "modernizing-architecture") echo "社会技術的モダナイゼーション・トレードオフ分析手法" ;;

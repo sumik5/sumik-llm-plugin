@@ -326,6 +326,45 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 
 詳細は [USAGE-REVIEW.md](references/USAGE-REVIEW.md) を参照。
 
+## Release Workflow
+
+スキルの作成・変更・削除がすべて完了した後、以下のリリース手順を実行する。
+
+### 1. バージョン更新
+
+`.claude-plugin/plugin.json` の `version` フィールドを `applying-semantic-versioning` スキルに従い更新する:
+
+| 変更内容 | バージョン | 例 |
+|---------|-----------|-----|
+| 新スキル・コマンド・Agent追加 | **MINOR** | `4.6.0` → `4.7.0` |
+| 既存スキルの修正・改善 | **PATCH** | `4.6.0` → `4.6.1` |
+| 破壊的変更（スキル統合・大幅構成変更） | **MAJOR** | `4.6.0` → `5.0.0` |
+
+### 2. コミット
+
+`writing-conventional-commits` スキルに従い、過去のコミット履歴のスタイルを参考にConventional Commits形式でコミットメッセージを作成する:
+
+- 新スキル追加: `feat(skills): <スキル名>新設`
+- 既存スキル改善: `docs(skills): <変更内容>`
+- 複数変更: `feat(skills): <スキルA>新設、<スキルB>改善`
+
+jujutsu環境では `jj` ルールに従うこと（`gcauto -y` または `jj commit -m`）。
+
+### 3. プッシュ・タグ
+
+コミット後、問題がなければリモートにプッシュする:
+
+```bash
+# jj環境
+jj push -b main
+
+# git環境
+git push origin main
+git push origin <version>
+```
+
+バージョンタグが自動付与されない場合は、手動でタグを作成してプッシュする。
+
 ## Common Patterns
 
 ### Template Pattern

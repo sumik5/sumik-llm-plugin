@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rg:*)",
+      "Bash(rmdir:*)",
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(rm:*)",
+      "Bash(grep:*)",
+      "Bash(tree:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
+    ],
+    "defaultMode": "default"
+  },
+  "model": "opus"
+}
