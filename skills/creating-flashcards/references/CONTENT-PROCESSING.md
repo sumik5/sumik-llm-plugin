@@ -16,7 +16,8 @@ pandocはEPUBをMarkdown変換する際に以下のアーティファクトを�
 | divマーカー | `::: heading_s6MV` | 行ごと除去 |
 | ゼロ幅スペース付きリストマーカー | `[​- ​]`, `[​1. ​]` | 通常のリストマーカーに変換 |
 | Google URL リダイレクト | `[text](https://www.google.com/url?q=...)` | テキストのみ抽出 |
-| エスケープ文字 | `\``, `\*` | エスケープ除去 |
+| コードブロックdiv | `::: class_sBD ... :::` | base64退避→パース後復元（後述） |
+| エスケープ文字 | `\``, `\*`, `\#`, `\'`, `\~`, `\<`, `\>`, `\--\>` | エスケープ除去（順序注意） |
 | 空ブラケット | `[]` | 除去 |
 | 誤記ヘッダー | `### 解説 {.heading_s6S}`（正解用クラスなのにテキストが解説） | CSSクラスベースで`正解`に修正 |
 
@@ -53,6 +54,63 @@ block = re.sub(
     flags=re.MULTILINE,
 )
 ```
+
+### エスケープ文字の除去順序
+
+pandocのエスケープ文字を除去する際、**複合エスケープを先に処理する**こと。順序を誤ると部分置換が発生する:
+
+```python
+# ⚠️ 順序が重要: 複合エスケープ → 単純エスケープ
+text = text.replace(r'\--\>', '-->')   # 複合を先に
+text = text.replace(r'\>', '>')         # 単純を後に
+text = text.replace(r'\<', '<')
+text = text.replace(r'\~', '~')
+text = text.replace(r'\#', '#')
+text = text.replace(r'\*', '*')
+text = text.replace("\\'", "'")         # アポストロフィ
+text = text.replace('\\-->', '-->')     # フォールバック（部分置換の残骸対策）
+```
+
+**失敗例**: `\>` → `>` を先に実行すると、`\--\>` が `\-->` になり、その後の `\--\>` → `-->` 置換がマッチしなくなる。
+
+---
+
+## pandoc div形式コードブロック（`::: class_sBD`）
+
+pandocはEPUBの一部のコードブロックを `::: class_sBD ... :::` のdiv形式で出力する。この形式はスパン注釈形式とは異なり、コード全体がdivブロックで囲まれる。
+
+### 構造
+
+```
+::: class_sBD
+resource "aws_instance" "example" {
+  ami           = "ami-12345"
+  instance_type = "t2.micro"
+}
+:::
+```
+
+### base64退避パターン
+
+divブロック内のコードは問題テキスト・選択肢テキストの一部として解析する必要があるが、行ベースのパーサーを混乱させる。**パース前にbase64エンコードでプレースホルダーに退避**し、パース後に復元する:
+
+```python
+import base64, re
+
+def preprocess_code_blocks(text):
+    def replace_block(m):
+        code = m.group(1).strip()
+        code = re.sub(r'\\\s*$', '', code, flags=re.MULTILINE)  # pandoc行継続除去
+        encoded = base64.b64encode(code.encode('utf-8')).decode('ascii')
+        return f'{{CODE:{encoded}}}'
+    return re.sub(r'::: class_sBD\n(.*?)\n:::', replace_block, text, flags=re.DOTALL)
+
+def decode_code_block(marker):
+    m = re.match(r'\{CODE:([A-Za-z0-9+/=]+)\}', marker)
+    return base64.b64decode(m.group(1)).decode('utf-8') if m else marker
+```
+
+**重要**: この退避処理は`clean_pandoc()`よりも**前に**実行すること。`clean_pandoc`の`:::`行除去がコードブロックの内容を破壊するのを防ぐ。
 
 ---
 
@@ -159,9 +217,9 @@ pandocは長い行を任意の位置で改行する。以下のルールで結�
 
 以下のマーカーで始まる行は新しいブロックの開始と見なし、前の行とは結合しない:
 
-- 選択肢マーカー: `A.`, `B.`, `C.`, `D.`, `E.`
+- 選択肢マーカー: `A.` 〜 `I.`（最大9選択肢まで対応）
 - セクションマーカー: `解説:`, `不正解の選択肢の解説:`, `正解の選択肢:`, `参考資料:`
-- 不正解解説マーカー: `A:`, `B:`, `C:`, `D:`, `E:`
+- 不正解解説マーカー: `A:` 〜 `I:`
 - 見出し: `#`, `##`, `###`
 - 空行
 
@@ -204,6 +262,9 @@ pandocは長い行を任意の位置で改行する。以下のルールで結�
 | 4 | D |
 | 5 | E |
 | 6 | F |
+| 7 | G |
+| 8 | H |
+| 9 | I |
 
 #### 境界マーカー
 
@@ -388,7 +449,9 @@ pandocが出力するスペース区切りのプレーンテキストテーブ�
 
 **バッチサイズ**: 50件を推奨。
 
-**エラーハンドリング**: `addNotes` の戻り値は配列。各要素が `null` の場合は重複またはエラーでスキップされたことを意味する。
+**⚠️ `createDeck` 必須**: `addNotes` 実行前に必ず `createDeck` でデッキの存在を保証すること。デッキが存在しない場合、`addNotes` は `"deck was not found"` エラーで全件失敗する。`createDeck` は既存デッキに対しても安全に呼び出せる（冪等）。
+
+**エラーハンドリング**: `addNotes` の戻り値は配列。各要素が `null` の場合は重複またはエラーでスキップされたことを意味する。バッチ全体が失敗した場合は `error` フィールドにエラーメッセージが返る（`result` は `null`）。両方をチェックすること。
 
 ### 再作成時のワークフロー
 
@@ -426,6 +489,12 @@ for f in sorted(glob.glob('/tmp/flashcard-translated-*.json')):
 with open('/tmp/flashcard-merged.json', 'w') as out:
     json.dump(all_cards, out, ensure_ascii=False)
 ```
+
+**⚠️ glob衝突に注意**: マージ済みファイル（`*-merged.json`）が同じディレクトリに存在する場合、`*`ワイルドカードがマージ済みファイルも拾い、カードが二重登録される。対策:
+
+1. マージ済みファイル名をglobパターンと区別する（例: 別ディレクトリに出力）
+2. またはglobパターンを限定する: `flashcard-translated-[1-9]*.json` のように数字プレフィックスで絞る
+3. アップロード時も同様: `terraform_cards_[1-4]_*.json` のようにバッチ番号で限定する
 
 ---
 
@@ -471,3 +540,7 @@ with open('/tmp/flashcard-merged.json', 'w') as out:
 - [ ] エスケープ文字（`\[`, `\]`, `\"`）がコード内で正しく`[`, `]`, `"`に復元されているか
 - [ ] 誤記ヘッダー（CSSクラスとテキストの不一致）が修正されているか
 - [ ] `clean_pandoc`の`\{[^}]*\}`が`<pre>`ブロック内のコードを破壊していないか
+- [ ] `::: class_sBD` コードブロックがbase64退避→復元で正しく処理されているか
+- [ ] 選択肢がA-I（最大9選択肢）まで対応しているか（A-E/A-Fでの打ち切りがないか）
+- [ ] エスケープ除去の順序が正しいか（`\--\>` → `\>` の順。逆だと部分置換が残る）
+- [ ] glob衝突でマージ済みファイルがアップロード対象に含まれていないか
