@@ -357,20 +357,35 @@ jujutsu環境では `jj` ルールに従うこと:
 
 > **⚠️ 罠: `gcauto -y` はClaude Codeを内部起動するため、Claude Codeセッション内で実行するとネストセッションエラーになる。セッション内では必ず `jj commit -m "..."` を使用すること。**
 
-### 3. プッシュ・タグ
+### 3. タグ作成（🔴 必須）
 
-コミット後、問題がなければリモートにプッシュする:
+コミット後、**必ず**バージョンタグを作成する。タグはリリース追跡の基盤であり、省略不可:
+
+```bash
+# jj環境: bookmarkでタグを作成（コミット先の change に設定）
+jj bookmark set <version> -r @-
+
+# git環境: 軽量タグを作成
+git tag <version>
+```
+
+> **タグ命名規則**: `v` プレフィックスなし（例: `4.6.18`）。既存タグ履歴に合わせること。
+
+### 4. プッシュ
+
+タグ作成後、mainとタグの両方をリモートにプッシュする:
 
 ```bash
 # jj環境（⚠️ `jj push` はエイリアス。未設定環境では `jj git push` を使用）
 jj git push -b main
+jj git push -b <version>
 
 # git環境
 git push origin main
 git push origin <version>
 ```
 
-バージョンタグが自動付与されない場合は、手動でタグを作成してプッシュする。
+> **⚠️ 罠: タグのプッシュを忘れると、リモートにバージョン履歴が残らない。`jj git push -b main` だけではタグはプッシュされない。タグ用に別途 `jj git push -b <version>` が必要。**
 
 ## Common Patterns
 
