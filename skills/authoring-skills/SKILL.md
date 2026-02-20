@@ -348,15 +348,22 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 - 既存スキル改善: `docs(skills): <変更内容>`
 - 複数変更: `feat(skills): <スキルA>新設、<スキルB>改善`
 
-jujutsu環境では `jj` ルールに従うこと（`gcauto -y` または `jj commit -m`）。
+jujutsu環境では `jj` ルールに従うこと:
+
+| 方法 | コマンド | 使用条件 |
+|------|---------|---------|
+| AI生成メッセージ | `gcauto -y` | **Claude Codeセッション外**のみ（ネスト禁止） |
+| 手動メッセージ | `jj commit -m "..."` | Claude Codeセッション内（タチコマ含む） |
+
+> **⚠️ 罠: `gcauto -y` はClaude Codeを内部起動するため、Claude Codeセッション内で実行するとネストセッションエラーになる。セッション内では必ず `jj commit -m "..."` を使用すること。**
 
 ### 3. プッシュ・タグ
 
 コミット後、問題がなければリモートにプッシュする:
 
 ```bash
-# jj環境
-jj push -b main
+# jj環境（⚠️ `jj push` はエイリアス。未設定環境では `jj git push` を使用）
+jj git push -b main
 
 # git環境
 git push origin main
