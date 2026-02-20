@@ -464,5 +464,5 @@ wc -l CLAUDE.md
 ## 🔗 関連スキル
 
 - **authoring-skills**: スキルファイル（SKILL.md）の作成
-- **writing-technical-docs**: 技術文書作成の7つのC原則
+- **writing-effective-prose**: 技術文書作成の原則（7つのCを含む）
 - **using-serena**: Serenaメモリによるプロジェクト知識管理

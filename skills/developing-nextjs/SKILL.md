@@ -69,7 +69,7 @@ description: Next.js 16.x / React 19.x development guide covering App Router, Se
 - **`enforcing-type-safety`**: any/Any型禁止、型ガード、厳格な型チェック
 - **`testing`**: TDD、AAA パターン、テストカバレッジ100%目標
 - **`securing-code`**: セキュアコーディング、CodeGuard実行（実装完了後必須）
-- **`writing-technical-docs`**: 7つのC原則（Clear, Concise, Correct, Coherent, Concrete, Complete, Courteous）
+- **`writing-effective-prose`**: 7つのC原則を含む技術文書・学術文書の原則
 
 ### 推奨MCP（効率的開発）
 - **`using-serena`**: コード編集・分析（最優先）

@@ -163,10 +163,10 @@ detect-project-skills.sh は以下のスキルグループで構成される:
 
 | グループ | 検出条件 | 含まれるスキル |
 |---------|---------|--------------|
-| ALWAYS_SKILLS | 常時 | writing-clean-code, enforcing-type-safety, testing-code, securing-code, removing-ai-smell |
+| ALWAYS_SKILLS | 常時 | writing-clean-code, enforcing-type-safety, testing-code, securing-code, writing-effective-prose |
 | COMMON_DEV_SKILLS | 言語プロジェクト検出時 | researching-libraries, architecting-microservices, modernizing-architecture |
 | 個別検出 | ファイル・依存関係 | developing-nextjs, developing-go 等（ファイルベースで1対1検出） |
-| WRITING_SKILLS | .tex 検出時 | writing-latex, writing-technical-docs, writing-academic-papers, searching-web |
+| WRITING_SKILLS | .tex 検出時 | writing-latex, writing-effective-prose, searching-web |
 | DESIGN_SKILLS | components.json/.stories.*/tailwind.config.* 検出時 | applying-design-guidelines, applying-behavior-design, implementing-design |
 | DATABASE_SKILLS | schema.prisma/.sql/DB関連パッケージ検出時 | avoiding-sql-antipatterns, understanding-database-internals |
 | OBSERVABILITY_SKILLS | @opentelemetry/*/prometheus.yml 検出時 | designing-monitoring |
@@ -447,5 +447,5 @@ AskUserQuestion(
 
 ## Related Skills
 
-- **writing-technical-docs**: 一般的なドキュメント原則
+- **writing-effective-prose**: 一般的なドキュメント原則（技術文書・学術文書を統合）
 - **writing-clean-code**: ユーティリティスクリプトのコード品質

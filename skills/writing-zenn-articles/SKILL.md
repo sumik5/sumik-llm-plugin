@@ -4,6 +4,7 @@ description: >-
   Zenn技術記事の作成・投稿ワークフローガイド（フロントマター仕様・命名規則・品質チェック・Lint設定）。
   Use when creating or publishing technical articles on Zenn platform, writing tech blog posts, or setting up Zenn CLI projects.
   Triggers: "zenn", "記事", "ブログ", "技術記事", "投稿"
+  For general writing principles (structure, sentence craft, style), use writing-effective-prose instead.
 ---
 
 ## 概要
@@ -167,7 +168,7 @@ pnpm run preview
 
 ## 文体ルール（必須）
 
-記事執筆時は `removing-ai-smell` スキルを必ず併用し、AI臭を除去すること。
+記事執筆時は `writing-effective-prose` スキルを必ず併用し、AI臭を除去すること。
 
 **このリポジトリの統一文体: です・ます調**
 
@@ -196,5 +197,4 @@ pnpm run preview
 
 | スキル | 使い分け |
 |--------|---------|
-| `removing-ai-smell` | 記事執筆時に必ず併用。AI臭の検出と除去 |
-| `writing-technical-docs` | ドキュメント構造や7つのC原則が必要な場合 |
+| `writing-effective-prose` | 記事執筆時に必ず併用。AI臭除去・論理構成・技術文書原則 |

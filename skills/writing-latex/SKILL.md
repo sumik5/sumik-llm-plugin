@@ -384,5 +384,5 @@ latexmk -pdfdvi -shell-escape document.tex
 
 ## 関連スキル
 
-- **writing-technical-docs**: 技術文書の7つのCの原則
+- **writing-effective-prose**: 技術文書・学術文書の原則（7つのCを含む）
 - **enforcing-type-safety**: 数式の型安全性（単位の一貫性）

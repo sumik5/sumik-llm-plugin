@@ -41,7 +41,7 @@
 | コンテナ・インフラ・CI/CD運用 | Docker, k8s, 監視, ログ | `managing-` | managing-docker |
 | 品質ルール・制約の強制 | 「禁止」「必須」「strict」が頻出 | `enforcing-` | enforcing-type-safety |
 | ライブラリ・技術の調査・評価 | 比較表、pros/cons、選定基準 | `researching-` | researching-libraries |
-| ファイル・ドキュメント・設定の生成 | テンプレート、生成手順、フォーマット | `writing-` | writing-latex, writing-technical-docs |
+| ファイル・ドキュメント・設定の生成 | テンプレート、生成手順、フォーマット | `writing-` | writing-latex, writing-effective-prose |
 | UI・画面・デザインの作成 | コンポーネント、レイアウト、色、フォント | `designing-` | designing-frontend |
 | テスト戦略・手法 | テストケース、カバレッジ、TDD、モック | `testing` / `testing-` | testing |
 | セキュリティ対策 | 脆弱性、認証、暗号化、OWASP | `securing-` | securing-code |

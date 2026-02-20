@@ -14,7 +14,7 @@ ALWAYS_SKILLS=(
     "enforcing-type-safety"
     "testing-code"
     "securing-code"
-    "removing-ai-smell"
+    "writing-effective-prose"
 )
 
 # 共通開発スキル（言語プロジェクト検出時に適用）
@@ -27,8 +27,7 @@ COMMON_DEV_SKILLS=(
 # ライティングスキル（.tex検出時に適用）
 WRITING_SKILLS=(
     "writing-latex"
-    "writing-technical-docs"
-    "writing-academic-papers"
+    "writing-effective-prose"
     "searching-web"
 )
 
@@ -75,7 +74,7 @@ get_skill_description() {
         "enforcing-type-safety") echo "TypeScriptコード記述時にロード" ;;
         "testing-code") echo "テスト作成・修正時にロード" ;;
         "securing-code") echo "実装完了後に必ずロード" ;;
-        "removing-ai-smell") echo "コメント・ドキュメント記述時にロード" ;;
+        "writing-effective-prose") echo "効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書）" ;;
         "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
         "architecting-microservices") echo "CQRS/Saga/粒度決定/データ所有権/ワークフロー・コントラクト" ;;
         "modernizing-architecture") echo "社会技術的モダナイゼーション・トレードオフ分析手法" ;;
@@ -97,8 +96,6 @@ get_skill_description() {
         "building-adk-agents") echo "Google ADK AIエージェント開発" ;;
         "building-nextjs-saas") echo "Next.js SaaSアプリケーション構築" ;;
         "implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
-        "writing-technical-docs") echo "技術ドキュメント（7つのC原則）" ;;
-        "writing-academic-papers") echo "アカデミックライティング（エッセイ・論文・Harvard参照）" ;;
         "searching-web") echo "gemini CLI によるWeb検索" ;;
         "applying-design-guidelines") echo "UI/UX設計原則（理論）" ;;
         "applying-behavior-design") echo "行動変容デザイン（CREATEファネル）" ;;

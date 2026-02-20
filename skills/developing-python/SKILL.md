@@ -187,7 +187,7 @@ uv run pytest
 - **[enforcing-type-safety](../enforcing-type-safety/SKILL.md)**: 型安全性の確保
 - **[testing](../testing/SKILL.md)**: テストファーストアプローチ
 - **[securing-code](../securing-code/SKILL.md)**: セキュアコーディング
-- **[writing-technical-docs](../writing-technical-docs/SKILL.md)**: ドキュメント作成
+- **[writing-effective-prose](../writing-effective-prose/SKILL.md)**: ドキュメント作成
 
 ## 📖 次のステップ
 

@@ -1,6 +1,6 @@
 ---
 name: crafting-ai-copywriting
-description: AI-assisted copywriting with 15 prompt techniques leveraging psychological triggers. Use when creating marketing copy, blog titles, ad headlines, or social media posts. Focuses on prompt engineering to generate compelling copy. For eliminating AI patterns from text, use removing-ai-smell instead.
+description: AI-assisted copywriting with 15 prompt techniques leveraging psychological triggers. Use when creating marketing copy, blog titles, ad headlines, or social media posts. Focuses on prompt engineering to generate compelling copy. For eliminating AI patterns from text, use writing-effective-prose instead.
 ---
 
 # AIコピーライティング技法
@@ -17,7 +17,7 @@ AIに「キャッチコピーを作って」と普通に頼むと、無難で安
 - **構造・ストーリー系**: 物語性・具体性・信頼性を高める構造
 - **表現・トーン系**: 臨場感・親近感を演出する文体
 
-このスキルは **プロンプトエンジニアリング** に特化しています。AIが生成した文章から「AI臭さ」を除去する作業は `removing-ai-smell` スキルを参照してください。
+このスキルは **プロンプトエンジニアリング** に特化しています。AIが生成した文章から「AI臭さ」を除去する作業は `writing-effective-prose` スキルを参照してください。
 
 ---
 
@@ -204,18 +204,18 @@ AskUserQuestion(
 
 ---
 
-## removing-ai-smellスキルとの使い分け
+## writing-effective-proseスキルとの使い分け
 
 | スキル | フェーズ | 目的 | 具体的作業 |
 |-------|---------|------|----------|
 | **crafting-ai-copywriting**（本スキル） | 生成前 | AIに「刺さるコピー」を作らせる | プロンプトに心理トリガーを組み込む |
-| **removing-ai-smell** | 生成後 | AI生成文章の「AI臭さ」を除去 | 定型句削除、冗長表現の簡潔化 |
+| **writing-effective-prose** | 生成後 | AI生成文章の「AI臭さ」を除去 | 定型句削除、冗長表現の簡潔化 |
 
 **ワークフロー例:**
 
 1. 本スキルで「禁止命令 + 数字」のプロンプト生成
 2. AIが出力: 「絶対に読まないでください。97%の人が知らない3つの秘密」
-3. `removing-ai-smell`で調整: 「読まないでください。97%が知らない3つの秘密」（冗長な「絶対に」を削除）
+3. `writing-effective-prose`で調整: 「読まないでください。97%が知らない3つの秘密」（冗長な「絶対に」を削除）
 
 ---
 

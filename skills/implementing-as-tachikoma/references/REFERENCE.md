@@ -526,5 +526,5 @@ find . -name "*.temp" -delete
 - **enforcing-type-safety** - 型安全性の原則
 - **testing** - テスト戦略
 - **securing-code** - セキュリティ基準
-- **writing-technical-docs** - ドキュメント作成の原則
+- **writing-effective-prose** - ドキュメント作成の原則
 - **using-serena** - 効率的なコード編集

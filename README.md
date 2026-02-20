@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (9個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (82個)
+└── skills/             # ナレッジスキル (80個)
 ```
 
 ---
@@ -58,7 +58,7 @@ sumik-claude-plugin/
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 
-### Skills (82個)
+### Skills (80個)
 
 #### コア開発
 
@@ -153,9 +153,6 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `mermaid-diagrams` | Mermaidダイアグラム作成（22+種類：構造設計・フロー・プロジェクト管理・データ可視化・バージョン管理・思考整理・専門用途、23リファレンスファイル） |
-| `writing-technical-docs` | 技術ドキュメント（7つのC原則） |
-| `writing-academic-papers` | アカデミックライティング（エッセイ・論文・dissertation、Harvard参照、批判的思考、論証テンプレート6種、TAOS導入・ファネル本文・結論4ステップ、リフレクティブライティング9手法、Dissertation章別テンプレート、批評手法5種、理論活用・批評手法、リサーチソースHack、AI活用学術ワークフロー） |
-| `removing-ai-smell` | AI臭除去（コード・文章の自然化） |
 | `crafting-ai-copywriting` | AIコピーライティング（15の心理的プロンプト技法） |
 | `writing-latex` | LaTeX文書作成 |
 | `generating-google-slides` | Google Slides自動生成（GAS slideDataオブジェクト生成） |
@@ -166,6 +163,7 @@ sumik-claude-plugin/
 | `searching-web` | Web検索 fallback（gemini CLI、Exa MCP使用不可時） |
 | `reviewing-with-coderabbit` | CodeRabbitコードレビュー |
 | `writing-zenn-articles` | Zenn技術記事の作成・投稿ワークフロー（フロントマター仕様・命名規則・品質チェック・Lint設定） |
+| `writing-effective-prose` | 効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書を統合） |
 
 ### Scripts (1個)
 

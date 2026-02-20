@@ -280,7 +280,7 @@ Before finalizing your skill name and description:
 | `converting-` | 変換・処理 | `converting-documents` |
 | `crafting-` | コンテンツ制作 | `crafting-ai-copywriting` |
 | `generating-` | 成果物自動生成 | `generating-google-slides` |
-| `removing-` | 特定要素の除去 | `removing-ai-smell` |
+| `removing-` | 特定要素の除去 | `removing-xxx` （例: 特定パターン除去スキル） |
 | `searching-` | 検索・情報収集 | `searching-web` |
 | `modernizing-` | レガシー刷新 | `modernizing-architecture` |
 | `architecting-` | アーキテクチャ設計 | `architecting-microservices` |
