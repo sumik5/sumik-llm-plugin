@@ -1,280 +1,212 @@
 # コード実行とLLMモデル統合
 
-ADK Agentは、LLMが生成したPythonコードを実行し、さまざまなLLMプロバイダーと統合することができます。
+ADK Agentがコードを実行し、様々なLLMプロバイダーと連携するための包括的なリファレンスです。
+書籍「Google ADK for Agentic AI」「Mastering Google ADK」の知識を統合した実践ガイドです。
 
 ---
 
-## コード実行
+## 目次
+
+1. [コード実行（Code Executors）](#1-コード実行code-executors)
+2. [LLMモデル統合](#2-llmモデル統合)
+3. [Geminiモデルの特性と選択](#3-geminiモデルの特性と選択)
+4. [Gemini固有機能](#4-gemini固有機能)
+5. [Flows & Planners](#5-flows--planners)
+6. [Output Schema（構造化出力）](#6-output-schema構造化出力)
+7. [InstructionProvider（動的instruction生成）](#7-instructionprovider動的instruction生成)
+8. [モデル切り替えパターン](#8-モデル切り替えパターン)
+
+---
+
+## 1. コード実行（Code Executors）
 
 ### BaseCodeExecutor概要
 
-`BaseCodeExecutor`は、LLMが生成したコードを実行するための抽象基底クラスです。
+`BaseCodeExecutor`は、LLMが生成したPythonコードを実行するための抽象基底クラスです。
+Agentがコード実行機能を持つとき、LLMは単なる推論エンジンに留まらず、
+計算、データ分析、ファイル操作などを実際に「実行」できるエージェントになります。
 
-**主要な責務:**
-- `execute_code(invocation_context, code_execution_input) -> CodeExecutionResult`: コード実行の中核メソッド
-- **環境定義**: コードが実行される環境(ローカル、Docker、クラウド等)を決定
-- **ステートフル性** (`stateful: bool`): 実行間で変数・状態を保持するかどうか
-- **ファイル処理** (`optimize_data_file: bool`): データファイルの自動管理
-- **エラー処理とリトライ** (`error_retry_attempts: int`): 失敗時の再試行回数
-- **デリミタ設定**:
-  - `code_block_delimiters`: LLMがコードブロックを出力する際のフォーマット(例: `python\ncode\n`)
-  - `execution_result_delimiters`: ADKがコード実行結果をLLMにフィードバックする際のフォーマット
+**設定可能なパラメータ:**
+
+| パラメータ | 型 | 説明 |
+|-----------|-----|------|
+| `stateful` | bool | 実行間で変数・状態を保持するか |
+| `optimize_data_file` | bool | データファイルの自動管理 |
+| `error_retry_attempts` | int | 失敗時の再試行回数 |
+| `code_block_delimiters` | list | コードブロックのフォーマット定義 |
+| `execution_result_delimiters` | list | 実行結果のフォーマット定義 |
 
 ---
 
-### 1. BuiltInCodeExecutor（モデルネイティブ実行）
+### CodeExecutor選択基準テーブル
+
+| Executor | セキュリティ | 環境管理 | 速度 | 主な用途 |
+|---------|------------|---------|------|---------|
+| **BuiltInCodeExecutor** | 高（モデル管理サンドボックス） | 不要 | 最高速 | Gemini等ネイティブ対応モデル |
+| **UnsafeLocalCodeExecutor** | 極低（本番厳禁） | 不要 | 高速 | 開発・実験専用 |
+| **ContainerCodeExecutor** | 高（Docker分離） | Dockerイメージ管理 | 中（起動オーバーヘッド有） | 大半の本番ユースケース |
+| **VertexAiCodeExecutor** | 最高（Google管理） | 不要 | 高（クラウドスケール） | クラウドネイティブ本番環境 |
+
+---
+
+### 1-1. BuiltInCodeExecutor（モデルネイティブ実行）
 
 LLMが内部サンドボックスでコード実行機能を持つ場合に使用します。
-
-**特徴:**
-- モデル自身がコード生成・実行・結果解釈を行う
-- ADKは実行環境を用意する必要がない
-- 高いセキュリティ(モデル管理のサンドボックス)
+Geminiモデルの「コードインタープリター」機能を直接活用します。
 
 **動作フロー:**
-1. `BuiltInCodeExecutor`が`LlmRequest`を修正してモデルのコードインタープリターを有効化
-2. LLMがコードを生成(`executable_code` Part)
-3. モデルが内部で実行
+1. `BuiltInCodeExecutor`がLLMリクエストを修正してコードインタープリターを有効化
+2. LLMがコードを生成（`executable_code` Part）
+3. モデルが内部サンドボックスで実行
 4. LLMが実行結果を含む`code_execution_result` Partを生成
-5. ADKがこれらのPartを含む`Event`をyield
+5. ADKがこれらのPartを含むEventをyield
 
-**コード例:**
 ```python
 from google.adk.agents import Agent
 from google.adk.code_executors import BuiltInCodeExecutor
 from google.adk.runners import InMemoryRunner
 from google.genai.types import Content, Part
 
-# 環境変数を読み込み
-
-code_savvy_agent_builtin = Agent(
-    name="code_savvy_agent_builtin",
-    model="gemini-2.0-flash",  # BuiltInコード実行をサポートするモデル
-    instruction="あなたは計算やデータ分析のためにPythonコードを書いて実行できるアシスタントです。",
+code_agent = Agent(
+    name="code_agent_builtin",
+    model="gemini-2.0-flash",
+    instruction=(
+        "あなたは計算やデータ分析のためにPythonコードを書いて実行できるアシスタントです。"
+        "コードを実行して正確な結果を提供してください。"
+    ),
     code_executor=BuiltInCodeExecutor()
 )
 
-runner = InMemoryRunner(agent=code_savvy_agent_builtin, app_name="BuiltInCodeApp")
-session_id = "s_builtin_code_test"
-user_id = "builtin_user"
-# セッション作成
-
-prompts = [
-    "7の階乗は？",
-    "12345の平方根を計算してください。",
-    "最初の10個の素数を生成してください。"
-]
+runner = InMemoryRunner(agent=code_agent, app_name="BuiltInCodeApp")
 
 async def main():
-    for prompt_text in prompts:
-        print(f"\nYOU: {prompt_text}")
-        user_message = Content(parts=[Part(text=prompt_text)], role="user")
-        print("ASSISTANT: ", end="", flush=True)
-        async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=user_message):
-            if event.content and event.content.parts:
-                for part in event.content.parts:
-                    if part.text:
-                        print(part.text, end="", flush=True)
-                    elif part.executable_code:
-                        print(f"\n  CODE BLOCK:\n{part.executable_code.code.strip()}\n  END CODE BLOCK", end="")
-                    elif part.code_execution_result:
-                        print(f"\n  EXECUTION RESULT: {part.code_execution_result.outcome}\n  OUTPUT:\n{part.code_execution_result.output.strip()}\n  END EXECUTION RESULT", end="")
-        print()
+    user_message = Content(
+        parts=[Part(text="最初の10個の素数を生成してください")],
+        role="user"
+    )
+    async for event in runner.run_async(
+        user_id="user1", session_id="session1", new_message=user_message
+    ):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text:
+                    print(part.text, end="", flush=True)
+                elif part.executable_code:
+                    print(f"\n[CODE]\n{part.executable_code.code}\n[/CODE]")
+                elif part.code_execution_result:
+                    print(f"\n[RESULT]\n{part.code_execution_result.output}\n[/RESULT]")
 
 import asyncio
 asyncio.run(main())
 ```
 
-**推奨される使用場面:**
-- 使用するLLMがネイティブにコード実行をサポートしている場合
-- 最も簡単で安全なコード実行方法
+**推奨場面:**
+- Gemini 2.0 Flash / Gemini 2.0 Pro など対応モデルを使用する場合
+- ADK側での環境設定不要で最も簡単かつ安全な実行方式
+- インタラクティブな計算・データ分析タスク
 
 ---
 
-### 2. UnsafeLocalCodeExecutor（開発用・信頼された環境のみ）
+### 1-2. UnsafeLocalCodeExecutor（開発用・信頼環境限定）
 
 Pythonの`exec()`を使用して、ADKアプリケーションと同じプロセス内でコードを実行します。
 
-**⚠️ 重大なセキュリティリスク:**
-- LLM生成コードが直接ローカル環境で実行される
-- ファイルアクセス、ネットワーク呼び出し、リソース消費など、すべて可能
-- **本番環境や信頼できないモデル/ユーザーとの使用は厳禁**
+**重大なセキュリティリスク（本番環境絶対禁止）:**
+- LLM生成コードがローカル環境に直接アクセス可能
+- ファイルシステム、ネットワーク、システムリソースへの無制限アクセス
+- 悪意ある入力によるシステム破壊のリスク
 
-**動作フロー:**
-1. LLMがコードを生成(デリミタで囲まれた形式)
-2. ADKのLLM Flow(`_code_execution.response_processor`)がコードを抽出
-3. `CodeExecutionInput`を作成
-4. `UnsafeLocalCodeExecutor.execute_code()`を呼び出し
-5. `exec(code, globals_dict, locals_dict)`で実行(標準出力キャプチャ)
-6. `CodeExecutionResult`(stdout/stderr)を返却
-7. フォーマットされた結果をLLMにフィードバック
-
-**コード例:**
 ```python
 from google.adk.agents import Agent
 from google.adk.code_executors import UnsafeLocalCodeExecutor
-from google.adk.runners import InMemoryRunner
-from google.genai.types import Content, Part
 
-# 環境変数を読み込み
-
-print("⚠️ WARNING: UnsafeLocalCodeExecutorを使用します。本番環境では推奨されません。⚠️")
-
-unsafe_code_agent = Agent(
+# 開発・実験環境のみ使用
+unsafe_agent = Agent(
     name="unsafe_code_agent",
     model="gemini-2.0-flash",
-    instruction="問題を解決するためにPythonコードを書けるアシスタントです。標準Python以外の外部ライブラリは使用しないでください。",
-    code_executor=UnsafeLocalCodeExecutor()
+    instruction=(
+        "問題解決のためにPythonコードを書くアシスタントです。"
+        "標準Pythonのみ使用してください（外部ライブラリ禁止）。"
+    ),
+    code_executor=UnsafeLocalCodeExecutor(
+        stateful=True,
+        error_retry_attempts=2
+    )
 )
-
-runner = InMemoryRunner(agent=unsafe_code_agent, app_name="UnsafeCodeApp")
-session_id = "s_unsafe_code_test"
-user_id = "unsafe_user"
-# セッション作成
-
-prompts = [
-    "変数xを10、yを20と定義して、その合計を出力してください。",
-    "2の10乗はいくつですか？",
-]
-
-async def main():
-    for prompt_text in prompts:
-        print(f"\nYOU: {prompt_text}")
-        user_message = Content(parts=[Part(text=prompt_text)], role="user")
-        print("ASSISTANT (via UnsafeLocalCodeExecutor): ", end="", flush=True)
-        async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=user_message):
-            if event.content and event.content.parts:
-                for part in event.content.parts:
-                    if part.text:
-                        print(part.text, end="", flush=True)
-        print()
-
-import asyncio
-asyncio.run(main())
 ```
 
-**使用すべき場面:**
-- 分離された開発環境でのみ
-- 信頼されたLLMと信頼されたユーザーとの実験
+**使用可能な場面（厳格に限定）:**
+- 完全に隔離された開発環境
+- 信頼された開発者のみがアクセスする実験用環境
+- 信頼されたモデルと入力のみの場合
 
 ---
 
-### 3. ContainerCodeExecutor（Docker分離実行）
+### 1-3. ContainerCodeExecutor（Docker分離実行）
 
 Dockerコンテナ内でコードを実行し、ホストシステムから強力に分離します。
+セキュリティと柔軟性を兼ね備えた、大半の本番ユースケースに推奨される方式です。
 
 **前提条件:**
-- Dockerがインストールされ、実行中
-- `docker` Pythonライブラリ(`pip install docker`)
+```bash
+# Dockerのインストールと起動が必要
+pip install docker
+```
 
-**動作フロー:**
-1. LLMがコードを生成
-2. ADKがコードを抽出し`CodeExecutionInput`を作成
-3. `ContainerCodeExecutor.execute_code()`を呼び出し
-4. Dockerコンテナを起動(指定されたイメージを使用)
-5. `docker exec`でコンテナ内でPythonコードを実行
-6. stdoutとstderrをキャプチャして返却
-7. 結果をLLMにフィードバック
-
-**コード例:**
 ```python
 from google.adk.agents import Agent
 from google.adk.code_executors import ContainerCodeExecutor
-from google.adk.runners import InMemoryRunner
-from google.genai.types import Content, Part
 import os
 
-# 環境変数を読み込み
-
-# オプション1: 既存のPythonイメージを使用
-# container_executor_instance = ContainerCodeExecutor(image="python:3.10-slim")
-
-# オプション2: カスタムDockerfileからビルド
-dockerfile_dir = "my_python_env"
+# カスタムDockerfileからビルド（pandas/numpyを含む環境）
+dockerfile_dir = "/tmp/python_env"
 os.makedirs(dockerfile_dir, exist_ok=True)
-with open(os.path.join(dockerfile_dir, "Dockerfile"), "w") as df:
-    df.write("FROM python:3.10-slim\n")
-    df.write("RUN pip install numpy pandas\n")
-    df.write("WORKDIR /app\n")
-    df.write("COPY . /app\n")
 
-print("ContainerCodeExecutorを初期化中(イメージのビルド/プルに時間がかかる場合があります)...")
-container_executor_instance = ContainerCodeExecutor(
-    docker_path=dockerfile_dir
+with open(os.path.join(dockerfile_dir, "Dockerfile"), "w") as f:
+    f.write("FROM python:3.11-slim\n")
+    f.write("RUN pip install numpy pandas matplotlib scipy\n")
+    f.write("WORKDIR /app\n")
+
+container_executor = ContainerCodeExecutor(
+    docker_path=dockerfile_dir,
+    stateful=True,
+    error_retry_attempts=3
 )
-print("ContainerCodeExecutor初期化完了。")
 
 container_agent = Agent(
-    name="container_code_agent",
+    name="data_analysis_agent",
     model="gemini-2.0-flash",
-    instruction="Pythonコードを書くアシスタントです。コードはサンドボックス化されたDockerコンテナで実行されます。numpyとpandasが使用できます。",
-    code_executor=container_executor_instance
+    instruction=(
+        "Pythonデータ分析アシスタントです。"
+        "コードはDockerコンテナで安全に実行されます。"
+        "numpy、pandas、matplotlib、scipyが使用できます。"
+    ),
+    code_executor=container_executor
 )
-
-runner = InMemoryRunner(agent=container_agent, app_name="ContainerCodeApp")
-session_id = "s_container_code_test"
-user_id = "container_user"
-# セッション作成
-
-prompts = [
-    "numpyをインポートして3x3のゼロ行列を作成し、出力してください。",
-    "pandasを使用して'Name'と'Age'の2列を持つDataFrameを作成し、1行データを追加して出力してください。"
-]
-
-async def main():
-    for prompt_text in prompts:
-        print(f"\nYOU: {prompt_text}")
-        user_message = Content(parts=[Part(text=prompt_text)], role="user")
-        print("ASSISTANT (via ContainerCodeExecutor): ", end="", flush=True)
-        async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=user_message):
-            if event.content and event.content.parts:
-                for part in event.content.parts:
-                    if part.text:
-                        print(part.text, end="", flush=True)
-        print()
-
-import asyncio
-asyncio.run(main())
 ```
 
-**推奨される使用場面:**
-- LLM生成コードを実行する大半のユースケース
-- `UnsafeLocalCodeExecutor`よりはるかに高いセキュリティ
-- 最小限のDockerイメージを定義し、必要なライブラリのみを含める
-
-**注意点:**
-- Dockerオーバーヘッド(イメージプル/ビルド、コンテナ起動時間)
-- ホストマシンにDockerが必要
+**ベストプラクティス:**
+- 必要なライブラリのみを含む最小限のDockerイメージを使用
+- `python:3.11-slim`など軽量ベースイメージを選択
+- 非rootユーザーでのコンテナ実行を検討
+- コンテナのリソース制限（CPU/メモリ）を設定
 
 ---
 
-### 4. VertexAiCodeExecutor（クラウドマネージドコード実行）
+### 1-4. VertexAiCodeExecutor（クラウドマネージドコード実行）
 
-Google Cloudの**Vertex AI Code Interpreter Extension**を使用したフルマネージド・スケーラブルな実行環境です。
+Google CloudのVertex AI Code Interpreter Extensionを使用したフルマネージド実行環境です。
+インフラ管理不要で、Google管理のセキュアなサンドボックスでコードを実行します。
 
 **前提条件:**
-- Google CloudプロジェクトでVertex AI APIが有効
-- 認証設定済み(`gcloud auth application-default login`またはサービスアカウント)
-- `google-cloud-aiplatform` ライブラリ(`pip install "google-cloud-aiplatform>=1.47.0"`)
+```bash
+gcloud auth application-default login
+pip install "google-cloud-aiplatform>=1.47.0"
+```
 
-**特徴:**
-- **マネージド環境**: DockerやPython環境の管理不要
-- **セキュリティ**: Google管理のサンドボックスで実行
-- **事前インストールライブラリ**: pandas、numpy、matplotlib、scipyなど
-- **ファイルI/O**: プロット、データファイルの生成と返却が可能(ADKがArtifactとして処理)
-- **ステートフル実行**: デフォルトでステートフル(同一セッション内で変数とインポートを保持)
+**事前インストール済みライブラリ（Vertex AI Code Interpreter）:**
+- pandas, numpy, matplotlib, scipy, scikit-learn, PIL (Pillow)
 
-**動作フロー:**
-1. LLMがコードを生成
-2. ADKがコードを抽出し`CodeExecutionInput`を作成
-3. `VertexAiCodeExecutor.execute_code()`を呼び出し
-4. Vertex AI Code Interpreterサービスにリクエスト送信
-5. Vertex AIがクラウド環境でコード実行
-6. `CodeExecutionResult`(stdout、stderr、出力ファイル)を返却
-7. 出力ファイルはADKがArtifactとして保存
-8. 結果をLLMにフィードバック
-
-**コード例:**
 ```python
 from google.adk.agents import Agent
 from google.adk.code_executors import VertexAiCodeExecutor
@@ -282,452 +214,469 @@ from google.adk.runners import InMemoryRunner
 from google.genai.types import Content, Part
 import os
 
-# 環境変数を読み込み
+assert os.getenv("GOOGLE_CLOUD_PROJECT"), "GOOGLE_CLOUD_PROJECT must be set"
 
-if not os.getenv("GOOGLE_CLOUD_PROJECT"):
-    print("Error: GOOGLE_CLOUD_PROJECT環境変数が必要です。")
-    exit(1)
-
-print("VertexAiCodeExecutorを初期化中...")
 vertex_executor = VertexAiCodeExecutor()
-print(f"VertexAiCodeExecutor初期化完了。使用中のExtension: {vertex_executor._code_interpreter_extension.gca_resource.name}")
 
 vertex_agent = Agent(
-    name="vertex_code_agent",
+    name="vertex_analytics_agent",
     model="gemini-2.0-flash",
-    instruction="高度なAIアシスタントです。計算やデータタスクのためにPythonコードを書いてください。安全なVertex AI環境で実行されます。pandas、numpy、matplotlibなどが利用可能です。",
+    instruction=(
+        "高度なデータ分析アシスタントです。"
+        "計算・可視化・統計分析のためにPythonコードを書いてください。"
+        "安全なVertex AI環境で実行されます。"
+        "matplotlibでグラフを生成した場合、Artifactとして保存されます。"
+    ),
     code_executor=vertex_executor
 )
 
-runner = InMemoryRunner(agent=vertex_agent, app_name="VertexCodeApp")
-session_id = "s_vertex"
-user_id = "vertex_user"
-# セッション作成
+runner = InMemoryRunner(agent=vertex_agent, app_name="VertexApp")
 
-prompts = [
-    "matplotlibを使用してシンプルなサイン波をプロットし、'sine_wave.png'として保存してください。プロットについて説明してください。",
-    "'City'と'Population'列を持つpandas DataFrameを3都市分作成し、平均人口を出力してください。"
-]
+async def run_with_artifact():
+    user_message = Content(
+        parts=[Part(text="正弦波と余弦波を同一グラフにプロットし、waves.pngとして保存してください")],
+        role="user"
+    )
+    async for event in runner.run_async(
+        user_id="user1", session_id="s1", new_message=user_message
+    ):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text:
+                    print(part.text, end="", flush=True)
 
-async def main():
-    for prompt_text in prompts:
-        print(f"\nYOU: {prompt_text}")
-        user_message = Content(parts=[Part(text=prompt_text)], role="user")
-        print("ASSISTANT (via VertexAiCodeExecutor): ", end="", flush=True)
-        async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=user_message):
-            if event.content and event.content.parts:
-                for part in event.content.parts:
-                    if part.text:
-                        print(part.text, end="", flush=True)
-        print()
-        # Artifactを確認
-        if runner.artifact_service:
-            artifacts = await runner.artifact_service.list_artifact_keys(
-                app_name="VertexCodeApp", user_id="vertex_user", session_id="s_vertex"
-            )
-            if artifacts:
-                print(f"  (作成されたArtifacts: {artifacts})")
+    if runner.artifact_service:
+        artifacts = await runner.artifact_service.list_artifact_keys(
+            app_name="VertexApp", user_id="user1", session_id="s1"
+        )
+        print(f"\n生成Artifacts: {artifacts}")
 
 import asyncio
-asyncio.run(main())
+asyncio.run(run_with_artifact())
 ```
 
-**推奨される使用場面:**
+**推奨場面:**
 - 本番環境のクラウドデプロイメント
-- 環境管理不要でスケーラブルな実行が必要な場合
+- データビジュアライゼーションやファイル生成が必要なタスク
+- インフラ管理を最小化したい場合
 
 ---
 
-### コード実行サイクル
+### コード実行サイクル（BuiltIn以外）
 
-(`BuiltInCodeExecutor`以外のExecutorの場合)
+`UnsafeLocalCodeExecutor`、`ContainerCodeExecutor`、`VertexAiCodeExecutor`の共通フロー:
 
-1. **LLMがコード生成**: `LlmAgent`の指示に基づき、LLMがコードスニペットを生成(デリミタで囲まれた形式)
-2. **ADKがコード抽出**: LLM Flow内の`_code_execution.response_processor`がコードブロックを検出・抽出
-3. **ADKがExecutor起動**: `CodeExecutionInput`を作成し`agent.code_executor.execute_code()`を呼び出し
-4. **Executorがコード実行**: 選択された実装に応じた環境でコード実行
-5. **Executorが結果返却**: `CodeExecutionResult`(stdout、stderr、出力ファイル)を返却
-6. **ADKが結果フォーマット**: 結果を文字列にフォーマット(例: `tool_output ...`)し、`user`ロールの`Content`として`Event`にパッケージ
-7. **結果をLLMにフィードバック**: この`Event`(実行結果を含む)を会話履歴に追加し、再度LLMを呼び出し
-8. **LLMが結果解釈**: LLMは実行結果を使用して最終応答を生成、追加コード生成、または次のアクション決定
-
----
-
-### CodeExecutorContext
-
-ステートフルなExecutorやデータファイル入力を最適化する際に使用される内部オブジェクトです。
-
-**役割:**
-- `execution_id`: ステートフルセッション用(例: `VertexAiCodeExecutor`)
-- 処理済み入力ファイルのリスト(冗長処理を避ける`optimize_data_file`)
-- エラーカウント(リトライロジック用)
-
-通常、カスタムCodeExecutorを構築する場合や、コード実行フローを深くカスタマイズする場合以外は直接操作しません。
-
----
-
-### CodeExecutor選択基準
-
-| Executor | 使用場面 | セキュリティ | 環境管理 | パフォーマンス |
-|---------|---------|------------|---------|--------------|
-| **BuiltInCodeExecutor** | LLMがネイティブサポート | 高(モデル管理) | 不要 | 高速 |
-| **UnsafeLocalCodeExecutor** | 開発・信頼された環境のみ | ❌ 低 | 不要 | 高速 |
-| **ContainerCodeExecutor** | 大半のユースケース | 高(Docker分離) | Dockerイメージ管理 | 中(コンテナ起動オーバーヘッド) |
-| **VertexAiCodeExecutor** | 本番環境・クラウド | 高(Google管理) | 不要 | 高(クラウドスケール) |
-
-**AskUserQuestion配置:**
-不明な場合、以下の質問をユーザーに提示してください:
-
-```python
-from google.adk.agents.callback_context import AskUserQuestion
-
-AskUserQuestion(
-    questions=[{
-        "question": "どのコード実行環境を使用しますか？",
-        "header": "CodeExecutor選択",
-        "options": [
-            {
-                "label": "BuiltInCodeExecutor",
-                "description": "LLMがネイティブにサポート(Geminiなど)。最も簡単で安全。"
-            },
-            {
-                "label": "ContainerCodeExecutor",
-                "description": "Dockerコンテナで実行。高いセキュリティ。本番環境推奨。"
-            },
-            {
-                "label": "VertexAiCodeExecutor",
-                "description": "Google Cloudマネージド。スケーラブル。クラウド環境推奨。"
-            },
-            {
-                "label": "UnsafeLocalCodeExecutor",
-                "description": "ローカル実行。開発のみ。本番環境厳禁。"
-            }
-        ],
-        "multiSelect": False
-    }]
-)
+```
+1. LLMがコードを生成（デリミタで囲まれた形式）
+   ↓
+2. ADK LLM Flow内の response_processor がコードブロックを抽出
+   ↓
+3. CodeExecutionInput を作成し agent.code_executor.execute_code() を呼び出し
+   ↓
+4. Executorが選択された環境でコードを実行
+   ↓
+5. CodeExecutionResult（stdout/stderr/出力ファイル）を返却
+   ↓
+6. ADKが結果をフォーマットしてEventにパッケージ
+   ↓
+7. 結果をLLMにフィードバック（会話履歴に追加）
+   ↓
+8. LLMが結果を解釈して最終応答を生成（または追加コード生成）
 ```
 
 ---
 
-## LLMモデル統合
+## 2. LLMモデル統合
 
 ### BaseLlmインターフェースとLLM Registry
 
-ADKは複数のLLMをサポートするため、共通インターフェース`BaseLlm`を定義しています。
+ADKは`BaseLlm`抽象クラスを介して複数のLLMプロバイダーを統一的に扱います。
+LLM Registryにより、モデル名文字列から適切な実装クラスへの自動解決が行われます。
 
 **BaseLlmの主要メソッド:**
-- `model: str`: モデル識別子(例: `"gemini-2.0-flash"`)
-- `supported_models() -> list[str]` (classmethod): サポートするモデル名の正規表現リスト(LLM Registryが使用)
-- `generate_content_async(llm_request: LlmRequest, stream: bool = False) -> AsyncGenerator[LlmResponse, None]`: LLMへのリクエスト送信とレスポンス受信(ストリーミング対応)
-- `connect(llm_request: LlmRequest) -> BaseLlmConnection`: 双方向ストリーミング接続(実験的機能)
 
-**LLM Registry:**
-ADKは`LLMRegistry`でモデル名パターンと`BaseLlm`サブクラスをマッピングしています。
+| メソッド | 説明 |
+|---------|------|
+| `model: str` | モデル識別子（例: `"gemini-2.0-flash"`） |
+| `supported_models()` | サポートするモデル名の正規表現リスト（Registry用） |
+| `generate_content_async(llm_request, stream)` | LLMへのリクエスト送信・レスポンス受信 |
+| `connect(llm_request)` | 双方向ストリーミング接続（実験的） |
 
+**LLM Registryの動作:**
 ```python
-# モデル名文字列を渡すと、ADKがRegistryから適切なクラスを解決
-agent = Agent(model="gemini-2.0-flash", ...)
+from google.adk.agents import Agent
 
-# 内部的に: LLMRegistry → Gemini("gemini-2.0-flash")を自動インスタンス化
+# モデル文字列を渡すと、LLM Registryが自動解決
+agent = Agent(
+    model="gemini-2.0-flash",  # 自動的に Gemini("gemini-2.0-flash") にマッピング
+    instruction="..."
+)
+
+# 明示的なインスタンス化も可能
+from google.adk.models import Gemini
+gemini_llm = Gemini(model="gemini-2.0-flash")
+agent2 = Agent(model=gemini_llm, instruction="...")
 ```
-
-これにより、Agent開発者が常にLLMクライアントクラスを明示的にインスタンス化する必要がなくなります。
 
 ---
 
-### LiteLlm（幅広いモデルサポート）
+### LiteLlm（100以上のモデルに統一インターフェース）
 
-`LiteLlm`は[LiteLLMライブラリ](https://litellm.ai/)のラッパーで、100以上のLLM APIに統一インターフェースを提供します。
+`LiteLlm`は[LiteLLMライブラリ](https://litellm.ai/)のラッパーで、
+OpenAI、Anthropic、Azure、Cohere、Ollamaなど100以上のLLM APIに統一インターフェースを提供します。
 
-**サポート対象:**
-- クラウドプロバイダー: OpenAI、Azure OpenAI、Anthropic、Cohere、Hugging Faceなど
-- ローカルモデル: Ollama経由
-- セルフホストエンドポイント: TGI、vLLMなど
-
-**前提条件:**
-- `litellm`ライブラリ(`pip install litellm`)
-- 各プロバイダーのAPIキーを環境変数に設定(例: `OPENAI_API_KEY`)
-- Ollama使用時: Ollamaインストール+モデルpull
-- セルフホスト: モデルサービング環境が稼働中
-
-**OpenAI例:**
-```python
-from google.adk.agents import Agent
-from google.adk.models.lite_llm import LiteLlm
-from google.adk.runners import InMemoryRunner
-from google.genai.types import Content, Part
-import os
-
-# 環境変数を読み込み
-
-if not os.getenv("OPENAI_API_KEY"):
-    print("Warning: OPENAI_API_KEYが未設定です。")
-    exit(1)
-
-openai_llm_instance = LiteLlm(model="openai/gpt-4o")
-
-openai_agent = Agent(
-    name="openai_gpt_assistant",
-    model=openai_llm_instance,
-    instruction="LiteLLM経由でOpenAIモデルを使用する便利なアシスタントです。"
-)
-print("OpenAI GPTエージェント(via LiteLLM)初期化完了。")
-
-runner = InMemoryRunner(agent=openai_agent, app_name="LiteLLM_OpenAI_App")
-session_id = "s_openai"
-user_id = "openai_user"
-# セッション作成
-
-user_message = Content(parts=[Part(text="Pythonプログラミングについての短い詩を書いてください。")], role="user")
-print("\nOpenAI GPT Agent (via LiteLLM):")
-for event in runner.run(user_id=user_id, session_id=session_id, new_message=user_message):
-    if event.content and event.content.parts:
-        for part in event.content.parts:
-            if part.text:
-                print(part.text, end="")
-print()
+**インストール:**
+```bash
+pip install litellm
 ```
 
-**Ollama経由のローカルモデル:**
+#### OpenAI / Azure OpenAI
+
 ```python
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
-from google.adk.runners import InMemoryRunner
-from google.genai.types import Content, Part
+import os
+
+# OpenAI GPT-4o
+openai_agent = Agent(
+    name="gpt4o_assistant",
+    model=LiteLlm(model="openai/gpt-4o"),
+    instruction="GPT-4o を使用する多機能アシスタントです。"
+)
+
+# Azure OpenAI
+azure_agent = Agent(
+    name="azure_assistant",
+    model=LiteLlm(
+        model="azure/gpt-4o",
+        api_base=os.getenv("AZURE_OPENAI_ENDPOINT"),
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+        api_version="2024-02-01"
+    ),
+    instruction="Azure OpenAI を使用するアシスタントです。"
+)
+```
+
+#### Ollama経由のローカルモデル
+
+```python
+from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
 import requests
 
-# Ollamaサーバーが稼働しているか確認
-ollama_running = False
-try:
-    response = requests.get("http://localhost:11434")
-    if response.status_code == 200 and "Ollama is running" in response.text:
-        ollama_running = True
-        print("Ollamaサーバー検出。")
-except requests.exceptions.ConnectionError:
-    print("Ollamaサーバーが見つかりません。Ollamaがインストール・起動されているか確認してください。")
-    exit(1)
+def check_ollama_running() -> bool:
+    try:
+        resp = requests.get("http://localhost:11434")
+        return resp.status_code == 200
+    except requests.exceptions.ConnectionError:
+        return False
 
-if ollama_running:
-    # モデル名の前に"ollama/"を付ける
-    # 事前に`ollama pull llama3`でモデルをpull済み想定
-    ollama_llm_instance = LiteLlm(model="ollama/llama3")
+if not check_ollama_running():
+    raise RuntimeError("Ollamaが起動していません。ollama serveで起動してください。")
 
-    ollama_agent = Agent(
-        name="local_llama3_assistant",
-        model=ollama_llm_instance,
-        instruction="OllamaとLlama 3経由でローカル実行される便利なアシスタントです。"
-    )
-    print("Ollama Llama3エージェント(via LiteLLM)初期化完了。")
-
-    runner = InMemoryRunner(agent=ollama_agent, app_name="LiteLLM_Ollama_App")
-    user_message = Content(parts=[Part(text="なぜ空は青いのですか？簡潔に説明してください。")])
-    print("\nLocal Llama3 Agent (via LiteLLM and Ollama):")
-    for event in runner.run(user_id="ollama_user", session_id="s_ollama", new_message=user_message):
-        if event.content and event.content.parts and event.content.parts[0].text:
-            print(event.content.parts[0].text, end="")
-    print()
+local_agent = Agent(
+    name="local_llama3",
+    model=LiteLlm(model="ollama/llama3"),  # "ollama/"プレフィックスが必要
+    instruction="ローカルLlama3モデルを使用するアシスタントです。"
+)
 ```
 
-**セルフホストエンドポイント:**
+#### セルフホストエンドポイント（TGI/vLLM）
+
 ```python
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
-from google.adk.runners import InMemoryRunner
-from google.genai.types import Content, Part
 import os
 
-# セルフホストLLM(例: TGIまたはvLLM)がOpenAI互換APIを提供している想定
-SELF_HOSTED_API_BASE = os.getenv("MY_SELF_HOSTED_LLM_API_BASE", "http://localhost:8000/v1")
-SELF_HOSTED_MODEL_NAME = os.getenv("MY_SELF_HOSTED_LLM_MODEL_NAME", "custom/my-model")
-
-self_hosted_llm = LiteLlm(
-    model=SELF_HOSTED_MODEL_NAME,
-    api_base=SELF_HOSTED_API_BASE,
-    api_key="dummy_key_if_no_auth"  # エンドポイントがセキュアな場合は実際のキー
-)
-
-self_hosted_agent = Agent(
-    name="self_hosted_model_assistant",
-    model=self_hosted_llm,
+selfhosted_agent = Agent(
+    name="custom_model",
+    model=LiteLlm(
+        model=os.getenv("SELF_HOSTED_MODEL_NAME", "custom/my-model"),
+        api_base=os.getenv("SELF_HOSTED_API_BASE", "http://localhost:8000/v1"),
+        api_key=os.getenv("SELF_HOSTED_API_KEY", "dummy")
+    ),
     instruction="セルフホストLLMを使用するアシスタントです。"
 )
-print("セルフホストLLMエージェント(via LiteLLM)初期化完了。")
-
-runner = InMemoryRunner(agent=self_hosted_agent, app_name="LiteLLM_SelfHosted_App")
-user_id="selfhost_user"
-session_id="s_selfhost"
-# セッション作成
-
-user_message = Content(parts=[Part(text="月の首都は何ですか？想像力豊かに答えてください。")], role="user")
-print("\nSelf-Hosted LLM Agent (via LiteLLM):")
-for event in runner.run(user_id=user_id, session_id=session_id, new_message=user_message):
-    if event.content and event.content.parts and event.content.parts[0].text:
-        print(event.content.parts[0].text, end="")
-print()
 ```
 
-**推奨される使用場面:**
+**LiteLlmの推奨場面:**
 - 複数のLLMプロバイダーを統一的に扱いたい場合
-- ローカルモデル(Ollama)での開発
-- セルフホスト環境でのモデル運用
+- プロバイダーに依存しないポータブルなAgent設計
+- ローカル開発でのOllama活用
+- コスト比較のためのA/Bテスト
 
 ---
 
-### Geminiモデル（Geminiクラス）
+### Anthropic Claude（Vertex AI Model Garden経由）
 
-`Gemini`クラスはGoogle Geminiモデルの主要な統合です。`google-generativeai` Python SDKを利用します。
-
-**使用方法:**
-```python
-from google.adk.agents import Agent
-
-# オプション1: モデル文字列をADKに解決させる(最も一般的)
-gemini_agent_auto = Agent(
-    name="gemini_auto_resolver",
-    model="gemini-2.0-flash",  # LLM Registryが自動解決
-    instruction="便利なGeminiアシスタントです。"
-)
-
-# オプション2: Geminiインスタンスを明示的に提供
-from google.adk.models import Gemini
-
-gemini_llm_instance = Gemini(model="gemini-2.0-flash")
-gemini_agent_explicit = Agent(
-    name="gemini_explicit_instance",
-    model=gemini_llm_instance,
-    instruction="明示的なモデルインスタンスを使用するGeminiアシスタントです。"
-)
-```
-
-**自動Vertex AI検出:**
-`Gemini`クラス(および`google-generativeai` SDK)は、環境がVertex AI用に設定されている場合、自動的にVertex AIエンドポイントを使用します:
-- `os.environ.get('GOOGLE_GENAI_USE_VERTEXAI', '0').lower()` が `['true', '1']` の場合、Vertex AIを優先
-- それ以外は`GOOGLE_API_KEY`を探し、Google AI Studioエンドポイントを優先
-
-これにより、Gemini APIとVertex AIマネージドモデル間の切り替えが簡単になります。
-
----
-
-### Vertex AI Model Garden
-
-ADKは、Anthropic ClaudeなどのVertex AI Model Gardenのモデルをサポートします。
+ADKはVertex AI Model GardenのClaude等のモデルをサポートします。
 
 **前提条件:**
-- Vertex AIでClaudeモデルへのアクセス
-- `anthropic`ライブラリ(`pip install anthropic`)
-- 環境変数`GOOGLE_CLOUD_PROJECT`と`GOOGLE_CLOUD_LOCATION`(例: "us-central1")が設定済み
+```bash
+pip install anthropic
+export GOOGLE_CLOUD_PROJECT="your-project"
+export GOOGLE_CLOUD_LOCATION="us-central1"
+```
 
-**コード例:**
 ```python
 from google.adk.agents import Agent
 from google.adk.models.anthropic_llm import Claude
 from google.adk.models.registry import LLMRegistry
-from google.adk.runners import InMemoryRunner
-from google.genai.types import Content, Part
 import os
 
-# 環境変数を読み込み
-
-# ClaudeモデルをLLM Registryに登録
+# ClaudeをLLM Registryに登録（初回のみ）
 LLMRegistry.register(Claude)
-
-GCP_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
-GCP_LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION")  # 例: "us-central1"
-CLAUDE_MODEL_NAME = "claude-sonnet-4@20250514"
-
-if not GCP_PROJECT or not GCP_LOCATION:
-    print("GOOGLE_CLOUD_PROJECTまたはGOOGLE_CLOUD_LOCATIONが未設定です。")
-    exit(1)
 
 claude_agent = Agent(
     name="claude_assistant",
-    model=CLAUDE_MODEL_NAME,
-    instruction="Claudeを使用する便利で思慮深いアシスタントです。包括的な回答を提供します。"
+    model="claude-sonnet-4@20250514",  # Vertex AI上のモデルID
+    instruction=(
+        "Claudeを使用する高度なアシスタントです。"
+        "複雑な推論と長文生成に優れています。"
+    )
 )
-print(f"Claudeエージェント初期化完了(モデル: {CLAUDE_MODEL_NAME}, Vertex AI)。")
-
-runner = InMemoryRunner(agent=claude_agent, app_name="ClaudeApp")
-session_id = "s_claude"
-user_id = "claude_user"
-# セッション作成
-
-user_message = Content(parts=[Part(text="複雑なシステムにおける創発特性の概念を説明してください。")], role="user")
-print("\nClaude Agent:")
-for event in runner.run(user_id=user_id, session_id=session_id, new_message=user_message):
-    if event.content and event.content.parts:
-        for part in event.content.parts:
-            if part.text:
-                print(part.text, end="")
-print()
 ```
 
-**Vertex AI上のClaudeモデル名:**
-Vertex AI経由でClaudeモデルを使用する場合、Vertex AIが使用する特定の識別子(例: `"claude-sonnet-4@20250514"`)を使用する必要があります。Vertex AIドキュメントで正しいモデルIDを確認してください。
+**Vertex AI上のClaudeモデルID形式:**
+- `claude-sonnet-4@20250514`
+- `claude-3-opus@20240229`
+- 最新IDはVertex AIドキュメントで確認すること
 
 ---
 
-### LlmRequestの構造
+### LlmRequestとLlmResponseの構造
 
-`LlmRequest`は、LLMに送信されるデータのADK標準フォーマットです。LLM Flow(例: `SingleFlow`)が構築します。
+**LlmRequest（LLMへの入力）:**
 
-**主要コンポーネント:**
-- `model: Optional[str]`: モデル文字列
-- `contents: list[types.Content]`: 会話履歴
-  - `Content`オブジェクトのリスト
-  - 各`Content`は`role`(`"user"`または`"model"`)と`parts`(Part のリスト)を持つ
-  - Partはテキスト、関数呼び出し、関数レスポンス、インラインデータのいずれか
-- `config: Optional[types.GenerateContentConfig]`: 生成設定
-  - `system_instruction: Optional[str]`: コンパイル済みシステムプロンプト(Agent instruction + global instruction + ツール提供の追加指示)
-  - `tools: Optional[list[types.Tool]]`: LLMが利用可能なツールの`FunctionDeclaration`リスト
-  - 生成パラメータ: `temperature`、`max_output_tokens`、`safety_settings`
-  - `response_schema`: 構造化JSONレスポンスを期待する場合
-- `live_connect_config: types.LiveConnectConfig`: ライブ双方向ストリーミング設定
-- `tools_dict: dict[str, BaseTool]`: (ADK内部用)ツール名から`BaseTool`インスタンスへのマッピング
+| フィールド | 説明 |
+|-----------|------|
+| `model` | モデル識別子 |
+| `contents` | 会話履歴（Contentオブジェクトのリスト） |
+| `config.system_instruction` | コンパイル済みシステムプロンプト |
+| `config.tools` | 利用可能なツールのFunctionDeclarationリスト |
+| `config.temperature` | 生成の確率的多様性（0.0-1.0） |
+| `config.max_output_tokens` | 最大出力トークン数 |
+| `config.response_schema` | 構造化JSONレスポンスのスキーマ |
 
-LLM Flowと各種リクエストプロセッサー(`instructions.py`、`contents.py`、`functions.py`など)が連携してこれらのフィールドを設定します。
+**LlmResponse（LLMからの出力）:**
 
----
-
-### LlmResponseの構造
-
-`LlmResponse`は、LLMから受信されるデータのADK標準フォーマットです。
-
-**主要コンポーネント:**
-- `content: Optional[types.Content]`: LLMからのメインペイロード
-  - テキスト: `content.parts[0].text`
-  - ツール呼び出し: `content.parts[0].function_call`
-  - `content.role`は通常`"model"`
-- `partial: Optional[bool]`: `True`の場合、ストリーミングテキストレスポンスのチャンク
-- `usage_metadata: Optional[types.GenerateContentResponseUsageMetadata]`:
-  - `prompt_token_count: int`
-  - `candidates_token_count: int`
-  - `total_token_count: int`
-- `grounding_metadata: Optional[types.GroundingMetadata]`: LLMがグラウンディング(例: `GoogleSearchTool`)を使用した場合の情報
-- `error_code: Optional[str]`, `error_message: Optional[str]`: LLM呼び出しが失敗した場合
-- `turn_complete: Optional[bool]`: ライブストリーミング時、モデルがターンを終了したかを示す
-- `interrupted: Optional[bool]`: ライブストリーミング時、ユーザーがモデルを中断したかを示す
-- `custom_metadata: Optional[dict[str, Any]]`: カスタムメタデータを添付可能(例: `after_model_callback`で使用)
-
-LLM Flowはこれらの`LlmResponse`オブジェクトをADK `Event`オブジェクトに変換し、`Runner`がyieldします。
-
-**LlmResponseの検査:**
-- `after_model_callback`では生の`LlmResponse`を受信できる(ログ、メタデータ検査、レスポンス修正に最適)
-- Dev UIのTraceビューで各LLM相互作用の詳細(`LlmRequest`と`LlmResponse`)を確認可能
+| フィールド | 説明 |
+|-----------|------|
+| `content` | メインペイロード（テキスト/ツール呼び出し） |
+| `partial` | trueの場合、ストリーミングチャンク |
+| `usage_metadata` | トークン使用量（prompt/candidates/total） |
+| `grounding_metadata` | グラウンディング情報 |
+| `error_code` / `error_message` | エラー情報 |
 
 ---
 
-### ストリーミングレスポンス
+## 3. Geminiモデルの特性と選択
 
-ADKはストリーミングレスポンスをサポートします。`RunConfig`でストリーミングを有効化すると、`BaseLlm`の`generate_content_async`が`stream=True`で呼び出されます。
+書籍「Mastering Google ADK」（Chapter 5）の知識を統合した詳細比較です。
 
-**動作:**
-- 単一の`LlmResponse`ではなく、`AsyncGenerator[LlmResponse, None]`をyield
-- 各yielded `LlmResponse`はテキストのチャンクを含み、`partial`属性が`True`
-- ストリームの最後の`LlmResponse`は`partial=False`(または関数呼び出しのみ含む、または`finish_reason`が完了を示す)
-- ADK `Runner`はこれらの部分的な`Event`をyieldし、生成中にテキストをユーザーに表示可能
+### Geminiモデルファミリー比較テーブル
 
-**コード例:**
+| モデル | コンテキスト長 | 速度 | コスト | ビジョン | 主な用途 |
+|--------|-------------|------|--------|---------|---------|
+| **gemini-1.5-flash** | 約1M tokens | 最高速 | 最低 | 対応 | 軽量タスク、チャットボット、高頻度推論 |
+| **gemini-1.5-pro** | 約1M tokens | 速い | 中 | 対応 | 汎用、ドキュメント分析、中規模ワークフロー |
+| **gemini-2.0-flash** | 長大 | 高速 | 低〜中 | 強化対応 | BuiltInコード実行、ツール呼び出し精度向上 |
+| **gemini-2.0-pro** | 長大 | 中 | 高 | 強化対応 | 高精度タスク、複雑推論 |
+| **gemini-2.5-pro** | 約1M tokens | 中 | 最高 | 強化対応+改良パーシング | 文書集約型エージェント、長期プランニング |
+| **gemini-2.5-flash** | 長大 | 高速 | 中 | 対応 | 思考機能付き効率実行 |
+
+**選択の指針（コスト/速度/精度トレードオフ）:**
+
+```
+シンプルなQ&A / チャット
+    → gemini-1.5-flash（最低コスト、最高速）
+
+汎用Agent / 標準ワークフロー
+    → gemini-1.5-pro / gemini-2.0-flash
+
+大規模文書処理 / 高精度ツール呼び出し
+    → gemini-2.5-pro
+
+コード実行を伴うAgent
+    → gemini-2.0-flash（BuiltInCodeExecutor対応）
+
+思考・計画が必要な複雑タスク
+    → gemini-2.5-flash（thinking_config対応）
+    → gemini-2.0-flash-thinking-exp（PlanReActPlanner用）
+```
+
+---
+
+### モデルバージョン別特性詳細
+
+#### Gemini 1.5シリーズ
+- **長大なコンテキスト（1M tokens）**: 大量の文書や会話履歴を一度に処理可能
+- **マルチモーダル**: テキスト、画像、音声、動画入力に対応
+- **ツール呼び出し**: Function Callingで構造化ツール実行
+- **開発推奨**: 1.5-proでプロトタイプ開発、完成後に最適化
+
+#### Gemini 2.0シリーズ
+- **コード実行強化**: `BuiltInCodeExecutor`との親和性が高い
+- **ツール呼び出し精度向上**: より正確なFunction Call判断
+- **マルチモーダル強化**: Vision処理の改良
+- **生産性**: Flash系はコスト効率が大幅に改善
+
+#### Gemini 2.5シリーズ（最新世代）
+- **超長コンテキスト**: 複数の大規模文書を同時処理
+- **高度な推論**: 複雑なマルチステップ問題解決
+- **思考機能**: `ThinkingConfig`での内部推論の可視化
+- **Vision改良パーシング**: 文書・図表の高精度解析
+- **高コスト注意**: 本番では適切なユースケースに限定使用
+
+---
+
+### 生成パラメータ最適化
+
+書籍「Mastering Google ADK」（Chapter 11.5）の知識より:
+
+```python
+from google.adk.agents import Agent
+from google.genai.types import GenerateContentConfig
+
+# タスク別の推奨パラメータ
+TOOL_AND_RAG_CONFIG = GenerateContentConfig(
+    temperature=0.2,    # 決定論的（ツール選択・RAG）
+    top_p=0.9,
+    max_output_tokens=2048
+)
+
+CREATIVE_CONFIG = GenerateContentConfig(
+    temperature=0.7,    # 探索的（要約・アイデア生成）
+    top_p=0.95,
+    max_output_tokens=4096
+)
+
+ANALYTICAL_CONFIG = GenerateContentConfig(
+    temperature=0.3,    # バランス型（分析・レポート）
+    top_p=0.9,
+    max_output_tokens=8192
+)
+
+analytical_agent = Agent(
+    name="analyst",
+    model="gemini-2.0-flash",
+    instruction="詳細なデータ分析を行うアシスタントです。",
+    generate_content_config=ANALYTICAL_CONFIG
+)
+```
+
+**パラメータガイドライン:**
+
+| パラメータ | 低値（0.2-0.4） | 高値（0.6-0.8） |
+|-----------|--------------|--------------|
+| temperature | 決定論的、一貫性高 | 創造的、多様性高 |
+| top_p | 安全な選択肢に集中 | より広い語彙から選択 |
+
+---
+
+## 4. Gemini固有機能
+
+### 4-1. マルチモーダル入力（Vision Capabilities）
+
+書籍「Mastering Google ADK」（Chapter 5.2, 5.5）の知識を統合:
+
+Geminiモデルはテキスト・画像・PDFを統合して処理できます。
+ADKでは`Content.parts`に複数のモダリティを混在させることが可能です。
+
+**ADK標準API経由の画像入力:**
+```python
+from google.adk.agents import Agent
+from google.adk.runners import InMemoryRunner
+from google.genai.types import Content, Part
+from pathlib import Path
+
+def load_image_as_part(image_path: str) -> Part:
+    image_bytes = Path(image_path).read_bytes()
+    return Part.from_bytes(
+        data=image_bytes,
+        mime_type="image/png"
+    )
+
+vision_agent = Agent(
+    name="vision_analyst",
+    model="gemini-2.0-flash",
+    instruction=(
+        "画像・図表・ドキュメントを分析するアシスタントです。"
+        "視覚的な情報を正確に解析し、構造化された洞察を提供します。"
+    )
+)
+
+runner = InMemoryRunner(agent=vision_agent, app_name="VisionApp")
+
+async def analyze_image(image_path: str, question: str):
+    image_part = load_image_as_part(image_path)
+    text_part = Part(text=question)
+
+    user_message = Content(parts=[image_part, text_part], role="user")
+
+    async for event in runner.run_async(
+        user_id="user1", session_id="s1", new_message=user_message
+    ):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text:
+                    print(part.text, end="", flush=True)
+
+import asyncio
+asyncio.run(analyze_image("architecture_diagram.png", "このアーキテクチャ図を説明してください"))
+```
+
+**PDF・構造化データの埋め込み:**
+```python
+import fitz  # PyMuPDF: pip install pymupdf
+import pandas as pd
+from google.genai.types import Content, Part
+
+def extract_pdf_text(pdf_path: str, max_chars: int = 50000) -> str:
+    """PDFからテキストを抽出（トークン制限に注意）"""
+    doc = fitz.open(pdf_path)
+    text = "\n".join([page.get_text() for page in doc])
+    return text[:max_chars]
+
+def csv_to_markdown(csv_path: str, max_rows: int = 20) -> str:
+    """CSVをMarkdownテーブル形式に変換"""
+    df = pd.read_csv(csv_path)
+    return df.head(max_rows).to_markdown(index=False)
+
+pdf_content = extract_pdf_text("annual_report.pdf")
+csv_content = csv_to_markdown("financial_data.csv")
+
+combined_context = f"""
+## 年次報告書（抜粋）
+{pdf_content}
+
+## 財務データ
+{csv_content}
+"""
+
+user_message = Content(
+    parts=[Part(text=f"{combined_context}\n\nこのデータから主要な財務トレンドを分析してください")],
+    role="user"
+)
+```
+
+**マルチモーダルのベストプラクティス:**
+
+| ベストプラクティス | 理由 |
+|----------------|------|
+| 関連する画像部分のみを渡す（クロップ） | モデルの注意を集中させる |
+| 解像度を適切に調整する | 過大なトークン消費を防ぐ |
+| PDFは関連ページのみ抽出する | コンテキスト長の効率化 |
+| 構造化データはMarkdownテーブルで渡す | LLMの理解精度が向上 |
+| PDFの表・グラフは画像+テキストを組み合わせる | 読み取り精度向上 |
+
+---
+
+### 4-2. ストリーミング出力
+
+会話型Agentではストリーミングが不可欠です。ストリーミングにより、
+LLMが生成中にトークンを順次ユーザーに配信でき、体感レスポンス速度が大幅に向上します。
+
 ```python
 from google.adk.agents import Agent
 from google.adk.runners import InMemoryRunner, RunConfig
@@ -735,368 +684,664 @@ from google.adk.agents.run_config import StreamingMode
 from google.genai.types import Content, Part
 import asyncio
 
-# 環境変数を読み込み
-
-streaming_demo_agent = Agent(
+streaming_agent = Agent(
     name="streaming_writer",
     model="gemini-2.0-flash",
-    instruction="好奇心旺盛な猫についての非常に短い物語(10-15文)を書いてください。"
+    instruction="ユーザーの質問に詳細かつ丁寧に回答するアシスタントです。"
 )
 
-runner = InMemoryRunner(agent=streaming_demo_agent, app_name="StreamingApp")
-session_id = "s_streaming"
-user_id = "streaming_user"
-# セッション作成
+runner = InMemoryRunner(agent=streaming_agent, app_name="StreamApp")
 
-user_message = Content(parts=[Part(text="物語を聞かせてください。")], role="user")
+async def run_with_streaming(question: str):
+    user_message = Content(parts=[Part(text=question)], role="user")
 
-async def run_with_streaming():
-    print("ストリーミングAgentレスポンス:")
     run_config = RunConfig(streaming_mode=StreamingMode.SSE)
 
+    print("Agent: ", end="", flush=True)
     async for event in runner.run_async(
-        user_id=user_id,
-        session_id=session_id,
-        new_message=user_message,
-        run_config=run_config
+        user_id="user1", session_id="s1",
+        new_message=user_message, run_config=run_config
     ):
         if event.content and event.content.parts:
             for part in event.content.parts:
                 if part.text:
                     print(part.text, end="", flush=True)
-    print("\n--- ストリーム終了 ---")
+    print()
 
-asyncio.run(run_with_streaming())
+asyncio.run(run_with_streaming("日本のAI産業の現状と展望を詳しく教えてください"))
 ```
 
-**推奨される使用場面:**
-会話型Agentでは、ストリーミングレスポンスによりユーザー体験が大幅に向上します(全レスポンス生成を待つのではなく、即座のフィードバック)。`runner.run_async`呼び出し時に`RunConfig`で有効化してください。
+**StreamingModeオプション:**
+- `StreamingMode.NONE`: ストリーミング無効（デフォルト）
+- `StreamingMode.SSE`: Server-Sent Events形式でストリーミング
+- `StreamingMode.BIDI`: 双方向ストリーミング（実験的）
+
+**ストリーミングが特に有効な場面:**
+- 長文生成（レポート、文章作成）
+- チャットUI、CLIインターフェース
+- リアルタイム翻訳・要約
+- ユーザー待ち時間の短縮が重要な場面
 
 ---
 
-## Flows & Planners
+## 5. Flows & Planners
 
-### BaseLlmFlow概念とSingleFlow
+### BaseLlmFlow概念
 
-**LLM Flow** (`BaseLlmFlow`)は、`LlmAgent`が1ターン(または1ステップ)の相互作用中に実行する操作シーケンスを決定するADKの内部コンポーネントです。
+LLM Flow（`BaseLlmFlow`）はLlmAgentが1ターンの相互作用中に実行する操作シーケンスを定義します。
 
-**主要な責務:**
-1. `LlmRequest`の準備(履歴、指示、ツールの収集)
-2. LLMの呼び出し
-3. `LlmResponse`の処理(テキスト、ツール呼び出し、エラー処理)
-4. 更なるLLM相互作用が必要か(例: ツール呼び出し後)、または最終レスポンスに達したかを決定
+**組み込みFlowの種類:**
+- **`SingleFlow`**: サブAgentなしのシンプルなAgent用デフォルト
+- **`AutoFlow`**: `SingleFlow`を継承し、Agent間転送機能を追加
 
-**デフォルトFlow:**
-- **`SingleFlow`**: 複雑なマルチAgent転送用に設定されていない`LlmAgent`のデフォルトFlow
-  - LLM呼び出しとツール実行の基本ループを最終テキストレスポンス生成まで処理
-- **`AutoFlow`**: `SingleFlow`を継承し、**Agent間転送**機能を追加
-  - 他の登録済みサブAgentまたは親Agentにタスクを委譲するロジック・内部ツール(`transfer_to_agent`)を含む
-  - `LlmAgent`に`sub_agents`が定義されている場合に通常使用される
-
-**使用するFlowの決定:**
-ADKはAgent設定(サブAgentの有無、転送disallowフラグ等)に基づいて自動的にFlowを決定します。通常、開発者が直接`BaseLmFlow`をインスタンス化することはありません。
+**主要なリクエストプロセッサー（実行順）:**
+1. `basic.request_processor` - 基本フィールド設定
+2. `instructions.request_processor` - システムプロンプト設定
+3. `identity.request_processor` - Agent名・説明をLLMに伝える
+4. `contents.request_processor` - 会話履歴構築
+5. `_nl_planning.request_processor` - Planner使用時の追加指示
+6. `_code_execution.request_processor` - Code Executor使用時の処理
+7. `agent_transfer.request_processor` - AutoFlow用転送ロジック
 
 ---
 
-### LLM Flow Processors（リクエスト前処理・レスポンス後処理）
+### 5-1. BuiltInPlanner（モデルネイティブ計画機能）
 
-LLM FlowはLLM Flow Processorsにより拡張性が高まります。これらは、`LlmRequest`送信前や`LlmResponse`受信後にインターセプト・修正できる小規模で焦点を絞ったクラスです。
+Gemini 2.0/2.5の「思考（Thinking）」機能を活用するPlannerです。
+LLM自身が内部的に思考プロセスを持ち、より質の高い推論を行います。
 
-**主要な組み込みリクエストプロセッサー(実行順):**
-1. `basic.request_processor`: 基本的な`LlmRequest`フィールド(モデル名、生成設定)を設定
-2. `auth_preprocessor.request_processor`: 認証関連情報処理(ツール呼び出しの再開時に特に重要)
-3. `instructions.request_processor`: Agentの`instruction`と`global_instruction`から`system_instruction`を設定(状態インジェクション実行)
-4. `identity.request_processor`: LLMに名前と説明を伝えるデフォルト指示を追加
-5. `contents.request_processor`: セッションからイベントをフィルタリング・フォーマットして`contents`(会話履歴)を構築
-6. `_nl_planning.request_processor` (Planners用): Plannerがアクティブな場合、計画特有の指示を追加
-7. `_code_execution.request_processor` (Code Executors用): Code Executorがアクティブ(かつ`BuiltInCodeExecutor`以外)の場合、データファイル前処理や過去のコード実行Partのテキスト変換を実行
-8. `agent_transfer.request_processor` (`AutoFlow`用): Agent間転送に関する指示とツール宣言を追加
-
-**主要な組み込みレスポンスプロセッサー:**
-1. `_nl_planning.response_processor`: Plannerがアクティブな場合、LLMレスポンスから計画関連アーティファクト(例: 思考抽出、計画状態更新)を処理
-2. `_code_execution.response_processor`: Code Executorがアクティブな場合、LLMレスポンスからコードを抽出し、Executorを起動し、実行結果をLLMに返す準備をする
-
-これらのProcessorを直接記述することは通常ありませんが、その存在と順序を理解することはAgent動作のデバッグと予測に役立ちます。
-
-**カスタムFlow Processorの実装例:**
-
-```python
-from google.adk.llm_flow.request_processors import BaseRequestProcessor
-from google.adk.agents.callback_context import CallbackContext
-from google.adk.models.llm_request import LlmRequest
-
-class CustomLoggingProcessor(BaseRequestProcessor):
-    """リクエスト送信前にログを記録するカスタムProcessor"""
-
-    async def process(
-        self,
-        llm_request: LlmRequest,
-        callback_context: CallbackContext
-    ) -> LlmRequest:
-        # リクエスト内容をログ記録
-        print(f"[CustomLogger] システム指示: {llm_request.config.system_instruction[:100]}...")
-        print(f"[CustomLogger] ツール数: {len(llm_request.config.tools or [])}")
-
-        # カスタムメタデータを追加
-        llm_request.config.metadata = {
-            "custom_timestamp": "2025-01-01T00:00:00Z",
-            "request_source": "CustomProcessor"
-        }
-
-        return llm_request
-
-# Agentに登録(SingleFlowのrequest_processorsリストに追加)
-# from google.adk.llm_flow import SingleFlow
-# custom_flow = SingleFlow(request_processors=[CustomLoggingProcessor()])
-# agent = Agent(name="custom_agent", model="gemini-2.0-flash", llm_flow=custom_flow)
-```
-
----
-
-### BuiltInPlanner（モデルネイティブの計画機能）
-
-一部の高度なLLM(特に新しいGeminiモデル)は、特定の設定で有効化できる組み込みの「思考」または「計画」機能を持っています。
-
-`BuiltInPlanner`はこのようなネイティブモデル計画機能を有効化・設定するために使用します。
-
-**動作:**
-- `thinking_config: types.ThinkingConfig`を初期化時に引数として受け取る
-- `build_planning_instruction`は何もしない(テキスト指示を追加せず、`thinking_config`が処理)
-- `apply_thinking_config(llm_request)`メソッド(` _nl_planning.request_processor`によって呼び出される)が`self.thinking_config`を`LlmRequest.config`に追加
-- `process_planning_response`も通常は何もしない(モデルの組み込み計画は通常、ADKが既に処理できる形式で出力を構造化)
-
-**コード例:**
 ```python
 from google.adk.agents import Agent
 from google.adk.planners import BuiltInPlanner
 from google.genai.types import ThinkingConfig
 from google.adk.tools import FunctionTool
-from google.adk.runners import InMemoryRunner
-from google.genai.types import Content, Part
 
-# 環境変数を読み込み
+def get_stock_price(ticker: str) -> dict:
+    """株価情報を取得します。"""
+    mock_prices = {"GOOG": 175.40, "MSFT": 420.50, "AAPL": 185.30}
+    return {
+        "ticker": ticker,
+        "price": mock_prices.get(ticker, 0),
+        "currency": "USD"
+    }
 
-def get_product_price(product_id: str) -> dict:
-    """指定された商品IDの価格を取得します。"""
-    prices = {"prod123": 29.99, "prod456": 49.50}
-    if product_id in prices:
-        return {"product_id": product_id, "price": prices[product_id]}
-    return {"error": "商品が見つかりません"}
+stock_tool = FunctionTool(func=get_stock_price)
 
-price_tool = FunctionTool(func=get_product_price)
-
-product_thinking_config = ThinkingConfig(include_thoughts=True)
-builtin_item_planner = BuiltInPlanner(thinking_config=product_thinking_config)
-
-agent_with_builtin_planner = Agent(
-    name="smart_shopper_builtin",
-    model="gemini-2.0-flash-thinking-exp-01-21",  # ThinkingConfigサポート必須
-    instruction="商品価格を見つけるためのアシスタントです。段階的に考え、ツールを使用してください。",
-    tools=[price_tool],
-    planner=builtin_item_planner
+thinking_agent = Agent(
+    name="investment_analyst",
+    model="gemini-2.5-flash",  # ThinkingConfigをサポートするモデル
+    instruction=(
+        "投資分析アシスタントです。株価情報を取得し、"
+        "多角的な観点から投資判断の参考情報を提供します。"
+        "段階的に考え、根拠を明示してください。"
+    ),
+    tools=[stock_tool],
+    planner=BuiltInPlanner(
+        thinking_config=ThinkingConfig(
+            include_thoughts=True
+        )
+    )
 )
-
-runner = InMemoryRunner(agent=agent_with_builtin_planner, app_name="BuiltInPlanApp")
-session_id = "s_builtinplan"
-user_id = "plan_user"
-# セッション作成
-
-prompt = "prod123とprod456の価格は何ですか？"
-
-print(f"YOU: {prompt}")
-user_message = Content(parts=[Part(text=prompt)], role="user")
-print("ASSISTANT: ", end="", flush=True)
-
-async def main():
-    async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=user_message):
-        if event.content and event.content.parts:
-            for part in event.content.parts:
-                if part.text:
-                    print(part.text, end="", flush=True)
-                elif hasattr(part, 'thought') and part.thought:
-                    print(f"\n  [THOUGHT]: {part.text.strip() if part.text else 'No text in thought'}\n  ", end="")
-                elif part.function_call:
-                    print(f"\n  [TOOL CALL]: {part.function_call.name}({part.function_call.args})\n  ", end="")
-                elif part.function_response:
-                    print(f"\n  [TOOL RESPONSE to {part.function_response.name}]: {part.function_response.response}\n  ", end="")
-    print()
-
-import asyncio
-asyncio.run(main())
 ```
 
-**推奨される使用場面:**
-- 対象LLMが強力な組み込み計画または「思考」機能を提供している場合
-- 最も簡単な方法(適切な`ThinkingConfig`を設定するだけ)
+**ThinkingConfigのパラメータ:**
+- `include_thoughts=True`: 思考プロセスをEventのPartとして返す
+- モデルが内部で推論ステップを実行し、より質の高い最終回答を生成
 
-**モデルサポート:**
-すべてのモデルが`ThinkingConfig`をサポートするわけではなく、サポートするモードやオプションも異なります。必ず特定のモデルバージョンのドキュメントを確認し、適切な`ThinkingConfig`パラメータを理解してください。
+**推奨場面:**
+- 対象モデルがネイティブ思考機能をサポートしている場合
+- 最も簡単な方法（ThinkingConfigを設定するだけ）
+- 内部推論をトレースで確認したい場合
 
 ---
 
-### PlanReActPlanner（Plan-Reason-Act-Observeサイクル）
+### 5-2. PlanReActPlanner（明示的推論サイクル）
 
-ReAct(Reason + Act)パラダイムは、LLMが複雑なタスクを解決するための人気のあるプロンプト戦略で、反復的に以下を実行します:
+ReAct（Reason + Act）パラダイムを実装するPlannerです。
+LLMに思考・行動・観察を明示的なタグで構造化させます。
 
-1. **推論(Reasoning)**: 現在の状態と全体目標について推論
-2. **アクション(Action)**: 次に取るアクション(多くの場合ツール呼び出し)を決定
-3. **観察(Observation)**: アクションの結果を取得
-4. 新しい推論に観察を組み込み、プロセスを繰り返す
+**PlanReActのサイクル（書籍「Google ADK for Agentic AI」Chapter 6.1 CoT推論より）:**
+```
+PLANNING    → 全体計画の立案（ChainOfThought）
+    ↓
+REASONING   → 現在ステップの推論
+    ↓
+ACTION      → ツール呼び出し
+    ↓
+Observation → ツール結果の観察
+    ↓
+REPLANNING  → 必要に応じて再計画
+    ↓
+FINAL_ANSWER → ユーザーへの最終回答
+```
 
-`PlanReActPlanner`は、LLMに出力を計画、推論、アクションタグで明示的に構造化するよう指示することで、この変形を実装します。
-
-**動作:**
-- **`build_planning_instruction(...)`**: `LlmRequest`に詳細なプロンプトを注入:
-  - 最初に`/*PLANNING*/`タグの下に全体計画を生成
-  - 各ステップで、`/*REASONING*/`の下に推論を提供し、`/*ACTION*/`の下にアクション(ツール呼び出し)を実行
-  - 観察に基づいて計画を修正する必要がある場合は`/*REPLANNING*/`を使用
-  - 最後に`/*FINAL_ANSWER*/`の下に回答を提供
-- **`process_planning_response(...)`**:
-  - LLMレスポンスをこれらのタグでパース
-  - `/*PLANNING*/`、`/*REASONING*/`、`/*ACTION*/`(ツール呼び出し前のテキストの場合)、`/*REPLANNING*/`でタグ付けされたPartを「思考」としてマーク(`part.thought = True`)
-    - これらは通常Traceにログ記録されるが、エンドユーザーへの会話レスポンスには直接表示されない
-  - ツール呼び出し(LLMが`/*ACTION*/`タグまたは推論の後に配置すべき)を抽出・実行
-  - `/*FINAL_ANSWER*/`の下のコンテンツをユーザーへの直接レスポンスとして扱う
-  - セッションの状態(`state['current_plan']`、`state['last_observation']`)を`callback_context`経由で更新可能
-
-**コード例:**
 ```python
 from google.adk.agents import Agent
 from google.adk.planners import PlanReActPlanner
 from google.adk.tools import FunctionTool
 from google.adk.runners import InMemoryRunner
-from google.adk.sessions.state import State
-from google.adk.agents.callback_context import CallbackContext
 from google.genai.types import Content, Part
 
-# 環境変数を読み込み
-
-# デモ用ダミーツール
-def search_knowledge_base(query: str, tool_context: CallbackContext) -> str:
+def search_knowledge_base(query: str) -> str:
     """社内ナレッジベースを検索します。"""
-    tool_context.state[State.TEMP_PREFIX + "last_search_query"] = query
     if "policy" in query.lower():
-        return "見つかったドキュメント: 'HR001: 在宅勤務ポリシー - 従業員は週2回、上司の承認を得てリモートワーク可能。'"
-    if "onboarding" in query.lower():
-        return "見つかったドキュメント: 'IT005: 新入社員オンボーディングチェックリスト - アカウント設定と必須研修が含まれます。'"
-    return "クエリに関連するドキュメントが見つかりませんでした。"
+        return "HR001: 在宅勤務ポリシー - 週2回まで、上司承認が必要"
+    if "budget" in query.lower():
+        return "FIN003: 予算承認フロー - 50万円以上は部門長承認、200万円以上は役員承認"
+    return "該当するドキュメントは見つかりませんでした。"
 
-def request_manager_approval(employee_id: str, reason: str) -> str:
-    """従業員の上司に承認リクエストを送信します。"""
-    return f"従業員{employee_id}の承認リクエストが送信されました。理由: {reason}。ステータス: 保留中。"
+def create_approval_request(employee_id: str, request_type: str, details: str) -> str:
+    """承認リクエストを作成します。"""
+    return f"承認リクエスト作成完了 (ID: REQ-{employee_id}-001, タイプ: {request_type})"
 
-search_tool = FunctionTool(func=search_knowledge_base)
-approval_tool = FunctionTool(func=request_manager_approval)
+knowledge_tool = FunctionTool(func=search_knowledge_base)
+approval_tool = FunctionTool(func=create_approval_request)
 
-react_planner = PlanReActPlanner()
-
-hr_assistant_react = Agent(
-    name="hr_assistant_react",
-    model="gemini-2.0-flash-thinking-exp-01-21",  # 強力な推論モデルが必要
-    instruction="あなたはHRアシスタントです。Plan-Reason-Act-Observeサイクルに従ってください。最初に計画を作成し、各ステップで推論を提供し、アクション(必要に応じてツールを使用)を実行し、観察について推論して続行または再計画します。最終回答で締めくくります。",
-    tools=[search_tool, approval_tool],
-    planner=react_planner
+react_agent = Agent(
+    name="hr_support_agent",
+    model="gemini-2.0-flash",
+    instruction=(
+        "HR支援アシスタントです。"
+        "複雑なリクエストには必ず計画を立て、段階的に解決してください。"
+        "各ステップで推論を明示し、ツールを活用して正確な情報を提供します。"
+    ),
+    tools=[knowledge_tool, approval_tool],
+    planner=PlanReActPlanner()
 )
 
-runner = InMemoryRunner(agent=hr_assistant_react, app_name="ReActHrApp")
-session_id = "s_react"
-user_id = "hr_user"
-# セッション作成
+runner = InMemoryRunner(agent=react_agent, app_name="HRApp")
 
-prompt = "従業員emp456がフルタイムで在宅勤務したいと考えています。プロセスは何ですか？"
-
-print(f"YOU: {prompt}")
-user_message = Content(parts=[Part(text=prompt)], role="user")
-print("HR_ASSISTANT_REACT (完全なReActフローはDev UIのTraceで確認):\n")
-
-full_response_parts = []
 async def main():
-    async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=user_message):
+    user_message = Content(
+        parts=[Part(text="在宅勤務を週3回に増やしたい。どのような手続きが必要ですか？")],
+        role="user"
+    )
+
+    async for event in runner.run_async(
+        user_id="emp001", session_id="hr_session", new_message=user_message
+    ):
         if event.content and event.content.parts:
             for part in event.content.parts:
                 is_thought = hasattr(part, 'thought') and part.thought
                 if part.text and not is_thought:
                     print(part.text, end="")
-                    full_response_parts.append(part.text)
                 elif part.text and is_thought:
-                    print(f"\n  [THOUGHT/PLAN]:\n  {part.text.strip()}\n  ", end="")
+                    print(f"\n[思考]: {part.text.strip()}\n")
                 elif part.function_call:
-                    print(f"\n  [TOOL CALL]: {part.function_call.name}({part.function_call.args})\n  ", end="")
-                elif part.function_response:
-                    print(f"\n  [TOOL RESPONSE to {part.function_response.name}]: {part.function_response.response}\n  ", end="")
-    print("\n--- 統合されたAgentレスポンス ---")
-    print("".join(full_response_parts))
+                    print(f"\n[ツール呼び出し]: {part.function_call.name}")
 
 import asyncio
 asyncio.run(main())
 ```
 
-**推奨される使用場面:**
-- LLMに作業を明示的に表示させ、構造化された問題解決アプローチに従わせたい場合
-- Agentの推論プロセスをTraceで検査して透明性とデバッグ性を高める
-- ツール使用と観察を伴う順次ステップに自然に分解できるタスク
+**PlanReActの適切な使用場面:**
+- LLMの推論プロセスをTraceで可視化・検査したい場合
+- ツール使用と観察を伴う順次的なステップに分解可能なタスク
+- デバッグ時に推論の各ステップを追いたい場合
 
 **注意点:**
-- `PlanReActPlanner`が注入する指示は詳細でプロンプト長を増加させる
-- 効果はLLMがタグフォーマットを一貫して守れるかに大きく依存する(強力な推論モデルほど良好)
-- LLMがフォーマットから逸脱したりステップをスキップしたりする場合、Agentのメイン指示を調整してReActパターンを強化する必要がある
+- 詳細なプロンプト注入によりトークン消費が増加
+- LLMがタグフォーマットを守れる程度の推論能力が必要
+- 強力なモデル（Gemini 2.0以降）ほど安定動作
 
 ---
 
-### マルチLLM戦略と選択基準
+### 5-3. カスタムPlanner（特殊な計画ロジック）
 
-複数のLLMを組み合わせることで、コスト、速度、品質のバランスを最適化できます。
-
-**マルチLLM戦略の判断テーブル:**
-
-| 要素 | 値 |
-|-----|-----|
-| **軽量タスク** | 小さなモデル(Gemini Flash、GPT-4o-mini)で高速・低コスト処理 |
-| **複雑推論** | 大きなモデル(Opus、GPT-4o、Gemini Pro)で精度重視 |
-| **並列実行** | 複数モデルで同時実行し、結果を集約(アンサンブル戦略) |
-| **フォールバック** | プライマリモデル失敗時にセカンダリモデルへ自動切替 |
-| **ドメイン特化** | タスク別に最適なモデルを選択(コード生成、文章作成、データ分析等) |
-
-**実装パターン:**
-- **SubAgent戦略**: 各SubAgentに異なるモデルを割り当て
-- **条件分岐**: ツール内でタスクの複雑度を判定し、動的にモデル選択
-- **RoutingAgent**: ユーザークエリを解析し、適切な専門AgentにルーティングするオーケストレーターAgent
-
----
-
-### Planner選択基準
-
-| Planner | 使用場面 | LLM要件 | 推論の透明性 |
-|---------|---------|---------|-------------|
-| **BuiltInPlanner** | LLMがネイティブ思考機能をサポート | 高(モデルサポート必須) | モデル依存 |
-| **PlanReActPlanner** | 明示的なステップバイステップ推論が必要 | 中〜高(タグ付けフォーマットを守れること) | 高(思考・計画がTraceに明示) |
-| **カスタムPlanner** | 特殊な計画ロジックが必要 | - | カスタマイズ可能 |
-
-**AskUserQuestion配置:**
-不明な場合、以下の質問をユーザーに提示してください:
+`BasePlanner`を継承して、ドメイン固有の計画ロジックを実装できます。
 
 ```python
-from google.adk.agents.callback_context import AskUserQuestion
+from google.adk.planners import BasePlanner
+from google.adk.agents.callback_context import CallbackContext
+from google.adk.models.llm_request import LlmRequest
 
-AskUserQuestion(
-    questions=[{
-        "question": "どのPlannerを使用しますか？",
-        "header": "Planner選択",
-        "options": [
-            {
-                "label": "BuiltInPlanner",
-                "description": "LLMがネイティブ思考機能をサポート。最も簡単。"
-            },
-            {
-                "label": "PlanReActPlanner",
-                "description": "明示的なPlan-Reason-Act-Observeサイクル。推論が透明。"
-            },
-            {
-                "label": "Plannerなし",
-                "description": "シンプルなタスクの場合、Plannerは不要。"
-            }
-        ],
-        "multiSelect": False
-    }]
+class DomainSpecificPlanner(BasePlanner):
+    """特定ドメイン向けカスタムPlanner"""
+
+    def build_planning_instruction(
+        self,
+        callback_context: CallbackContext,
+        llm_request: LlmRequest
+    ) -> str | None:
+        """計画用システムプロンプトを生成"""
+        domain = callback_context.state.get("domain", "general")
+
+        if domain == "finance":
+            return (
+                "金融分析エージェントとして行動します。\n"
+                "1. まずデータソースを特定してください\n"
+                "2. リスク評価を実施してください\n"
+                "3. 規制コンプライアンスを確認してください\n"
+                "4. 結論を提示してください"
+            )
+        return None  # Noneを返すとデフォルト動作
+
+    def process_planning_response(
+        self,
+        callback_context: CallbackContext,
+        response_parts: list
+    ) -> list | None:
+        """LLMレスポンスから計画関連部分を処理"""
+        return response_parts
+```
+
+---
+
+### Planner選択基準テーブル
+
+| Planner | 使用場面 | LLM要件 | 推論の透明性 | 実装コスト |
+|---------|---------|---------|-------------|-----------|
+| **なし** | シンプルなQ&A、単発タスク | 低 | なし | ゼロ |
+| **BuiltInPlanner** | 対象LLMがネイティブ思考機能対応 | 高（ThinkingConfig対応必須） | モデル依存 | 低 |
+| **PlanReActPlanner** | 明示的ステップバイステップ推論 | 中〜高（タグ追従能力） | 高（Traceで可視化） | 中 |
+| **カスタムPlanner** | ドメイン固有の計画ロジック | - | カスタマイズ可能 | 高 |
+
+---
+
+## 6. Output Schema（構造化出力）
+
+LLMの出力を特定のJSONスキーマに従わせることで、
+後処理や他システムとの連携を確実にします。
+
+### Pydanticモデルによる出力スキーマ定義
+
+```python
+from google.adk.agents import Agent
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class SentimentAnalysisResult(BaseModel):
+    """感情分析の構造化出力"""
+    sentiment: str = Field(
+        description="感情ラベル: positive / negative / neutral"
+    )
+    confidence: float = Field(
+        description="確信度（0.0から1.0）",
+        ge=0.0,
+        le=1.0
+    )
+    key_phrases: list[str] = Field(
+        description="感情を示す主要フレーズのリスト"
+    )
+    summary: str = Field(
+        description="感情分析の簡潔な説明"
+    )
+    suggestions: Optional[list[str]] = Field(
+        default=None,
+        description="改善提案（negativeの場合のみ）"
+    )
+
+sentiment_agent = Agent(
+    name="sentiment_analyzer",
+    model="gemini-2.0-flash",
+    instruction=(
+        "テキストの感情分析を行うアシスタントです。"
+        "必ず指定されたJSONスキーマ形式で回答してください。"
+    ),
+    output_schema=SentimentAnalysisResult
 )
 ```
+
+### 複雑なネストされたスキーマ
+
+```python
+from pydantic import BaseModel, Field
+from typing import Optional
+from enum import Enum
+
+class Priority(str, Enum):
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+class TaskItem(BaseModel):
+    title: str
+    priority: Priority
+    estimated_hours: float
+    dependencies: list[str] = Field(default_factory=list)
+
+class ProjectPlan(BaseModel):
+    """プロジェクト計画の構造化出力"""
+    project_name: str
+    total_estimated_hours: float
+    tasks: list[TaskItem]
+    risks: list[str]
+    success_metrics: list[str]
+    recommended_team_size: int
+
+planner_agent = Agent(
+    name="project_planner",
+    model="gemini-2.5-pro",  # 複雑な構造化出力には高精度モデルを推奨
+    instruction=(
+        "プロジェクト計画を作成するアシスタントです。"
+        "詳細で実行可能な計画を指定のJSON形式で提供してください。"
+    ),
+    output_schema=ProjectPlan
+)
+```
+
+**Output Schemaのベストプラクティス:**
+
+| ベストプラクティス | 詳細 |
+|----------------|------|
+| Fieldに明確なdescriptionを付ける | モデルが各フィールドの意図を正確に理解できる |
+| Enumで選択肢を制限する | 有効な値のみ出力されることを保証 |
+| 必須/オプションを明確に | Optional型で柔軟なスキーマを設計 |
+| 過度に複雑なネストを避ける | 深いネストはモデルの追従精度を下げる |
+| 高精度モデルを使用する | 構造化出力の遵守能力は上位モデルほど高い |
+
+---
+
+## 7. InstructionProvider（動的instruction生成）
+
+セッション状態やユーザー情報に基づいて、実行時に動的にinstructionを生成するパターンです。
+
+### 関数ベースのInstructionProvider
+
+```python
+from google.adk.agents import Agent
+from google.adk.agents.callback_context import CallbackContext
+
+def dynamic_instruction(callback_context: CallbackContext) -> str:
+    """セッション状態に基づいて動的にinstructionを生成"""
+    state = callback_context.state
+
+    user_role = state.get("user_role", "general")
+    user_name = state.get("user_name", "ユーザー")
+    language = state.get("preferred_language", "ja")
+
+    base_instruction = f"あなたは{user_name}さんをサポートするアシスタントです。"
+
+    role_specific = {
+        "developer": (
+            "技術的な詳細、コード例、APIドキュメントを優先して提供してください。"
+            "エラーメッセージの診断や最適化の提案も積極的に行ってください。"
+        ),
+        "manager": (
+            "ビジネス上の影響と意思決定に焦点を当てた要約を提供してください。"
+            "技術的な詳細は必要に応じて簡潔に説明してください。"
+        ),
+        "general": "専門用語を避け、わかりやすい言葉で回答してください。"
+    }.get(user_role, "")
+
+    language_instruction = {
+        "en": "Please respond in English.",
+        "ja": "日本語で回答してください。",
+        "zh": "请用中文回答。"
+    }.get(language, "日本語で回答してください。")
+
+    return f"{base_instruction} {role_specific} {language_instruction}"
+
+adaptive_agent = Agent(
+    name="adaptive_assistant",
+    model="gemini-2.0-flash",
+    instruction=dynamic_instruction  # 文字列の代わりに関数を渡す
+)
+```
+
+### コンテキスト依存型の高度な動的instruction
+
+```python
+from datetime import datetime
+from google.adk.agents import Agent
+from google.adk.agents.callback_context import CallbackContext
+
+def context_aware_instruction(callback_context: CallbackContext) -> str:
+    """実行時のコンテキストに完全適応したinstruction"""
+    state = callback_context.state
+
+    turn_count = state.get("turn_count", 0)
+    conversation_topic = state.get("detected_topic", "general")
+    urgent_flag = state.get("is_urgent", False)
+
+    current_hour = datetime.now().hour
+    time_context = (
+        "朝の業務開始時間帯です。簡潔で要点を抑えた回答を優先してください。"
+        if 8 <= current_hour <= 10
+        else "業務時間内です。詳細な説明を提供してください。"
+    )
+
+    depth_context = (
+        "初めての質問です。基本的な説明から始めてください。"
+        if turn_count == 0
+        else f"会話{turn_count}ターン目です。前の会話を踏まえて回答してください。"
+    )
+
+    urgent_context = (
+        "緊急対応が必要です。最重要情報を最初に提示してください。"
+        if urgent_flag
+        else ""
+    )
+
+    return f"""あなたは高度な業務支援アシスタントです。
+{time_context}
+{depth_context}
+{urgent_context}
+トピック「{conversation_topic}」に関連する専門知識を積極的に活用してください。""".strip()
+
+intelligent_agent = Agent(
+    name="context_adaptive_agent",
+    model="gemini-2.0-flash",
+    instruction=context_aware_instruction
+)
+```
+
+**InstructionProviderのユースケース:**
+
+| ユースケース | 動的要素 | 効果 |
+|------------|---------|------|
+| 多言語サポート | ユーザーの言語設定 | 言語切り替えが自動化 |
+| 役割ベース動作 | ユーザーロール・権限 | 情報の開示範囲を制御 |
+| タスク特化 | 検出されたタスクタイプ | 適切な専門知識を提供 |
+| 会話状態適応 | 会話ターン数・トピック | 段階的に詳細化 |
+| 時間帯・コンテキスト | 現在時刻・緊急度 | 状況に応じた応答スタイル |
+
+---
+
+## 8. モデル切り替えパターン
+
+### パターン1: タスク複雑度によるモデル選択
+
+書籍「Google ADK for Agentic AI」の Worker/Coordinator パターンを応用:
+
+```python
+from google.adk.agents import Agent
+
+# 軽量・高速Agentはシンプルタスク担当
+lightweight_agent = Agent(
+    name="fast_agent",
+    model="gemini-1.5-flash",  # 高速・低コスト
+    instruction="シンプルなタスクを素早く処理します。簡潔に回答してください。"
+)
+
+# 高精度Agentは複雑タスク担当
+powerful_agent = Agent(
+    name="precise_agent",
+    model="gemini-2.5-pro",  # 高精度・高コスト
+    instruction="複雑な分析・計画タスクを詳細に処理します。根拠を明示してください。"
+)
+
+# ルーティングAgentがタスクを振り分ける（Worker/Coordinatorパターン）
+routing_agent = Agent(
+    name="task_router",
+    model="gemini-2.0-flash",
+    instruction=(
+        "タスクを分析し、適切なサブエージェントに委譲します。\n"
+        "- シンプルな質問・変換・説明 → fast_agent\n"
+        "- 複雑な分析・計画・比較検討 → precise_agent"
+    ),
+    sub_agents=[lightweight_agent, powerful_agent]
+)
+```
+
+### パターン2: 環境別モデル切り替え
+
+```python
+import os
+from google.adk.agents import Agent
+
+def get_model_for_environment() -> str:
+    """環境変数に基づいてモデルを選択"""
+    env = os.getenv("APP_ENV", "development")
+    model_override = os.getenv("LLM_MODEL_OVERRIDE")
+
+    if model_override:
+        return model_override  # 明示的な上書き
+
+    MODEL_MAP = {
+        "development": "gemini-1.5-flash",    # 開発：低コスト高速
+        "staging": "gemini-2.0-flash",         # ステージング：本番相当
+        "production": "gemini-2.0-flash",      # 本番：バランス型
+        "production-premium": "gemini-2.5-pro" # 本番プレミアム：最高精度
+    }
+
+    return MODEL_MAP.get(env, "gemini-2.0-flash")
+
+env_adaptive_agent = Agent(
+    name="env_adaptive_agent",
+    model=get_model_for_environment(),
+    instruction="環境に応じたモデルを使用するアシスタントです。"
+)
+```
+
+### パターン3: フォールバック戦略
+
+```python
+from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
+from google.adk.runners import InMemoryRunner
+from google.genai.types import Content, Part
+import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
+
+async def run_with_fallback(question: str) -> str:
+    """プライマリモデル失敗時にフォールバックするAgent実行"""
+    user_message = Content(parts=[Part(text=question)], role="user")
+
+    # フォールバックチェーン: Gemini 2.5 Pro → Gemini 2.0 Flash → GPT-4o
+    fallback_configs = [
+        ("primary", "gemini-2.5-pro"),
+        ("fallback", "gemini-2.0-flash"),
+        ("emergency", LiteLlm(model="openai/gpt-4o")),
+    ]
+
+    for agent_name, model in fallback_configs:
+        try:
+            agent = Agent(
+                name=f"agent_{agent_name}",
+                model=model,
+                instruction="質問に回答してください。"
+            )
+            runner = InMemoryRunner(agent=agent, app_name=f"App_{agent_name}")
+            result = []
+            async for event in runner.run_async(
+                user_id="u", session_id="s", new_message=user_message
+            ):
+                if event.content and event.content.parts:
+                    for part in event.content.parts:
+                        if part.text:
+                            result.append(part.text)
+            return "".join(result)
+        except Exception as e:
+            logger.warning(f"{agent_name}モデルでエラー: {e}。フォールバックします...")
+
+    raise RuntimeError("すべてのモデルで失敗しました")
+
+async def main():
+    response = await run_with_fallback("機械学習の主要アルゴリズムを比較してください")
+    print(response)
+
+asyncio.run(main())
+```
+
+### パターン4: マルチモデル並列実行
+
+```python
+from google.adk.agents import Agent
+from google.adk.runners import InMemoryRunner
+from google.genai.types import Content, Part
+import asyncio
+
+async def parallel_model_query(question: str) -> dict[str, str]:
+    """複数モデルに並列でクエリし、結果を比較"""
+    models = {
+        "gemini-flash": "gemini-2.0-flash",
+        "gemini-pro": "gemini-2.0-pro",
+    }
+
+    async def query_model(model_name: str, model_id: str) -> tuple[str, str]:
+        agent = Agent(
+            name=f"agent_{model_name}",
+            model=model_id,
+            instruction="与えられた質問に回答してください。"
+        )
+        runner = InMemoryRunner(agent=agent, app_name=f"App_{model_name}")
+        user_message = Content(parts=[Part(text=question)], role="user")
+        result = []
+        async for event in runner.run_async(
+            user_id="u", session_id="s", new_message=user_message
+        ):
+            if event.content and event.content.parts:
+                for part in event.content.parts:
+                    if part.text:
+                        result.append(part.text)
+        return model_name, "".join(result)
+
+    results = await asyncio.gather(
+        *[query_model(name, model_id) for name, model_id in models.items()],
+        return_exceptions=True
+    )
+
+    return {name: result for name, result in results if isinstance(result, tuple)}
+
+async def main():
+    responses = await parallel_model_query("量子コンピューターの現在の課題を説明してください")
+    for model, response in responses.items():
+        print(f"\n=== {model} ===")
+        print(response[:200])
+
+asyncio.run(main())
+```
+
+---
+
+## ベストプラクティスまとめ
+
+### コード実行選択
+
+| 状況 | 推奨Executor | 理由 |
+|-----|------------|------|
+| Gemini + コード計算タスク | `BuiltInCodeExecutor` | 最も簡単・安全 |
+| 本番環境 + カスタムライブラリ | `ContainerCodeExecutor` | 高セキュリティ + 柔軟性 |
+| クラウド本番 + 管理不要 | `VertexAiCodeExecutor` | フルマネージド |
+| 開発・デバッグのみ | `UnsafeLocalCodeExecutor` | 高速・シンプル（本番禁止） |
+
+### モデル選択
+
+| 優先事項 | 推奨モデル |
+|---------|-----------|
+| 最低コスト | `gemini-1.5-flash` |
+| 最高精度 | `gemini-2.5-pro` |
+| バランス（本番標準） | `gemini-2.0-flash` |
+| 長文書処理 | `gemini-2.5-pro` |
+| 思考機能 | `gemini-2.5-flash` |
+| マルチプロバイダー | `LiteLlm` |
+
+### Planner選択
+
+| 状況 | 推奨Planner |
+|-----|-----------|
+| シンプルなタスク | なし |
+| 思考対応モデル使用 | `BuiltInPlanner` |
+| 推論の透明性が必要 | `PlanReActPlanner` |
+| ドメイン固有ロジック | カスタムPlanner |
+
+---
+
+## 関連リファレンス
+
+- [MULTI-AGENT-PATTERNS.md](./MULTI-AGENT-PATTERNS.md) - マルチエージェントアーキテクチャ
+- [SESSION-AND-STATE.md](./SESSION-AND-STATE.md) - セッション管理
+- [TOOLS-AND-CALLBACKS.md](./TOOLS-AND-CALLBACKS.md) - ツールとコールバック

@@ -3,13 +3,17 @@ name: building-adk-agents
 description: >-
   Google ADK (Agent Development Kit) for building intelligent AI agents with Python.
   MUST load when google-adk is detected in requirements or pyproject.toml.
-  Covers Agent, Runner, Tool (FunctionTool/LongRunningFunctionTool/RequestProcessor), Session, Memory,
-  Callbacks/Guardrails (6種: before/after agent/model + before/after tool), SSE Streaming,
-  UI Integration (AG-UI/CopilotKit), Multimodal, YAML Config, Production patterns,
-  Plugin System (BasePlugin・ライフサイクルフック6種: on_user_message/before_run/after_run/on_event/on_model_error/on_tool_error),
-  Grounding (Google Search・Vertex AI Search・Agentic RAG + Pre-built Tools: google_search/VertexAiSearchTool/load_web_page/LoadMemoryTool/PreloadMemoryTool/LoadArtifactsTool/GetUserChoiceTool/ExitLoopTool),
-  Context Management (Caching・Compaction), Session Rewind, Resume Agents, Action Confirmations,
-  Event System, Tool Performance, GKE Deployment.
+  Covers Agent taxonomy (Reactive/Deliberative/Goal-Oriented), Agent types (LlmAgent/Sequential/Parallel/Loop/Base),
+  Tools (FunctionTool/LongRunningFunctionTool/OpenAPI/MCP/Pre-built), YAML Config,
+  Multi-Agent orchestration, A2A Protocol (JSON-RPC/REST/Agent Cards/Scope Negotiation),
+  Runner, Session, Artifact, Memory, State lifecycle, Context (Caching/Compaction),
+  RAG (Corpus management/Vector Search/Citations/Multi-Corpus/Agentic RAG),
+  Grounding (Google Search/Vertex AI Search), Plugin System (BasePlugin/6 lifecycle hooks),
+  Callbacks/Guardrails (6種: before/after agent/model/tool), SSE Streaming, Live API,
+  UI Integration (AG-UI/CopilotKit/Streamlit/Slack/Dialogflow CX),
+  Code Execution (4 executors), LLM Models (Gemini/LiteLLM/Anthropic), Planners, Vision,
+  Deployment (Cloud Run/Vertex AI Agent Engine/GKE), CI/CD, Performance/Cost optimization,
+  Security (Workload Identity/Credential lifecycle/Data privacy), Responsible AI.
   Distinct from developing-python (general) by focusing on ADK patterns.
 ---
 
@@ -288,56 +292,46 @@ AskUserQuestion(
 
 ### 詳細リファレンス
 
-- **[AGENT-AND-TOOLS.md](./references/./AGENT-AND-TOOLS.md)**: LlmAgent詳細、FunctionTool、OpenAPI/MCP統合、Action Confirmations、Tool Performance
-- **[CODE-EXECUTION-AND-MODELS.md](./references/./CODE-EXECUTION-AND-MODELS.md)**: コード実行、LLMモデル、Flows & Planners
-- **[MULTI-AGENT.md](./references/./MULTI-AGENT.md)**: マルチAgent設計、オーケストレーション、A2A
-- **[RUNTIME-AND-STATE.md](./references/./RUNTIME-AND-STATE.md)**: Runner、Session、Artifact、Memory、Context階層、Context Caching/Compaction、Session Rewind、Resume Agents、Event System、評価
-- **[DEPLOYMENT-AND-SECURITY.md](./references/./DEPLOYMENT-AND-SECURITY.md)**: デプロイ、テレメトリ、セキュリティ、GKE Deployment、CLI参照
-- **[GUARDRAILS-AND-STREAMING.md](./references/GUARDRAILS-AND-STREAMING.md)**: Callback 6種（before/after agent/model + before/after tool）、CallbackContext、ガードレール（入力バリデーション・Tool引数バリデーション・安全指示注入・出力フィルタリング）、PIIフィルタリング、SSEストリーミング（FastAPI統合・エラーハンドリング・セッションベースリカバリ）、Live API音声処理（LiveRequestQueue・双方向ストリーミング・5つのプリビルトボイス・単一モダリティ制約）、Plugin System移行推奨
-- **[UI-INTEGRATION.md](./references/UI-INTEGRATION.md)**: AG-UIプロトコル、CopilotKit+Next.js、Streamlit/Slack統合、マルチモーダル画像
-- **[ADVANCED-PATTERNS.md](./references/ADVANCED-PATTERNS.md)**: YAML設定、意思決定フレームワーク、高度なオブザーバビリティ、本番ベストプラクティス
-- **[PLUGINS-AND-GROUNDING.md](./references/PLUGINS-AND-GROUNDING.md)**: Plugin System（BasePlugin・ライフサイクルフック6種: on_user_message/before_run/after_run/on_event/on_model_error/on_tool_error）、Grounding（Google Search・Vertex AI Search・Agentic RAG + Pre-built Tools: google_search/VertexAiSearchTool/load_web_page/LoadMemoryTool/PreloadMemoryTool/LoadArtifactsTool/GetUserChoiceTool/ExitLoopTool）、選択基準、トラブルシューティング
+- **[AGENT-AND-TOOLS.md](references/AGENT-AND-TOOLS.md)**: Agent分類体系（Reactive/Deliberative/Goal-Oriented）、Agent種類詳細、Tool設計（FunctionTool/LongRunningFunctionTool/OpenAPI/MCP/Pre-built）、YAML Config、Action Confirmations、Tool Performance、ベストプラクティス
+- **[MULTI-AGENT-AND-A2A.md](references/MULTI-AGENT-AND-A2A.md)**: マルチAgent設計パターン、A2Aプロトコル詳細（JSON-RPC/REST/Agent Cards/Scope Negotiation/HTTP/2 vs WebSocket）、Agent協調戦略、Human-in-the-Loop、スケーリングパターン
+- **[RUNTIME-AND-STATE.md](references/RUNTIME-AND-STATE.md)**: Runner（ライフサイクル5段階）、Session管理、State管理（4スコープ）、Artifact、Memory（3層構造）、Context階層、Context Caching/Compaction、Session Rewind/Resume、Event System、Session Scaling、State Lifecycle
+- **[RAG-AND-GROUNDING.md](references/RAG-AND-GROUNDING.md)**: RAGパイプライン、Corpus管理（CRUD/GCS/Drive連携）、チャンキング戦略（4方式）、Vector Search（パラメータ/チューニング）、Citations（引用管理）、Multi-Corpus Querying、Grounding 3方式、Agentic RAGパターン、Pre-built Tools、Plugin System（6ライフサイクルフック）、RAG最適化
+- **[CODE-EXECUTION-AND-MODELS.md](references/CODE-EXECUTION-AND-MODELS.md)**: コード実行（4種Executor）、LLMモデル（Gemini 1.5/2.0/2.5/LiteLLM/Anthropic）、Vision capabilities、Flows & Planners、Output Schema、InstructionProvider、モデル切り替えパターン
+- **[GUARDRAILS-AND-STREAMING.md](references/GUARDRAILS-AND-STREAMING.md)**: Callback 6種（before/after agent/model/tool）、CallbackContext、ガードレールパターン（多層防御/セマンティックフィルタリング）、PIIフィルタリング（日本語対応）、Plugin System統合（Callbacks vs Plugins判断基準）、SSEストリーミング（FastAPI統合）、Live API音声処理
+- **[UI-INTEGRATION.md](references/UI-INTEGRATION.md)**: AG-UIプロトコル、CopilotKit+Next.js、Streamlit/Slack統合、Dialogflow CX統合、マルチモーダル画像、ADK Dev UI詳細、FastAPI統合、カスタムフロントエンド構築
+- **[DEPLOYMENT-AND-OPERATIONS.md](references/DEPLOYMENT-AND-OPERATIONS.md)**: Cloud Run/Vertex AI Agent Engine/GKEデプロイ、CI/CDパイプライン（GitHub Actions/Cloud Build）、パフォーマンス最適化、コスト管理、テレメトリ/オブザーバビリティ、Cloud統合、本番運用パターン
+- **[SECURITY-AND-GOVERNANCE.md](references/SECURITY-AND-GOVERNANCE.md)**: 脅威モデル（10種）、認証・認可（OAuth2/RBAC/A2A ID伝播）、認証ライフサイクル、Workload Identity、シークレット管理、プロンプトインジェクション対策、データプライバシー/PII、倫理的AI、Human-in-the-Loop、監査・コンプライアンス、セキュリティチェックリスト（40項目）
 
 ---
 
-## 新機能（v1.10.0+）
+## 主要機能
 
-### Context管理
+### Agent & Tools
+- **Agent分類体系**: Reactive/Deliberative/Goal-Oriented/Hybrid（詳細: [AGENT-AND-TOOLS.md](references/AGENT-AND-TOOLS.md)）
+- **YAML Config**: agents.yamlによる宣言的Agent定義
+- **Tool Performance**: async定義ツールの自動並列実行
+- **Action Confirmations**: `require_confirmation=True`でツール実行前にユーザー確認
 
-- **Context Caching** (v1.15.0+): ContextCacheConfigで大規模指示のキャッシュ、コスト削減
-- **Context Compaction** (v1.16.0+): EventsCompactionConfigでイベント履歴の自動要約圧縮
+### Multi-Agent & A2A
+- **A2Aプロトコル**: JSON-RPC/REST、Agent Cards、Scope Negotiation（詳細: [MULTI-AGENT-AND-A2A.md](references/MULTI-AGENT-AND-A2A.md)）
+- **Agent協調戦略**: コーディネーター/デレゲーター/ワーカーパターン
 
-### Plugin System
+### Runtime & State
+- **Context Caching** (v1.15.0+): コスト削減のための大規模指示キャッシュ
+- **Context Compaction** (v1.16.0+): イベント履歴の自動要約圧縮
+- **Session Rewind** (v1.17.0+) / **Resume Agents** (v1.14.0+)
+- **Event System**: 7種のイベントタイプ、EventActions
 
-- BasePlugin継承によるグローバルスコープのライフサイクルフック
-- Callbacksより広範な制御（セキュリティ、監視、ログに推奨）
-- 詳細: [PLUGINS-AND-GROUNDING.md](references/PLUGINS-AND-GROUNDING.md)
+### RAG & Grounding
+- **Agentic RAG**: Corpus管理、Vector Search、Citations、Multi-Corpus Querying
+- **Grounding 3方式**: Google Search / Vertex AI Search / Agentic RAG
+- **Plugin System**: BasePlugin + 6ライフサイクルフック（詳細: [GUARDRAILS-AND-STREAMING.md](references/GUARDRAILS-AND-STREAMING.md)）
 
-### Grounding
-
-- Google Search / Vertex AI Search / Agentic RAGの3方式
-- ハルシネーション抑制と最新情報アクセス
-- 詳細: [PLUGINS-AND-GROUNDING.md](references/PLUGINS-AND-GROUNDING.md)
-
-### Session Rewind & Resume
-
-- **Session Rewind** (v1.17.0+): セッションを過去の状態に巻き戻し
-- **Resume Agents** (v1.14.0+): 中断ワークフローの再開（ResumabilityConfig）
-
-### Action Confirmations
-
-- `require_confirmation=True`でツール実行前にユーザー確認を要求
-- 動的確認ロジック対応
-
-### Event System
-
-- 7種のイベントタイプ、EventActions、状態管理プレフィックス
-- 詳細: [RUNTIME-AND-STATE.md](references/RUNTIME-AND-STATE.md)
-
-### Tool Performance
-
-- async定義ツールの自動並列実行（v1.10.0+）
-- 詳細: [AGENT-AND-TOOLS.md](references/AGENT-AND-TOOLS.md)
+### Deployment & Security
+- **Vertex AI Agent Engine**: マネージド実行環境、バージョン管理
+- **CI/CD**: GitHub Actions / Cloud Build統合
+- **パフォーマンス/コスト最適化**: モデルティアリング、キャッシング戦略
+- **セキュリティ**: Workload Identity、認証ライフサイクル、40項目チェックリスト（詳細: [SECURITY-AND-GOVERNANCE.md](references/SECURITY-AND-GOVERNANCE.md)）
 
 ---
 

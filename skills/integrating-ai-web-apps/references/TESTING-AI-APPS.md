@@ -204,6 +204,12 @@ const response = await streamText({
 
 ### モデルフォールバック
 
+`ai-fallback` ライブラリはAIプロバイダーが利用不可になった場合に自動的にリクエストを代替プロバイダーへ切り替えるフォールバック機能を提供する。まずパッケージをインストールする:
+
+```bash
+npm install ai-fallback
+```
+
 ```typescript
 import { createFallback } from "ai-fallback";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";

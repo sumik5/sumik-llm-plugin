@@ -566,6 +566,54 @@ const customStep = RunnableLambda.from((input: { text: string }) => ({
 const chain = customStep.pipe(sequential);
 ```
 
+#### RunnableParallel 実践パターン：同一入力から並行処理
+
+同じ入力テキストを受け取り、要約とキーワード抽出を並行実行する典型的なパターン。
+
+```typescript
+import {
+  RunnableParallel,
+  RunnableSequence,
+  RunnableLambda,
+} from "@langchain/core/runnables";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+
+const llm = new ChatGoogleGenerativeAI({ model: "gemini-1.5-pro" });
+const parser = new StringOutputParser();
+
+// 要約用チェーン
+const summaryChain = RunnableSequence.from([
+  ChatPromptTemplate.fromTemplate("次のテキストを3文以内で要約してください:\n\n{text}"),
+  llm,
+  parser,
+]);
+
+// キーワード抽出用チェーン
+const keywordChain = RunnableSequence.from([
+  ChatPromptTemplate.fromTemplate(
+    "次のテキストから重要なキーワードを5つ抽出し、カンマ区切りで返してください:\n\n{text}"
+  ),
+  llm,
+  parser,
+]);
+
+// 同じ { text } 入力を両チェーンに同時に渡す
+const parallelChain = new RunnableParallel({
+  summary: summaryChain,
+  keywords: keywordChain,
+});
+
+const result = await parallelChain.invoke({
+  text: "LangChainはAIアプリ開発のためのフレームワークで、複数のLLMや外部ツールを組み合わせた複雑なワークフローを簡潔に記述できます。",
+});
+
+// result: { summary: "...", keywords: "LangChain, AIアプリ, フレームワーク, ..." }
+```
+
+> **ポイント**: `RunnableParallel` は各Runnableを**同じ入力オブジェクト**で並行実行し、キー名をそのまま出力オブジェクトに使う。シリアル実行と比較してレイテンシーを削減できる。
+
 ### LangGraph
 
 LangGraphはLangChain上に構築された**グラフベースの状態管理フレームワーク**。ループや条件分岐を持つ複雑なマルチエージェントシステムに最適。

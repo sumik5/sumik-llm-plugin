@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (9個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (78個)
+└── skills/             # ナレッジスキル (80個)
 ```
 
 ---
@@ -58,7 +58,7 @@ sumik-claude-plugin/
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 
-### Skills (78個)
+### Skills (80個)
 
 #### コア開発
 
@@ -96,6 +96,7 @@ sumik-claude-plugin/
 | `building-rag-systems` | RAGシステム構築ガイド（11種データソース読み込み・5種チャンキング戦略・パイプラインアーキテクチャ・Python実装） |
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
 | `practicing-llmops` | LLMOps運用フレームワーク（データ・モデル適応・API・評価・セキュリティ・スケーリング） |
+| `analyzing-software-tradeoffs` | ソフトウェア設計トレードオフ分析（コードレベル: 重複・例外処理・柔軟性・最適化、API: 使いやすさ・バージョニング、分散システム: 一貫性・配信セマンティクス、メタ判断: ライブラリ選定・トレンド評価・日時データ・12リファレンスファイル） |
 
 #### フレームワーク
 
@@ -139,6 +140,7 @@ sumik-claude-plugin/
 | `developing-terraform` | Terraform/Terragrunt IaC開発（HCL・モジュール・ステート・Terragrunt・mise・AWS/GCP） |
 | `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 | `practicing-devops` | DevOps方法論・IaCツール選定・オーケストレーション比較・CI/CD・プラットフォームエンジニアリング |
+| `managing-sdn-with-ai` | AI × SDN/SD-WAN管理ガイド（AIエージェントアーキテクチャ・SDN運用最適化・セキュリティ・インフラ自動化・SD-WAN・5リファレンスファイル） |
 | `using-anki-mcp` | Anki MCP Server統合（デッキ管理・カードレビュー・ノートタイプ・メディア管理・GUI統合） |
 | `using-drawio-mcp` | draw.io MCP Server統合（XML/CSV/Mermaid形式でダイアグラム作成・ブラウザ表示） |
 | `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |

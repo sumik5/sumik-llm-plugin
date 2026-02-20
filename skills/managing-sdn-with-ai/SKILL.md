@@ -1,0 +1,316 @@
+---
+description: >-
+  Comprehensive guide to managing Software-Defined Networks with AI agents
+  covering architecture patterns, SDN operations, security, infrastructure
+  automation, and SD-WAN optimization. Use when designing, implementing,
+  or operating AI-driven SDN/SD-WAN systems. For general network monitoring
+  patterns, use designing-monitoring instead.
+---
+
+# AI × SDN/SD-WAN 管理ガイド
+
+## 概要
+
+Software-Defined Networking（SDN）は、コントロールプレーンとデータプレーンを論理的に分離することで、ネットワーク全体をソフトウェアから制御可能にする。AIエージェントをSDNに統合することで、従来の手動運用では不可能だったリアルタイム最適化・自律的な障害回復・予測的セキュリティ対応が実現する。
+
+このスキルは以下を対象とする：
+
+- AI Agent アーキテクチャの選択と設計
+- SDNコントローラへのAI統合パターン
+- 認知的ネットワーク管理（デジタルツイン・自己回復・ポリシー管理）
+- ネットワークセキュリティへのAI適用
+- SD-WAN の AI 最適化と障害復旧
+
+---
+
+## SDNアーキテクチャ概要
+
+### コアコンセプト
+
+```
+┌─────────────────────────────────────┐
+│       アプリケーション層（AI/SDN App）  │
+│   IBN / ポリシー管理 / 分析エンジン    │
+└────────────────┬────────────────────┘
+                 │ Northbound API
+┌────────────────▼────────────────────┐
+│        コントロールプレーン             │
+│   SDNコントローラ（OpenDaylight等）    │
+│   ネットワーク状態の集中管理            │
+└────────────────┬────────────────────┘
+                 │ Southbound API（OpenFlow/NETCONF）
+┌────────────────▼────────────────────┐
+│        データプレーン                  │
+│   スイッチ / ルーター / vSwitch        │
+│   パケット転送のみ担当                 │
+└─────────────────────────────────────┘
+```
+
+### 集中型 vs 分散型 の選択
+
+| 軸 | 集中型 | 分散型 | ハイブリッド |
+|----|-------|-------|------------|
+| レイテンシ要件 | < 10ms 不可 | < 1ms 対応 | 用途別選択 |
+| スケール | 中規模 | 大規模 | 段階的拡張 |
+| 障害耐性 | 単一障害点リスク | 高耐性 | ゾーン分離 |
+| 運用複雑度 | 低 | 高 | 中 |
+| ユースケース | エンタープライズWAN | 5G/エッジ/DC | テレコム |
+
+### SDNコントローラ比較
+
+| コントローラ | 言語 | 強み | AI統合 |
+|------------|------|------|-------|
+| OpenDaylight | Java | 商用エコシステム | REST API経由 |
+| ONOS | Java | 大規模キャリア向け | ML-as-a-Service |
+| Ryu | Python | 軽量・研究向け | 直接統合容易 |
+| Open vSwitch | C | ハイパーバイザ統合 | OVSDB連携 |
+
+---
+
+## AI Agent アーキテクチャ分類
+
+### エージェント型の選択基準
+
+| Agent型 | 応答速度 | 計画能力 | 協調性 | 適用場面 |
+|---------|---------|---------|-------|---------|
+| **Reactive** | 最速（< 1ms） | なし | 低 | リアルタイムフロー制御・DDoS検知 |
+| **Deliberative** | 遅（秒〜分） | 高 | 低 | 長期的トポロジ最適化・容量計画 |
+| **Hybrid** | 中（< 100ms） | 中 | 中 | セキュリティ脅威対応・QoS管理 |
+| **Multi-Agent** | 分散処理 | 高 | 高 | 大規模マルチドメイン・5G RAN管理 |
+
+### Intent-Based Networking（IBN）における AI の役割
+
+```python
+# IBN: 自然言語インテントからフロールールへの変換例
+class IntentTranslator:
+    def translate(self, intent: str) -> list[FlowRule]:
+        # NLPでインテント解析
+        parsed = self.nlp_parse(intent)
+        # → "Ensure max bandwidth for video conferencing"
+        # RL/MLでポリシー生成
+        policy = self.policy_engine.generate(parsed)
+        # OpenFlowルールへ変換
+        return self.flow_compiler.compile(policy)
+```
+
+**IBN実装の4要素**：
+1. **意図認識**: NLP/LLMによる高レベル指示の解析
+2. **変換エンジン**: 意図 → ネットワークポリシーへの翻訳
+3. **検証**: デジタルツインでの事前シミュレーション
+4. **継続的整合性**: 実際の状態と意図のギャップ監視
+
+---
+
+## SDNにおけるAI技術マッピング
+
+| AI技術 | 適用領域 | 具体例 |
+|-------|---------|-------|
+| **ML（教師あり）** | トラフィック分類・SLA予測 | フロー優先度判定、異常検知 |
+| **DL（深層学習）** | パターン認識・根本原因分析 | LSTM系列予測、CNN侵入検知 |
+| **RL（強化学習）** | 動的意思決定・自律制御 | ルーティング最適化、リソース割当 |
+| **FL（連合学習）** | プライバシー保護協調学習 | マルチドメイン脅威インテリジェンス |
+| **GNN** | グラフ構造のネットワーク分析 | トポロジ経路最適化、障害局所化 |
+| **NLP/LLM** | 自然言語ポリシー管理 | IBN意図解析、オペレータ対話 |
+| **XAI** | 意思決定の透明性確保 | 監査対応、コンプライアンス |
+
+### RLによるトラフィックエンジニアリング（コード例）
+
+```python
+import numpy as np
+
+class NetworkRLAgent:
+    """SDNトラフィックエンジニアリング用RLエージェント"""
+
+    def __init__(self, n_nodes: int, n_actions: int):
+        self.q_table = np.zeros((n_nodes, n_actions))
+        self.alpha = 0.1   # 学習率
+        self.gamma = 0.95  # 割引率
+        self.epsilon = 0.1 # 探索率
+
+    def select_path(self, state: int) -> int:
+        if np.random.random() < self.epsilon:
+            return np.random.randint(self.q_table.shape[1])
+        return np.argmax(self.q_table[state])
+
+    def update(self, state: int, action: int,
+               reward: float, next_state: int) -> None:
+        td_target = reward + self.gamma * np.max(self.q_table[next_state])
+        td_error = td_target - self.q_table[state, action]
+        self.q_table[state, action] += self.alpha * td_error
+```
+
+---
+
+## SDN運用の主要領域
+
+### デジタルツイン（Digital Twin Network）
+
+物理ネットワークのリアルタイムデジタル複製。主な活用用途：
+
+| 用途 | 内容 |
+|------|------|
+| 変更事前検証 | フロールール変更を本番適用前にシミュレーション |
+| 容量計画 | トラフィック増大シナリオのシミュレーション |
+| セキュリティテスト | 攻撃シナリオの安全な検証 |
+| AI学習環境 | RLエージェントの訓練データ生成 |
+| 障害復旧訓練 | 災害シナリオのリハーサル |
+
+### 認知的ネットワーク回復（Cognitive Healing）
+
+認知ループ: **観測 → 分析 → 計画 → 実行（OODA）**
+
+- **ML異常検知**: 時系列データから正常ベースライン学習、統計的逸脱検出
+- **DL根本原因分析**: LSTMによる障害伝播パターン学習
+- **RL自動修復**: 過去の修復成功事例から最適アクション選択
+- **KPI指標**: MTTR（平均回復時間）、可用性率、誤検知率
+
+### AI動的ポリシー管理
+
+ポリシーライフサイクル: **定義 → 検証 → 適用 → 監視 → 更新**
+
+主なAI技術：
+- **ML最適化**: QoS優先度の動的調整
+- **RL適応制御**: ネットワーク状態変化への自動対応
+- **XAI**: ポリシー変更理由の監査証跡
+
+### トラフィックエンジニアリング（TE）
+
+| 手法 | 特性 | 適用 |
+|------|------|------|
+| ECMP（等コスト）| シンプル | 均質トラフィック |
+| RSVP-TE | 帯域保証 | 高優先フロー |
+| RL-TE | 適応的 | 動的負荷変動環境 |
+| GNN-TE | トポロジ認識 | 大規模複雑ネットワーク |
+
+---
+
+## SDNセキュリティの概要
+
+### 脅威モデル
+
+SDNに固有の脅威ベクター：
+
+| 脅威 | 対象 | AI対策手法 |
+|------|------|-----------|
+| コントローラDDoS | コントロールプレーン | ML異常検知、レート制限 |
+| フローテーブル汚染 | データプレーン | GNN整合性検証 |
+| 内部不正 | 管理API | UEBA行動分析 |
+| 中間者攻撃 | Southbound通信 | AI証明書管理 |
+| APIインジェクション | Northbound API | NLP入力検証 |
+
+### AI脅威検知アーキテクチャ
+
+```
+脅威インテリジェンス収集
+       ↓
+ML/DL 異常検知（ベースライン vs 現在の状態）
+       ↓
+RL 自動インシデント対応
+       ↓
+XAI 説明生成 → 人間オペレータへのエスカレーション
+       ↓
+事後学習（Post-incident Learning）
+```
+
+### 倫理AIと責任あるネットワーク管理
+
+自律的AIエージェントの展開では以下の原則を遵守する：
+
+- **公平性**: 特定テナント・ユーザーへの意図せぬ差別禁止
+- **透明性**: XAIによる意思決定の説明可能性確保
+- **プライバシー**: FL（連合学習）でデータ集約を最小化
+- **人間監督**: 高影響な操作は人間のapprovalを必須化
+
+---
+
+## SD-WAN概要
+
+### SD-WAN アーキテクチャ
+
+```
+本社 ─── SD-WAN Controller ─── クラウド（AWS/Azure）
+  │              │
+支社A           支社B
+  │              │
+MPLS / インターネット / 4G/5G（アンダーレイ）
+```
+
+**主要コンポーネント**：
+- **SD-WANコントローラ**: ポリシー集中管理
+- **エッジデバイス（CPE）**: 現地判断・パス切替
+- **オーバーレイネットワーク**: 暗号化トンネル
+
+### AI最適化手法
+
+| 課題 | AI手法 | 効果 |
+|------|-------|------|
+| パス選択 | RL（動的経路切替） | レイテンシ最小化 |
+| トラフィック分類 | DL（深層パケット検査） | アプリ認識QoS |
+| 需要予測 | LSTM時系列予測 | 帯域プロビジョニング |
+| 障害検知 | ML異常検知 | 自動フェイルオーバー |
+| セキュリティ | GAN/RL（脅威検知） | 暗号化トラフィック解析 |
+
+### 災害復旧（Disaster Recovery）
+
+AI駆動DR戦略の優先順位：
+
+1. **リスク評価**: 予測分析による障害前予防
+2. **マルチパスフェイルオーバー**: MPLS/Internet/LTE自動切替
+3. **エッジ状態保全**: SD-WANエッジの設定自動バックアップ
+4. **クラウド統合復旧**: 障害時のクラウドリソース自動プロビジョニング
+5. **セキュリティ考慮**: 復旧中のセキュリティポリシー継続適用
+
+---
+
+## 意思決定ガイド
+
+### どのAI手法を使うか
+
+| 要件 | 推奨手法 | 理由 |
+|------|---------|------|
+| リアルタイム（< 1ms） | Reactiveエージェント + ルールベース | 推論コスト最小 |
+| 予測・最適化 | LSTM / Transformer | 時系列パターン学習 |
+| 自律的経路制御 | RL（DQN/PPO） | 動的環境への適応 |
+| プライバシー重視 | FL（連合学習） | データ非集約 |
+| グラフ構造問題 | GNN | ネットワークトポロジ表現 |
+| 説明可能性要件 | XAI + RL | コンプライアンス対応 |
+| 意図ベース管理 | LLM + IBN | 自然言語ポリシー |
+
+### SDNアーキテクチャ選択ガイド
+
+| 条件 | 推奨アーキテクチャ |
+|------|-----------------|
+| 単一データセンター・中規模 | 集中型SDN（OpenDaylight/ONOS） |
+| 5G / IoT / エッジ環境 | 分散型SDN（エッジAIエージェント） |
+| テレコム / マルチドメイン | ハイブリッド型（階層コントローラ） |
+| SD-WANとの統合 | SD-WAN Controller + SDN Orchestrator |
+
+### 実装ロードマップ
+
+```
+Phase 1: 基盤整備
+  SDNコントローラ導入 → データ収集パイプライン構築
+
+Phase 2: AIモデル導入
+  異常検知ML → トラフィック予測 → ポリシー最適化
+
+Phase 3: 自律化
+  RLエージェント → デジタルツイン → IBN
+
+Phase 4: 高度化
+  マルチドメイン連携 → FL → XAI監査
+```
+
+---
+
+## リファレンスファイル
+
+詳細な実装ガイドは以下を参照：
+
+| ファイル | 内容 | 対象章 |
+|---------|------|-------|
+| [AI-AGENT-ARCHITECTURE.md](references/AI-AGENT-ARCHITECTURE.md) | エージェント型詳細・IBN・連合学習・クロスレイヤー | Ch 1-4 |
+| [SDN-INTELLIGENCE.md](references/SDN-INTELLIGENCE.md) | デジタルツイン・認知回復・ポリシー管理・TE・省エネ・光ネットワーク | Ch 5-8, 17-18, 20-22 |
+| [SDN-SECURITY.md](references/SDN-SECURITY.md) | 倫理AI・脅威インテリジェンス・データプレーン保護・マルチドメイン | Ch 9-10, 16, 19 |
+| [SDN-INFRASTRUCTURE.md](references/SDN-INFRASTRUCTURE.md) | リソース割当・エッジ・NFV/SFC・ゼロタッチ・GNN | Ch 11-15 |
+| [SD-WAN.md](references/SD-WAN.md) | SD-WAN最適化・セキュリティ・災害復旧 | Ch 23-25 |
