@@ -167,7 +167,7 @@ sumik-claude-plugin/
 | `searching-web` | Web検索 fallback（gemini CLI、Exa MCP使用不可時） |
 | `reviewing-with-coderabbit` | CodeRabbitコードレビュー |
 | `writing-zenn-articles` | Zenn技術記事の作成・投稿ワークフロー（フロントマター仕様・命名規則・品質チェック・Lint設定） |
-| `writing-effective-prose` | 効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書を統合） |
+| `writing-effective-prose` | 効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）を統合） |
 
 ### Scripts (1個)
 

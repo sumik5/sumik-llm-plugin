@@ -1,15 +1,16 @@
 ---
 description: >-
   Unified writing craft guide: prose fundamentals, AI smell detection (always active), technical docs (7Cs),
-  academic writing (Harvard, dissertation), web/digital writing, FAQ writing, and revision techniques.
+  academic writing (Harvard, dissertation), university report/thesis writing (reports, graduation
+  thesis, experimental reports), web/digital writing, FAQ writing, and revision techniques.
   REQUIRED for all text output — AI smell check is always active regardless of document type.
   Use when writing, reviewing, proofreading, or creating any document (technical docs, reports, slides,
-  emails, academic papers, essays, dissertations, business documents, web content, FAQ/help docs).
-  Covers: general prose craft (reader analysis, question design, paragraph writing, sentence techniques,
-  rhythm/visual composition, expression style, systematic revision), technical documentation (7Cs, README,
-  API specs, reports), academic writing (Harvard referencing, PEEL method, dissertation structure,
-  AI-assisted workflows), web/digital writing (UX writing, PREP method, SEO basics), FAQ writing
-  (one-question-one-answer, 6W1H), and AI text refinement (6 smell patterns, rewrite rules).
+  emails, academic papers, essays, dissertations, university reports, graduation theses,
+  experimental reports, business documents, web content, FAQ/help docs).
+  Covers: general prose craft, technical documentation (7Cs), academic writing (Harvard referencing,
+  PEEL method, dissertation structure), university report/thesis (structure, argumentation, citation format,
+  plagiarism prevention, thesis process, scientific writing), web/digital writing, FAQ writing,
+  and AI text refinement (6 smell patterns, rewrite rules).
   For Zenn articles, use writing-zenn-articles instead.
   For LaTeX document compilation, use writing-latex instead.
 ---
@@ -23,9 +24,10 @@ description: >-
 1. **普遍的ライティング原則** -- 読者分析、問い設計、パラグラフ構築、文レベル技術、リズム・表現、体系的推敲
 2. **AI臭の検出と除去** -- 全出力で常時適用。不自然な表現パターンを検出し、人間らしい文章に書き換える
 3. **技術文書の作法** -- 7Csの原則、README、API仕様書、報告書テンプレート
-4. **学術文書の作法** -- 論文構造、Harvard参照、批判的思考、Dissertation、AI活用
-5. **Web・デジタルライティング** -- UXライティング、PREP法、SEO、読み手ファースト
-6. **FAQ・ヘルプドキュメント** -- 一問一答原則、6W1H、カテゴリ設計
+4. **学術文書の作法（英語）** -- 論文構造、Harvard参照、批判的思考、Dissertation、AI活用
+5. **大学レポート・論文** -- 序論・本論・結論、問い→主張→論証、理系実験レポート、引用・剽窃防止、卒論プロセス
+6. **Web・デジタルライティング** -- UXライティング、PREP法、SEO、読み手ファースト
+7. **FAQ・ヘルプドキュメント** -- 一問一答原則、6W1H、カテゴリ設計
 
 ### 入力として受け取るもの
 
@@ -203,11 +205,12 @@ description: >-
 - question: "この文書の目的は何ですか？"
 - options:
   1. 技術文書（README、API仕様、設計書、報告書）
-  2. 学術文書（論文、エッセイ、レポート、Dissertation）
-  3. Web・デジタルコンテンツ（Webページ、UI文言、ブログ記事）
-  4. FAQ・ヘルプドキュメント
-  5. ビジネス・一般文書（メール、企画書、スライド）
-  6. 校正・レビュー（既存文書の改善）
+  2. 学術文書・英語（論文、エッセイ、Dissertation）
+  3. 大学レポート・論文（レポート、卒論、修論、実験レポート）
+  4. Web・デジタルコンテンツ（Webページ、UI文言、ブログ記事）
+  5. FAQ・ヘルプドキュメント
+  6. ビジネス・一般文書（メール、企画書、スライド）
+  7. 校正・レビュー（既存文書の改善）
 
 ---
 
@@ -239,9 +242,9 @@ description: >-
 
 ---
 
-### 学術文書
+### 学術文書（英語・国際標準）
 
-5つの柱に基づいて学術文書を作成する。
+5つの柱に基づいて英語の学術文書を作成する。日本語のレポート・論文については次の「日本語レポート・論文」セクションを参照。
 
 #### 柱1: ライティングプロセス
 
@@ -303,6 +306,76 @@ description: >-
 | Introduction | 10-15% | Hook, Context, Thesis Statement, Scope, Structure |
 | Main Body | 70-80% | PEEL法（Point, Evidence, Explanation, Link） |
 | Conclusion | 10-15% | Restatement, Summary, Synthesis, Implications |
+
+---
+
+### 大学レポート・論文
+
+大学で求められるレポート・論文を作成するための総合ガイド。6つの領域をカバーする。
+
+#### A. 基本構成
+
+レポート・論文の定義から基本構成、学術文章のルールまで。
+
+| ファイル | 内容 |
+|---------|------|
+| [REPORT-THESIS-TYPES.md](references/REPORT-THESIS-TYPES.md) | 感想文・小論文・レポート・論文の違い、学術的文章の要件 |
+| [REPORT-STRUCTURE.md](references/REPORT-STRUCTURE.md) | 序論・本論・結論の三部構成、パラグラフ・ライティング |
+| [SCHOLARLY-WRITING-RULES.md](references/SCHOLARLY-WRITING-RULES.md) | 明快・明確・簡潔の三原則、事実と意見の書き分け、文体ルール |
+
+#### B. 論理構成
+
+問いの設定から論証の組み立て、アウトライン作成まで。
+
+| ファイル | 内容 |
+|---------|------|
+| [RESEARCH-QUESTION-DESIGN.md](references/RESEARCH-QUESTION-DESIGN.md) | テーマと問いの違い、問いの型（What/Why/How/Should）、絞り込みステップ |
+| [ARGUMENTATION-FRAMEWORK.md](references/ARGUMENTATION-FRAMEWORK.md) | 問い→主張→論証のフレームワーク、演繹・帰納・アブダクション、ダメな論証パターン |
+| [OUTLINE-CONSTRUCTION.md](references/OUTLINE-CONSTRUCTION.md) | トップダウン/ボトムアップ型アウトライン、MECE、分量配分 |
+
+#### C. 理系テキスト
+
+理系特有のテクニカル・ライティングと実験レポートの書き方。
+
+| ファイル | 内容 |
+|---------|------|
+| [SCIENTIFIC-WRITING.md](references/SCIENTIFIC-WRITING.md) | 科学的記述の原則、数値・単位・図表のルール、論理と接続表現 |
+| [EXPERIMENTAL-REPORT.md](references/EXPERIMENTAL-REPORT.md) | 実験レポートの構成（目的・方法・結果・考察）、テンプレート |
+
+#### D. 引用・参考文献
+
+引用フォーマットと剽窃防止。
+
+| ファイル | 内容 |
+|---------|------|
+| [CITATION-FORMAT.md](references/CITATION-FORMAT.md) | 直接引用・間接引用、注の種類、参考文献リストの書式 |
+| [PLAGIARISM-PREVENTION.md](references/PLAGIARISM-PREVENTION.md) | 剽窃の定義と種類、パラフレーズ技法、AI時代の注意点 |
+
+#### E. 卒業論文・修士論文
+
+卒論の執筆プロセスと評価基準。
+
+| ファイル | 内容 |
+|---------|------|
+| [THESIS-WRITING-PROCESS.md](references/THESIS-WRITING-PROCESS.md) | 全体スケジュール、テーマ設定、指導教員との関わり、口頭試問準備 |
+| [THESIS-EVALUATION.md](references/THESIS-EVALUATION.md) | 評価基準、よくある減点ポイント、提出前チェックリスト |
+
+#### F. 執筆技法
+
+文章を磨く技法とよくある間違いの回避。
+
+| ファイル | 内容 |
+|---------|------|
+| [PROSE-TECHNIQUES.md](references/PROSE-TECHNIQUES.md) | 要約・パラフレーズ技法、接続表現の体系、推敲の方法 |
+| [WRITING-PITFALLS.md](references/WRITING-PITFALLS.md) | 論文禁句集、構成・文章・書式の間違い、最終チェックリスト |
+
+**レポートの基本構造**:
+
+| セクション | 割合 | 必須要素 |
+|-----------|------|---------|
+| 序論 | 10-15% | 背景、問い、主張の提示、本論の構成 |
+| 本論 | 70-80% | 論証（根拠→分析→考察）、先行研究との対話 |
+| 結論 | 10-15% | 主張の再確認、残された課題、展望 |
 
 ---
 
@@ -397,7 +470,16 @@ description: >-
         |       -> デジタルライティング -> WEB-DIGITAL-WRITING.md
         |
         +-- 「FAQが役に立たない」
-                -> FAQ特有の問題 -> FAQ-WRITING.md
+        |       -> FAQ特有の問題 -> FAQ-WRITING.md
+        |
+        +-- 「レポートの書き方がわからない」
+        |       -> レポート基礎 -> REPORT-STRUCTURE.md, REPORT-THESIS-TYPES.md
+        |
+        +-- 「論文の論証が弱い」
+        |       -> 論理構成の問題 -> ARGUMENTATION-FRAMEWORK.md
+        |
+        +-- 「実験レポートの書き方」
+                -> 理系レポート -> EXPERIMENTAL-REPORT.md
 ```
 
 ---
