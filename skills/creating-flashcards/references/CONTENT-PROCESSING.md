@@ -470,7 +470,7 @@ pandocが出力するスペース区切りのプレーンテキストテーブ�
 2. 各Q&AペアについてLM Studioスクリプトを呼び出して翻訳する
    - 問題文、各選択肢、解答、解説を個別に翻訳する
    ```bash
-   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/translating-with-lmstudio/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
    ```
 3. 翻訳済みJSONからAnkiConnect `addNotes` で一括投入
 

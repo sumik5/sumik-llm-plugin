@@ -703,7 +703,7 @@ Phase 3で設計した更新案に基づき、既存類似スキルのSKILL.md f
 1. セッション初回: `translating-with-lmstudio` スキルのワークフローに従いモデルを選択
 2. 翻訳実行:
    ```bash
-   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/lmstudio-translate.py translate --model <model> --text "翻訳対象テキスト"
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/translating-with-lmstudio/scripts/lmstudio-translate.py translate --model <model> --text "翻訳対象テキスト"
    ```
 3. セクション単位で翻訳し、スキル形式に再構成する
 4. 翻訳品質: 直訳ではなく、ベストプラクティスとして自然に読める日本語にする

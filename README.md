@@ -169,12 +169,11 @@ sumik-claude-plugin/
 | `writing-zenn-articles` | Zenn技術記事の作成・投稿ワークフロー（フロントマター仕様・命名規則・品質チェック・Lint設定） |
 | `writing-effective-prose` | 効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書を統合） |
 
-### Scripts (2個)
+### Scripts (1個)
 
 | スクリプト | 説明 |
 |----------|------|
 | `convert-markdown-to-skill.sh` | Markdown→スキル変換スクリプト |
-| `lmstudio-translate.py` | LM Studio ローカル LLM による英語→日本語翻訳スクリプト |
 
 ### Hooks (4個)
 

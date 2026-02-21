@@ -295,7 +295,7 @@ for start in range(0, len(notes), BATCH_SIZE):
 各テキストブロックを以下のコマンドで翻訳する:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/translating-with-lmstudio/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
 ```
 
 #### エラーハンドリング
@@ -362,7 +362,7 @@ LM Studio APIがエラーを返した場合、フォールバックなしでユ�
 2. **翻訳**: 各Q&AペアについてLM Studioスクリプトを呼び出す
    - 問題文、各選択肢、解答、解説を個別にスクリプトで翻訳する
    ```bash
-   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
+   python3 ${CLAUDE_PLUGIN_ROOT}/skills/translating-with-lmstudio/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
    ```
 3. **一括投入**: AnkiConnect `addNotes` バッチAPIで投入
 
