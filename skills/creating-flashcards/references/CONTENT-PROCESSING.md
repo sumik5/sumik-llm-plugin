@@ -462,39 +462,17 @@ pandocが出力するスペース区切りのプレーンテキストテーブ�
 3. **`createDeck` でデッキ存在を保証**（⚠️ 全カード削除後に空デッキが自動削除されるため必須）
 4. `addNotes` で新カードを一括作成
 
-### 翻訳時の並列処理
+### 翻訳時の処理
 
-100問以上の外国語コンテンツを翻訳する場合の効率的なワークフロー:
+100問以上の外国語コンテンツを翻訳する場合も、LM Studioスクリプトを逐次呼び出しで処理する（ローカルLLMのため高速）:
 
 1. 全Q&AペアをJSON（原文のみ）にパース
-2. 64枚以下のバッチに分割し、並列エージェントに割り当て
-3. 各エージェントは**13枚以下**のJSONファイルに分割して書き出す（Writeツールのmax_tokens制限回避）
-4. 全翻訳ファイルをPythonスクリプトでマージ
-5. マージ済みJSONからAnkiConnect `addNotes` で一括投入
-
-**制約と対策:**
-
-| 制約 | 詳細 | 対策 |
-|------|------|------|
-| Write max_tokens | 翻訳HTML付き52枚超でトークン上限超過 | 13枚以下に分割 |
-| エージェント拒否 | Sonnetモデルが著作権懸念で停止する場合あり | general-purposeエージェントを使用 |
-| 翻訳時間 | 日本語のみの10倍以上 | 4-6体の並列エージェントで分担 |
-
-**マージスクリプト例:**
-```python
-import json, glob
-all_cards = []
-for f in sorted(glob.glob('/tmp/flashcard-translated-*.json')):
-    all_cards.extend(json.load(open(f)))
-with open('/tmp/flashcard-merged.json', 'w') as out:
-    json.dump(all_cards, out, ensure_ascii=False)
-```
-
-**⚠️ glob衝突に注意**: マージ済みファイル（`*-merged.json`）が同じディレクトリに存在する場合、`*`ワイルドカードがマージ済みファイルも拾い、カードが二重登録される。対策:
-
-1. マージ済みファイル名をglobパターンと区別する（例: 別ディレクトリに出力）
-2. またはglobパターンを限定する: `flashcard-translated-[1-9]*.json` のように数字プレフィックスで絞る
-3. アップロード時も同様: `terraform_cards_[1-4]_*.json` のようにバッチ番号で限定する
+2. 各Q&AペアについてLM Studioスクリプトを呼び出して翻訳する
+   - 問題文、各選択肢、解答、解説を個別に翻訳する
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
+   ```
+3. 翻訳済みJSONからAnkiConnect `addNotes` で一括投入
 
 ---
 

@@ -29,8 +29,8 @@ sumik-claude-plugin/
 ├── agents/             # Agent定義 (2体)
 ├── commands/           # スラッシュコマンド (9個)
 ├── hooks/              # イベントフック (4個)
-├── scripts/            # ヘルパースクリプト (1個)
-└── skills/             # ナレッジスキル (82個)
+├── scripts/            # ヘルパースクリプト (3個)
+└── skills/             # ナレッジスキル (76個)
 ```
 
 ---
@@ -58,7 +58,7 @@ sumik-claude-plugin/
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 
-### Skills (82個)
+### Skills (76個)
 
 #### コア開発
 
@@ -140,6 +140,7 @@ sumik-claude-plugin/
 | `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm、開発ワークフロー、DB連携、監視/ログ、デプロイ戦略含む・14リファレンスファイル） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
+| `implementing-logging` | アプリケーションログ実装ガイド（ログ設計原則・構造化ログ・収集アーキテクチャ・分析・セキュリティログ・AI/MLログ分析） |
 | `developing-terraform` | Terraform/Terragrunt IaC開発（HCL・モジュール・ステート・Terragrunt・mise・AWS/GCP） |
 | `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 | `practicing-devops` | DevOps方法論・IaCツール選定・オーケストレーション比較・CI/CD・プラットフォームエンジニアリング |
@@ -149,6 +150,7 @@ sumik-claude-plugin/
 | `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
 | `viewing-diffs` | difit GitHub風差分ビューア（git diff のブラウザ表示・自動インストール対応） |
 | `orchestrating-teams` | Agent Teamオーケストレーション（チーム編成・タチコマ並列起動・進捗管理・docs先行開発） |
+| `translating-with-lmstudio` | LM Studioローカル LLM による英語→日本語翻訳（OpenAI互換API、フラッシュカード作成・スキル変換連携） |
 
 #### ドキュメント・品質
 
@@ -167,11 +169,12 @@ sumik-claude-plugin/
 | `writing-zenn-articles` | Zenn技術記事の作成・投稿ワークフロー（フロントマター仕様・命名規則・品質チェック・Lint設定） |
 | `writing-effective-prose` | 効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書を統合） |
 
-### Scripts (1個)
+### Scripts (2個)
 
 | スクリプト | 説明 |
 |----------|------|
 | `convert-markdown-to-skill.sh` | Markdown→スキル変換スクリプト |
+| `lmstudio-translate.py` | LM Studio ローカル LLM による英語→日本語翻訳スクリプト |
 
 ### Hooks (4個)
 

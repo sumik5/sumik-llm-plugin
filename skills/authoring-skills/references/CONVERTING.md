@@ -573,6 +573,8 @@ Task({
 2. SendMessage で各メンバーにshutdown_request
 3. 全メンバーシャットダウン確認後にTeamDelete
 
+> **英語ソースの場合**: Phase 0でMarkdownに変換 → Phase 1で言語を自動検出 → Phase 4の生成時に `translating-with-lmstudio` スキルを使用して日本語化 → 出典除去ルール（4.1）は翻訳後に適用
+
 #### 4.1 SKILL.md生成
 
 **frontmatter descriptionは必ず英語で記述**（Claudeのスキルマッチングは英語descriptionで最も高精度に動作するため）
@@ -680,6 +682,38 @@ Phase 3で設計した更新案に基づき、既存類似スキルのSKILL.md f
 - 判断基準テーブル（`| 要素 | 値 |` 形式）を活用
 - コード例はソース内容に準じた言語で記述
 - チェックリストは `- [ ]` 形式
+
+#### 英語ソースの日本語化
+
+ソース言語が英語の場合、`translating-with-lmstudio` スキルを使用して日本語に翻訳する。
+
+**翻訳対象と非翻訳対象:**
+
+| 対象 | 翻訳する | 例 |
+|------|---------|-----|
+| セクションタイトル | ✅ | 「Best Practices」→「ベストプラクティス」 |
+| 説明文・本文 | ✅ | 英語の解説文 → 日本語の解説文 |
+| テーブル内容 | ✅ | 判断基準テーブルのセル内テキスト |
+| コード例 | ❌ | Python/Go/TypeScript等のコードはそのまま |
+| コマンド名 | ❌ | `kubectl`, `docker` 等はそのまま |
+| 技術用語・プロダクト名 | ❌ | Cloud Run, Binary Authorization 等はそのまま |
+
+**翻訳ワークフロー:**
+
+1. セッション初回: `translating-with-lmstudio` スキルのワークフローに従いモデルを選択
+2. 翻訳実行:
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/lmstudio-translate.py translate --model <model> --text "翻訳対象テキスト"
+   ```
+3. セクション単位で翻訳し、スキル形式に再構成する
+4. 翻訳品質: 直訳ではなく、ベストプラクティスとして自然に読める日本語にする
+
+**エラー時の対応:**
+
+LM Studio APIがエラーを返した場合:
+- フォールバックなし（Claudeの内蔵翻訳は使用しない）
+- ユーザーに「LM StudioのAPIがエラーを返しています。LM Studioが起動しモデルがロードされていることを確認してください」と通知
+- 準備完了まで待機
 
 ### 4.6 相互description更新パターン
 

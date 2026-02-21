@@ -10,6 +10,7 @@ description: >-
   For Terraform-specific HCL/module development, use developing-terraform instead.
   For Docker container operations, use managing-docker instead.
   For monitoring system design, use designing-monitoring instead.
+  For application logging strategy and log pipeline architecture, use implementing-logging.
 ---
 
 # DevOps実践ガイド

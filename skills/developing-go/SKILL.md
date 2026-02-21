@@ -5,6 +5,7 @@ description: >-
   MUST load when go.mod is detected or Go code is being written.
   Covers naming, error handling, concurrency, testing, project structure, function design, data structures, refactoring strategies,
   GoF patterns, architectural patterns, type system internals, and performance optimization.
+  For application logging design and structured logging patterns, use implementing-logging.
 ---
 
 # Go開発ガイド（Modern Go Development）

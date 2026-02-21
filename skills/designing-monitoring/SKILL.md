@@ -12,6 +12,7 @@ description: >
   For green software carbon metrics and sustainability monitoring, use building-green-software instead.
   For Google Cloud monitoring (Cloud Logging, Security Command Center, Cloud Run), use developing-google-cloud instead.
   For LLM-specific evaluation and monitoring, use practicing-llmops.
+  For application logging design, structured logging, and log collection pipelines, use implementing-logging instead.
 ---
 
 # Designing Monitoring

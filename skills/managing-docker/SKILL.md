@@ -10,6 +10,7 @@ description: >-
   For AWS development (EKS, Lambda, CDK), use developing-aws instead.
   For broader DevOps methodology and orchestration strategy, use practicing-devops instead.
   For general monitoring design and SLO strategy, use designing-monitoring instead.
+  For application logging design and container log collection strategies, use implementing-logging.
 ---
 
 # Docker開発環境管理

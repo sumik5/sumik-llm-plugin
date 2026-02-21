@@ -6,6 +6,7 @@ description: >-
   software design (encapsulation, Demeter's Law, LSP, Design by Contract, behavioral/creational/structural patterns in Python),
   and SE practices (SDLC phases, Scrum/Kanban, system architecture, code organization, data persistence, API framework comparison, deployment strategies).
   For language-agnostic clean code principles, use writing-clean-code.
+  For application logging design and structured logging patterns, use implementing-logging.
 ---
 
 # Python開発環境（Modern Python Development）
