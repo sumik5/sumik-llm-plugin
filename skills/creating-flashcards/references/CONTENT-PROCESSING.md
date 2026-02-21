@@ -20,6 +20,29 @@ pandocはEPUBをMarkdown変換する際に以下のアーティファクトを�
 | エスケープ文字 | `\``, `\*`, `\#`, `\'`, `\~`, `\<`, `\>`, `\--\>` | エスケープ除去（順序注意） |
 | 空ブラケット | `[]` | 除去 |
 | 誤記ヘッダー | `### 解説 {.heading_s6S}`（正解用クラスなのにテキストが解説） | CSSクラスベースで`正解`に修正 |
+| 残存bare bracket | `[テキスト]` | テキストのみ抽出（最終クリーンアップ） |
+
+### 🔴 クリーニング処理順序の罠
+
+**inline spans (`[text]{.class_sXXX}`) は CSS class markers (`{.class_s...}`) より先に除去すること。**
+
+順序を誤ると、CSS class markers の除去 (`\{[.#][^}]*\}`) が先に `{.class_sXXX}` 部分を消し、inline span regex (`\[text]\{\.class_s...\}`) がマッチしなくなる。結果として bare bracket `[text]` がテキスト中に残留する。
+
+**正しい処理順序:**
+
+```python
+# 1. ページマーカー除去（空ブラケット + アンカーID）
+text = re.sub(r"\[\]\{#[^}]*\}", "", text)
+# 2. inline spans 除去（テキスト抽出）★ CSS class markers より先
+text = re.sub(r"\[([^\]]*)\]\{\.class_s[^}]*\}", r"\1", text)
+# 3. CSS class markers 除去（残りの単独マーカー）
+text = re.sub(r"\{[.#][^}]*\}", "", text)
+# 4. ... 他のクリーニング処理 ...
+# 5. 最終クリーンアップ: 残存bare bracket除去
+text = re.sub(r"\[([^\]\[]*)\]", r"\1", text)
+```
+
+**失敗例**: CSS class markers を先に除去 → `[拒否]{.class_s6U0}` が `[拒否]` になる → inline span regex がマッチせず `[拒否]` が残る。
 
 ### `<pre>`ブロック保護
 

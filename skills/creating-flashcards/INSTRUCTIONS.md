@@ -215,8 +215,19 @@ def anki_request(action, params=None):
         headers={"Content-Type": "application/json"},
     )
     with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read().decode("utf-8"))["result"]
+        data = json.loads(resp.read().decode("utf-8"))
+        error = data.get("error")
+        # addNotes: エラーが配列形式（per-note errors）の場合がある
+        if isinstance(error, list):
+            return {"per_note_errors": error}
+        if error:
+            raise RuntimeError(f"AnkiConnect error: {error}")
+        return data["result"]
+```
 
+> ⚠️ **`addNotes` のエラーレスポンス形式**: 重複カードが含まれるバッチでは、AnkiConnect が `error` フィールドを文字列ではなく**配列**（per-note errors）で返す場合がある。この場合 `result` は `null` となり、バッチ全体が失敗する。上記の `isinstance(error, list)` チェックでこのケースを検出し、呼び出し側で個別にハンドリングすること。
+
+```python
 # 50件ずつバッチ投入
 BATCH_SIZE = 50
 for start in range(0, len(notes), BATCH_SIZE):
