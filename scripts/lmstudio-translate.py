@@ -56,11 +56,10 @@ def cmd_translate(args: argparse.Namespace) -> None:
         print("エラー: 翻訳対象のテキストが空です。", file=sys.stderr)
         sys.exit(1)
 
-    system_prompt = (
-        "You are a professional translator. "
+    instruction = (
         "Translate the following English text to natural Japanese. "
         "Keep technical terms (service names, product names, command names) in English. "
-        "Output only the translated text without any explanation."
+        "Output only the translated text without any explanation.\n\n"
     )
 
     try:
@@ -68,8 +67,7 @@ def cmd_translate(args: argparse.Namespace) -> None:
         response = client.chat.completions.create(
             model=args.model,
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": source_text},
+                {"role": "user", "content": instruction + source_text},
             ],
             temperature=0.3,
         )
