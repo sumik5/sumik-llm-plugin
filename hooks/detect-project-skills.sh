@@ -85,6 +85,7 @@ get_skill_description() {
         "modernizing-architecture") echo "社会技術的モダナイゼーション・トレードオフ分析手法" ;;
         "implementing-logging") echo "アプリケーションログ設計・構造化ログ・収集・分析・セキュリティログ" ;;
         "applying-domain-driven-design") echo "DDD戦略/戦術パターン・データ分解・データメッシュ" ;;
+        "developing-react") echo "React 19.x 開発（Internals・パフォーマンス・アニメーション・RTL）" ;;
         "developing-nextjs") echo "Next.js 16 / React 19開発" ;;
         "using-next-devtools") echo "Next.js DevTools MCP活用" ;;
         "mastering-typescript") echo "TypeScript型システム・パターン" ;;
@@ -139,7 +140,7 @@ check_package_json() {
     if echo "$deps" | grep -qx "next"; then
         has_next=true
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("developing-nextjs" "using-next-devtools")
+        PROJECT_SKILLS+=("developing-nextjs" "using-next-devtools" "developing-react")
 
         # Next.js SaaS チェック（stripe / next-auth / @auth/core / @clerk/nextjs）
         if echo "$deps" | grep -qE '^(stripe|next-auth|@auth/core|@clerk/nextjs)$'; then
@@ -148,11 +149,10 @@ check_package_json() {
     fi
 
     # React チェック（Next.jsがない場合）
-    # developing-nextjs はReact Internals/Performance統合済みなのでReact単独でも有用
     if [[ "$has_next" == "false" ]] && echo "$deps" | grep -qx "react"; then
         has_react=true
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("developing-nextjs")
+        PROJECT_SKILLS+=("developing-react")
     fi
 
     # フルスタックJS チェック（express / @nestjs/core / fastify / koa / @hapi/hapi）

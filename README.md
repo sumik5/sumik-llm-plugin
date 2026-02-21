@@ -27,10 +27,10 @@ sumik-claude-plugin/
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
 ├── agents/             # Agent定義 (2体)
-├── commands/           # スラッシュコマンド (9個)
+├── commands/           # スラッシュコマンド (10個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (76個)
+└── skills/             # ナレッジスキル (78個)
 ```
 
 ---
@@ -44,7 +44,7 @@ sumik-claude-plugin/
 | **タチコマ** (tachikoma) | Sonnet | 実装・実行Agent。フロント/バック/テスト等に適応。並列実行対応(1-4体) |
 | **Serena Expert** (serena-expert) | Sonnet | /serenaコマンドを活用したトークン効率重視の開発Agent |
 
-### Commands (9個)
+### Commands (10個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -57,8 +57,9 @@ sumik-claude-plugin/
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
+| `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (76個)
+### Skills (78個)
 
 #### コア開発
 
@@ -68,7 +69,7 @@ sumik-claude-plugin/
 | `using-serena` | Serena MCP活用 |
 | `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・ソフトウェアデザインの法則含む25カテゴリのコードスメル検出・リファクタリング） |
 | `enforcing-type-safety` | 型安全性強制（any禁止） |
-| `testing-code` | テストファースト（Vitest/RTL/Playwright） |
+| `testing-code` | テストファースト（Vitest/Playwright）。RTL固有は`developing-react`参照 |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 | `securing-serverless` | サーバーレスセキュリティ包括ガイド（AWS Lambda・Google Cloud Run・Azure Functionsの攻撃・防御パターン、コード注入・SSRF・権限昇格・シークレット窃取、IAM最小権限、認証トークン管理、計7リファレンスファイル） |
@@ -77,6 +78,8 @@ sumik-claude-plugin/
 | `using-claude-code-as-pm` | PM向けClaude Code活用ガイド（コードベース調査・バグトリアージ・競合分析・フィードバック分析・要件生成・PMワークフロー自動化） |
 | `applying-semantic-versioning` | SemVer 2.0.0仕様準拠バージョン判断ガイド（MAJOR/MINOR/PATCH判定・プレリリース・範囲指定・よくある誤り） |
 | `writing-conventional-commits` | Conventional Commits 1.0.0準拠コミットメッセージガイド（type/scope/BREAKING CHANGE判定・SemVer連携） |
+| `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
+| `using-codex` | Codex CLI（OpenAI）連携（コード相談・レビュー・設計相談・バグ調査） |
 
 #### アーキテクチャ
 
@@ -104,7 +107,9 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `developing-nextjs` | Next.js 16 / React 19（React性能最適化・内部メカニズム含む） |
+| `developing-react` | React 19.x 開発ガイド（Internals・パフォーマンスルール47+・アニメーション・RTLテスト） |
+| `remotion-best-practices` | Remotion動画作成ベストプラクティス（React、Three.js、アニメーション、キャプション） |
+| `developing-nextjs` | Next.js 16.x開発ガイド（App Router・Server Components・Cache Components）。React固有は`developing-react`参照 |
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野） |
 | `developing-python` | Python 3.13開発（Effective Python 125項目・実践パターン50問・SEプロセス: SDLC/方法論/システムモデリング/プロジェクト実装パターン/API設計・デプロイ含む） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
@@ -209,6 +214,6 @@ sumik-claude-plugin/
 - **型安全性**: any/Any型の使用を厳格に禁止
 - **セキュリティファースト**: 実装後のCodeGuard検証を必須化
 - **自動フォーマット**: PostToolUseフックによるコード整形
-- **Progressive Disclosure**: スキルをSKILL.md + 詳細ファイルに分離
+- **二段階ロード**: SKILL.md（フロントマターのみ）+ INSTRUCTIONS.md（本文）でコンテキスト94.8%削減
 
 ---
