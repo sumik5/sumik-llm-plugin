@@ -1,16 +1,18 @@
 ---
 description: >-
   Unified writing craft guide: prose fundamentals, AI smell detection (always active), technical docs (7Cs),
-  academic writing (Harvard, dissertation), university report/thesis writing (reports, graduation
-  thesis, experimental reports), web/digital writing, FAQ writing, and revision techniques.
+  academic writing (Harvard, dissertation), university report/thesis writing, tech blog writing,
+  Japanese prose craft, clarity/explanation techniques, web/digital writing, FAQ writing, and revision.
   REQUIRED for all text output — AI smell check is always active regardless of document type.
-  Use when writing, reviewing, proofreading, or creating any document (technical docs, reports, slides,
-  emails, academic papers, essays, dissertations, university reports, graduation theses,
-  experimental reports, business documents, web content, FAQ/help docs).
-  Covers: general prose craft, technical documentation (7Cs), academic writing (Harvard referencing,
-  PEEL method, dissertation structure), university report/thesis (structure, argumentation, citation format,
-  plagiarism prevention, thesis process, scientific writing), web/digital writing, FAQ writing,
-  and AI text refinement (6 smell patterns, rewrite rules).
+  Use when writing, reviewing, proofreading, or creating any document (technical docs, tech blog articles,
+  reports, slides, emails, academic papers, essays, dissertations, university reports,
+  graduation theses, experimental reports, business documents, web content, FAQ/help docs).
+  Covers: general prose craft, technical documentation (7Cs + テクニカルライティング実践),
+  academic writing (Harvard referencing, PEEL method, dissertation structure),
+  university report/thesis (structure, argumentation, citation format, plagiarism prevention,
+  thesis process, scientific writing), tech blog writing (ネタ出し・構成・コード解説),
+  Japanese prose craft (修飾語順序・句読点・助詞), clarity/explanation techniques,
+  web/digital writing, FAQ writing, and AI text refinement (6 smell patterns, rewrite rules).
   For Zenn articles, use writing-zenn-articles instead.
   For LaTeX document compilation, use writing-latex instead.
 ---
@@ -28,6 +30,8 @@ description: >-
 5. **大学レポート・論文** -- 序論・本論・結論、問い→主張→論証、理系実験レポート、引用・剽窃防止、卒論プロセス
 6. **Web・デジタルライティング** -- UXライティング、PREP法、SEO、読み手ファースト
 7. **FAQ・ヘルプドキュメント** -- 一問一答原則、6W1H、カテゴリ設計
+8. **テックブログ・技術記事** -- ネタ出し、構成パターン、コード解説、Web特有の工夫
+9. **書く力の基礎強化** -- 日本語作文技術、わかりやすい文章術、説明・伝達の技法、テクニカルライティング実践
 
 ### 入力として受け取るもの
 
@@ -237,6 +241,7 @@ description: >-
 | [TECHNICAL-DOCS-REPORTS.md](references/TECHNICAL-DOCS-REPORTS.md) | 報告書テンプレート（実装完了、技術調査、進捗） |
 | [TECHNICAL-DOCS-ANTI-PATTERNS.md](references/TECHNICAL-DOCS-ANTI-PATTERNS.md) | 冗長表現、曖昧表現、技術用語統一チェック |
 | [TECHNICAL-WRITING.md](references/TECHNICAL-WRITING.md) | IT表記ルール、コード掲載の鉄則、見出し設計 |
+| [TECHNICAL-WRITING-ADVANCED.md](references/TECHNICAL-WRITING-ADVANCED.md) | テクニカルライティング実践（構成・文章テクニック・文書種別・生成AI活用） |
 
 **優先順位**: 正確性 → 明確性 → 簡潔性 → 丁寧さ
 
@@ -389,6 +394,18 @@ description: >-
 
 ---
 
+### テックブログ・技術記事
+
+技術ブログ（Zenn、Qiita等）や技術書の執筆に特化した実践ガイド。
+
+**参照ファイル**: [TECH-BLOG-WRITING.md](references/TECH-BLOG-WRITING.md)
+
+カバー範囲: ネタ出し・読者設定、タイトル・見出し設計、構成パターン（Problem-Solution/Tutorial/比較/概念解説）、冒頭・導入の書き方、技術的説明とコード要素、文体、推敲チェックリスト、Web特有ポイント
+
+> Zennプラットフォーム固有のフロントマター・公開フローは `writing-zenn-articles` を参照。
+
+---
+
 ### FAQライティング
 
 ユーザーの自己解決率を高めるFAQ・ヘルプドキュメントの文章術。
@@ -406,6 +423,18 @@ description: >-
 **参照ファイル**: [PRACTICAL-PATTERNS.md](references/PRACTICAL-PATTERNS.md)
 
 カバー範囲: 上司を説得する文章、依頼文、議事録、お詫び文、志望理由書、メール、報告書・提案書、企画書、PREP法、つかみの技術
+
+---
+
+### 書く力の基礎強化
+
+文章を書く5つの段階を補完する、実践的な基礎技法リファレンス群。
+
+| ファイル | 内容 |
+|---------|------|
+| [JAPANESE-PROSE-CRAFT.md](references/JAPANESE-PROSE-CRAFT.md) | 日本語作文技術（修飾語の順序4原則、句読点の二大原則、助詞の使い方、漢字/カナバランス、欠陥文パターン） |
+| [CLARITY-WRITING.md](references/CLARITY-WRITING.md) | わかりやすい文章術（一文一義100技法、文章整形術、「極み」の全技術、感情の言語化） |
+| [EXPLANATION-TECHNIQUES.md](references/EXPLANATION-TECHNIQUES.md) | 説明・伝達の技法（説明の基本モデル、論理的伝え方、池上彰メソッド、図解技法、技術の伝え方） |
 
 ---
 
@@ -471,6 +500,15 @@ description: >-
         |
         +-- 「FAQが役に立たない」
         |       -> FAQ特有の問題 -> FAQ-WRITING.md
+        |
+        +-- 「技術ブログの書き方がわからない」
+        |       -> テックブログ -> TECH-BLOG-WRITING.md
+        |
+        +-- 「日本語の文法・語順がおかしい」
+        |       -> 日本語作文技術 -> JAPANESE-PROSE-CRAFT.md
+        |
+        +-- 「説明がうまく伝わらない」
+        |       -> 説明技法 -> EXPLANATION-TECHNIQUES.md
         |
         +-- 「レポートの書き方がわからない」
         |       -> レポート基礎 -> REPORT-STRUCTURE.md, REPORT-THESIS-TYPES.md
