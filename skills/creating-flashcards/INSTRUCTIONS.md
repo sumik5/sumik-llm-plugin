@@ -29,7 +29,9 @@ EPUB/PDFファイルからAnkiフラッシュカードを一括作成するワ�
 **EPUB → Markdown:**
 
 ```bash
-pandoc -t markdown -o /tmp/flashcard-source.md <input.epub>
+# ⚠️ ファイル名はソースに基づくユニーク名にする（他セッションとの衝突回避）
+pandoc -t markdown -o /tmp/<descriptive-name>.md <input.epub>
+# 例: pandoc -t markdown -o /tmp/gcp-network-engineer.md input.epub
 ```
 
 **PDF → Markdown:**
@@ -79,6 +81,8 @@ node ${CLAUDE_PLUGIN_ROOT}/skills/authoring-skills/scripts/pdf-to-markdown.mjs <
 5. **問題と解答のペアを全件抽出**する
 
 > ⚠️ **pandoc行折り返しの結合**: pandocは長い行を任意の位置で改行する。選択肢・段落・不正解解説等の複数行にわたるテキストは、セマンティックな単位ごとに1行に結合すること。
+
+> ⚠️ **生テキスト境界検出（高度な戦略）**: pandoc変換後のMarkdownで問題番号と質問内容中の番号付きリスト等が混同される場合、**クリーニング前の生テキスト**でpandoc固有のフォーマットパターン（例: `{style="font:7.0pt 'Times New Roman'"}`）を質問境界の目印にし、ブロック単位で切り出してから個別にクリーニング・パースする方法が有効。詳細は [CONTENT-PROCESSING.md](references/CONTENT-PROCESSING.md) の「生テキスト境界検出」を参照。
 
 ### Step 4: サンプル確認
 
@@ -357,15 +361,23 @@ LM Studio APIがエラーを返した場合、フォールバックなしでユ�
 
 #### 大規模翻訳の処理
 
-100問以上の英語コンテンツを翻訳する場合も、LM Studioスクリプトを逐次呼び出しで処理する（ローカルLLMのため高速）:
+100問以上の英語コンテンツを翻訳する場合、**自己完結型パイプラインスクリプト**を生成してバックグラウンド実行する:
 
-1. **パース**: 全Q&AペアをJSON（英語）に抽出
-2. **翻訳**: 各Q&AペアについてLM Studioスクリプトを呼び出す
-   - 問題文、各選択肢、解答、解説を個別にスクリプトで翻訳する
-   ```bash
-   python3 ${CLAUDE_PLUGIN_ROOT}/skills/translating-with-lmstudio/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
-   ```
-3. **一括投入**: AnkiConnect `addNotes` バッチAPIで投入
+1. **パース**: 全Q&AペアをJSON（英語）に抽出（パーサースクリプト）
+2. **パイプラインスクリプト生成**: 翻訳→HTMLフォーマット→Ankiアップロードを1つのPythonスクリプトにまとめる
+   - LM Studio API（`http://127.0.0.1:1234/v1/chat/completions`）を`urllib.request`で直接呼び出す
+   - 問題文、各選択肢、解説を個別に翻訳
+   - HTMLフォーマット（日本語メイン + `<details>`折りたたみ英語原文）
+   - AnkiConnect `addNotes` バッチAPIで50件ずつ投入
+3. **バックグラウンド実行**: Bashツールの `run_in_background: true` で起動し、`TaskOutput` で進捗を監視
+
+> ⚠️ **スクリプト呼び出しではなくAPI直接呼び出しの理由**: `lmstudio-translate.py` スクリプトを毎回プロセス起動すると、149問 × (問題文+選択肢4つ+解説) = 約900回のプロセス生成オーバーヘッドが発生する。API直接呼び出しなら1プロセスで全翻訳を処理でき、大幅に効率的。
+
+**少量（30問以下）の場合**は従来通りスクリプト逐次呼び出しでも可:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/translating-with-lmstudio/scripts/lmstudio-translate.py translate --model <選択済みモデル> --text "翻訳対象テキスト"
+```
 
 ---
 
