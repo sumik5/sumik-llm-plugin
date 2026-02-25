@@ -145,7 +145,7 @@ Agent Team編成の4つのパターンとモデル戦略を提供します。
 
 ```json
 {
-  "subagent_type": "sumik:タチコマ",
+  "subagent_type": "sumik:タチコマ（Next.js）",  // ドメインに応じた専門タチコマを選択
   "team_name": "user-management",
   "name": "frontend",
   "run_in_background": true
@@ -154,6 +154,25 @@ Agent Team編成の4つのパターンとモデル戦略を提供します。
 
 - タスクベース分散方式: 各タチコマに具体的なタスクを割り当て
 - 報告フォーマット: タチコマは完了報告でファイル一覧と品質チェック結果を返す
+
+### 専門タチコマ選択ガイド
+
+チーム編成時、各メンバーの役割に応じて適切な専門タチコマを選択する:
+
+| 役割 | 推奨 subagent_type | 用途 |
+|------|-------------------|------|
+| planner | `sumik:タチコマ（アーキテクチャ）` | 設計・計画策定（model: opus） |
+| frontend | `sumik:タチコマ（Next.js）` / `sumik:タチコマ（フロントエンド）` | React/UI実装 |
+| backend | `sumik:タチコマ（フルスタックJS）` / `sumik:タチコマ（Python）` / `sumik:タチコマ（Go）` | API/ビジネスロジック |
+| tester | `sumik:タチコマ（テスト）` / `sumik:タチコマ（E2Eテスト）` | テスト作成 |
+| infra | `sumik:タチコマ（インフラ）` / `sumik:タチコマ（Terraform）` / `sumik:タチコマ（AWS）` | インフラ構築 |
+| researcher | `sumik:タチコマ（アーキテクチャ）` / `sumik:タチコマ（セキュリティ）` | 調査・分析（読取専用） |
+| documenter | `sumik:タチコマ（ドキュメント）` | 技術文書作成 |
+
+**選択判断の基準:**
+- プロジェクトの技術スタック（package.json, go.mod等）から判定
+- `rules/skill-triggers.md` のルーティング表を参照
+- 複数候補がある場合はより専門的な方を優先
 
 ### Serena Expertの活用
 
@@ -181,8 +200,9 @@ Agent Team編成の4つのパターンとモデル戦略を提供します。
 - `designing-frontend`: UIライブラリ検出 → frontendメンバーのコンポーネント戦略
 
 **自動検出の活用:**
-`rules/skill-triggers.md` の「自動検出（ファイル・プロジェクト構成で発動）」セクションを参照し、プロジェクト構成に基づいて適切なスキルをメンバーに割り当てる。
+`rules/skill-triggers.md` のサブエージェントルーティング表を参照し、プロジェクト構成に基づいて適切な**専門タチコマ**をメンバーとして割り当てる。各専門タチコマにはドメインスキルがプリロード済みのため、追加のスキルロード指示は不要。
 
 **例:**
-- `package.json` に `next` → frontendメンバーに `developing-nextjs` スキルを参照させる
-- `package.json` に `@playwright/test` → testerメンバーに `testing-e2e-with-playwright` スキルを参照させる
+- `package.json` に `next` → メンバーに `sumik:タチコマ（Next.js）` を起用
+- `package.json` に `@playwright/test` → テスターに `sumik:タチコマ（E2Eテスト）` を起用
+- `.tf` ファイル → インフラに `sumik:タチコマ（Terraform）` を起用

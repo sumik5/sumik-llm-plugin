@@ -26,7 +26,7 @@ sumik-claude-plugin/
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
-├── agents/             # Agent定義 (2体)
+├── agents/             # Agent定義 (21体)
 ├── commands/           # スラッシュコマンド (10個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
@@ -37,12 +37,31 @@ sumik-claude-plugin/
 
 ## コンポーネント一覧
 
-### Agents (2体)
+### Agents (21体)
 
 | Agent | モデル | 説明 |
 |-------|--------|------|
-| **タチコマ** (tachikoma) | Sonnet | 実装・実行Agent。フロント/バック/テスト等に適応。並列実行対応(1-4体) |
+| **タチコマ** (tachikoma) | Sonnet | 汎用実行Agent。専門タチコマでカバーされないタスクや複数ドメイン横断タスクを担当。並列実行対応(1-4体) |
 | **Serena Expert** (serena-expert) | Sonnet | /serenaコマンドを活用したトークン効率重視の開発Agent |
+| **タチコマ（Next.js）** (tachikoma-nextjs) | Sonnet | Next.js 16/React 19専門。App Router・Server Components・Turbopack・next-devtools統合 |
+| **タチコマ（フロントエンド）** (tachikoma-frontend) | Sonnet | フロントエンドUI/UX専門。shadcn/ui・Storybook・Figma→コード変換・データビジュアライゼーション |
+| **タチコマ（TypeScript）** (tachikoma-typescript) | Sonnet | TypeScript型システム専門。高度な型パターン・ジェネリクス・条件型・GoFデザインパターン |
+| **タチコマ（フルスタックJS）** (tachikoma-fullstack-js) | Sonnet | フルスタックJS専門。NestJS/Express・REST API設計・構造化ログ |
+| **タチコマ（Python）** (tachikoma-python) | Sonnet | Python専門。Python 3.13+・uv/ruff/mypy・FastAPI/FastMCP・Google ADKエージェント構築 |
+| **タチコマ（Go）** (tachikoma-go) | Sonnet | Go専門。concurrencyパターン・インターフェース設計・エラーハンドリング・GoFパターン・Go内部構造 |
+| **タチコマ（Bash）** (tachikoma-bash) | Sonnet | Bashシェルスクリプト専門。strict mode・I/Oパイプライン・プロセス制御・セキュリティ・ShellCheck |
+| **タチコマ（アーキテクチャ）** (tachikoma-architecture) | Opus | アーキテクチャ設計専門（読み取り専用）。DDD・マイクロサービス・トレードオフ分析。設計ドキュメント作成のみ |
+| **タチコマ（セキュリティ）** (tachikoma-security) | Opus | セキュリティレビュー専門（読み取り専用）。OWASP・サーバーレスセキュリティ・IAM・動的認可。レポート作成のみ |
+| **タチコマ（オブザーバビリティ）** (tachikoma-observability) | Sonnet | オブザーバビリティ専門。OpenTelemetry計装・SLO/SLI設計・アラート・ログパイプライン |
+| **タチコマ（ドキュメント）** (tachikoma-document) | Sonnet | ドキュメント作成専門。技術文書・LaTeX・Zenn記事・AIコピーライティング。コード実装なし |
+| **タチコマ（インフラ）** (tachikoma-infra) | Sonnet | インフラ/DevOps専門。Docker・Compose・CI/CDパイプライン・Blue-Green/Canaryデプロイ |
+| **タチコマ（Terraform）** (tachikoma-terraform) | Sonnet | Terraform IaC専門。HCL・モジュール設計・state管理・Terragruntパターン・Terraform MCP活用 |
+| **タチコマ（AWS）** (tachikoma-aws) | Sonnet | AWS専門。Lambda・API Gateway・DynamoDB・CDK・EKS・Bedrock・セキュリティ・FinOps |
+| **タチコマ（Google Cloud）** (tachikoma-google-cloud) | Sonnet | Google Cloud専門。Cloud Run・BigQuery・VPC・Memorystore・Zero Trust・データエンジニアリング |
+| **タチコマ（データベース）** (tachikoma-database) | Sonnet | データベース専門。リレーショナルDB設計・正規化・SQLアンチパターン回避・クエリ最適化・DB内部構造 |
+| **タチコマ（AI/ML）** (tachikoma-ai-ml) | Sonnet | AI/ML開発専門。Vercel AI SDK・LangChain.js・RAGシステム・MCP開発・LLMOps運用 |
+| **タチコマ（テスト）** (tachikoma-test) | Sonnet | ユニット/インテグレーションテスト専門。TDD・Vitest/Jest・React Testing Library・モック戦略 |
+| **タチコマ（E2Eテスト）** (tachikoma-e2e-test) | Sonnet | E2Eテスト・ブラウザ自動化専門。Playwright Test・POM・ビジュアルテスト・アクセシビリティ・CI/CD統合 |
 
 ### Commands (10個)
 

@@ -149,7 +149,7 @@ Agent Team実行前に必ず `docs/plan-{feature-name}.md` を作成します。
 
 4. **メンバーをスポーン**
    - 未完了タスクを担当するメンバーのみをスポーン
-   - Task tool で `run_in_background: true` で起動
+   - Task tool で `team_name` + `run_in_background: true` で起動（tmux pane）
 
 5. **タスクリスト更新**
    - 完了したら `- [x]` に変更
