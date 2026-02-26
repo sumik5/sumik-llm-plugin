@@ -333,7 +333,7 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 既存のMarkdown、PDF、EPUB、URL、複数ファイル、またはフォルダからスキルを作成する場合:
 
 1. **入力形式の特定**（MD/PDF/EPUB/URL/複数ファイル/フォルダ）
-2. **Markdown変換**（PDF/EPUB等の場合、`scripts/`配下のツールまたはpandocで変換）
+2. **Markdown変換**（PDF: `scripts/pdf-to-markdown.mjs`、EPUB/その他: pandoc、URL: curl + pandoc + `scripts/filter.lua`）
 3. **複数ファイル入力の場合**: Phase 0.5で全ファイル概要分析 & グルーピング実施
    - 全ファイルの概要テーブル作成
    - 意味的グルーピング分析（同一スキルにまとめるべきファイル群を提案）

@@ -20,7 +20,7 @@
 | AsciiDoc | `.adoc` | `pandoc` CLIコマンドでMarkdown変換 |
 | RTF | `.rtf` | `pandoc` CLIコマンドでMarkdown変換 |
 | PPTX | `.pptx` | `pandoc` CLIコマンドでMarkdown変換 |
-| URL | `https://...` | WebFetch ツールでMarkdown変換 |
+| URL | `https://...` | curl + pandoc + filter.lua でMarkdown変換 |
 | フォルダ | ディレクトリ | 上記形式のファイルを再帰的に列挙 |
 
 ### 複数ファイル入力のサポート
@@ -93,7 +93,7 @@
 cd skills/authoring-skills/scripts && npm install
 
 # PDF → Markdown 変換
-node skills/authoring-skills/scripts/pdf-to-markdown.mjs <input.pdf> <output.md>
+node skills/authoring-skills/scripts/pdf-to-markdown.mjs <input.pdf> /tmp/output.md
 ```
 
 スクリプトの機能:
@@ -121,8 +121,11 @@ if ! command -v pandoc &> /dev/null; then
   fi
 fi
 
-# 各形式 → Markdown 変換（pandocが入力形式を自動判定）
-pandoc -t markdown -o <output.md> <input-file>
+# EPUB → Markdown 変換例（出力は /tmp/ に）
+pandoc -t markdown -o /tmp/変換後ファイル名.md "元ファイル名.epub"
+
+# その他の形式（pandocが入力形式を自動判定）
+pandoc -t markdown -o /tmp/output.md <input-file>
 ```
 
 pandocの入力形式自動判定は拡張子に基づくため、明示的に指定する必要はない。必要な場合は `-f` オプションで指定可能:
@@ -145,14 +148,30 @@ pandocの入力形式自動判定は拡張子に基づくため、明示的に�
 - macOS で `brew` が利用可能なら `brew install pandoc` で自動インストール
 - いずれも不可の場合、ユーザーにインストールを案内して処理を中断
 - PDFはpandocのレイアウト解析精度が不十分なため、専用スクリプト（`pdf-to-markdown.mjs`）を使用
-- URLはWebFetchツールを使用（pandocはURL直接取得に非対応）
+- URLはcurl + pandoc + filter.luaで変換（WebFetchはfallback。pandocはURL直接取得に非対応）
 
-**URL変換（WebFetch）:**
+**URL変換（curl + pandoc + filter.lua）:**
 
-Claude Code の WebFetch ツールを使用:
+1. まず `curl` でHTMLをダウンロード
+2. `pandoc` + `filter.lua` でMarkdown変換
+3. 指示があればURLの下の階層も含めてダウンロード（`wget --recursive` 等を使用）
+
+```bash
+# 単一ページ
+curl -o /tmp/page.html "https://example.com/docs"
+pandoc /tmp/page.html -f html -t gfm -L skills/authoring-skills/scripts/filter.lua -o /tmp/page.md
+
+# 階層的ダウンロード（ユーザーの指示がある場合のみ）
+wget --recursive --no-parent --convert-links -P /tmp/site/ "https://example.com/docs/"
+# 各HTMLファイルに対してpandoc変換を適用
+for f in /tmp/site/**/*.html; do
+  pandoc "$f" -f html -t gfm -L skills/authoring-skills/scripts/filter.lua -o "${f%.html}.md"
+done
+```
+
+WebFetchはpandocが利用できない場合のfallback手段として使用可能:
 - `url`: 対象URL
 - `prompt`: `"この記事の本文をMarkdown形式で全文抽出してください"`
-- WebFetchの結果をMarkdownファイルとして保存
 
 #### 0.3 変換結果の検証
 

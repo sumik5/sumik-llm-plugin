@@ -5,6 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - developing-go
+  - developing-api-spec-first
   - writing-clean-code
   - testing-code
   - securing-code

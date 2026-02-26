@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (10個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (84個)
+└── skills/             # ナレッジスキル (85個)
 ```
 
 ---
@@ -79,7 +79,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (84個)
+### Skills (85個)
 
 #### コア開発
 
@@ -112,6 +112,7 @@ sumik-claude-plugin/
 | `applying-domain-driven-design` | DDD実践ガイド（戦略的設計・戦術的パターン・イベントストーミング・業務データ分解・ポリグロットDB選択） |
 | `modernizing-architecture` | Socio-technicalアーキテクチャモダナイゼーション（戦略・ドメイン設計・チーム組織・トレードオフ分析方法論） |
 | `designing-web-apis` | Web API設計ベストプラクティス |
+| `developing-api-spec-first` | API仕様ファースト開発方法論（仕様記述・E2Eテストフレームワーク・技術的負債返済・防御的プログラミング） |
 | `building-multi-tenant-saas` | マルチテナントSaaSアーキテクチャ設計ガイド |
 | `building-nextjs-saas` | Next.js AI SaaSアプリ構築パターン（認証・決済・AI API・クレジット課金） |
 | `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
