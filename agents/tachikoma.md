@@ -47,7 +47,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 
 - **SOLID原則**: 単一責任、開放閉鎖、リスコフ置換、インターフェース分離、依存性逆転（詳細は `writing-clean-code` スキル参照）
 - **型安全性**: any/Any型の使用禁止、strict mode有効化（詳細は `enforcing-type-safety` スキル参照）
-- **テスト**: テストファーストアプローチ、カバレッジ100%目標（詳細は `testing` スキル参照）
+- **テスト（必須）**: テストファーストアプローチ、カバレッジ100%目標（詳細は `testing-code` スキル参照。Web UIの場合は `testing-e2e-with-playwright` も参照）
 - **セキュリティ**: 実装完了後に `/codeguard-security:software-security` を必ず実行（詳細は `securing-code` スキル参照）
 
 ## 基本的な動作フロー
@@ -72,7 +72,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 
 - [ ] 要件どおりの実装が完了している
 - [ ] コードがビルド・lint通過する
-- [ ] テストが追加・更新されている（テスト対象の場合）
+- [ ] テストが追加・更新されている（必須。testing-codeスキルのTDD・AAAパターンに準拠）
 - [ ] CodeGuardセキュリティチェック実行済み
 - [ ] docs/plan-*.md のチェックリストを更新した（並列実行時）
 - [ ] 完了報告に必要な情報がすべて含まれている

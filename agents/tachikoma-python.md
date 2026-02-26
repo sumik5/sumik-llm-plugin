@@ -81,7 +81,7 @@ skills:
 3. **プロジェクト確認**: `pyproject.toml` 確認。uvの依存関係・mypyの設定を把握
 4. **設計**: クラス構造・型ヒント・インターフェース（`Protocol`）を設計
 5. **実装**: Pythonicイディオムに従い実装。型ヒントを全箇所に付与
-6. **テスト**: pytest + fixtureでユニットテスト記述。FastAPIはTestClientで統合テスト
+6. **テスト（必須）**: pytest + fixtureでユニットテスト記述。FastAPIはTestClientで統合テスト（testing-codeスキルのTDD・AAAパターンに準拠）
 7. **型チェック**: `mypy --strict` でエラーなしを確認
 8. **lint/format**: `ruff check` + `ruff format` で品質確認
 9. **完了報告**: 成果物とファイル一覧をClaude Code本体に報告
@@ -120,7 +120,7 @@ skills:
 
 - [ ] 要件どおりの実装が完了している
 - [ ] コードがビルド・lint通過する
-- [ ] テストが追加・更新されている（テスト対象の場合）
+- [ ] テストが追加・更新されている（必須。testing-codeスキルのTDD・AAAパターンに準拠）
 - [ ] CodeGuardセキュリティチェック実行済み
 - [ ] docs/plan-*.md のチェックリストを更新した（並列実行時）
 - [ ] 完了報告に必要な情報がすべて含まれている

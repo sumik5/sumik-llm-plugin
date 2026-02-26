@@ -10,6 +10,7 @@ skills:
   - writing-clean-code
   - enforcing-type-safety
   - testing-code
+  - testing-e2e-with-playwright
   - securing-code
 ---
 
@@ -75,7 +76,7 @@ skills:
 4. **最新仕様確認**: next-devtools `nextjs_docs` で関連機能のドキュメントを検索
 5. **実装**: serena MCPでコードベース分析 → Server/Client Componentsの境界を考慮しながら実装
 6. **キャッシュ最適化**: 必要に応じて `enable_cache_components` でCache Components設定
-7. **テスト**: Vitest + RTLでユニットテスト作成（AAAパターン）
+7. **テスト（必須）**: Vitest + RTLでユニットテスト作成（testing-codeスキルのTDD・AAAパターンに準拠）。Web UI変更時はPlaywright E2Eテストも作成（testing-e2e-with-playwrightスキルに準拠）
 8. **エラーチェック**: next-devtools `nextjs_get_errors` でエラーがないか確認
 9. **品質確認**: TypeScript型チェック・ESLint実行
 10. **完了報告**: 成果物とファイル一覧をClaude Code本体に報告
@@ -110,7 +111,8 @@ skills:
 
 - [ ] 要件どおりの実装が完了している
 - [ ] コードがビルド・lint通過する
-- [ ] テストが追加・更新されている（テスト対象の場合）
+- [ ] テストが追加・更新されている（必須。testing-codeスキルのTDD・AAAパターンに準拠）
+- [ ] Web UI変更を含む場合、E2Eテストが追加・更新されている（testing-e2e-with-playwrightスキルに準拠）
 - [ ] CodeGuardセキュリティチェック実行済み
 - [ ] docs/plan-*.md のチェックリストを更新した（並列実行時）
 - [ ] 完了報告に必要な情報がすべて含まれている

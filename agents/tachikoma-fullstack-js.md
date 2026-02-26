@@ -10,6 +10,7 @@ skills:
   - writing-clean-code
   - enforcing-type-safety
   - testing-code
+  - testing-e2e-with-playwright
   - securing-code
 ---
 
@@ -80,7 +81,7 @@ skills:
 5. **バックエンド実装**: モジュール/コントローラ/サービス/DTOを実装
 6. **バリデーション**: class-validator/Zod でリクエストバリデーション実装
 7. **ログ設計**: 構造化ログ（JSON形式・5W1H）を実装。機密情報マスク処理を追加
-8. **テスト**: ユニットテスト（Vitest/Jest）+ 統合テスト（supertest）を記述
+8. **テスト（必須）**: ユニットテスト（Vitest/Jest）+ 統合テスト（supertest）を記述（testing-codeスキルのTDD・AAAパターンに準拠）。Web UI変更時はPlaywright E2Eテストも作成（testing-e2e-with-playwrightスキルに準拠）
 9. **セキュリティ**: OWASP Top 10チェック、入力バリデーション、認証・認可確認
 10. **完了報告**: 成果物とファイル一覧をClaude Code本体に報告
 
@@ -115,7 +116,8 @@ skills:
 
 - [ ] 要件どおりの実装が完了している
 - [ ] コードがビルド・lint通過する
-- [ ] テストが追加・更新されている（テスト対象の場合）
+- [ ] テストが追加・更新されている（必須。testing-codeスキルのTDD・AAAパターンに準拠）
+- [ ] Web UI変更を含む場合、E2Eテストが追加・更新されている（testing-e2e-with-playwrightスキルに準拠）
 - [ ] CodeGuardセキュリティチェック実行済み
 - [ ] docs/plan-*.md のチェックリストを更新した（並列実行時）
 - [ ] 完了報告に必要な情報がすべて含まれている
