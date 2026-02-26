@@ -587,6 +587,7 @@ AskUserQuestion(
 | Windows paths | Cross-platform errors | Use forward slashes only |
 | Description over 1024 chars | Truncated by Claude Code parser | Compress: reduce enumerations, drop filler words |
 | Missing name field | Inconsistent skill identification | Always include name matching directory name |
+| Sub-feature naming | Scope expansion requires rename (e.g., `-make` → tool name) | Name after the tool itself (e.g., `implementing-figma`), manage sub-features via sections/references |
 
 ## Detailed Documentation
 

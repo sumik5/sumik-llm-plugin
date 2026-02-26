@@ -587,6 +587,7 @@ authoring-agents を使用してエージェントの作成・修正・改善を
 | tachikoma-e2e-test.md | タチコマ（E2Eテスト） | sonnet | Playwright E2E |
 | tachikoma-observability.md | タチコマ（オブザーバビリティ） | sonnet | 監視・OTel・ログ |
 | tachikoma-document.md | タチコマ（ドキュメント） | sonnet | 技術文書・記事 |
+| tachikoma-design.md | タチコマ（デザイン） | sonnet | Figma MCP・デザイン→コード |
 
 ---
 

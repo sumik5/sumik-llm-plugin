@@ -308,3 +308,23 @@ Before finalizing your skill name and description:
 | 1トピック = 1スキル | スキル作成 + スキル変換 + スキルレビュー → `authoring-skills/` に統合 |
 
 例外: 明確に異なる対象読者・使用タイミングを持つ場合（例: `enforcing-type-safety` は全コード共通、`mastering-typescript` はTS深掘り）
+
+### ツール固有コンテンツの抽出ルール
+
+**If** 汎用スキル（例: `implementing-design`）にツール固有コンテンツ（例: Figma MCP手順）が含まれている **AND** 新規ツール専用スキル（例: `implementing-figma`）を作成する場合:
+
+1. 汎用スキルからツール固有コンテンツを**抽出・移行**し、専用スキルに集約する
+2. 汎用スキルの description に相互参照（Part 3 Differentiation）を追加する
+3. 汎用スキルはツール非依存の一般原則のみを保持する
+
+```yaml
+# Before: 汎用スキルにツール固有コンテンツが混在
+implementing-design:
+  description: "Design implementation including Figma MCP workflows..."  # ❌ ツール固有
+
+# After: 分離・相互参照
+implementing-design:
+  description: "General design principles... For Figma-specific workflows, use implementing-figma instead."  # ✅
+implementing-figma:
+  description: "Figma MCP integration... For general design principles (non-Figma), use implementing-design instead."  # ✅
+```
