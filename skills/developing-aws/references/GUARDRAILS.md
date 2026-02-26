@@ -431,4 +431,4 @@ bedrock.put_enforced_guardrail_configuration(
 
 ## 詳細リファレンス
 
-- [GUARDRAILS-EXAMPLES.md](GUARDRAILS-EXAMPLES.md) — CreateGuardrail API完全仕様、PIIエンティティ一覧、ApplyGuardrail API、Knowledge Base統合、バージョン管理、料金
+- [GUARDRAILS-EXAMPLES.md](GUARDRAILS-EXAMPLES.md) — CreateGuardrail API完全仕様、PIIエンティティ一覧、ApplyGuardrail API、Knowledge Base統合、バージョン管理、料金、Google ADK統合

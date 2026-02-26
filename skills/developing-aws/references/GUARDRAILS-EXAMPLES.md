@@ -400,3 +400,261 @@ def get_guardrail_id_for_role(role: str, config_path: str) -> str:
     )
     return guardrail['guardrailId']
 ```
+
+---
+
+## Google ADK統合（Callback / Plugin パターン）
+
+Google ADK（Agent Development Kit）のCallback/PluginシステムとBedrock ApplyGuardrail APIを組み合わせ、ADKエージェントの入出力にGuardrailを適用するパターン。
+
+### ADK Callback パターン（シンプル）
+
+`before_model_callback`（入力評価）と`after_model_callback`（出力評価）でBedrock Guardrailを適用する最小構成。
+
+```python
+import boto3
+from google.adk.agents import LlmAgent
+from google.adk.agents.callback_context import CallbackContext
+from google.adk.models import LlmRequest, LlmResponse
+from google.genai import types
+from typing import Optional
+
+bedrock_runtime = boto3.client('bedrock-runtime', region_name='us-east-1')
+GUARDRAIL_ID = 'your-guardrail-id'
+GUARDRAIL_VERSION = '1'
+
+def bedrock_guardrail_before_model(
+    callback_context: CallbackContext,
+    llm_request: LlmRequest
+) -> Optional[LlmResponse]:
+    """入力をBedrock Guardrailで評価し、違反時はLLM呼び出しをスキップ"""
+    # 最新のユーザーメッセージを抽出
+    last_user_message = ""
+    if llm_request.contents and llm_request.contents[-1].role == 'user':
+        if llm_request.contents[-1].parts:
+            last_user_message = llm_request.contents[-1].parts[0].text
+
+    if not last_user_message:
+        return None  # メッセージなし → LLM呼び出しを許可
+
+    # Bedrock ApplyGuardrail で入力を評価
+    response = bedrock_runtime.apply_guardrail(
+        guardrailIdentifier=GUARDRAIL_ID,
+        guardrailVersion=GUARDRAIL_VERSION,
+        source='INPUT',
+        content=[{'text': {'text': last_user_message}}]
+    )
+
+    if response['action'] == 'GUARDRAIL_INTERVENED':
+        # 違反 → LLM呼び出しをスキップしてブロックメッセージを返却
+        blocked_message = response['outputs'][0]['text'] if response['outputs'] else 'このコンテンツは処理できません。'
+        return LlmResponse(
+            content=types.Content(
+                role='model',
+                parts=[types.Part(text=blocked_message)]
+            )
+        )
+
+    return None  # 合格 → LLM呼び出しを続行
+
+
+def bedrock_guardrail_after_model(
+    callback_context: CallbackContext,
+    llm_response: LlmResponse
+) -> Optional[LlmResponse]:
+    """LLM出力をBedrock Guardrailで評価し、違反時は安全なレスポンスに置換"""
+    model_text = ""
+    if llm_response.content and llm_response.content.parts:
+        model_text = llm_response.content.parts[0].text
+
+    if not model_text:
+        return None
+
+    response = bedrock_runtime.apply_guardrail(
+        guardrailIdentifier=GUARDRAIL_ID,
+        guardrailVersion=GUARDRAIL_VERSION,
+        source='OUTPUT',
+        content=[{'text': {'text': model_text}}]
+    )
+
+    if response['action'] == 'GUARDRAIL_INTERVENED':
+        # マスク済みまたはブロックメッセージに置換
+        filtered_text = response['outputs'][0]['text'] if response['outputs'] else '回答を生成できませんでした。'
+        return LlmResponse(
+            content=types.Content(
+                role='model',
+                parts=[types.Part(text=filtered_text)]
+            )
+        )
+
+    return None  # 合格 → 元のレスポンスを返却
+
+
+# エージェント定義
+guardrailed_agent = LlmAgent(
+    name='GuardrailedAgent',
+    model='gemini-2.0-flash',
+    instruction='あなたは親切なアシスタントです。',
+    before_model_callback=bedrock_guardrail_before_model,
+    after_model_callback=bedrock_guardrail_after_model,
+)
+```
+
+### ADK Plugin パターン（推奨・再利用可能）
+
+ADK公式推奨のPluginパターン。`BasePlugin`を継承し、複数エージェントに一括適用可能。
+
+```python
+import boto3
+import logging
+from google.adk.plugins.base_plugin import BasePlugin
+from google.adk.agents.callback_context import CallbackContext
+from google.adk.models import LlmRequest, LlmResponse
+from google.genai import types
+from typing import Optional
+
+logger = logging.getLogger(__name__)
+
+
+class BedrockGuardrailPlugin(BasePlugin):
+    """Bedrock Guardrailを適用するADKプラグイン。
+
+    before_model_callback で入力評価、after_model_callback で出力評価を行い、
+    Bedrock ApplyGuardrail APIによる二段階フィルタリングを実現する。
+    """
+
+    def __init__(
+        self,
+        guardrail_id: str,
+        guardrail_version: str = 'DRAFT',
+        region_name: str = 'us-east-1',
+        blocked_input_message: str = 'このコンテンツは処理できません。',
+        blocked_output_message: str = '回答を生成できませんでした。',
+        name: str = 'bedrock_guardrail_plugin',
+    ):
+        super().__init__(name)
+        self._client = boto3.client('bedrock-runtime', region_name=region_name)
+        self._guardrail_id = guardrail_id
+        self._guardrail_version = guardrail_version
+        self._blocked_input_message = blocked_input_message
+        self._blocked_output_message = blocked_output_message
+
+    def _evaluate(self, text: str, source: str) -> dict:
+        """ApplyGuardrail APIでコンテンツを評価"""
+        return self._client.apply_guardrail(
+            guardrailIdentifier=self._guardrail_id,
+            guardrailVersion=self._guardrail_version,
+            source=source,
+            content=[{'text': {'text': text}}]
+        )
+
+    async def before_model_callback(
+        self, *, callback_context: CallbackContext, llm_request: LlmRequest
+    ) -> Optional[LlmResponse]:
+        """入力評価: 違反時はLLM呼び出しをスキップ（コスト節約）"""
+        last_user_message = ""
+        if llm_request.contents and llm_request.contents[-1].role == 'user':
+            if llm_request.contents[-1].parts:
+                last_user_message = llm_request.contents[-1].parts[0].text
+
+        if not last_user_message:
+            return None
+
+        try:
+            response = self._evaluate(last_user_message, 'INPUT')
+            if response['action'] == 'GUARDRAIL_INTERVENED':
+                logger.warning(
+                    'Guardrail blocked input',
+                    extra={'assessments': response.get('assessments', [])}
+                )
+                blocked_text = (
+                    response['outputs'][0]['text']
+                    if response['outputs']
+                    else self._blocked_input_message
+                )
+                return LlmResponse(
+                    content=types.Content(
+                        role='model',
+                        parts=[types.Part(text=blocked_text)]
+                    )
+                )
+        except Exception:
+            logger.exception('Bedrock Guardrail input evaluation failed')
+
+        return None
+
+    async def after_model_callback(
+        self, *, callback_context: CallbackContext, llm_response: LlmResponse
+    ) -> Optional[LlmResponse]:
+        """出力評価: 違反時はマスク済みまたはブロックメッセージに置換"""
+        model_text = ""
+        if llm_response.content and llm_response.content.parts:
+            model_text = llm_response.content.parts[0].text
+
+        if not model_text:
+            return None
+
+        try:
+            response = self._evaluate(model_text, 'OUTPUT')
+            if response['action'] == 'GUARDRAIL_INTERVENED':
+                logger.warning(
+                    'Guardrail filtered output',
+                    extra={'assessments': response.get('assessments', [])}
+                )
+                filtered_text = (
+                    response['outputs'][0]['text']
+                    if response['outputs']
+                    else self._blocked_output_message
+                )
+                return LlmResponse(
+                    content=types.Content(
+                        role='model',
+                        parts=[types.Part(text=filtered_text)]
+                    )
+                )
+        except Exception:
+            logger.exception('Bedrock Guardrail output evaluation failed')
+
+        return None
+
+
+# 使用例
+from google.adk.agents import LlmAgent
+
+guardrail_plugin = BedrockGuardrailPlugin(
+    guardrail_id='your-guardrail-id',
+    guardrail_version='1',
+    region_name='us-east-1',
+)
+
+agent = LlmAgent(
+    name='SecureAgent',
+    model='gemini-2.0-flash',
+    instruction='あなたは親切なアシスタントです。',
+    plugins=[guardrail_plugin],  # プラグインとして登録
+)
+```
+
+### 評価フロー
+
+```
+ユーザー入力
+    ↓
+[ADK before_model_callback]
+    → Bedrock ApplyGuardrail(source='INPUT')
+    ├─ GUARDRAIL_INTERVENED → ブロックメッセージ返却（LLM呼び出しスキップ）
+    └─ NONE → 続行
+        ↓
+[LLM推論（Gemini等）]
+        ↓
+[ADK after_model_callback]
+    → Bedrock ApplyGuardrail(source='OUTPUT')
+    ├─ GUARDRAIL_INTERVENED → フィルタ済みレスポンスに置換
+    └─ NONE → 元のレスポンスを返却
+```
+
+**ポイント**:
+- ADK Plugin パターンは複数エージェントに一括適用できるため推奨
+- `before_model_callback` で入力ブロック時はLLM呼び出しをスキップ（コスト節約）
+- Callback関数は同期、Plugin メソッドは `async` であることに注意
+- エラー時はフェイルオープン（Guardrail障害でサービス停止しない）
