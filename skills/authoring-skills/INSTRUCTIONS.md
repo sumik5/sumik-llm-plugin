@@ -433,20 +433,16 @@ jj git push -b <version>
 
 ### 2. コミット
 
-`writing-conventional-commits` スキルに従い、過去のコミット履歴のスタイルを参考にConventional Commits形式でコミットメッセージを作成する:
+`writing-conventional-commits` スキルに従い、Conventional Commits形式でコミットメッセージを作成する。`jj diff --stat` と変更内容からメッセージを判断し、`jj commit -m` で直接コミットする:
 
-- 新スキル追加: `feat(skills): <スキル名>新設`
-- 既存スキル改善: `docs(skills): <変更内容>`
-- 複数変更: `feat(skills): <スキルA>新設、<スキルB>改善`
+```bash
+# メッセージ例
+jj commit -m "feat(skills): <スキル名>新設"           # 新スキル追加
+jj commit -m "docs(skills): <変更内容>"               # 既存スキル改善
+jj commit -m "feat(skills): <スキルA>新設、<スキルB>改善"  # 複数変更
+```
 
-jujutsu環境では `jj` ルールに従うこと:
-
-| 方法 | コマンド | 使用条件 |
-|------|---------|---------|
-| AI生成メッセージ | `gcauto -y` | **Claude Codeセッション外**のみ（ネスト禁止） |
-| 手動メッセージ | `jj commit -m "..."` | Claude Codeセッション内（タチコマ含む） |
-
-> **⚠️ 罠: `gcauto -y` はClaude Codeを内部起動するため、Claude Codeセッション内で実行するとネストセッションエラーになる。セッション内では必ず `jj commit -m "..."` を使用すること。**
+> **⚠️ `gcauto -y` は使用禁止。** Claude Codeを内部起動するため、Claude Codeセッション内では必ずネストセッションエラーになる。本スキルは常にClaude Code内で実行されるため、`jj commit -m "..."` を直接使用すること。
 
 ### 3. bookmark移動 + タグ作成（🔴 必須）
 
