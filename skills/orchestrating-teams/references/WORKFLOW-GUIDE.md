@@ -34,7 +34,7 @@ planner タチコマの起動:
 ```json
 {
   "description": "計画策定",
-  "prompt": "## タスク: 実装計画の策定\n\n**ユーザー要求:** {ユーザーの要求をそのまま記載}\n\n以下を実行してください:\n1. コードベースを分析し、変更対象ファイル・影響範囲を特定\n2. TEAM-PATTERNS.md を参照し、最適なチーム編成パターンを選択\n3. タスク分解（1メンバーあたり5-6タスク目標）\n4. ファイル所有権パターンを定義（同一ファイル同時書込禁止）\n5. docs/plan-{feature-name}.md を PLAN-TEMPLATE.md の形式で作成\n6. 各タスクに最適な専門タチコマのsubagent_typeを推奨\n（参照: rules/skill-triggers.md のルーティング表）\n\n参照スキル: orchestrating-teams（references/TEAM-PATTERNS.md, references/PLAN-TEMPLATE.md）\n\n禁止事項:\n- 実装コードの変更（計画策定のみ）\n- jj書込操作",
+  "prompt": "## タスク: 実装計画の策定\n\n**ユーザー要求:** {ユーザーの要求をそのまま記載}\n\n以下を実行してください:\n1. コードベースを分析し、変更対象ファイル・影響範囲を特定\n2. TEAM-PATTERNS.md を参照し、最適なチーム編成パターンを選択\n3. タスク分解（1メンバーあたり5-6タスク目標）\n4. ファイル所有権パターンを定義（同一ファイル同時書込禁止）\n5. docs/plan-{feature-name}.md を PLAN-TEMPLATE.md の形式で作成\n6. 各タスクに最適な専門タチコマのsubagent_typeを推奨\n（参照: rules/skill-triggers.md のルーティング表）\n7. 🔴 Codex プランレビューループ: 計画書作成後、完了報告前に必ず実行\n   a. `which codex` で存在確認（見つからない or エラー → スキップしてOK）\n   b. `codex exec -m gpt-5.3-codex \"このプランをレビューしてください。瑣末な点へのクソリプはしないでください。致命的な点のみを指摘してください: {plan_file_fullpath}\"`\n   c. 致命的な指摘があればプランを修正し、再レビュー:\n      `codex exec resume --last -m gpt-5.3-codex \"プランを更新したのでレビューを再度してください。瑣末なクソリプはせず、致命的な点だけ指摘してください: {plan_file_fullpath}\"`\n   d. 致命的な指摘がなくなるまで修正→再レビューを繰り返す\n   e. 本質的でないコメントは無視してOK\n\n参照スキル: orchestrating-teams（references/TEAM-PATTERNS.md, references/PLAN-TEMPLATE.md）\n\n禁止事項:\n- 実装コードの変更（計画策定のみ）\n- jj書込操作",
   "subagent_type": "sumik:タチコマ（アーキテクチャ）",
   "model": "opus",
   "team_name": "user-management",
@@ -44,7 +44,7 @@ planner タチコマの起動:
 }
 ```
 
-**planner タチコマの責務（現状把握から計画策定まで全て）:**
+**planner タチコマの責務（現状把握から計画策定・Codexレビューまで全て）:**
 1. **現状把握**: コードベースの読み込み・プロジェクト構造の理解・既存実装の分析
 2. **要件分析**: ユーザー要求の詳細化・変更対象ファイル・影響範囲の特定
 3. **並列化判定**: 独立サブタスクに分解可能か、ファイル競合リスクはあるか
@@ -53,6 +53,7 @@ planner タチコマの起動:
 6. **タスク分解**: 1メンバーあたり5-6タスク目標、依存関係の明示
 7. **ファイル所有権パターン定義**: 同一ファイル同時書込を防ぐパス別所有権
 8. **計画書作成**: `docs/plan-{feature-name}.md` を `references/PLAN-TEMPLATE.md` 形式で作成
+9. **🔴 Codex プランレビューループ**: 計画書作成後、Codex CLI で致命的問題をレビュー。指摘があれば修正→再レビューを繰り返す（codex未インストール・エラー時はスキップ可）
 
 **planner タチコマは実装コードを変更しない（読み取り専用 + docs/ への計画書作成のみ）。**
 
@@ -60,7 +61,7 @@ planner タチコマの起動:
 
 ### Step 3: 計画レビュー・承認
 
-planner タチコマが `docs/plan-{feature-name}.md` を作成したら、Claude Code本体がレビュー:
+planner タチコマが `docs/plan-{feature-name}.md` を作成し**Codexレビューループを完了**したら、Claude Code本体がレビュー:
 
 1. `docs/plan-{feature-name}.md` の内容を確認
 2. AskUserQuestion でユーザー確認を取得:

@@ -55,8 +55,8 @@ Claude Code（このスキルをロード）
 
 ### Phase 1: 計画策定（planner タチコマに全委譲）
 1. **TeamCreate** - チーム作成（ユーザー要求の内容から team_name を決定するだけ）
-2. **planner タチコマ起動（model: opus）** - ユーザー要求をそのまま渡す。現状把握・コードベース分析・要件整理・チーム編成設計・`docs/plan-{feature}.md` 作成を全てplannerが実行
-3. **計画レビュー・承認** - plannerが作成したdocs/planをユーザーに提示して確認
+2. **planner タチコマ起動（model: opus）** - ユーザー要求をそのまま渡す。現状把握・コードベース分析・要件整理・チーム編成設計・`docs/plan-{feature}.md` 作成・**Codex プランレビューループ**を全てplannerが実行
+3. **計画レビュー・承認** - plannerがCodexレビュー済みのdocs/planをユーザーに提示して確認
 
 ### Phase 2: 実装（implementer タチコマ並列起動）
 4. **TaskCreate + Task tool（`team_name` + `run_in_background: true`）** - plan に基づきドメイン別専門タチコマを `team_name` 付きで並列起動（tmux pane）

@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (10個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (79個)
+└── skills/             # ナレッジスキル (80個)
 ```
 
 ---
@@ -78,7 +78,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (79個)
+### Skills (80個)
 
 #### コア開発
 
@@ -99,6 +99,7 @@ sumik-claude-plugin/
 | `writing-conventional-commits` | Conventional Commits 1.0.0準拠コミットメッセージガイド（type/scope/BREAKING CHANGE判定・SemVer連携） |
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
 | `using-codex` | Codex CLI（OpenAI）連携（コード相談・レビュー・設計相談・バグ調査） |
+| `reviewing-plans-with-codex` | Codex CLI (gpt-5.3-codex) によるプランファイルレビュー（初回レビュー＋resume再レビュー） |
 
 #### アーキテクチャ
 
