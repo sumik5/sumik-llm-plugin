@@ -26,24 +26,25 @@ sumik-claude-plugin/
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
-├── agents/             # Agent定義 (21体)
+├── agents/             # Agent定義 (22体)
 ├── commands/           # スラッシュコマンド (10個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (82個)
+└── skills/             # ナレッジスキル (83個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Agents (21体)
+### Agents (22体)
 
 | Agent | モデル | 説明 |
 |-------|--------|------|
 | **タチコマ** (tachikoma) | Sonnet | 汎用実行Agent。専門タチコマでカバーされないタスクや複数ドメイン横断タスクを担当。並列実行対応(1-4体) |
 | **Serena Expert** (serena-expert) | Sonnet | /serenaコマンドを活用したトークン効率重視の開発Agent |
 | **タチコマ（Next.js）** (tachikoma-nextjs) | Sonnet | Next.js 16/React 19専門。App Router・Server Components・Turbopack・next-devtools統合 |
+| **タチコマ（デザイン）** (tachikoma-design) | Sonnet | Figma MCP全面活用のデザイン→コード変換専門。Figma Make統合・Code Connect・Design System Rules・デザイントークン同期 |
 | **タチコマ（フロントエンド）** (tachikoma-frontend) | Sonnet | フロントエンドUI/UX専門。shadcn/ui・Storybook・Figma→コード変換・データビジュアライゼーション |
 | **タチコマ（TypeScript）** (tachikoma-typescript) | Sonnet | TypeScript型システム専門。高度な型パターン・ジェネリクス・条件型・GoFデザインパターン |
 | **タチコマ（フルスタックJS）** (tachikoma-fullstack-js) | Sonnet | フルスタックJS専門。NestJS/Express・REST API設計・構造化ログ |
@@ -78,7 +79,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (82個)
+### Skills (83個)
 
 #### コア開発
 
@@ -148,6 +149,7 @@ sumik-claude-plugin/
 | `applying-design-guidelines` | UI/UXデザイン設計（視覚デザイン・認知心理学・実践的UIルール101） |
 | `designing-frontend` | フロントエンド実装（Storybook・shadcn/ui統合） |
 | `implementing-design` | Figmaデザイン→コード |
+| `implementing-figma` | Figma MCP統合・基本/高度ワークフロー・Code Connect・デザイントークン同期 |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
 
 #### ブラウザ自動化・E2Eテスト

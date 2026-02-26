@@ -39,6 +39,7 @@ DESIGN_SKILLS=(
     "applying-design-guidelines"
     "applying-behavior-design"
     "implementing-design"
+    "implementing-figma"
 )
 
 # データベーススキル（DB関連検出時に適用）
@@ -107,6 +108,7 @@ get_skill_description() {
         "applying-design-guidelines") echo "UI/UX設計原則（理論）" ;;
         "applying-behavior-design") echo "行動変容デザイン（CREATEファネル）" ;;
         "implementing-design") echo "Figmaデザイン→コード変換" ;;
+        "implementing-figma") echo "Figma Make・Code Connect・デザイントークン同期" ;;
         "avoiding-sql-antipatterns") echo "SQLアンチパターン回避（25パターン）" ;;
         "understanding-database-internals") echo "DB内部構造（ストレージエンジン・分散システム）" ;;
         "designing-relational-databases") echo "リレーショナルDB設計（エンティティ・ER図・正規化・最適化・PostgreSQL実装ガイド）" ;;

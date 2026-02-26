@@ -1,8 +1,10 @@
 ---
 name: implementing-design
-description: Translates Figma designs into production-ready code with pixel-perfect accuracy. Use when user provides Figma URLs or asks to implement design, generate code, or build components matching Figma specs. Requires Figma MCP server connection for design fetching.
-metadata:
-  mcp-server: figma, figma-desktop
+description: >-
+  General design implementation principles for translating any visual design into production-ready code.
+  Covers design system integration, visual parity validation, responsive implementation, accessibility,
+  and component organization. Use when implementing designs from any source (screenshots, mockups, specs).
+  For Figma-specific workflows with Figma MCP, use implementing-figma instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
