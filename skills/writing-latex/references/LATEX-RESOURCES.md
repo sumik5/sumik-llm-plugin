@@ -330,3 +330,79 @@ LaTeXはコンフリクトが発生してもコンパイルを続行し、ファ
 - **FAQ**: 既知の問題解決
 - **MWE作成**: デバッグとフォーラム投稿の鍵
 - **デバッグツール**: `\listfiles`, `\show`, `\meaning`
+
+---
+
+## 実践的なTips
+
+### コミュニティ（追加リソース）
+
+**Reddit**:
+- r/LaTeX: https://www.reddit.com/r/LaTeX — 気軽な質問と活発な議論。投票システムで良回答が上位に表示される
+
+**メーリングリスト**（TUG管理、https://tug.org/mailman/listinfo で全一覧）:
+
+| リスト | 用途 |
+|-------|------|
+| **texhax** | TeX全般の議論（1980年代から続く老舗） |
+| **tex-live** | TeX Liveディストリビューションの情報 |
+| **texworks** | TeXworksエディタのサポート |
+
+**AMS-Math FAQ**: https://www.ams.org/faq — `amsmath`パッケージに特化したQ&A
+
+### グラフィックスギャラリー
+
+LaTeXで作成したグラフィックスのサンプルコードを閲覧できるサイト:
+
+| サイト | 内容 |
+|-------|------|
+| https://texample.net | TikZギャラリー（数百例、トピック別） |
+| https://tikz.net | 別TikZギャラリー（ソースコード付き） |
+| https://tikz.org | TikZ専門書のサンプル集 |
+| https://pgfplots.net | pgfplotsによる2D/3Dプロット例 |
+| https://asymp.net | Asymptote言語による図形例 |
+| https://feynm.net | ファインマン図のLaTeX例 |
+
+### LaTeXブログ
+
+| サイト | 内容 |
+|-------|------|
+| https://texblog.net | ニュース・Tips・リンク集（カテゴリ別） |
+| https://www.texdev.net | LaTeXプロジェクトメンバーによる技術ブログ |
+| https://tex-talk.net | インタビュー記事が充実 |
+| https://tex.social | 30以上のLaTeX関連ブログのRSSアグリゲーター |
+
+### エディタ一覧
+
+クロスプラットフォーム（Windows / macOS / Linux）:
+
+| エディタ | 特徴 |
+|---------|------|
+| **TeXworks** | 軽量・シンプル（TeXShop由来） |
+| **Texmaker** | 多機能 |
+| **TeXstudio** | Texmaker派生、さらに高機能 |
+| **VS Code** + LaTeX Workshop拡張 | 補完・プレビュー・前後方検索対応 |
+| **Emacs** + AUCTeX | 高度にカスタマイズ可能 |
+| **LyX** | Word風GUIでLaTeX文書を作成（WYSIWYMエディタ） |
+
+プラットフォーム別:
+- **macOS**: TeXShop（Mac LaTeXの定番）
+- **Windows**: WinEdt（有料シェアウェア、高機能）
+- **Linux**: Kile（KDE向け）、GNOME-LaTeX
+
+### X（旧Twitter）でLaTeX最新情報
+
+| アカウント | 内容 |
+|----------|------|
+| `@TeXUsersGroup` | TUG公式（ニュース・CTANアップデート） |
+| `@overleaf` | Overleaf公式 |
+| `@tex_tips` | 毎日LaTeXのTipsを配信 |
+
+ハッシュタグ `#TeXLaTeX` で最新情報を検索可能。
+
+### AI Chatbotの活用
+
+ChatGPT・Claude・Gemini等のAI ChatbotにLaTeXの質問をすることも有効。ただし:
+- AIが誤ったLaTeXコードを生成することがある
+- 複雑な問題はTeX.SEやLaTeX.orgに投稿する方が確実
+- AIの回答は必ずコンパイルして検証する

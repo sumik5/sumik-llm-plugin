@@ -683,3 +683,97 @@ def hello():
 5. **lipsum/blindtext** - レイアウトテストに活用
 
 文書の種類と表現したい内容に応じて、適切なパッケージを選択することが重要。
+
+---
+
+## \verb コマンドと verbatim 環境
+
+### \verb コマンド（インライン逐語）
+
+```latex
+\verb|コード|    % | の代わりに任意の区切り文字が使用可能
+\verb+\textbf{}+  % + を区切り文字として使用
+\verb!\section!   % ! を区切り文字として使用
+```
+
+**制約**: `\verb` は以下の場所では使用不可（脆弱なコマンド）：
+- `\section{}` などセクションコマンドの引数
+- `\footnote{}` の引数
+- テーブルのセル内
+- 他のコマンドの引数全般
+
+コードを含む見出しには `\texttt{}` を代替として使う。
+
+### verbatim 環境（ブロック逐語）
+
+```latex
+\begin{verbatim}
+\documentclass{article}
+\begin{document}
+  Hello, World!
+\end{document}
+\end{verbatim}
+```
+
+`verbatim` 環境内ではすべての文字がそのまま出力される（LaTeX コマンドは解釈されない）。
+スターバリアント `verbatim*` は空白を `·` で可視化する。
+
+**高度な verbatim**: `fancyvrb`（カスタマイズ）や `listings`（シンタックスハイライト）を使用。
+
+---
+
+## enumitem の resume オプション（リストの中断と再開）
+
+通常、新しいリスト環境を開始すると番号は1から始まる。
+`enumitem` の `resume` オプションで直前のリストから番号を継続できる。
+
+```latex
+\usepackage{enumitem}
+
+\begin{enumerate}
+  \item 最初の項目
+  \item 2番目の項目
+\end{enumerate}
+
+間に挿入する説明文。
+
+\begin{enumerate}[resume]    % resume オプションで番号を継続
+  \item 3番目の項目（番号が3から始まる）
+  \item 4番目の項目
+\end{enumerate}
+```
+
+`resume*` を使うと、番号の継続に加えて前のリストのオプション設定も引き継ぐ。
+
+```latex
+\begin{enumerate}[label=\Alph*., leftmargin=2cm]
+  \item アイテム A
+\end{enumerate}
+
+\begin{enumerate}[resume*]   % ラベル・余白オプションも継続
+  \item アイテム B（前リストのスタイルが継続）
+\end{enumerate}
+```
+
+---
+
+## layouts パッケージ（リストレイアウトの可視化）
+
+`layouts` パッケージはリスト環境の寸法を図示するためのツール。
+
+```latex
+\usepackage{layouts}
+
+\begin{document}
+\listdiagram    % 現在のリスト寸法を図示
+\end{document}
+```
+
+図示された寸法（`\labelwidth`、`\labelindent`、`\labelsep`、`\leftmargin` 等）を
+`\setlength` で個別調整するか、`enumitem` の `key=value` 形式で調整する。
+
+```latex
+% enumitem でのグローバル調整
+\setlist{itemsep=0pt, parsep=0pt}       % 全リストの行間をゼロに
+\setlist[enumerate]{leftmargin=1.5cm}   % enumerate だけのインデント調整
+\setdescription{leftmargin=3cm}         % description の左マージン

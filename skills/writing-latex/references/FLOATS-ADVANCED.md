@@ -919,3 +919,175 @@ LaTeXが自動的にテキストの折り返しを処理します。
 - **デバッグには `fltrace`**: 問題の原因を特定
 - **回転は `rotating` / `rotfloat`**: 横向き図表に対応
 - **key/value アプローチは `hvfloat` / `keyfloat`**: 一貫したインターフェース
+
+---
+
+## graphicx パッケージと \includegraphics
+
+画像をドキュメントに取り込む標準パッケージ。
+
+```latex
+\usepackage{graphicx}
+```
+
+### \includegraphics の基本構文
+
+```latex
+\includegraphics[オプション]{ファイル名}
+```
+
+拡張子は省略可能（LaTeX が自動で適切な形式を選択）。
+
+### 主要なオプション
+
+| オプション | 例 | 説明 |
+|---------|-----|------|
+| `width` | `width=0.8\textwidth` | 幅を指定（縦横比維持） |
+| `height` | `height=5cm` | 高さを指定（縦横比維持） |
+| `scale` | `scale=0.5` | 元のサイズに対する倍率 |
+| `angle` | `angle=90` | 回転角度（度数） |
+| `keepaspectratio` | `keepaspectratio` | `width` と `height` を両方指定時に縦横比を維持 |
+| `trim` | `trim=1cm 0cm 1cm 0cm` | 左・下・右・上をトリム |
+| `clip` | `clip` | `trim` 指定範囲外を非表示 |
+| `draft` | `draft` | 枠のみ表示（ファイルを埋め込まない、コンパイル高速化） |
+
+**注意**: `width` と `height` を同時に指定すると縦横比が崩れる。
+両方指定が必要な場合は `keepaspectratio` も追加する。
+
+```latex
+% 典型的な使用例
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{diagram.pdf}
+  \caption{システム構成図}
+  \label{fig:diagram}
+\end{figure}
+
+% 縦横比を維持しつつ最大サイズを制限
+\includegraphics[width=\textwidth, height=0.4\textheight,
+                 keepaspectratio]{large-image.jpg}
+
+% 画像の一部を切り取って表示
+\includegraphics[trim=2cm 1cm 2cm 1cm, clip, width=5cm]{photo.jpg}
+```
+
+### 画像ファイルのパス設定
+
+```latex
+% プリアンブルでデフォルトの検索パスを設定
+\graphicspath{{images/}{figures/}{../assets/}}
+```
+
+---
+
+## 画像フォーマットの選択指針
+
+| フォーマット | 種類 | 推奨ユースケース |
+|------------|------|--------------|
+| **PDF** | ベクター | 図・グラフ・テクニカルイラスト |
+| **EPS** | ベクター | 古いツールとの互換性（dvips使用時） |
+| **PNG** | ビットマップ | スクリーンショット・透過が必要な画像 |
+| **JPG/JPEG** | ビットマップ | 写真・フルカラー画像 |
+| **SVG** | ベクター | `svg` パッケージ経由で使用 |
+
+### ベクター vs ビットマップの選択
+
+**ベクター（PDF/EPS）を選ぶ場合**:
+- 任意のサイズに拡大縮小しても品質が劣化しない
+- グラフ、線図、スキーマ、テキストを含む図に最適
+- ファイルサイズが小さくなりやすい（複雑な写真は例外）
+
+**ビットマップ（PNG/JPG）を選ぶ場合**:
+- 写真・実験結果の画像など自然画像
+- PNG: 透過が必要、鮮明なエッジが必要、可逆圧縮
+- JPG: 写真（非可逆圧縮でファイルサイズ削減）
+
+**pdflatex の場合**: EPS は直接使用不可（`epstopdf` で変換するか PDF を使用）。
+**upLaTeX（日本語）の場合**: PNG/JPG/PDF が使用可能。
+
+---
+
+## pdfpages パッケージ（PDF ページの埋め込み）
+
+既存の PDF ファイルのページ全体を文書に取り込む。
+
+```latex
+\usepackage{pdfpages}
+```
+
+### 基本的な使い方
+
+```latex
+% 外部PDFの全ページを挿入
+\includepdf[pages=-]{external.pdf}
+
+% 特定のページのみ
+\includepdf[pages={1,3,5}]{external.pdf}
+
+% 1ページ目から3ページ目
+\includepdf[pages=1-3]{external.pdf}
+
+% 複数ページを1ページにまとめて配置
+\includepdf[nup=2x2, pages=1-4]{external.pdf}
+```
+
+### 主要なオプション
+
+| オプション | 例 | 説明 |
+|---------|-----|------|
+| `pages` | `pages=-` | 挿入するページ番号（`-` は全ページ） |
+| `nup` | `nup=2x3` | 1ページに何枚配置するか（n up 印刷） |
+| `scale` | `scale=0.9` | 縮尺 |
+| `angle` | `angle=90` | 回転 |
+| `landscape` | `landscape` | 横向きで挿入 |
+| `addtotoc` | `addtotoc={1,section,1,タイトル,label}` | 目次エントリを追加 |
+| `pagecommand` | `pagecommand={\thispagestyle{fancy}}` | 各ページ後に実行するコマンド |
+
+---
+
+## eso-pic / textpos（背景・絶対位置配置）
+
+### eso-pic パッケージ
+
+ページの任意の位置に画像・テキストを配置（背景、透かし等）。
+
+```latex
+\usepackage{eso-pic}
+
+% 全ページの背景に画像を配置
+\AddToShipoutPictureBG{%
+  \includegraphics[width=\paperwidth,height=\paperheight]{background.jpg}%
+}
+
+% 特定の位置にテキスト配置（左下原点）
+\AddToShipoutPictureFG{%
+  \put(100,100){\textcolor{gray!30}{\large 透かし}}%
+}
+
+% 次の1ページのみに追加
+\AddToShipoutPictureBG*{\includegraphics[...]{cover.pdf}}
+```
+
+| コマンド | 説明 |
+|---------|------|
+| `\AddToShipoutPictureBG` | 全ページの**背景**（テキストの後ろ）に追加 |
+| `\AddToShipoutPictureFG` | 全ページの**前景**（テキストの前）に追加 |
+| `\AddToShipoutPictureBG*` | 次の1ページのみ背景に追加 |
+| `\ClearShipoutPictureBG` | 背景のクリア |
+
+### textpos パッケージ
+
+絶対座標でテキストブロックを配置する。
+
+```latex
+\usepackage[absolute,overlay]{textpos}
+
+% 左上から x=5cm, y=3cm の位置に 4cm 幅のボックスを配置
+\begin{textblock}{4}(5,3)
+  ここに配置するテキスト
+\end{textblock}
+```
+
+**eso-pic vs textpos**:
+- `eso-pic`: 背景・前景への画像オーバーレイに特化
+- `textpos`: 絶対座標でのテキスト/ボックス配置（ポスター・テンプレートに向く）

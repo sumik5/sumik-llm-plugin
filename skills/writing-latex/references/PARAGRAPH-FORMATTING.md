@@ -597,3 +597,252 @@ file_name.txt
 4. **todonotes/fixme** - 執筆中の管理を効率化
 
 文書の種類と要件に応じて適切なパッケージを組み合わせることで、プロフェッショナルな組版が実現できる。
+
+---
+
+## フォントスタイルコマンド
+
+### インラインフォント変更
+
+| コマンド（引数あり） | 宣言形式 | 効果 |
+|---------------------|---------|------|
+| `\textbf{...}` | `\bfseries` | **太字** |
+| `\textit{...}` | `\itshape` | *イタリック* |
+| `\textsl{...}` | `\slshape` | スラント |
+| `\textsc{...}` | `\scshape` | スモールキャップ |
+| `\textrm{...}` | `\rmfamily` | ローマン体 |
+| `\textsf{...}` | `\sffamily` | サンセリフ体 |
+| `\texttt{...}` | `\ttfamily` | 等幅（タイプライタ）体 |
+| `\textup{...}` | `\upshape` | 直立体（イタリックを戻す） |
+| `\emph{...}` | `\em` | 強調（文脈に応じてイタリック↔直立） |
+
+**`\emph` の特長**: 通常テキスト内では→イタリック、イタリック内では→直立体に自動切替。
+意味的な強調に使用し、見た目だけのスタイルには `\textit` を使う。
+
+```latex
+\textbf{太字} と \textit{イタリック}
+\emph{強調文字列} の中でも \emph{ネストした強調} が可能
+```
+
+### フォントサイズコマンド
+
+宣言形式で使用し、`{}` でスコープを限定するか、環境内で使用する。
+
+| コマンド | 基準サイズ10ptの場合 | 12ptの場合 |
+|---------|------------|---------|
+| `\tiny` | 5pt | 6pt |
+| `\scriptsize` | 7pt | 8pt |
+| `\footnotesize` | 8pt | 10pt |
+| `\small` | 9pt | 11pt |
+| `\normalsize` | 10pt | 12pt |
+| `\large` | 12pt | 14pt |
+| `\Large` | 14pt | 17pt |
+| `\LARGE` | 17pt | 20pt |
+| `\huge` | 20pt | 25pt |
+| `\Huge` | 25pt | 25pt |
+
+```latex
+{\Large 大きな見出し} と {\small 小さな注釈}
+
+% 段落全体に適用する場合
+\begin{center}
+  {\LARGE タイトル}
+\end{center}
+```
+
+---
+
+## テキストの色付け（xcolor パッケージ）
+
+```latex
+\usepackage[dvipsnames]{xcolor}
+```
+
+### 基本的な色付けコマンド
+
+```latex
+% インラインで色を変更
+\textcolor{red}{赤いテキスト}
+\textcolor{blue!50}{青の50\%}
+
+% 現在点からの色宣言（スコープが必要）
+{\color{green} この範囲が緑色}
+
+% 背景色
+\colorbox{yellow}{背景が黄色}
+\fcolorbox{red}{yellow}{枠付き背景色}
+```
+
+### 色の指定方法
+
+```latex
+\textcolor{red}{...}             % 基本色名
+\textcolor{blue!40}{...}         % blue の 40%（白とブレンド）
+\textcolor{blue!40!black}{...}   % blue 40% + black 60% ブレンド
+\textcolor[RGB]{255,128,0}{...}  % RGB 指定
+\textcolor[HTML]{FF8000}{...}    % HTML 16進数指定
+```
+
+### 定義済み色（dvipsnames オプション）
+
+`dvipsnames` で68色の名前付き色が追加される（`Cerulean`, `Maroon`, `OliveGreen` 等）。
+`svgnames` では SVG 標準色が使用可能。
+
+---
+
+## parbox と minipage 環境
+
+### \parbox コマンド
+
+```latex
+\parbox[位置]{幅}{内容}
+```
+
+指定幅内でテキストを段落組版する。インラインで使用できる。
+
+| 位置オプション | 意味 |
+|-------------|------|
+| `c` | 中央揃え（デフォルト） |
+| `t` | 上端揃え |
+| `b` | 下端揃え |
+
+```latex
+% 2つの parbox を横に並べる
+\parbox{5cm}{左側の内容。長いテキストは自動的に折り返される。}
+\hspace{1cm}
+\parbox{5cm}{右側の内容。独立した段落として組版される。}
+```
+
+### minipage 環境
+
+`\parbox` の環境版。内部でフロート（`figure`、`table`）や脚注も使用できる。
+
+```latex
+\begin{minipage}[位置][高さ][内部配置]{幅}
+  内容（フロート、脚注なども使用可能）
+\end{minipage}
+```
+
+```latex
+% 2カラムレイアウトの代替
+\begin{minipage}{0.45\textwidth}
+  左カラムの内容
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+  右カラムの内容
+\end{minipage}
+```
+
+**`\parbox` vs `minipage`**: 単純なテキスト折り返しには `\parbox`、内部に `\verb`・フロート・脚注が必要な場合は `minipage`。
+
+---
+
+## 改行コマンドと禁則
+
+### 強制改行
+
+| コマンド | 挙動 |
+|---------|------|
+| `\\` | 現在行を終了し次行へ（垂直スペースオプション `\\[2ex]` あり） |
+| `\newline` | `\\` と同等。コマンド引数内での使用時に推奨 |
+| `\linebreak[n]` | 改行を奨励（n=0〜4 で強さを指定、デフォルトは4＝強制） |
+| `\linebreak` | `\linebreak[4]` と同等（行を両端揃えで終了） |
+| `\nolinebreak[n]` | 改行を禁止（n=0〜4） |
+| `~` | 改行不可スペース（例: `図~\ref{fig:example}`） |
+
+**`\\` vs `\linebreak` の違い**:
+- `\\` は行を通常終了（残り空白は埋まらない）
+- `\linebreak` は両端揃えで改行（テキストが引き伸ばされる）
+
+```latex
+第1行\\
+第2行\\[1ex]  % 1ex の追加垂直スペース
+第3行
+
+% 不可分スペースの使用例
+図~\ref{fig:chart} を参照
+Prof.~Smith
+```
+
+---
+
+## テキスト配置環境
+
+### 環境形式
+
+| 環境 | 配置 | 特徴 |
+|-----|------|------|
+| `center` | 中央揃え | 前後に垂直スペースあり |
+| `flushleft` | 左揃え（不均等） | 前後に垂直スペースあり |
+| `flushright` | 右揃え | 前後に垂直スペースあり |
+
+```latex
+\begin{center}
+  中央揃えのテキスト
+\end{center}
+
+\begin{flushleft}
+  左揃え（不均等）のテキスト
+\end{flushleft}
+
+\begin{flushright}
+  右揃えのテキスト
+\end{flushright}
+```
+
+### 宣言形式（段落内で使用）
+
+| 宣言 | 効果 |
+|-----|------|
+| `\centering` | 以降を中央揃え（`figure`/`table` 内でよく使用） |
+| `\raggedright` | 以降を左揃え不均等（右端ぎざぎざ） |
+| `\raggedleft` | 以降を右揃え不均等 |
+
+```latex
+% figure 環境での典型的な使用例
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{image.pdf}
+  \caption{中央揃えの図}
+\end{figure}
+```
+
+**注意**: `ragged2e` パッケージを使うと `\raggedright` 等がより洗練されたアルゴリズムで
+ハイフネーション処理されたギザギザ右端を生成できる。
+
+---
+
+## 引用環境
+
+### quote 環境（短い引用）
+
+```latex
+本文テキスト。
+
+\begin{quote}
+  短い引用文。1段落または短いテキスト向け。
+  両側がインデントされる。段落インデントはない。
+\end{quote}
+
+本文の続き。
+```
+
+### quotation 環境（複数段落の引用）
+
+```latex
+\begin{quotation}
+  最初の段落の引用。
+
+  次の段落。各段落の最初の行がインデントされる点が
+  quote との違いである。複数段落の引用に適している。
+\end{quotation}
+```
+
+### quote vs quotation
+
+| 特徴 | `quote` | `quotation` |
+|-----|---------|------------|
+| 使用シーン | 短い引用（1段落以内） | 複数段落の引用 |
+| 段落インデント | なし | あり（各段落の先頭行） |
+| 両側インデント | あり | あり |

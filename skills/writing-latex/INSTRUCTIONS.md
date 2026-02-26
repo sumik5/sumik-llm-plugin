@@ -359,6 +359,10 @@ latexmk -pdfdvi -shell-escape document.tex
 - **[USER-DEFINED-MACROS.md](./references/USER-DEFINED-MACROS.md)**: ユーザー定義マクロ（\newcommand, \newenvironment, \newtheorem, \newfloat）
 - **[BEAMER-PRESENTATIONS.md](./references/BEAMER-PRESENTATIONS.md)**: Beamerスライド作成（テーマ一覧、オーバーレイ、フレーム制御、ハイパーリンク）
 
+### 大規模文書・TeXエンジン
+- **[LARGE-DOCUMENTS.md](./references/LARGE-DOCUMENTS.md)**: 大規模文書管理（\input/\include/\includeonly、front/back matter、プロジェクト構成）
+- **[TEX-ENGINES.md](./references/TEX-ENGINES.md)**: TeXエンジン比較（pdfTeX/XeTeX/LuaTeX/upTeX、formats、エンジン選択指針）
+
 ### 特殊文書・ビジュアルデザイン
 - **[SPECIAL-DOCUMENTS.md](./references/SPECIAL-DOCUMENTS.md)**: 特殊文書テンプレート（CV, 手紙, リーフレット, ポスター）
 - **[TEXT-EFFECTS.md](./references/TEXT-EFFECTS.md)**: テキスト効果（ドロップキャップ, プルクォート, テキストシェイピング, 絶対配置）

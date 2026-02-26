@@ -559,3 +559,367 @@ LaTeX文書構造の高度な制御には以下のアプローチが有効：
 4. **snapshot/bundledoc**: 再現可能性の確保
 
 プロジェクトの規模と要件に応じて適切なパッケージを選択し、組み合わせることが重要。
+
+---
+
+## 相互参照の高度な機能
+
+### varioref の拡張オプションとコマンド
+
+#### [nospace] オプション
+
+```latex
+\usepackage[nospace]{varioref}
+% \vref と \vpageref の間に余分なスペースを挿入しない
+```
+
+#### \vpageref のオプション引数
+
+省略可能な引数で、同ページ・異ページの表現を個別に指定できる：
+
+```latex
+% 同ページの場合は空文字列を出力（何も出力しない）
+\vpageref[]{sec:method}
+
+% 第1引数：同ページ時のテキスト、第2引数：異ページ時の前置テキスト
+\vpageref[above][below]{sec:method}
+% → 同ページ上部なら "above"、下部なら "below"、異ページなら "3ページ"
+```
+
+#### 範囲参照コマンド
+
+```latex
+% 2つのラベル間の範囲参照（テキスト+ページ）
+\vrefrange{label1}{label2}
+% → "節2から3 (pp. 5–7)" のように範囲とページを表示
+
+% ページ番号の範囲のみ
+\vpagerefrange{label1}{label2}
+% → "5ページから7ページ"
+```
+
+### xr パッケージ - 外部文書への相互参照
+
+```latex
+\usepackage{xr}
+
+% 外部ファイルのラベルを取り込む（対象の .aux ファイルが必要）
+\externaldocument{other-document}
+
+% プレフィックスを付けて名前衝突を回避
+\externaldocument[ext-]{other-document}
+
+% 外部文書の \label を通常の \ref / \pageref で参照
+\ref{sec:intro}       % 外部文書の sec:intro を参照
+\ref{ext-sec:intro}   % プレフィックス付きで参照
+```
+
+**使用場面**：マルチファイル大規模プロジェクトで、別ファイルに定義されたラベルへの相互参照が必要な場合。
+
+### ラベルデバッグ用パッケージ
+
+#### showlabels - \label をマージンに表示
+
+```latex
+\usepackage{showlabels}
+% すべての \label 定義箇所の余白にラベル名を出力
+% ドラフト段階でラベルの確認に便利
+```
+
+#### showkeys - \label と \ref の両方を表示
+
+```latex
+\usepackage{showkeys}
+% \label, \ref, \cite 等のキーを出力に表示
+% showlabels より高機能：参照先のキーも表示
+% 本番版（final オプション使用時）には非表示
+```
+
+#### refcheck - 未使用ラベルの検出
+
+```latex
+\usepackage{refcheck}
+% コンパイル後、未使用の \label を .log ファイルに警告として記録
+% 不要なラベルの整理に活用
+```
+
+### ラベル命名のベストプラクティス
+
+カテゴリプレフィックスで体系的に管理：
+
+| プレフィックス | 対象 |
+|--------------|------|
+| `sec:` | セクション・章 |
+| `fig:` | 図 |
+| `tab:` | 表 |
+| `eq:` | 数式 |
+| `lst:` | コードリスト |
+| `app:` | 付録 |
+
+```latex
+\section{Introduction}\label{sec:intro}
+\begin{figure}...\label{fig:architecture}\end{figure}
+\begin{equation}\label{eq:euler}\end{equation}
+
+\cref{fig:architecture} と \cref{eq:euler} を参照（\cref{sec:intro} も参照）。
+```
+
+---
+
+## 目次の深さ制御と追加パッケージ
+
+### tocdepth カウンタ
+
+目次に表示する最深レベルを制御：
+
+```latex
+% プリアンブルで設定
+\setcounter{tocdepth}{2}
+% -1: part のみ（book クラス）
+%  0: chapter のみ
+%  1: section まで（article のデフォルト）
+%  2: subsection まで（book/report のデフォルト）
+%  3: subsubsection まで
+
+% 文書内で一時的に変更（特定章だけ深い目次を表示）
+\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
+\section{Important Section}
+\subsection{Detail A}
+\subsubsection{Deep Detail}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+```
+
+### tocloft - 目次書式の詳細制御
+
+```latex
+\usepackage{tocloft}
+
+% 目次タイトル変更
+\renewcommand{\contentsname}{Table of Contents}
+
+% 章エントリのフォント変更
+\renewcommand{\cftchapfont}{\bfseries\sffamily}
+
+% ページ番号フォント変更
+\renewcommand{\cftchappagefont}{\bfseries}
+
+% エントリ間スペース調整
+\setlength{\cftbeforechapskip}{10pt}
+
+% リーダー（点線）を追加
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+
+% インデント調整
+\setlength{\cftsecindent}{2em}
+\setlength{\cftsubsecindent}{4em}
+```
+
+### tocbibind - 参考文献・索引を目次に追加
+
+```latex
+\usepackage{tocbibind}
+% 以下が自動的に目次に追加される:
+% - 目次自体（\tableofcontents）
+% - 図目次（\listoffigures）
+% - 表目次（\listoftables）
+% - 参考文献（\bibliography / \printbibliography）
+% - 索引（\printindex）
+
+% 特定エントリを除外するオプション
+\usepackage[nottoc,notlot,notlof]{tocbibind}
+% nottoc: 目次エントリを除外
+% notlot: 表目次エントリを除外
+% notlof: 図目次エントリを除外
+```
+
+### minitoc - 章ごとのミニ目次
+
+```latex
+\usepackage{minitoc}
+
+% プリアンブルで初期化
+\dominitoc    % 章レベルのミニ目次を有効化
+
+\begin{document}
+\tableofcontents
+\mtcaddchapter  % 目次章を minitoc に登録
+
+\chapter{Introduction}
+\minitoc        % ← この章のミニ目次を挿入
+本文...
+
+\end{document}
+```
+
+---
+
+## hyperref の詳細設定
+
+### \hypersetup コマンド
+
+ロード時のオプションと、ロード後の `\hypersetup` コマンドは等価：
+
+```latex
+\usepackage[colorlinks=true, linkcolor=blue]{hyperref}
+
+% または
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue}
+
+% 両方を組み合わせることも可能
+```
+
+### 主要オプション一覧
+
+| オプション | デフォルト | 説明 |
+|-----------|-----------|------|
+| `draft` | false | すべてのハイパーテキスト機能をオフ |
+| `final` | true | すべてのハイパーテキスト機能をオン |
+| `colorlinks` | false | ボックスではなく色でリンクを表示 |
+| `hidelinks` | — | リンクの強調を完全に無効化（印刷用） |
+| `backref` | false | 参考文献から引用箇所へのバックリンク |
+| `hyperindex` | true | 索引のページ番号にリンクを追加 |
+| `hyperfootnotes` | true | 脚注マーカーをハイパーリンク化 |
+| `hyperfigures` | false | 図にハイパーリンクを追加 |
+| `linktocpage` | false | 目次でテキストではなくページ番号をリンク |
+| `frenchlinks` | false | 色の代わりにスモールキャップでリンク表示 |
+| `bookmarks` | true | PDF リーダー用ブックマークを作成 |
+| `bookmarksopen` | false | PDF 開時にすべてのブックマークを展開 |
+| `bookmarksnumbered` | false | ブックマークにセクション番号を含める |
+
+### リンク色の設定（colorlinks=true 時）
+
+| オプション | デフォルト | 対象リンク |
+|-----------|-----------|-----------|
+| `linkcolor` | `red` | 内部リンク（章・節・図への参照） |
+| `citecolor` | `green` | 参考文献の引用 |
+| `urlcolor` | `magenta` | URL アドレス |
+| `filecolor` | `cyan` | ファイルリンク |
+
+### PDF メタデータの設定
+
+```latex
+\hypersetup{
+  pdfauthor   = {Author Name},
+  pdftitle    = {Document Title},
+  pdfsubject  = {Subject Description},
+  pdfkeywords = {keyword1, keyword2},
+  pdfcreator  = {LaTeX with hyperref},
+  pdfproducer = {pdfTeX}
+}
+```
+
+| フィールド | 説明 |
+|-----------|------|
+| `pdftitle` | 文書タイトル |
+| `pdfauthor` | 著者名 |
+| `pdfsubject` | 文書の主題 |
+| `pdfkeywords` | 検索エンジン最適化用キーワード |
+| `pdfcreator` | 文書作成ソフトウェア |
+| `pdfproducer` | PDF 生成エンジン |
+
+### 手動ハイパーリンクコマンド
+
+```latex
+% URL へのリンク（表示テキストを指定）
+\href{https://example.com}{リンクテキスト}
+
+% URL をそのまま表示してリンク
+\url{https://example.com}
+
+% URL を表示するがリンクしない
+\nolinkurl{https://example.com}
+
+% 内部ラベルへのリンク（任意のテキストを指定）
+\hyperref[sec:intro]{こちら} を参照
+
+% 任意の位置にアンカー（跳び先）を設定
+\hypertarget{my-anchor}{アンカーのテキスト}
+
+% アンカーへのリンク
+\hyperlink{my-anchor}{ここをクリック}
+```
+
+### \phantomsection - アンカーの手動挿入
+
+`\addcontentsline` は直前のセクションアンカーを参照するため、対応するセクションコマンドがない場合はアンカーがずれる。`\phantomsection` でアンカーを明示的に設置する：
+
+```latex
+\cleardoublepage
+\phantomsection                                   % ← ここにアンカーを設置
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{refs}
+```
+
+### ロード順序ルール
+
+hyperref は他の多くのパッケージのコマンドを再定義するため、**プリアンブルの最後に**ロードする：
+
+```latex
+\usepackage{graphicx}
+\usepackage{amsmath}
+% ... 他のパッケージ ...
+\usepackage{hyperref}   % ← 最後にロード
+
+% hyperref の後にロードが必要なパッケージ（例外）
+\usepackage{cleveref}
+\usepackage{glossaries}
+```
+
+---
+
+## PDF ブックマークの操作
+
+### \pdfbookmark - 手動ブックマーク作成
+
+```latex
+% 基本構文
+\pdfbookmark[level]{表示テキスト}{内部名}
+
+% 例：目次をレベル 1 のブックマークとして登録
+\pdfbookmark[1]{\contentsname}{toc}
+\tableofcontents
+
+% 概要をブックマークとして登録
+\pdfbookmark[1]{Abstract}{abstract}
+\begin{abstract}
+...
+\end{abstract}
+```
+
+ブックマークレベル: 0=part, 1=chapter, 2=section, 3=subsection ...
+
+### 相対的なブックマーク作成
+
+```latex
+% 現在のレベルにブックマークを作成
+\currentpdfbookmark{テキスト}{名前}
+
+% 1レベル下にブックマークを作成
+\belowpdfbookmark{テキスト}{名前}
+
+% 1レベル下に移動してブックマークを作成
+\subpdfbookmark{テキスト}{名前}
+```
+
+高度なカスタマイズには `bookmark` パッケージを追加で利用可能（フォントスタイル・色の設定など）。
+
+### \texorpdfstring - 数式を含む見出しのブックマーク対応
+
+PDF ブックマークには数学記号が使えないため、TeX 用と PDF 用で別テキストを指定する：
+
+```latex
+% 構文
+\texorpdfstring{TeXコード}{PDFテキスト}
+
+% 例1：数式を含むセクション
+\section{The equation
+  \texorpdfstring{$y=x^2$}{y=x squared}}
+
+% 例2：Unicode オプション使用時
+\usepackage[unicode, psdextra]{hyperref}
+\section{\texorpdfstring{$\gamma$}{\textgamma} radiation}
+
+% 例3：TOC 用の短いテキスト + 本文用の数式
+\section[Short TOC Title]{Full title with \texorpdfstring{$\int_a^b f(x)dx$}{integral}}
+```

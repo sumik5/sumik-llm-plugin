@@ -608,3 +608,64 @@ Transcript written on document.log.
 - 頻繁にコンパイルして問題を早期発見
 - バージョン管理（Git）で変更を追跡
 - 最小限の例（MWE）を作成する習慣
+
+---
+
+## 実践的なTips
+
+### フロート配置の警告
+
+図・表が正しく配置できない場合に発生する警告:
+
+| 警告 | 原因 | 対処法 |
+|------|------|--------|
+| `Float too large for page` | 図・表がページに収まらない | 画像サイズを縮小、`scale=0.8`等で調整 |
+| `h float specifier changed to ht` | `h`指定で配置できず次ページ先頭に | `[!htbp]`を使い配置の自由度を上げる |
+
+推奨配置オプション:
+```latex
+\begin{figure}[!htbp]   % 最大限の配置自由度
+\begin{table}[!htbp]
+```
+
+### 未使用のグローバルオプション
+
+```
+LaTeX Warning: Unused global option(s): [unknown-option]
+```
+
+`\documentclass`に渡したオプションが、クラスにもパッケージにも認識されていない。`\documentclass`のオプションを確認する。
+
+### パッケージのロード順序
+
+一部のパッケージはロード順に依存する:
+
+- **`hyperref`は最後にロードする**: 多くのパッケージとの競合を防ぐ
+- **パッケージ順序の変更でエラーが解決することがある**: 問題が発生したら順序を入れ替えてテスト
+
+```latex
+% 推奨: hyperref は最後
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}   % 最後
+```
+
+### 廃止パッケージの回避
+
+LaTeXには数十年の歴史があり、古いチュートリアルや例には廃止されたパッケージが含まれることがある。問題が発生したら後継パッケージを確認する:
+
+**確認方法**: `https://ctan.org/pkg/<パッケージ名>` でCTANのパッケージページを確認。説明文に「obsolete」や推奨後継パッケージが記載されている。
+
+**代表的な廃止→後継の例**:
+
+| 廃止パッケージ | 推奨後継 |
+|--------------|---------|
+| `epsfig` | `graphicx` |
+| `subfigure` | `subcaption` |
+| `natbib` + 古いスタイル | `biblatex` |
+| `psfrag` | (直接PDFグラフィックスを使用) |
+| `times` | `mathptmx` または `newtxtext` |
+
+**網羅的なリスト**: `texdoc l2tabu` または https://latexguide.org/obsolete を参照。
+
+**texfaq.orgのエラー参照**: https://texfaq.org/#errors で多くのエラーパターンの解説を確認できる。

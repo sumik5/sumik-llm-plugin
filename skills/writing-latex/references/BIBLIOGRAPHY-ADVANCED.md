@@ -625,3 +625,82 @@ This is well known \parencite{lamport1994, knuth1984}.
 3. **特殊文字は二重ブレースで保護**
 4. **DOI/URLを含める**（オンラインリソース）
 5. **biber使用時は `\addbibresource` に拡張子（`.bib`）を含める**
+
+---
+
+## \nocite - 未引用文献の参考文献リストへの追加
+
+本文中で引用せずに参考文献リストに含めるコマンド：
+
+```latex
+% 特定の文献を参考文献リストに追加（本文引用なし）
+\nocite{key1}
+\nocite{key2}
+
+% .bib ファイル内のすべての文献を参考文献リストに追加
+\nocite{*}
+```
+
+**使用場面**：
+- 注釈付き参考文献（annotated bibliography）の作成
+- 「参照先として」という一覧の作成（直接引用していないが関連する文献）
+- 文書内容とは別に参照文献を提示したい場合
+
+---
+
+## \bibitem のオプション引数（カスタムラベル）
+
+`thebibliography` 環境内で引用ラベルを手動でカスタマイズできる：
+
+```latex
+\begin{thebibliography}{99}
+
+  % ラベルなし（番号が自動割り当て: [1], [2], ...）
+  \bibitem{key1}
+  Author A. \textit{Title}. Publisher, 2024.
+
+  % カスタムラベルを指定（alpha スタイル風）
+  \bibitem[Knu84]{key2}
+  D.E. Knuth. \textit{The TeXbook}. Addison-Wesley, 1984.
+
+  % natbib 使用時も同様の構文でオプション引数が有効
+  \bibitem[Author(2024)]{key3}
+  Author B. \textit{Book Title}. Publisher, 2024.
+
+\end{thebibliography}
+```
+
+---
+
+## BibTeX 標準スタイル
+
+`\bibliographystyle{style}` で指定できる標準スタイル：
+
+| スタイル | 並び順 | ラベル | 特徴 |
+|---------|-------|-------|------|
+| `plain` | 著者名順（アルファベット） | 数値 [1] | 汎用的な学術論文 |
+| `unsrt` | 引用出現順 | 数値 [1] | 引用順に並べたい場合 |
+| `alpha` | 著者名順 | 略称 [Knu84] | 著者名が一般的に知られている場合 |
+| `abbrv` | 著者名順（省略形） | 数値 [1] | スペース節約（著者名・雑誌名を省略） |
+
+```latex
+% 使用方法
+\bibliographystyle{plain}    % または unsrt, alpha, abbrv
+\bibliography{references}    % references.bib を読み込む
+```
+
+---
+
+## cite パッケージ - 数値引用の圧縮
+
+```latex
+\usepackage{cite}
+
+% 複数引用を自動的にソート・圧縮表示
+\cite{ref1,ref2,ref3,ref4,ref5}
+% → [1–5]（連続番号の場合）
+% → [1,3–5]（飛び番の場合）
+
+% natbib や biblatex を使用している場合は不要
+% （それらには同等の圧縮機能が内蔵されている）
+```

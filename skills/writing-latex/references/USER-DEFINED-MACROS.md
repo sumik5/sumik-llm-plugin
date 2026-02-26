@@ -905,3 +905,105 @@ The sun is setting.
 - 意味のある名前を使用（`\pd` より `\pde` の方が明確）
 - プロジェクト固有のマクロは別ファイルに保存して `\input` で読み込む
 - 複雑な定義には使用例をコメントで記載
+
+---
+
+## xparse による現代的なマクロ定義（\NewDocumentCommand）
+
+LaTeX 2021以降、`xparse` パッケージの機能が LaTeX カーネルに統合された。
+従来の `\newcommand` に比べ、引数型の柔軟な指定が可能。
+
+```latex
+% LaTeX 2021以降はプリアンブルに \usepackage{xparse} 不要
+% （古い環境では必要）
+```
+
+### \NewDocumentCommand の基本構文
+
+```latex
+\NewDocumentCommand{\コマンド名}{引数型指定}{定義}
+```
+
+### 引数型の一覧
+
+| 引数型 | 意味 | 例 |
+|--------|------|---|
+| `m` | 必須引数（mandatory） | `{テキスト}` |
+| `o` | オプション引数（`[...]`、省略時は `\NoValue`） | `[オプション]` |
+| `O{デフォルト}` | デフォルト値付きオプション引数 | `O{red}` |
+| `s` | スター引数（`*` の有無を真偽値として取得） | `*` |
+| `t{文字}` | 指定文字のトークン引数 | `t+` |
+| `r{文字}{文字}` | 必須の区切り引数 | `r()` → `(内容)` |
+| `v` | 逐語引数（verbatim、`\verb` 相当） | `\cmd+code+` |
+
+### 使用例
+
+```latex
+% 必須引数と省略可能引数
+\NewDocumentCommand{\mybox}{o m}{%
+  \IfNoValueTF{#1}
+    {\fbox{#2}}                   % オプションなし
+    {\fcolorbox{#1}{white}{#2}}   % 色指定あり
+}
+% 使用: \mybox{テキスト}  または  \mybox[red]{テキスト}
+
+% デフォルト値付きオプション
+\NewDocumentCommand{\highlight}{O{yellow} m}{%
+  \colorbox{#1}{#2}%
+}
+% 使用: \highlight{テキスト}      → 黄色背景
+%       \highlight[cyan]{テキスト} → シアン背景
+
+% スター付きバリアント
+\NewDocumentCommand{\heading}{s m}{%
+  \IfBooleanTF{#1}
+    {\section*{#2}}   % \heading*{タイトル} → 番号なし
+    {\section{#2}}    % \heading{タイトル}  → 番号あり
+}
+```
+
+### \IfNoValueTF による条件分岐
+
+```latex
+\IfNoValueTF{引数}{引数が省略された場合}{引数が指定された場合}
+\IfValueTF{引数}{引数が指定された場合}{引数が省略された場合}
+\IfBooleanTF{引数}{真の場合}{偽の場合}
+```
+
+### 既存コマンドの再定義
+
+```latex
+% 既存コマンドを上書き
+\RenewDocumentCommand{\textbf}{m}{\textcolor{blue}{\bfseries#1}}
+
+% 既存コマンドに警告なしで上書き
+\DeclareDocumentCommand{\myCmd}{m}{...}
+```
+
+### \NewDocumentEnvironment
+
+環境のバリアントも xparse スタイルで定義できる。
+
+```latex
+\NewDocumentEnvironment{myenv}{o m}{%
+  \begin{tcolorbox}[title={\IfNoValueTF{#1}{#2}{#1: #2}}]
+}{%
+  \end{tcolorbox}
+}
+% \begin{myenv}{タイトル} ... \end{myenv}
+% \begin{myenv}[短いタイトル]{長いタイトル} ... \end{myenv}
+```
+
+### \newcommand vs \NewDocumentCommand 比較
+
+| 特徴 | `\newcommand` | `\NewDocumentCommand` |
+|-----|--------------|----------------------|
+| 必須引数 | `#1`〜`#9` | `m` |
+| オプション引数 | 1個のみ（`[...]`形式） | 複数可、型指定 |
+| デフォルト値 | `\newcommand{\cmd}[1][default]` | `O{default}` |
+| スター引数 | 不可 | `s` |
+| 省略確認 | 不可 | `\IfNoValueTF` |
+| 既存上書き検査 | `\renewcommand` 必要 | `\NewDocumentCommand`（なければエラー）/ `\DeclareDocumentCommand`（常に定義） |
+
+**推奨**: 新規作成するコマンドには `\NewDocumentCommand` を使用する。
+`\newcommand` は後方互換性のために保持されているが、複雑な引数処理には xparse スタイルが優れている。

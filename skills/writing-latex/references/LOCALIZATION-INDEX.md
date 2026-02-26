@@ -522,3 +522,89 @@ This is English text\index{English}.
 | 日本語を含む | upmendex |
 | 複数言語の複雑なソート | xindy |
 | 複数索引 | imakeidx または index パッケージ |
+
+---
+
+## glossaries パッケージ - 用語集と略語管理
+
+### 基本設定
+
+```latex
+\usepackage[toc, acronym]{glossaries}
+% toc:     用語集を目次に追加
+% acronym: 略語リストを通常の用語集から分離
+
+\makeglossaries  % プリアンブルで必須（.gls/.glo ファイルを生成）
+```
+
+### 用語の定義
+
+```latex
+% 通常の用語（\newglossaryentry）
+\newglossaryentry{latex}{
+  name        = {LaTeX},
+  description = {文書整形システム。数式や複雑なレイアウトに優れる}
+}
+
+% 略語・頭字語（\newacronym）
+\newacronym{pdf}{PDF}{Portable Document Format}
+\newacronym{gui}{GUI}{Graphical User Interface}
+\newacronym{api}{API}{Application Programming Interface}
+```
+
+### 用語の引用コマンド
+
+```latex
+% 通常用語の引用
+\gls{latex}        % LaTeX（初回以降も同じ表示）
+
+% 略語の引用（\gls を使用）
+\gls{pdf}          % 初回: "Portable Document Format (PDF)"
+                   % 以降: "PDF"
+
+% 表示形式を明示的に指定
+\acrfull{pdf}      % Portable Document Format (PDF)（常に完全形）
+\acrshort{pdf}     % PDF（常に略称のみ）
+\acrlong{pdf}      % Portable Document Format（常に完全名のみ）
+
+% 大文字化
+\Gls{latex}        % LaTeX（文頭での使用、最初の文字を大文字化）
+\GLS{pdf}          % PDF（すべて大文字）
+```
+
+### 用語集の出力
+
+```latex
+\begin{document}
+本文...
+
+% 用語集・略語リストを出力
+\printglossaries
+
+% または個別に出力
+\printglossary[type=main]
+\printglossary[type=\acronymtype, title={略語一覧}]
+
+\end{document}
+```
+
+### コンパイル手順
+
+```bash
+# 方法1: makeglossaries コマンドを使用
+pdflatex document
+makeglossaries document   # .gls / .glo ファイルを処理
+pdflatex document
+
+# 方法2: latexmk で自動化
+latexmk -pdf document
+```
+
+### hyperref との連携
+
+```latex
+% ロード順序に注意：hyperref の後に glossaries をロード
+\usepackage{hyperref}
+\usepackage[toc, acronym]{glossaries}
+% → 用語集エントリに自動的にハイパーリンクが追加される
+```

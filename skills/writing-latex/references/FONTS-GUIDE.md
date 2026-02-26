@@ -494,3 +494,206 @@ fontspec は内部的に NFSS を使用。標準の `\rmfamily`, `\textbf` 等�
 2. **コントラスト**: Didone（見出し） + Humanist（本文）
 3. **調和**: x-height が近いフォント同士
 4. **過剰を避ける**: 1文書に3ファミリまで
+
+---
+
+## 10. pdfLaTeX 対応フォントパッケージ（具体的な読み込みコード）
+
+分類表を補完する、実際の使用例集。すべて pdfLaTeX で動作する。
+
+### セリフ系フォント
+
+#### Latin Modern（デフォルトの推奨代替）
+
+```latex
+\usepackage{lmodern}           % Computer Modern の Unicode 対応改良版
+\usepackage[T1]{fontenc}       % T1 エンコーディングと組み合わせて使用
+```
+
+#### Kp-Fonts（統合フォントセット）
+
+```latex
+\usepackage{kpfonts}           % テキスト + 数式の統合フォントセット
+\usepackage[light]{kpfonts}    % ライトウェイト版
+% \usepackage[oldstylenums]{kpfonts}  % オールドスタイル数字バリアント
+```
+
+#### newtx（Times 系、推奨の分割パッケージ）
+
+```latex
+\usepackage{newtxtext}  % テキスト: Times Roman 系
+\usepackage{newtxmath}  % 数式: Times 系数式フォント
+% 注意: \usepackage{times} は非推奨。newtxtext/newtxmath を使用すること
+```
+
+#### newpx（Palatino 系、推奨の分割パッケージ）
+
+```latex
+\usepackage{newpxtext}  % テキスト: Palatino 系
+\usepackage{newpxmath}  % 数式: Palatino 系数式フォント
+% 旧: \usepackage{mathpazo} は現在 newpxtext+newpxmath に置き換えが推奨
+```
+
+#### mathdesign（Charter / Utopia / Garamond + 数式）
+
+```latex
+\usepackage[charter]{mathdesign}   % Charter テキスト + 数式
+\usepackage[utopia]{mathdesign}    % Utopia テキスト + 数式
+\usepackage[garamond]{mathdesign}  % Garamond テキスト + 数式
+```
+
+#### fouriernc（New Century Schoolbook + Fourier 数式）
+
+```latex
+\usepackage{fouriernc}
+% New Century Schoolbook テキストと Fourier 数式フォントの組み合わせ
+```
+
+#### Concrete + Concmath（Knuth の組み合わせ）
+
+```latex
+\usepackage{concrete}   % Concrete Roman テキスト
+\usepackage{concmath}   % Concrete 数式フォント
+% または \usepackage{eulervm} で Euler 数式フォントを追加
+```
+
+#### Bookman + Kmath
+
+```latex
+\usepackage{bookman}   % Bookman テキストフォント
+\usepackage{kmath}     % Kerkis 数式フォント（bookman と相性が良い）
+```
+
+### サンセリフ系フォント（数式対応）
+
+#### Arev（数式対応サンセリフ）
+
+```latex
+\usepackage{arev}
+% テキストと数式の両方をサンセリフに変更
+% プレゼンテーションや画面表示に適する
+```
+
+#### CM Bright（Computer Modern サンセリフ）
+
+```latex
+\usepackage{cmbright}
+% テキストと数式を Computer Modern の明るいサンセリフに変更
+```
+
+#### Kurier（幾何学的サンセリフ）
+
+```latex
+\usepackage[math]{kurier}
+% math オプションで数式フォントも同時に変更
+```
+
+#### Helvetica + sfmath（本文をサンセリフに変更）
+
+```latex
+\usepackage[scaled=0.95]{helvet}   % Helvetica（scaled: メインフォントに合わせて縮小）
+\usepackage{sfmath}                % サンセリフ数式フォント（または sansmath パッケージ）
+\renewcommand{\familydefault}{\sfdefault}  % サンセリフをデフォルト本文フォントに
+```
+
+### タイプライタ系フォント
+
+#### Inconsolata（コード表示向け推奨）
+
+```latex
+\usepackage{inconsolata}
+% または区別しやすいグリフのバリアント
+\usepackage[varqu,varl]{inconsolata}
+% varqu: 直立クォーテーション、varl: 区別しやすい l/1/I
+```
+
+#### Bera Mono（コード表示向け）
+
+```latex
+\usepackage[scaled]{beramono}
+% scaled: メインフォントのサイズに合わせて自動スケール
+```
+
+#### Courier
+
+```latex
+\usepackage{courier}              % 標準の Courier
+\usepackage[scaled]{couriers}     % Courier の scaled バリアント
+```
+
+### 装飾・手書きフォント
+
+#### Calligra（カリグラフィ）
+
+```latex
+\usepackage{calligra}
+% \calligra コマンドでフォント切り替え
+% グループ内またはコマンドでスコープを限定する
+
+{\calligra A beautiful calligraphic text}
+
+% または専用コマンドを定義
+\newcommand{\calligraphic}[1]{{\calligra #1}}
+\calligraphic{Special heading}
+```
+
+#### Miama Nueva（優雅な手書き風）
+
+```latex
+\usepackage{miama}
+% \fmmfamily で手書きフォントに切り替え
+% アスセンダー・ディセンダーが特に優雅
+
+{\fmmfamily A graceful handwriting style}
+% 招待状・タイトルページなどの装飾テキストに適する
+```
+
+### デフォルト本文フォントをサンセリフにする
+
+```latex
+% 方法1: familydefault を変更（汎用的）
+\renewcommand{\familydefault}{\sfdefault}
+
+% 方法2: 専用パッケージを使用（数式も含めて変更）
+\usepackage{arev}       % Arev Sans（数式対応）
+\usepackage{cmbright}   % CM Bright（数式対応）
+\usepackage[math]{kurier}  % Kurier（数式対応）
+```
+
+---
+
+## 11. fontspec の Scale オプション（LuaLaTeX / XeLaTeX）
+
+複数フォントの x-height（小文字の高さ）を揃える：
+
+```latex
+\usepackage{fontspec}
+\usepackage{unicode-math}   % 数式フォントの選択に必要
+
+% メインフォントに合わせてスケール
+\setmainfont{Cambria}
+\setsansfont{Segoe UI}[Scale=MatchLowercase]      % x-height を一致させる
+\setmonofont{Lucida Console}[Scale=MatchLowercase]
+\setmathfont{Cambria Math}[Scale=MatchLowercase]
+
+% 数値でスケール指定
+\setsansfont{Helvetica Neue}[Scale=0.95]
+
+% 新しいフォントファミリをコマンドとして定義（特定テキストのみに使用）
+\newfontfamily{\calligraphicfont}{Zapfino}
+\newcommand{\calligraphic}[1]{{\calligraphicfont #1}}
+% 使用例: \calligraphic{A graceful Zapfino example}
+```
+
+**LuaLaTeX 推奨**: XeLaTeX より積極的にメンテナンスされており、OpenType/TrueType システムフォントの利用には LuaLaTeX を推奨する。
+
+---
+
+## LaTeX フォントカタログ
+
+利用可能なすべての LaTeX フォントを視覚的に確認できる公式リソース：
+
+- **The LaTeX Font Catalogue**: https://www.tug.org/FontCatalogue/
+- TeX Live 収録フォントを網羅、サンプル画像と読み込みコードを提供
+- カテゴリ別ブラウズ（セリフ・サンセリフ・タイプライタ・手書き・数式など）
+- フォントをクリックすると使用例・ロードコード・詳細情報を確認可能
