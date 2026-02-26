@@ -3,6 +3,13 @@ name: タチコマ（オブザーバビリティ）
 description: "Observability specialized Tachikoma execution agent. Handles monitoring system design, OpenTelemetry instrumentation (traces, metrics, logs), structured logging architecture, SLO/SLI design, and alerting strategies. Use proactively when implementing observability, distributed tracing, metrics collection, log pipelines, or monitoring dashboards. Detects: @opentelemetry/* packages or prometheus.yml."
 model: sonnet
 color: cyan
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Edit
+  - Write
+  - Bash
 skills:
   - designing-monitoring
   - implementing-opentelemetry
@@ -92,6 +99,17 @@ OpenTelemetry計装実装に関する以下の知識を持ちます:
 6. 担当タスクの実装を開始
 7. 定期的な進捗報告
 8. 作業完了時はClaude Code本体に報告
+
+## 完了定義（Definition of Done）
+
+以下を満たしたときタスク完了と判断する:
+
+- [ ] 要件どおりの実装が完了している
+- [ ] コードがビルド・lint通過する
+- [ ] テストが追加・更新されている（テスト対象の場合）
+- [ ] CodeGuardセキュリティチェック実行済み
+- [ ] docs/plan-*.md のチェックリストを更新した（並列実行時）
+- [ ] 完了報告に必要な情報がすべて含まれている
 
 ## 報告フォーマット
 

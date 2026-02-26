@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (10個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (78個)
+└── skills/             # ナレッジスキル (79個)
 ```
 
 ---
@@ -78,7 +78,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (78個)
+### Skills (79個)
 
 #### コア開発
 
@@ -186,6 +186,7 @@ sumik-claude-plugin/
 | `generating-google-slides` | Google Slides自動生成（GAS slideDataオブジェクト生成） |
 | `slidekit-create` | HTMLスライドプレゼンテーション生成（1スライド=1HTML、Tailwind CSS、15レイアウトパターン、5スタイル×5テーマ） |
 | `slidekit-templ` | PDFプレゼンテーション→HTMLスライドテンプレート変換（視覚再現アプローチ） |
+| `authoring-agents` | エージェント定義（agents/*.md）の作成ガイド（フロントマター・スキルプリロード・テンプレート） |
 | `authoring-skills` | スキル作成・ソース変換・利用状況レビュー統合ガイド |
 | `searching-with-exa` | Exa MCP統合（7カテゴリ検索: 企業・コード・人物・財務・学術・個人サイト・Tweet/X、Web検索第一優先ツール） |
 | `searching-web` | Web検索 fallback（gemini CLI、Exa MCP使用不可時） |
