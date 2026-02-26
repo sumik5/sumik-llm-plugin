@@ -1,4 +1,5 @@
 ---
+name: automating-browser
 description: |
   Browser Agent CLIによるブラウザ操作自動化（セマンティックロケーター、状態永続化、ネットワーク傍受）。
   Use when automating browser interactions via agent-browser CLI (NOT for E2E testing).

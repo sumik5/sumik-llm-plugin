@@ -1,4 +1,5 @@
 ---
+name: managing-sdn-with-ai
 description: >-
   Comprehensive guide to managing Software-Defined Networks with AI agents
   covering architecture patterns, SDN operations, security, infrastructure

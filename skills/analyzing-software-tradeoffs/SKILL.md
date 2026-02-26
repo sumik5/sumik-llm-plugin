@@ -1,4 +1,5 @@
 ---
+name: analyzing-software-tradeoffs
 description: >-
   Comprehensive software design trade-off analysis covering code-level decisions
   (duplication, error handling, flexibility, optimization), API design (usability,

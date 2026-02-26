@@ -1,4 +1,5 @@
 ---
+name: developing-bash
 description: >-
   Comprehensive Bash shell scripting and automation guide covering fundamentals, control flow, I/O pipelines,
   process control, system administration automation, testing/debugging, security, and design patterns.

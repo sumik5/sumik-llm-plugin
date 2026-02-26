@@ -1,4 +1,5 @@
 ---
+name: building-rag-systems
 description: >-
   Comprehensive RAG (Retrieval-Augmented Generation) system building guide covering data loading
   pipelines (11 source types including Word, PDF, CSV, audio, video, multimodal), data preparation

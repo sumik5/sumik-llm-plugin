@@ -1,8 +1,19 @@
 ---
+name: developing-google-cloud
 description: >-
-  Comprehensive Google Cloud development guide covering Cloud Run deployment (architecture, scaling, CI/CD, cost optimization), GCP platform security (IAM, VPC, KMS, DLP, SCC, container security, compliance, DevSecOps CI/CD pipeline security, Zero Trust / BeyondCorp Enterprise, Anthos multi-cloud security, incident response and forensics, Chronicle threat hunting), data engineering (storage selection, BigQuery warehousing, data pipelines, migrations, governance), network engineering (VPC design, hybrid connectivity, load balancing, CDN, network monitoring, advanced networking with Traffic Director and Service Mesh), and Memorystore (managed Redis/Memcached caching, cache patterns, performance engineering, resilience, cloud-native integration).
-  MUST load when Dockerfile is detected alongside google-cloud or @google-cloud packages, when cloudbuild.yaml is present, or when working with BigQuery, Dataflow, Dataproc, GCP data services, VPC networking, Cloud Interconnect, Cloud VPN, GCP load balancing, or Memorystore/Redis/Memcached caching.
-  For Docker-specific patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For code-level security (OWASP, CodeGuard), use securing-code instead. For data architecture patterns (CQRS, event sourcing), use architecting-data instead. For AWS development (Lambda, CDK, EKS, Bedrock), use developing-aws instead. For serverless security (GCS hacking, Cloud Run abuse, privilege escalation), use securing-serverless instead. For application logging design and log collection pipelines, use implementing-logging.
+  Google Cloud development guide covering Cloud Run (architecture, scaling, CI/CD),
+  GCP security (IAM, VPC, KMS, DLP, SCC, Zero Trust, Chronicle), data engineering
+  (BigQuery, Dataflow, data pipelines, governance), network engineering (VPC, load balancing,
+  CDN, Traffic Director), and Memorystore (Redis/Memcached, cache patterns, resilience).
+  MUST load when Dockerfile is detected with google-cloud packages, when cloudbuild.yaml is present,
+  or when working with BigQuery, Dataflow, Dataproc, Cloud Interconnect, or Memorystore.
+  For Docker-specific patterns, use managing-docker instead.
+  For general monitoring design, use designing-monitoring instead.
+  For code-level security (OWASP, CodeGuard), use securing-code instead.
+  For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
+  For AWS development, use developing-aws instead.
+  For serverless security (GCS hacking, Cloud Run abuse), use securing-serverless instead.
+  For application logging, use implementing-logging.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

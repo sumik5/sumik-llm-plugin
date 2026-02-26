@@ -1,4 +1,5 @@
 ---
+name: practicing-llmops
 description: >-
   Comprehensive LLMOps operational framework covering data engineering pipelines,
   model domain adaptation (fine-tuning, RAG, prompt engineering), API-first deployment,

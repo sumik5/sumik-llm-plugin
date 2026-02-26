@@ -1,4 +1,5 @@
 ---
+name: securing-ai-development
 description: >-
   Organizational security strategy for AI-powered software development covering
   trust frameworks, adaptive guardrails, AI-BOM, AI-SPM, governance models,

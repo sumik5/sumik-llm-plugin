@@ -1,4 +1,5 @@
 ---
+name: designing-relational-databases
 description: >-
   Guides relational database design from requirements to implementation covering
   entity modeling, ER diagrams, normalization (1NF-BCNF), optimization, and

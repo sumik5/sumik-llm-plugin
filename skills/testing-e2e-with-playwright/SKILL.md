@@ -1,4 +1,5 @@
 ---
+name: testing-e2e-with-playwright
 description: >-
   Playwright E2Eテストの設計・実装・運用ガイド。
   Use when writing, reviewing, or maintaining E2E tests with @playwright/test.

@@ -3,17 +3,14 @@ name: building-adk-agents
 description: >-
   Google ADK (Agent Development Kit) for building intelligent AI agents with Python.
   MUST load when google-adk is detected in requirements or pyproject.toml.
-  Covers Agent taxonomy (Reactive/Deliberative/Goal-Oriented), Agent types (LlmAgent/Sequential/Parallel/Loop/Base),
-  Tools (FunctionTool/LongRunningFunctionTool/OpenAPI/MCP/Pre-built), YAML Config,
-  Multi-Agent orchestration, A2A Protocol (JSON-RPC/REST/Agent Cards/Scope Negotiation),
-  Runner, Session, Artifact, Memory, State lifecycle, Context (Caching/Compaction),
-  RAG (Corpus management/Vector Search/Citations/Multi-Corpus/Agentic RAG),
-  Grounding (Google Search/Vertex AI Search), Plugin System (BasePlugin/6 lifecycle hooks),
-  Callbacks/Guardrails (6種: before/after agent/model/tool), SSE Streaming, Live API,
-  UI Integration (AG-UI/CopilotKit/Streamlit/Slack/Dialogflow CX),
-  Code Execution (4 executors), LLM Models (Gemini/LiteLLM/Anthropic), Planners, Vision,
-  Deployment (Cloud Run/Vertex AI Agent Engine/GKE), CI/CD, Performance/Cost optimization,
-  Security (Workload Identity/Credential lifecycle/Data privacy), Responsible AI.
+  Covers Agent taxonomy, Agent types (LlmAgent/Sequential/Parallel/Loop/Base),
+  Tools (FunctionTool/OpenAPI/MCP), Multi-Agent orchestration,
+  A2A Protocol (JSON-RPC/REST), Runner, Session, Artifact, Memory, State lifecycle,
+  Context (Caching/Compaction), RAG (Corpus/Vector Search/Agentic),
+  Grounding, Plugin System, Callbacks/Guardrails (6 types), SSE Streaming, Live API,
+  UI Integration (CopilotKit/Streamlit/Slack), Code Execution,
+  LLM Models (Gemini/LiteLLM/Anthropic), Deployment (Cloud Run/Vertex/GKE),
+  CI/CD, Cost optimization, Security (IAM/Data privacy), Responsible AI.
   Distinct from developing-python (general) by focusing on ADK patterns.
 ---
 

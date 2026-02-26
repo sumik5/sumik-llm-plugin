@@ -1,4 +1,5 @@
 ---
+name: designing-data-visualizations
 description: >-
   Comprehensive data visualization principles covering chart type selection, color scales,
   design best practices, and data storytelling. Use when creating charts, dashboards,

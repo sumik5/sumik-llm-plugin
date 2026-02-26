@@ -2,7 +2,7 @@
 name: designing-monitoring
 description: >
   Designs monitoring and observability systems covering anti-patterns, design patterns,
-  layer-based strategy (business/frontend/application/server/network/security),
+  layer-based strategy (6 layers),
   alerting, on-call operations, incident management, telemetry pipeline architecture,
   observability concepts (structured events, core analysis loop), SLO-based reliability,
   sampling strategies, and observability maturity model.

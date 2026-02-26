@@ -1,4 +1,5 @@
 ---
+name: securing-serverless
 description: >-
   Comprehensive serverless security guide covering threat models, attack techniques, and defense patterns across AWS, Azure, and Google Cloud.
   Covers IAM credential abuse, storage misconfiguration, code injection, privilege escalation, and supply chain attacks with practical attack/defense examples.

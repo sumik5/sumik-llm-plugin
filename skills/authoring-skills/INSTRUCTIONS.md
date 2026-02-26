@@ -84,7 +84,7 @@ Match specificity to task fragility:
 
 ```yaml
 ---
-name: skill-name                      # 省略可（ディレクトリ名を使用）
+name: skill-name                      # 推奨（省略時はディレクトリ名を使用）
 description: >-                        # 推奨（省略時は本文最初の段落）
   What it does. Use when trigger.
 argument-hint: "[issue-number]"        # オートコンプリートで表示
@@ -104,7 +104,7 @@ hooks:                                 # スキルスコープのライフサイ
 
 | フィールド | 必須 | 説明 |
 |-----------|------|------|
-| `name` | いいえ | 表示名。省略時はディレクトリ名を使用 |
+| `name` | 推奨 | 表示名。省略時はディレクトリ名を使用。明示的な記載を推奨 |
 | `description` | 推奨 | 機能説明+トリガー条件。省略時は本文最初の段落 |
 | `argument-hint` | いいえ | オートコンプリートで表示される引数ヒント |
 | `disable-model-invocation` | いいえ | `true`でClaude自動ロードを禁止。手動`/name`のみ |
@@ -124,6 +124,9 @@ hooks:                                 # スキルスコープのライフサイ
 - Include what the skill does AND when to use it
 - Add differentiation when similar skills exist (e.g., "For X, use Y instead.")
 - Be specific and include key terms for discovery
+- **Length limit**: 1024文字以下にすること（Claude Codeのフロントマター解析の制約）
+  - 超過時の圧縮テクニック: 冗長な列挙を代表的なものに絞る、括弧内の詳細を削減、「Comprehensive」「covering」等の装飾語を削除
+  - 「For X, use Y instead」の差別化は優先的に維持する
 
 See [NAMING.md](references/NAMING.md) for detailed naming guidelines.
 
@@ -586,6 +589,8 @@ AskUserQuestion(
 | Too many options | Decision paralysis | Provide default with escape hatch |
 | Deep nesting | Partial file reads | Keep references one level deep |
 | Windows paths | Cross-platform errors | Use forward slashes only |
+| Description over 1024 chars | Truncated by Claude Code parser | Compress: reduce enumerations, drop filler words |
+| Missing name field | Inconsistent skill identification | Always include name matching directory name |
 
 ## Detailed Documentation
 

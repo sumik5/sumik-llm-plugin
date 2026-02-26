@@ -1,4 +1,5 @@
 ---
+name: building-green-software
 description: >-
   Comprehensive green software engineering guide covering carbon efficiency, energy efficiency,
   hardware efficiency, and carbon awareness. MUST load when designing systems with sustainability

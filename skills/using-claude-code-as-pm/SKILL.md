@@ -1,4 +1,5 @@
 ---
+name: using-claude-code-as-pm
 description: >-
   Guides product managers in using Claude Code for codebase investigation,
   bug triage, competitive analysis, customer feedback synthesis, requirements

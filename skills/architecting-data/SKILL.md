@@ -1,4 +1,5 @@
 ---
+name: architecting-data
 description: >-
   Data architecture patterns covering read-side optimization (replicas, materialized views,
   CQRS, CDC, event sourcing), domain-based decomposition, polyglot persistence, and caching

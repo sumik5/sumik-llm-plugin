@@ -1,8 +1,21 @@
 ---
+name: developing-aws
 description: >-
-  Comprehensive AWS development guide covering system design (architecture patterns, trade-offs, 8 real-world case studies), serverless (Lambda, API Gateway, DynamoDB, Step Functions, S3), CDK infrastructure as code (Constructs, testing, DevSecOps), EKS Kubernetes (cluster management, networking, security, scaling), SRE operations (automation, observability, resilience, incident response), cost optimization (FinOps, rightsizing, Savings Plans, Spot), security (IAM, VPC, KMS, Cognito, GuardDuty, incident response, forensics), generative AI (Amazon Bedrock, RAG, Agents, multimodal, fine-tuning), database services (Aurora, DynamoDB advanced, DocumentDB, Neptune, Timestream, ElastiCache, migration with DMS/SCT), data engineering (Glue, Athena, EMR, Redshift, Lake Formation, data pipelines), developer tools (CodePipeline, CodeBuild, CodeDeploy, Elastic Beanstalk, Amplify), SageMaker ML (training, deployment, MLOps, model monitoring), and SysOps operations (Systems Manager, Auto Scaling, patch management).
-  MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in package.json, cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), buildspec.yml, or AWS-related infrastructure files (.aws/, eksctl configs).
-  For GCP development, use developing-google-cloud instead. For Terraform IaC, use developing-terraform instead. For Docker container patterns, use managing-docker instead. For general monitoring design, use designing-monitoring instead. For general RAG architecture, use building-rag-systems instead. For general LLMOps operations, use practicing-llmops instead. For serverless security (IAM attacks, Lambda hacking, privilege escalation), use securing-serverless instead. For application logging design and log collection pipelines, use implementing-logging.
+  AWS development guide covering serverless (Lambda, API Gateway, DynamoDB, Step Functions),
+  CDK infrastructure as code, EKS Kubernetes, SRE operations, cost optimization (FinOps),
+  security (IAM, VPC, KMS, Cognito, GuardDuty), generative AI (Bedrock, RAG, Agents),
+  database services (Aurora, DynamoDB, ElastiCache), data engineering (Glue, Athena, Redshift),
+  developer tools (CodePipeline, Amplify), SageMaker ML, and SysOps operations.
+  MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in package.json,
+  cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), or eksctl configs.
+  For GCP, use developing-google-cloud.
+  For Terraform, use developing-terraform.
+  For Docker, use managing-docker.
+  For monitoring design, use designing-monitoring.
+  For RAG architecture, use building-rag-systems.
+  For LLMOps, use practicing-llmops.
+  For serverless security, use securing-serverless.
+  For application logging, use implementing-logging.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

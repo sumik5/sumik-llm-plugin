@@ -1,6 +1,7 @@
 ---
+name: developing-with-ai
 description: >-
-  Comprehensive AI-assisted development methodology covering prompt engineering,
+  AI-assisted development methodology covering prompt engineering,
   context engineering, code generation workflows, quality assurance, collaborative
   debugging, and agent collaboration patterns. MUST load when working with AI coding
   tools or discussing AI-assisted development practices. Use when crafting prompts

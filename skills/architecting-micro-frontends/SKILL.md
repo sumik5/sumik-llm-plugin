@@ -1,4 +1,5 @@
 ---
+name: architecting-micro-frontends
 description: >-
   Micro-frontend architecture patterns covering vertical/horizontal split, composition strategies
   (Module Federation, iframe, Web Components, SSR, ESI), decision framework, and organizational adoption.

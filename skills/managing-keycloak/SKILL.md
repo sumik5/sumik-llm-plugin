@@ -1,4 +1,5 @@
 ---
+name: managing-keycloak
 description: >-
   Comprehensive Keycloak identity and access management guide covering OIDC/SAML protocols, SSO, Realms,
   Clients, Users, Roles, authentication flows, MFA, authorization policies, JWT token management,
