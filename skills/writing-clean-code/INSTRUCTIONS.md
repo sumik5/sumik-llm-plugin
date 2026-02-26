@@ -244,6 +244,72 @@
 
 ---
 
+### [REFACTORING-CATALOG.md](./references/REFACTORING-CATALOG.md) - リファクタリングカタログ
+**カバー内容**: 体系的リファクタリングの10ルール、13パターン、コンパイラ協調
+
+- 関数を5行以内に保つルール体系
+- 13の機械的リファクタリングパターン
+- コンパイラの強み/弱みを活用した安全な変更
+- コード削除の哲学
+
+**主要パターン**: Extract Method, Replace Type Code with Classes, Introduce Strategy Pattern
+
+---
+
+### [CODE-CONTRACTS.md](./references/CODE-CONTRACTS.md) - 抽象化レイヤーとコードコントラクト
+**カバー内容**: 抽象化レイヤー設計、明示的・暗黙的コントラクト、Small Print の危険性、ランタイム強制
+
+- 抽象化レイヤーが達成する4つの品質の柱（可読性・モジュール性・再利用性・テスタビリティ）
+- 明示的契約 vs 暗黙的契約の比較表（信頼性の違い）
+- Small Print を排除する3つの方法（型システム・可視性制限・戻り値設計）
+- 他のエンジニアがコードを理解する手段（信頼性順）
+- 事前条件・事後条件・不変条件の実装とチェック vs アサーションの使い分け
+
+**主要パターン**: ファクトリメソッドパターン、コードコントラクトの明示化、型による契約伝達
+
+---
+
+### [ERROR-SIGNALING.md](./references/ERROR-SIGNALING.md) - エラーシグナリング戦略
+**カバー内容**: 回復可能性の判断、Fail Fast/Loud 原則、8つのシグナリング方式の比較
+
+- エラー回復可能性の判断フロー（「呼び出し側のみが回復可能性を判断できる」）
+- Fail Fast / Fail Loud 原則と回復可能性のスコープ
+- 8方式の詳細比較表（Checked/Unchecked例外, Nullable, Result型, Outcome型, Promise, マジック値, 何もしない）
+- @CheckReturnValue アノテーションと コンパイラ警告の活用
+- エラーを隠す4つのアンチパターン（デフォルト値・Nullオブジェクト誤用・何もしない・握りつぶし）
+
+**主要パターン**: Result型, Checked例外, Nullable戻り値, @CheckReturnValue
+
+---
+
+### [SURPRISE-PREVENTION.md](./references/SURPRISE-PREVENTION.md) - サプライズ防止：予期しない動作の排除
+**カバー内容**: マジック値、Nullオブジェクトパターン、副作用、入力パラメータ変更、Enum処理
+
+- マジック値の問題（型システムが検出できない理由・代替パターン）
+- Nullオブジェクトパターンの判断基準（空コレクション[良] vs ID文字列[悪] vs 複雑オブジェクト[危険]）
+- 予期しない副作用の3つの問題（コスト・仮定違反・マルチスレッドバグ）と命名による解決
+- 入力パラメータ変更禁止（コピーしてから変更するパターン）
+- 誤解を招く関数の回避（クリティカルパラメータを必須化）
+- 網羅的 switch 文 + 全 Enum 値テスト（default ケースの罠）
+
+**主要パターン**: コピーオンライト防御、exhaustive switch、@CheckReturnValue
+
+---
+
+### [MISUSE-PREVENTION.md](./references/MISUSE-PREVENTION.md) - 誤用防止：物理的に間違いにくいコードの設計
+**カバー内容**: 不変性（浅い・深い）、汎用型の危険性、時間の扱い、単一真実源
+
+- 浅い不変性: final + setter 削除、Builderパターン、コピーオンライトパターン
+- 深い不変性: 防御的コピー vs ImmutableList（参照による深い変更可能性の解決）
+- 汎用型の誤用: List<List<Double>> / Pair の問題と専用型定義（LatLong等）
+- 時間の型安全: 整数表現の3つの問題（瞬間vs期間混同・単位不一致・タイムゾーン混乱）と Duration/Instant
+- データの単一真実源: 派生データは計算で求める（遅延計算＋キャッシュ）
+- ロジックの単一真実源: serialize/deserialize を1クラスに集約
+
+**主要パターン**: Builderパターン、コピーオンライトパターン、ImmutableList、専用型定義
+
+---
+
 ### [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) - 品質保証（Ch.20-25）
 **カバー内容**: テスト、技術的負債、例外、メタプログラミング、型、セキュリティ
 
