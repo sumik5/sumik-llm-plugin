@@ -457,6 +457,104 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 | APIドキュメントは自動生成 | oapi-codegenでスキーマ駆動 |
 | ヘッダー設定は先に | ヘッダー → ステータス → ボディの順 |
 
+## クッキー管理
+
+### http.SetCookie / r.Cookie
+
+HTTPクッキーの読み書きは標準ライブラリの `http.SetCookie` と `r.Cookie` で行います。
+
+```go
+// クッキーを設定する
+http.SetCookie(w, &http.Cookie{
+    Name:     "session_id",
+    Value:    "abc123",
+    Path:     "/",
+    MaxAge:   86400, // 1日（秒）
+    Secure:   true,
+    HttpOnly: true,
+    SameSite: http.SameSiteStrictMode,
+})
+
+// クッキーを読み取る
+cookie, err := r.Cookie("session_id")
+if err == http.ErrNoCookie {
+    http.Error(w, "no session", http.StatusUnauthorized)
+    return
+}
+sessionID := cookie.Value
+```
+
+### http.Cookie 構造体の主要フィールド
+
+| フィールド | 型 | 説明 |
+|-----------|-----|------|
+| `Name` | string | クッキー名 |
+| `Value` | string | クッキー値 |
+| `Path` | string | 有効パス（`"/"` 推奨） |
+| `MaxAge` | int | 有効秒数（0: セッション終了まで、負値: 即削除） |
+| `Secure` | bool | HTTPS通信時のみ送信 |
+| `HttpOnly` | bool | JavaScriptからアクセス不可（XSS対策） |
+| `SameSite` | SameSite | CSRF対策（Strict/Lax/None） |
+
+**推奨セキュリティ設定:**
+
+```go
+&http.Cookie{
+    HttpOnly: true,                    // XSS対策: 必須
+    Secure:   true,                    // HTTPS専用: 本番環境では必須
+    SameSite: http.SameSiteStrictMode, // CSRF対策
+    Path:     "/",
+}
+```
+
+## フラッシュメッセージパターン
+
+### クッキーベースの一時メッセージ
+
+PRG（Post-Redirect-Get）パターンと組み合わせた一時メッセージ。`MaxAge: -1` で読み取り後に即削除します。
+
+```go
+// 書き込み（リダイレクト前）
+func setFlash(w http.ResponseWriter, message string) {
+    http.SetCookie(w, &http.Cookie{
+        Name:     "flash",
+        Value:    url.QueryEscape(message), // エンコード必須
+        Path:     "/",
+        MaxAge:   0, // セッション終了まで有効
+        HttpOnly: true,
+    })
+}
+
+// 読み取り＋削除（リダイレクト後）
+func getFlash(w http.ResponseWriter, r *http.Request) string {
+    cookie, err := r.Cookie("flash")
+    if err != nil {
+        return ""
+    }
+    // 即削除（MaxAge=-1）
+    http.SetCookie(w, &http.Cookie{
+        Name:   "flash",
+        MaxAge: -1,
+        Path:   "/",
+    })
+    message, _ := url.QueryUnescape(cookie.Value)
+    return message
+}
+
+// PRGパターン
+func createHandler(w http.ResponseWriter, r *http.Request) {
+    // ... POST処理 ...
+    setFlash(w, "作成が完了しました")
+    http.Redirect(w, r, "/list", http.StatusSeeOther)
+}
+
+func listHandler(w http.ResponseWriter, r *http.Request) {
+    flash := getFlash(w, r) // 読み取りと同時に削除
+    // テンプレートにflashを渡す
+    _ = flash
+}
+```
+
 ## アンチパターン
 
 | パターン | 問題 | 修正 |

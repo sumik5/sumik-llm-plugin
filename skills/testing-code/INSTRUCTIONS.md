@@ -100,6 +100,21 @@ it('有効なデータの時、ユーザーを作成すべき', () => {
 
 詳細は [REFERENCE.md](./references/REFERENCE.md) を参照してください。
 
+## 🔧 言語別テストガイド
+
+### Go
+
+Go固有のテストパターン（テーブル駆動テスト、httptest、ベンチマーク、Fuzzing、`-race`フラグ等）は
+**[developing-go テスト戦略](../developing-go/references/TESTING.md)** を参照してください。
+
+主要なGo固有テスト機能:
+- テーブル駆動テスト（`[]struct` + `t.Run`）
+- `httptest.ResponseRecorder` によるHTTPテスト
+- ベンチマーク（`testing.B`）
+- Fuzzing（`testing.F`、Go 1.18+）
+- データレース検出（`go test -race`）
+- テストスキップ（`t.Skip` / `testing.Short()`）
+
 ## 🎨 テスタブルな設計
 
 テストしやすいコードを書くための設計原則：

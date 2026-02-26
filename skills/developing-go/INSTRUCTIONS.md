@@ -41,14 +41,21 @@ Goの強力な並行処理パターン：
 - ベンチマークテスト
 - テストヘルパーの作成
 
-### 5. [プロジェクト構造](./references/PROJECT-STRUCTURE.md)
+### 5. [nilハンドリング](./references/NIL-HANDLING.md)
+nil値の包括的ガイド：
+- interfaceの(type,value)パラドックス
+- 型別nil挙動一覧（ポインタ/スライス/マップ/チャネル/関数/interface）
+- nil receiverガードパターン
+- nilスライス vs 空スライス
+
+### 6. [プロジェクト構造](./references/PROJECT-STRUCTURE.md)
 推奨ディレクトリレイアウト：
 - cmd/とinternal/の使い分け
 - pkg/の適切な使用
 - go.modの管理
 - モジュール設計
 
-### 6. [開発ツール](./references/TOOLING.md)
+### 7. [開発ツール](./references/TOOLING.md)
 Goエコシステムのツール活用：
 - gofmt/goimports
 - golangci-lint
@@ -56,24 +63,24 @@ Goエコシステムのツール活用：
 - delve（デバッガ）
 - Makefileパターン
 
-### 7. [クリーンな関数設計](./references/CLEAN-FUNCTIONS.md)
+### 8. [クリーンな関数設計](./references/CLEAN-FUNCTIONS.md)
 関数設計とリファクタリング：
 - 命名、引数、早期リターン
 - DRY/KISS/YAGNIの適用
 - 小さく焦点を絞った関数
 
-### 8. [データ構造設計](./references/DATA-STRUCTURES.md)
+### 9. [データ構造設計](./references/DATA-STRUCTURES.md)
 構造体とインターフェースの設計：
 - struct、interface、ゼロ値
 - カプセル化の強化
 
-### 9. [クリーンなエラーハンドリング](./references/ERROR-HANDLING-CLEAN.md)
+### 10. [クリーンなエラーハンドリング](./references/ERROR-HANDLING-CLEAN.md)
 エラーハンドリングパターンの詳細：
 - 明示的チェック、ラップ
 - カスタムエラー型の設計
 - センチネルエラーとエラーチェーン
 
-### 10. [並行処理とテスト](./references/CONCURRENCY-AND-TESTING.md)
+### 11. [並行処理とテスト](./references/CONCURRENCY-AND-TESTING.md)
 並行処理・テスト・リファクタリング：
 - context、channel
 - テーブル駆動テスト
@@ -310,6 +317,7 @@ GoFデザインパターン、Go並行処理パターン、アーキテクチャ
 | [DATA-FORMATS.md](./references/DATA-FORMATS.md) | JSON/CSV/Excel/固定長データ処理（カスタムマーシャラー、BOM対応、巨大ファイル） |
 | [DATABASE.md](./references/DATABASE.md) | database/sql、トランザクション、コネクションプール、バッチインサート、sqlc/sqlboiler/GORM |
 | [HTTP-SERVER.md](./references/HTTP-SERVER.md) | net/http、ルーター（chi）、Middleware、SPA配信、oapi-codegen |
+| [TEMPLATE-ENGINE.md](./references/TEMPLATE-ENGINE.md) | html/templateとtext/templateの使い分け：コンテキスト依存XSS防御、マルチファイルテンプレート（ParseFiles/ExecuteTemplate）、FuncMapによるカスタム関数 |
 | [HTTP-CLIENT.md](./references/HTTP-CLIENT.md) | RoundTripperパターン、リトライ（Exponential Backoff/Jitter）、プロキシ対応 |
 | [LOGGING.md](./references/LOGGING.md) | 構造化ログ（zerolog/zap/slog）、ログレベル戦略、net/httpエラーログカスタマイズ |
 | [CLOUD-CONTAINER.md](./references/CLOUD-CONTAINER.md) | Graceful Shutdown、コンテナイメージ（distroless/scratch）、ヘルスチェック、設定管理 |

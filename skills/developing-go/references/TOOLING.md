@@ -675,6 +675,59 @@ cat go.mod
 - セキュリティパッチの適用
 - 性能向上・バイナリサイズ削減
 
+## クロスコンパイル
+
+### GOOS/GOARCH 環境変数
+
+Goはターゲットプラットフォームを環境変数で指定するだけでクロスコンパイルが可能です。
+
+```bash
+# Linux amd64 向けバイナリをビルド
+GOOS=linux GOARCH=amd64 go build -o myapp ./cmd/myapp
+
+# Windows amd64 向けバイナリをビルド
+GOOS=windows GOARCH=amd64 go build -o myapp.exe ./cmd/myapp
+```
+
+### 主要な GOOS/GOARCH 組み合わせ
+
+| GOOS | GOARCH | 用途 |
+|------|--------|------|
+| `linux` | `amd64` | サーバー（最も一般的） |
+| `linux` | `arm64` | ARM Linux / AWS Graviton |
+| `darwin` | `amd64` | macOS (Intel) |
+| `darwin` | `arm64` | macOS (Apple Silicon) |
+| `windows` | `amd64` | Windows |
+
+### CGO_ENABLED=0 でスタティックリンク
+
+クロスコンパイル時は `CGO_ENABLED=0` を設定して純粋な Go バイナリにします。
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o myapp ./cmd/myapp
+```
+
+### Makefile でのマルチプラットフォームビルド
+
+```makefile
+.PHONY: build-all
+
+APP_NAME := myapp
+
+build-all: build-linux build-darwin build-windows
+
+build-linux:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o bin/$(APP_NAME)-linux-amd64 ./cmd/myapp
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o bin/$(APP_NAME)-linux-arm64 ./cmd/myapp
+
+build-darwin:
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o bin/$(APP_NAME)-darwin-amd64 ./cmd/myapp
+	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o bin/$(APP_NAME)-darwin-arm64 ./cmd/myapp
+
+build-windows:
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o bin/$(APP_NAME)-windows-amd64.exe ./cmd/myapp
+```
+
 ## ツール一覧
 
 | ツール | 目的 | コマンド |

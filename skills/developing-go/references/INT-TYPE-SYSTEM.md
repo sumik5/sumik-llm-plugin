@@ -413,6 +413,65 @@ const (
 
 ---
 
+## 型変換 vs 型アサーション
+
+Goには「型変換」と「型アサーション」という2つの異なる型変換メカニズムがあります。
+
+### Type Conversion（型変換）: `T(v)`
+
+**互換性のある具体型間**でのみ有効。コンパイル時に検証されます。
+
+```go
+// Good: 互換性のある型間での変換
+var i int = 42
+var f float64 = float64(i) // int → float64
+var u uint = uint(f)       // float64 → uint
+var b byte = byte(i)       // int → byte (uint8)
+
+// ❌ コンパイルエラー: 互換性のない型
+// var s string = string(42)  // NG（intからstringへは直接変換不可）
+```
+
+### Type Assertion（型アサーション）: `v.(T)`
+
+**interface値**の具体型を取り出す操作。ランタイムに検証されます。
+
+```go
+var v interface{} = "hello"
+
+// 安全でない方法（panicの恐れ）
+s := v.(string) // v が string でなければ panic
+
+// ✅ コンマokパターン（推奨）
+s, ok := v.(string)
+if !ok {
+    fmt.Println("not a string")
+    return
+}
+fmt.Println(s) // "hello"
+```
+
+### 2つの違いまとめ
+
+| | Type Conversion `T(v)` | Type Assertion `v.(T)` |
+|--|------------------------|------------------------|
+| 対象 | 具体型 → 具体型 | interface値 → 具体型 |
+| 検証タイミング | コンパイル時 | ランタイム |
+| 失敗した場合 | コンパイルエラー | panic（2値形式なら `ok=false`） |
+| 典型例 | `int64(x)`, `float64(n)` | `err.(MyError)`, `w.(http.Flusher)` |
+
+```go
+// 実践例: インターフェースの実装確認
+func process(w http.ResponseWriter) {
+    // http.ResponseWriter が http.Flusher を実装しているか確認
+    if flusher, ok := w.(http.Flusher); ok {
+        flusher.Flush()
+    }
+}
+```
+
+---
+
 **関連ドキュメント**:
 - [COMPOSITE-INTERNALS.md](./COMPOSITE-INTERNALS.md) - スライス、マップ、構造体の内部構造
 - [LOW-LEVEL.md](./LOW-LEVEL.md) - unsafe.Sizeofによるメモリサイズ検査

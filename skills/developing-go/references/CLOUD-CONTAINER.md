@@ -464,6 +464,59 @@ volumes:
 | タイムゾーン設定 | time/tzdataまたはコピー |
 | CA証明書配置 | HTTPS通信に必要 |
 
+## Google App Engine（GAE）の制約
+
+### 第1世代 GAE（旧スタンダード環境）
+
+第1世代の GAE ランタイムでは `main()` 関数が GAE によって制御されるため、HTTPハンドラは `init()` 関数内で登録する必要がありました。
+
+```go
+// ❌ 第1世代では main() は使えない
+
+// ✅ init() でハンドラを登録
+func init() {
+    http.HandleFunc("/", indexHandler)
+    http.HandleFunc("/api/users", usersHandler)
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprint(w, "Hello, App Engine!")
+}
+```
+
+**GAE固有の制約（第1世代）:**
+
+- ポート指定不可（`PORT` 環境変数でプラットフォームが自動設定）
+- Cloud SQL は Unix ソケット経由で接続
+- `main()` 関数を定義してはいけない
+
+```go
+// Cloud SQL 接続（第1世代）
+func init() {
+    db, _ = sql.Open("mysql",
+        "user:password@unix(/cloudsql/project:region:instance)/dbname?parseTime=true")
+    http.HandleFunc("/", handler)
+}
+```
+
+### 第2世代 GAE（現行 Go ランタイム）
+
+現行の GAE（第2世代）では通常の `main()` 関数が使用可能です。
+
+```go
+// ✅ 現行 GAE では main() が使える
+func main() {
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "8080"
+    }
+    http.HandleFunc("/", handler)
+    log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+```
+
+**注意**: `PORT` 環境変数はプラットフォームが設定するため、ハードコードせず環境変数から読み取ること。
+
 ## アンチパターン
 
 | パターン | 問題 | 修正 |

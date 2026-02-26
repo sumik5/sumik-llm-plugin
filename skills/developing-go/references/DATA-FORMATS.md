@@ -384,6 +384,136 @@ fmt.Println(string(data)) // 00001Gopher             025
 
 ---
 
+## GOB形式
+
+`encoding/gob`はGo固有のバイナリシリアライゼーションパッケージ。Go同士の通信（RPCやキャッシュ保存）に適している。
+
+### JSON/XMLとの比較
+
+| 特性 | GOB | JSON | XML |
+|-----|-----|------|-----|
+| 速度 | 高速 | 中程度 | 低速 |
+| サイズ | コンパクト | 中程度 | 大きい |
+| 可読性 | バイナリ（不可） | テキスト（可） | テキスト（可） |
+| 言語互換性 | Go専用 | 汎用 | 汎用 |
+| スキーマ | 不要 | 不要 | 任意 |
+
+### 基本パターン（Encoder/Decoder）
+
+```go
+import (
+    "bytes"
+    "encoding/gob"
+    "fmt"
+    "log"
+)
+
+type User struct {
+    ID   int
+    Name string
+    Age  int
+}
+
+// エンコード（構造体 → バイト列）
+func encode(u User) ([]byte, error) {
+    var buf bytes.Buffer
+    enc := gob.NewEncoder(&buf)
+    if err := enc.Encode(u); err != nil {
+        return nil, fmt.Errorf("gob encode: %w", err)
+    }
+    return buf.Bytes(), nil
+}
+
+// デコード（バイト列 → 構造体）
+func decode(data []byte) (User, error) {
+    var u User
+    buf := bytes.NewBuffer(data)
+    dec := gob.NewDecoder(buf)
+    if err := dec.Decode(&u); err != nil {
+        return User{}, fmt.Errorf("gob decode: %w", err)
+    }
+    return u, nil
+}
+
+// 使用例
+func main() {
+    original := User{ID: 1, Name: "Gopher", Age: 10}
+
+    data, err := encode(original)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("encoded: %d bytes\n", len(data))
+
+    restored, err := decode(data)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("restored: %+v\n", restored) // {ID:1 Name:Gopher Age:10}
+}
+```
+
+### インターフェース型のGOBエンコード
+
+インターフェース型を含む場合は、事前に具体型を登録する必要がある。
+
+```go
+type Animal interface {
+    Sound() string
+}
+
+type Dog struct{ Name string }
+type Cat struct{ Name string }
+
+func (d Dog) Sound() string { return "Woof" }
+func (c Cat) Sound() string { return "Meow" }
+
+func init() {
+    // インターフェースを実装する具体型を登録
+    gob.Register(Dog{})
+    gob.Register(Cat{})
+}
+
+type Zoo struct {
+    Animals []Animal
+}
+
+// 登録後はインターフェーススライスもエンコード可能
+zoo := Zoo{Animals: []Animal{Dog{Name: "Pochi"}, Cat{Name: "Tama"}}}
+```
+
+### RPC通信での活用
+
+`net/rpc`パッケージはデフォルトでGOBを使用する。
+
+```go
+// サーバー側
+type MathService struct{}
+
+type Args struct{ A, B int }
+type Reply struct{ Result int }
+
+func (m *MathService) Add(args *Args, reply *Reply) error {
+    reply.Result = args.A + args.B
+    return nil
+}
+
+func main() {
+    rpc.Register(&MathService{})
+    listener, _ := net.Listen("tcp", ":1234")
+    rpc.Accept(listener) // GOBで自動シリアライズ
+}
+```
+
+### 注意事項
+
+- GOBはGo同士の通信専用。他言語との連携にはJSON/Protobufを使用
+- エクスポートされたフィールドのみエンコード対象（JSONと同様）
+- `gob.Register()`はインターフェース型を含む場合に必須
+- ファイル/ネットワーク保存の長期データにはJSONが望ましい（後方互換性）
+
+---
+
 ## まとめ
 
 データフォーマット処理のベストプラクティス：

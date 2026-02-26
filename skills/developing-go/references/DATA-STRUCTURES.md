@@ -1548,3 +1548,121 @@ log.Println("Created session:", session)
 // Output: Created session: Session{ID: sess_123, UserID: 42, Token: [REDACTED]}
 // Tokenは出力されない
 ```
+
+---
+
+## 12. 型アサーションパターン集
+
+型アサーションはインターフェース型から具体型を取り出す操作。コンマokイディオムを使って安全に扱う。
+
+### 単一型アサーション
+
+```go
+var i interface{} = "hello"
+
+// Bad: panicの可能性（型が違う場合）
+s := i.(string)          // OK
+n := i.(int)             // panic: interface conversion
+
+// Good: コンマokイディオム（安全）
+s, ok := i.(string)
+if ok {
+    fmt.Println("文字列:", s) // "hello"
+} else {
+    fmt.Println("文字列ではない")
+}
+
+// ゼロ値と区別が必要な場合もコンマokイディオム
+val, ok := i.(int)
+if !ok {
+    // 型が違う場合、valはゼロ値(0)になる
+    // okがfalseなのでゼロ値と区別できる
+}
+```
+
+### 型スイッチ
+
+複数の型を判定する場合は型スイッチを使う。
+
+```go
+func describe(i interface{}) string {
+    switch v := i.(type) {
+    case int:
+        return fmt.Sprintf("整数: %d", v)
+    case string:
+        return fmt.Sprintf("文字列: %q (長さ=%d)", v, len(v))
+    case bool:
+        return fmt.Sprintf("真偽値: %v", v)
+    case []int:
+        return fmt.Sprintf("int slice: 長さ=%d", len(v))
+    case nil:
+        return "nil"
+    default:
+        return fmt.Sprintf("不明な型: %T", v)
+    }
+}
+
+// インターフェース実装チェック
+func printIfStringer(i interface{}) {
+    if s, ok := i.(fmt.Stringer); ok {
+        fmt.Println(s.String())
+    } else {
+        fmt.Printf("%v\n", i)
+    }
+}
+```
+
+---
+
+## 13. ブランク識別子の活用
+
+`_`（ブランク識別子）は不要な値を明示的に捨てる際に使う。意図的な無視を表現できる。
+
+### インターフェース実装確認
+
+コンパイル時に型がインターフェースを満たしているかチェックする慣用表現。
+
+```go
+type Writer interface {
+    Write([]byte) (int, error)
+}
+
+type MyWriter struct{}
+
+func (w *MyWriter) Write(p []byte) (int, error) {
+    return len(p), nil
+}
+
+// コンパイル時の実装確認（実行時コストなし）
+var _ Writer = (*MyWriter)(nil) // *MyWriterがWriterを実装していなければコンパイルエラー
+var _ Writer = &MyWriter{}      // 同様（値が生成されるのでnilより若干コスト高）
+
+// 大規模なインターフェースに便利
+var _ http.Handler = (*MyHandler)(nil)
+var _ io.ReadWriter = (*Buffer)(nil)
+```
+
+### 不要な戻り値の無視
+
+```go
+// 複数戻り値の一部を捨てる
+n, _ := fmt.Fprintf(w, "Hello")  // エラーを無視（意図的）
+_, err := fmt.Fscan(r, &val)     // バイト数を無視
+
+// rangeでインデックスまたは値を捨てる
+for _, v := range items {   // インデックス不要
+    process(v)
+}
+for i := range items {      // 値不要（Goではこれが慣用表現）
+    items[i] = transform(items[i])
+}
+```
+
+### インポートの副作用のみ使用
+
+```go
+// パッケージの副作用（init関数）のみを利用する場合
+import _ "image/png"        // PNG形式をimage.Decodeで使えるように登録
+import _ "net/http/pprof"   // pprofエンドポイントをHTTPサーバーに登録
+import _ "time/tzdata"      // タイムゾーンデータをバイナリに埋め込む
+```

@@ -496,6 +496,37 @@ db.First(&user, "id = ?", "001")
 
 ---
 
+## プレースホルダ方言
+
+`database/sql` のプレースホルダ記法は DBドライバごとに異なります。
+
+| DB | プレースホルダ | 例 |
+|----|-------------|-----|
+| PostgreSQL | `$1, $2, ...` | `WHERE id = $1` |
+| MySQL | `?` | `WHERE id = ?` |
+| SQLite | `?` または `$1` | `WHERE id = ?` |
+| Oracle | `:name` | `WHERE id = :id` |
+
+```go
+// PostgreSQL
+db.QueryContext(ctx, "SELECT * FROM users WHERE id = $1 AND age > $2", id, age)
+
+// MySQL
+db.QueryContext(ctx, "SELECT * FROM users WHERE id = ? AND age > ?", id, age)
+```
+
+**ORMを使えば自動変換される**: sqlx / GORM は接続ドライバを検出して適切なプレースホルダを自動選択します。
+
+```go
+// sqlx: Named query（ドライバに依存しない記法）
+rows, err := sqlx.NamedQuery(db,
+    "SELECT * FROM users WHERE id = :id AND age > :age",
+    map[string]interface{}{"id": id, "age": age},
+)
+```
+
+---
+
 ## まとめ
 
 DB操作のベストプラクティス：

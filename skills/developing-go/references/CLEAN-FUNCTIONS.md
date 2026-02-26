@@ -729,6 +729,99 @@ func isEligibleForDiscount(user User) bool {
 
 ---
 
+## 7. 簡易文付きifと可変長引数
+
+### 簡易文付きif（変数スコープ局所化）
+
+`if`文の条件式の前に簡易文（short statement）を書ける構文。変数スコープをifブロック内に限定できる。
+
+```go
+// Bad: err変数がif外のスコープに漏れる
+err := validate(input)
+if err != nil {
+    return err
+}
+// errはここでも参照可能（意図しない再利用の可能性）
+
+// Good: errのスコープがifブロック内に限定される
+if err := validate(input); err != nil {
+    return err
+}
+// err はここでは参照不可 → スコープが明確
+
+// エラーハンドリング以外の活用（計算結果の一時化）
+if n, err := fmt.Fprintf(w, "Hello %s", name); err != nil {
+    return fmt.Errorf("write failed after %d bytes: %w", n, err)
+}
+
+// mapのキー存在チェックと処理を1行に
+if val, ok := cache[key]; ok {
+    return val, nil
+}
+
+// 型アサーションと処理を1行に
+if stringer, ok := v.(fmt.Stringer); ok {
+    return stringer.String()
+}
+```
+
+**利点**:
+- 変数が必要な範囲だけに限定される（意図しない再利用を防ぐ）
+- コードの意図が明確になる
+- 無用な変数が外側のスコープを汚染しない
+
+### 可変長引数パターン
+
+`...T`で可変長引数を受け取れる。スライスを渡す際は`...`で展開する。
+
+```go
+// 定義: 可変長引数
+func sum(values ...int) int {
+    total := 0
+    for _, v := range values {
+        total += v
+    }
+    return total
+}
+
+// 呼び出し: 任意の数の引数
+fmt.Println(sum(1, 2, 3))       // 6
+fmt.Println(sum(10, 20))        // 30
+fmt.Println(sum())              // 0
+
+// スライスの展開: ... で渡す
+nums := []int{1, 2, 3, 4, 5}
+fmt.Println(sum(nums...))       // 15
+
+// 実用パターン1: ログ関数（fmt.Printfスタイル）
+func logf(level, format string, args ...interface{}) {
+    fmt.Printf("[%s] "+format+"\n", append([]interface{}{level}, args...)...)
+}
+logf("INFO", "user %s logged in from %s", "alice", "192.168.1.1")
+
+// 実用パターン2: Functional Optionとの組み合わせ（既存のServerOption例参照）
+func NewServer(addr string, opts ...ServerOption) *Server {
+    srv := &Server{addr: addr}
+    for _, opt := range opts {
+        opt(srv)
+    }
+    return srv
+}
+
+// 実用パターン3: 可変長の許可リスト検証
+func isAllowed(target string, allowed ...string) bool {
+    for _, s := range allowed {
+        if s == target {
+            return true
+        }
+    }
+    return false
+}
+fmt.Println(isAllowed("admin", "admin", "superuser")) // true
+```
+
+---
+
 ## まとめ
 
 クリーンな関数設計の核心は以下の通り:

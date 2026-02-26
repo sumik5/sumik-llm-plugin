@@ -895,3 +895,187 @@ func TestQuery(t *testing.T) {
 - `TestMain`が存在する場合、通常の`Test*`関数の前後処理は実行されない
 - テストごとの前後処理は`t.Cleanup()`を使用
 - `m.Run()`の戻り値を必ず`os.Exit()`に渡す
+
+---
+
+## データレース検出（-race）
+
+並行処理のバグを検出するための重要なフラグ：
+
+```bash
+go test -race ./...
+```
+
+- **コンパイル時インストルメンテーション**: ビルド時にデータアクセスの追跡コードを自動挿入
+- **実行時検出**: goroutine間のデータ競合を実行時に検出・報告
+- **CI/CD必須**: `-race` なしでは検出されないため、本番環境のCIパイプラインで必ず有効化
+- **パフォーマンス影響**: メモリ使用量2〜10倍、実行速度2〜20倍遅延（テスト実行時のみ許容範囲）
+
+### データレースが発生するコード例
+
+```go
+func TestCounter_Race(t *testing.T) {
+    counter := 0
+    var wg sync.WaitGroup
+    for i := 0; i < 100; i++ {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            counter++ // データレース: 複数goroutineが保護なしに書き込む
+        }()
+    }
+    wg.Wait()
+}
+```
+
+`go test -race` 実行結果:
+```
+==================
+WARNING: DATA RACE
+Write at 0x... by goroutine N:
+  TestCounter_Race.func1()
+Previous write at 0x... by goroutine M:
+  TestCounter_Race.func1()
+==================
+```
+
+**修正**: `sync/atomic` または `sync.Mutex` でデータアクセスを保護する。
+
+---
+
+## テストスキップ（t.Skip / testing.Short）
+
+重いテストを条件付きでスキップする機能：
+
+```go
+func TestIntegration(t *testing.T) {
+    if testing.Short() {
+        t.Skip("skipping integration test in short mode")
+    }
+    // 統合テスト実行（DB接続、外部API等）
+}
+```
+
+```bash
+# 短縮モードで実行（testing.Short() が true になる）
+go test -short ./...
+```
+
+### t.Skip vs t.SkipNow の違い
+
+| 関数 | 動作 |
+|------|------|
+| `t.Skip(msg)` | メッセージを記録してテストをスキップ（残りのコードは実行されない） |
+| `t.SkipNow()` | 即座にスキップ（メッセージなし）。ヘルパー関数内では `t.Helper()` と組み合わせて使用 |
+| `t.Skipf(format, args)` | フォーマット付きメッセージでスキップ |
+
+### 使用例
+
+```go
+func TestDatabaseConnection(t *testing.T) {
+    if os.Getenv("DATABASE_URL") == "" {
+        t.Skip("DATABASE_URL not set, skipping database test")
+    }
+    // データベーステスト
+}
+
+func TestSlowProcess(t *testing.T) {
+    if testing.Short() {
+        t.Skipf("skipping slow test (takes ~30s) in short mode")
+    }
+    // 重い処理のテスト
+}
+```
+
+---
+
+## テストファイル命名規則
+
+Goのテストファイルには厳格な命名規則がある：
+
+### ファイルとパッケージの規則
+
+| 規則 | 説明 |
+|------|------|
+| `xxx_test.go` | テストファイルの命名（`go test` 時のみコンパイル。通常ビルドには含まれない） |
+| `package xxx` | ホワイトボックステスト。非公開メンバーにアクセス可能 |
+| `package xxx_test` | ブラックボックステスト（外部テストパッケージ）。エクスポートされたAPIのみテスト |
+
+### テスト関数の接頭辞
+
+| 接頭辞 | シグネチャ | 用途 |
+|--------|-----------|------|
+| `Test` | `func TestXxx(t *testing.T)` | 通常のテスト |
+| `Benchmark` | `func BenchmarkXxx(b *testing.B)` | パフォーマンステスト |
+| `Example` | `func ExampleXxx()` | godocに表示される実行例。`// Output:` コメントで出力を自動検証 |
+| `Fuzz` | `func FuzzXxx(f *testing.F)` | ファジングテスト（Go 1.18+） |
+
+### 外部テストパッケージの使い分け
+
+```go
+// auth_test.go - ホワイトボックス（内部実装のテスト）
+package auth
+
+func TestHashPassword(t *testing.T) {
+    // 非公開関数 hashInternal() にアクセス可能
+}
+
+// auth_integration_test.go - ブラックボックス（公開APIのテスト）
+package auth_test
+
+import "myapp/auth"
+
+func TestLogin(t *testing.T) {
+    // auth.Login() などエクスポートされた関数のみ使用
+}
+```
+
+---
+
+## デッドロック検出テスト
+
+タイムアウトを使ってデッドロックを検出するパターン：
+
+```go
+func TestNoDeadlock(t *testing.T) {
+    done := make(chan struct{})
+    go func() {
+        // テスト対象の並行処理
+        performConcurrentOperation()
+        close(done)
+    }()
+
+    select {
+    case <-done:
+        // 正常終了
+    case <-time.After(5 * time.Second):
+        t.Fatal("deadlock detected: operation timed out after 5s")
+    }
+}
+```
+
+**要点:**
+- `time.After` でタイムアウトを設定し、無限待機を防ぐ
+- タイムアウト値はCI/CDの実行環境を考慮して余裕を持たせる
+- `context.WithTimeout` と組み合わせることで、キャンセル可能な実装にも対応
+
+```go
+func TestWithContext(t *testing.T) {
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+
+    result := make(chan string, 1)
+    go func() {
+        result <- processWithContext(ctx)
+    }()
+
+    select {
+    case got := <-result:
+        if got != "expected" {
+            t.Errorf("got %q; want %q", got, "expected")
+        }
+    case <-ctx.Done():
+        t.Fatal("test timed out:", ctx.Err())
+    }
+}
+```

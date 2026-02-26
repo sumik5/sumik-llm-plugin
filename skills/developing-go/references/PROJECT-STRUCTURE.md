@@ -975,6 +975,58 @@ var repo storage.Repository = postgres.New()
 
 ---
 
+## 1ディレクトリ1パッケージルール
+
+### Goの強制ルール
+
+Goでは**1つのディレクトリには1つの `package` 宣言**しか許可されません（テストを除く）。
+
+```
+// ❌ Bad: 同一ディレクトリに複数パッケージは不可
+mypackage/
+├── foo.go       // package mypackage
+└── bar.go       // package other    ← ビルドエラー！
+```
+
+### 例外1: テストパッケージ（`_test` サフィックス）
+
+`_test.go` ファイルのみ別パッケージ名が許可されます。これを「外部テスト」と呼びます。
+
+```go
+// Good: 外部テストパッケージ（公開APIのみテスト）
+// mypackage/foo_test.go
+package mypackage_test  // _test サフィックスにより同一ディレクトリで別パッケージ可
+
+import "github.com/user/myapp/mypackage"
+
+func TestFoo(t *testing.T) {
+    result := mypackage.Foo()
+    // ...
+}
+```
+
+### 例外2: ビルドタグによる条件付きコンパイル
+
+同一パッケージ名で `//go:build` タグを使い、条件付きコンパイルが可能です。
+
+```go
+//go:build linux
+
+package mypackage  // パッケージ名は同一
+
+// Linux専用コード
+```
+
+### この制約の利点
+
+| 利点 | 説明 |
+|------|------|
+| ビルドの単純化 | ディレクトリ = パッケージの1対1対応が明確 |
+| IDE支援の向上 | パッケージ境界が明確でナビゲーションが容易 |
+| 循環インポート防止 | パッケージ分割の粒度が自然に決まる |
+
+---
+
 ## プロジェクト構造のまとめ
 
 | 戦略 | 適用場面 | 例 |

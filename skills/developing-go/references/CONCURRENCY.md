@@ -1604,3 +1604,33 @@ f3 := NewFuture(func() int { return 3 })
 results := WaitAll(f1, f2, f3)
 fmt.Println(results)  // [1 2 3]
 ```
+
+---
+
+## デッドロック自動検出
+
+Goランタイムは全goroutineが待機状態になるとデッドロックを自動検出し`fatal error`を発生させる:
+
+```
+fatal error: all goroutines are asleep - deadlock!
+```
+
+### 検出条件と制限
+
+- **検出される**: 全goroutineが待機状態（実行可能なgoroutineが0個）
+- **検出される**: main goroutineのみの場合も検出
+- **検出されない**: 一部のgoroutineだけがデッドロック（他が動作中）の場合
+- テスト時: `-timeout`フラグ（デフォルト10分）で部分デッドロックも検出可能
+
+### コード例
+
+```go
+// Bad: メインgoroutineでブロック
+ch := make(chan int)
+fmt.Println(<-ch) // fatal error: all goroutines are asleep - deadlock!
+
+// Good: 別goroutineで送信
+ch := make(chan int)
+go func() { ch <- 42 }()
+fmt.Println(<-ch) // 42
+```

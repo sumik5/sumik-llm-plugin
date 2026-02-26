@@ -159,6 +159,80 @@ func (e *QueryError) Unwrap() error {
 }
 ```
 
+### ファイルI/Oエラーチェーン実例
+
+多段の`fmt.Errorf("%w")`ラップでコールスタック情報を保持する実践パターン。各レイヤーでエラーにコンテキストを付加することで、最終的なエラーメッセージから失敗箇所を特定できる。
+
+```go
+// Bad: コンテキストなし（どこで失敗したか不明）
+func loadConfig(path string) (*Config, error) {
+    data, err := os.Open(path)
+    if err != nil {
+        return nil, err // "open: no such file or directory" のみ
+    }
+    // ...
+}
+
+// Good: 各層でラップ（コールスタック情報を保持）
+func parseValue(raw string) (int, error) {
+    v, err := strconv.Atoi(raw)
+    if err != nil {
+        return 0, fmt.Errorf("parse value %q: %w", raw, err)
+    }
+    return v, nil
+}
+
+func validateConfig(cfg *Config) error {
+    if cfg.Port <= 0 {
+        return fmt.Errorf("validate config: invalid port %d: %w", cfg.Port, ErrInvalidInput)
+    }
+    return nil
+}
+
+func parseConfig(data []byte) (*Config, error) {
+    var cfg Config
+    if err := json.Unmarshal(data, &cfg); err != nil {
+        return nil, fmt.Errorf("parse config JSON: %w", err)
+    }
+    if err := validateConfig(&cfg); err != nil {
+        return nil, fmt.Errorf("parse config: %w", err)
+    }
+    return &cfg, nil
+}
+
+func readAll(path string) ([]byte, error) {
+    data, err := os.ReadFile(path)
+    if err != nil {
+        return nil, fmt.Errorf("read file %s: %w", path, err)
+    }
+    return data, nil
+}
+
+func loadConfig(path string) (*Config, error) {
+    data, err := readAll(path)
+    if err != nil {
+        return nil, fmt.Errorf("load config: %w", err)
+    }
+    cfg, err := parseConfig(data)
+    if err != nil {
+        return nil, fmt.Errorf("load config: %w", err)
+    }
+    return cfg, nil
+}
+
+// エラーメッセージの例:
+// "load config: read file config.json: open config.json: no such file or directory"
+
+// errors.Is()で元のエラーを検査できる
+err := loadConfig("config.json")
+if errors.Is(err, os.ErrNotExist) {
+    fmt.Println("設定ファイルが見つかりません") // %w で繋がっていれば検査可能
+}
+if errors.Is(err, ErrInvalidInput) {
+    fmt.Println("設定値が不正です")
+}
+```
+
 ## panic と recover
 
 ### panicの使用

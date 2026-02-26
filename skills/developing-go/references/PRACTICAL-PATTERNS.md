@@ -506,6 +506,126 @@ func addMonthKeepEOM(t time.Time, months int) time.Time {
 
 ---
 
+## Optionalパターン（validフィールド）
+
+ポインタを使わずにゼロ値と「未設定」を区別する方法。`database/sql`の`sql.NullString`パターンの応用。
+
+```go
+// シンプルなOptional型
+type OptionalInt struct {
+    Value int
+    Valid bool // trueなら値が設定されている
+}
+
+// ゼロ値はValid=false（未設定）
+var opt OptionalInt
+fmt.Println(opt.Valid) // false（未設定）
+fmt.Println(opt.Value) // 0（ゼロ値だが「未設定」を意味する）
+
+// 値を設定する
+opt = OptionalInt{Value: 0, Valid: true} // 0が「設定済み」
+fmt.Println(opt.Valid) // true
+
+// ポインタとの比較
+// ポインタ (*int): ヒープアロケーション発生、GCプレッシャーあり
+// Optionalパターン: スタック上に配置可能、GCフレンドリー
+
+// database/sql の sql.NullString との関連
+import "database/sql"
+
+type User struct {
+    ID       int
+    Name     string
+    Nickname sql.NullString // NULL許容のDB列
+}
+
+// Nullable列の扱い
+if user.Nickname.Valid {
+    fmt.Println("ニックネーム:", user.Nickname.String)
+} else {
+    fmt.Println("ニックネームは未設定")
+}
+
+// 汎用Optional（Go 1.18+でgenericsを活用）
+type Optional[T any] struct {
+    Value T
+    Valid bool
+}
+
+func Some[T any](v T) Optional[T] {
+    return Optional[T]{Value: v, Valid: true}
+}
+
+func None[T any]() Optional[T] {
+    return Optional[T]{}
+}
+
+// 使用例
+type Config struct {
+    Port    Optional[int]
+    Timeout Optional[time.Duration]
+}
+
+cfg := Config{
+    Port:    Some(8080),
+    Timeout: None[time.Duration](), // 未設定
+}
+
+if cfg.Port.Valid {
+    fmt.Printf("Port: %d\n", cfg.Port.Value)
+}
+```
+
+---
+
+## raw文字列リテラル
+
+バッククォート（`` ` ``）で囲むことで、バックスラッシュエスケープなしに文字列を記述できる。
+
+```go
+// 通常の文字列リテラル: エスケープが必要
+regex1 := "^\\d{3}-\\d{4}-\\d{4}$"   // 読みにくい
+json1  := "{\"name\":\"gopher\"}"      // 読みにくい
+
+// raw文字列リテラル: エスケープ不要
+regex2 := `^\d{3}-\d{4}-\d{4}$`       // 読みやすい
+json2  := `{"name":"gopher"}`          // 読みやすい
+
+// 正規表現パターン（最も一般的な活用）
+import "regexp"
+
+var phoneRegex = regexp.MustCompile(`^\d{3}-\d{4}-\d{4}$`)
+var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+
+// 複数行文字列（インデント注意: 行内の空白もそのまま含まれる）
+query := `
+    SELECT id, name, email
+    FROM users
+    WHERE active = true
+    ORDER BY created_at DESC
+`
+
+// SQLテンプレートとの組み合わせ
+template := `
+INSERT INTO %s (name, email)
+VALUES (?, ?)
+`
+
+// HTMLテンプレート
+html := `<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Hello, World!</h1>
+  </body>
+</html>`
+
+// 注意: raw文字列にバッククォート自体は含められない
+// バッククォートが必要な場合は + で結合する
+str := `He said ` + "`" + `hello` + "`"
+```
+
+---
+
 ## まとめ
 
 実践パターンでは以下を重視：
