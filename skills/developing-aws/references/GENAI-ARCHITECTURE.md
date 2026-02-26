@@ -260,71 +260,9 @@ vpc_endpoint = ec2.create_vpc_endpoint(
 
 ### Guardrails
 
-有害コンテンツのフィルタリングとPII検出:
+有害コンテンツのフィルタリング、PII検出・マスク、プロンプト攻撃防御を提供。6つのフィルタータイプ（コンテンツフィルター、拒否トピック、単語フィルター、機密情報フィルター、グラウンディングチェック、自動推論チェック）を組み合わせて多層防御を実現。
 
-```python
-bedrock = boto3.client('bedrock')
-
-# Guardrail作成
-guardrail = bedrock.create_guardrail(
-    name='content-moderation',
-    description='コンテンツモデレーション用Guardrail',
-    topicPolicyConfig={
-        'topicsConfig': [
-            {
-                'name': '暴力的コンテンツ',
-                'definition': '暴力、危害、違法行為に関する内容',
-                'examples': [
-                    '武器の作り方',
-                    '犯罪の実行方法'
-                ],
-                'type': 'DENY'
-            }
-        ]
-    },
-    contentPolicyConfig={
-        'filtersConfig': [
-            {'type': 'SEXUAL', 'inputStrength': 'HIGH', 'outputStrength': 'HIGH'},
-            {'type': 'VIOLENCE', 'inputStrength': 'HIGH', 'outputStrength': 'HIGH'},
-            {'type': 'HATE', 'inputStrength': 'MEDIUM', 'outputStrength': 'MEDIUM'},
-            {'type': 'INSULTS', 'inputStrength': 'MEDIUM', 'outputStrength': 'MEDIUM'},
-            {'type': 'MISCONDUCT', 'inputStrength': 'MEDIUM', 'outputStrength': 'MEDIUM'}
-        ]
-    },
-    sensitiveInformationPolicyConfig={
-        'piiEntitiesConfig': [
-            {'type': 'EMAIL', 'action': 'BLOCK'},
-            {'type': 'PHONE', 'action': 'BLOCK'},
-            {'type': 'NAME', 'action': 'ANONYMIZE'},
-            {'type': 'SSN', 'action': 'BLOCK'},
-            {'type': 'CREDIT_DEBIT_CARD_NUMBER', 'action': 'BLOCK'}
-        ]
-    },
-    blockedInputMessaging='このコンテンツは処理できません。',
-    blockedOutputsMessaging='回答を生成できませんでした。'
-)
-
-guardrail_id = guardrail['guardrailId']
-guardrail_version = guardrail['version']
-```
-
-#### Guardrailの適用
-
-```python
-# Guardrail付きでモデル呼び出し
-response = bedrock_runtime.invoke_model(
-    modelId='anthropic.claude-3-sonnet-20240229-v1:0',
-    body=json.dumps(request_body),
-    guardrailIdentifier=guardrail_id,
-    guardrailVersion=guardrail_version
-)
-
-# Guardrailによるブロックを確認
-if 'guardrailAction' in response:
-    action = response['guardrailAction']
-    if action == 'BLOCKED':
-        print("Guardrailによりブロックされました")
-```
+→ 詳細は [GUARDRAILS.md](GUARDRAILS.md) を参照
 
 ### モデルアクセス制御
 

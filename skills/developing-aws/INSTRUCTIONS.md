@@ -245,6 +245,7 @@ AWS上でのアプリケーション設計・構築・運用を包括的にカ�
 - [RAG-AGENTS.md](references/RAG-AGENTS.md) — Knowledge Bases、RAG構築、Bedrock Agents
 - [GENAI-ARCHITECTURE.md](references/GENAI-ARCHITECTURE.md) — GenAIセキュリティ、パフォーマンス、スケーリング
 - [SAGEMAKER-ML.md](references/SAGEMAKER-ML.md) — SageMaker Studio、データ準備、モデル開発・トレーニング・デプロイ・監視、MLOps
+- [GUARDRAILS.md](references/GUARDRAILS.md) — Bedrock Guardrails、コンテンツフィルタリング、PII検出、クロスアカウント保護
 
 ---
 
