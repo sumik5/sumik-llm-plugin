@@ -272,5 +272,6 @@ Internal Developer Platform（IDP）を構築し、開発者のセルフサー�
 - [IAC-TOOLS.md](references/IAC-TOOLS.md) - IaCツール詳細比較
 - [ORCHESTRATION.md](references/ORCHESTRATION.md) - オーケストレーション詳細比較
 - [CICD-PIPELINE.md](references/CICD-PIPELINE.md) - CI/CDパイプライン実装
+- [INFRA-CI.md](references/INFRA-CI.md) - インフラCI（IaC固有のテスト・検証戦略）
 - [PLATFORM-ENGINEERING.md](references/PLATFORM-ENGINEERING.md) - プラットフォームエンジニアリング
 - [DATA-OBSERVABILITY.md](references/DATA-OBSERVABILITY.md) - データ・オブザーバビリティ

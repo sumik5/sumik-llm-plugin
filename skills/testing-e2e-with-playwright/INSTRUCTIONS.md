@@ -257,6 +257,7 @@ export function getTestUser() {
 
 | ファイル | 内容 |
 |---------|------|
+| `GOOD-TEST-PRACTICES.md` | テスト設計原則・テスト技法・ツール選定・フレークテスト対策・プロジェクト導入戦略 |
 | `LOCATORS.md` | ロケーター戦略の詳細・優先順位・アンチパターン |
 | `FIXTURES-AND-POM.md` | フィクスチャとPage Object Modelの実装パターン |
 | `ASSERTIONS-AND-RELIABILITY.md` | Web-First Assertions・フレークネス対策・リトライ戦略 |

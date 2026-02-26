@@ -217,30 +217,57 @@ pnpm run preview
 
 ### 既知のLintルール矛盾
 
-このリポジトリのLint設定には以下の矛盾がある。遭遇した場合の対処法を記す。
+このリポジトリのLint設定には、既知の矛盾が残っている。遭遇した場合の対処法を記す。
 
-**1. prh: 長音符の循環矛盾**
-
-`WEB+DB_PRESS.yml` と `icsmedia/prh_cho_on.yml` で一部の語彙が矛盾する。
-
-| 語彙 | WEB+DB_PRESS | icsmedia | 結果 |
-|------|-------------|----------|------|
-| インジケータ/インジケーター | インジケータ | インジケーター | どちらもエラー |
-
-**対処**: 表記自体を別の言葉に言い換えて回避する（例: 「色分け」「表示」等）。
-
-**2. textlint: インラインコード周辺のスペース矛盾**
+**1. textlint: インラインコード周辺のスペース矛盾**
 
 `ja-space-around-code`（インラインコードの前後にスペースを入れよ）と `ja-space-between-half-and-full-width`（全角と半角の間にスペースを入れるな）が競合する。
 
 **対処**: `pnpm exec textlint --fix` を実行すると `ja-space-around-code` 側で自動修正される。この修正後は `ja-space-between-half-and-full-width` は発火しない。
 
-**3. prh: 見出しの表記**
+**2. prh: 見出しの表記**
 
 | NG | OK |
 |----|----|
 | はじめに | 始めに |
 | おわりに | 終わりに |
+
+### Lint矛盾への対処方針（🔴 重要）
+
+Lintルール間の矛盾（循環エラー、自動修正の無限ループ等）に遭遇した場合、**記事内容を言い換えて回避するのではなく、Lint設定側を修正する**。
+
+#### 診断手順
+
+1. エラーメッセージからルール名を特定する（`prh`, `preset-ja-technical-writing` 等）
+2. **prhルール矛盾**の場合:
+   - `prh/index.yml` でインポートされているファイルを確認
+   - 矛盾するルールがどのファイルに含まれるか `grep -r "パターン" prh/` で特定
+   - 不要なインポートの削除、または個別ルールファイルの修正で対処
+3. **textlintルール間の矛盾**の場合:
+   - `.textlintrc.yml` で重複・競合するルールを特定
+   - 一方のルールを無効化して統一する（`preset-ja-spacing` を優先）
+4. 修正後に `pnpm exec textlint articles/NNN-*.md` で検証する
+
+#### prh辞書の構成
+
+```yaml
+# prh/index.yml
+imports:
+  - ./media/techbooster.yml       # TechBooster表記ルール
+  - ./media/icsmedia/prh.yml      # ICS MEDIA表記ルール（長音・Web技術・開閉等）
+```
+
+- `techbooster.yml`: 技術用語の表記統一（「以下の→次の」等）
+- `icsmedia/prh.yml`: ICS MEDIA公式ルール（内閣告示準拠の長音、Web技術用語等）
+- ⚠️ `WEB+DB_PRESS.yml` は53件の長音循環矛盾（JIS Z 8301 vs 内閣告示）があるため除外済み
+
+#### `.textlintrc.yml` の設計原則
+
+- **スペーシング**: `preset-ja-spacing` を単一の権威とする。`preset-jtf-style` のセクション3（スペース関連）は無効化済み
+- **句読点・記号**: `preset-jtf-style` のセクション1, 2, 4 で管理
+- **技術文書品質**: `preset-ja-technical-writing` で管理
+- **表記揺れ**: `prh` で管理（icsmedia + techbooster）
+- 新ルール追加時は既存ルールとの重複・矛盾を確認してから有効化する
 
 ---
 

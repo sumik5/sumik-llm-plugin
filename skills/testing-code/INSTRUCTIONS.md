@@ -10,6 +10,10 @@
 - **[TEST-TYPES.md](./references/TEST-TYPES.md)**: テストピラミッド（単体、統合、E2E）
 - **[TESTABLE-DESIGN.md](./references/TESTABLE-DESIGN.md)**: テスタブルな設計原則
 - **[REFERENCE.md](./references/REFERENCE.md)**: ベストプラクティス、カバレッジ、チェックリスト
+- **[DEVELOPER-TESTING.md](./references/DEVELOPER-TESTING.md)**: 開発者テスト技法（境界値・状態遷移・カバレッジ）
+- **[TEST-AUTOMATION-STRATEGY.md](./references/TEST-AUTOMATION-STRATEGY.md)**: テスト自動化戦略
+- **[TEST-MANAGEMENT.md](./references/TEST-MANAGEMENT.md)**: テスト管理・品質特性（ISO 25010）
+- **[MOCK-PATTERNS.md](./references/MOCK-PATTERNS.md)**: モックパターン（スタブ・スパイ・MSW）
 - **[AI-REVIEW-GUIDELINES.md](./references/AI-REVIEW-GUIDELINES.md)**: AIテストコードレビュー観点
 - **[AI-TESTING-STRATEGY.md](./references/AI-TESTING-STRATEGY.md)**: AI活用テスト戦略（マインドセット・判断基準）
 - **[AI-TEST-TECHNIQUES.md](./references/AI-TEST-TECHNIQUES.md)**: AI活用テストテクニック集（データ生成・探索的テスト・UI自動化）

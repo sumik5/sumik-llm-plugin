@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (10個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (80個)
+└── skills/             # ナレッジスキル (82個)
 ```
 
 ---
@@ -78,7 +78,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (80個)
+### Skills (82個)
 
 #### コア開発
 
@@ -89,6 +89,8 @@ sumik-claude-plugin/
 | `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・ソフトウェアデザインの法則含む25カテゴリのコードスメル検出・リファクタリング） |
 | `enforcing-type-safety` | 型安全性強制（any禁止） |
 | `testing-code` | テストファースト（Vitest/Playwright）。RTL固有は`developing-react`参照 |
+| `testing-web-apis` | Web APIテスト戦略（設計テスト・探索テスト・コントラクトテスト・自動化・パフォーマンス・セキュリティ・本番モニタリング） |
+| `conducting-ab-tests` | A/Bテスト・オンラインコントロール実験（実験設計・統計分析・OEC・信用性検証・実験プラットフォーム・実験文化） |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 | `securing-serverless` | サーバーレスセキュリティ包括ガイド（AWS Lambda・Google Cloud Run・Azure Functionsの攻撃・防御パターン、コード注入・SSRF・権限昇格・シークレット窃取、IAM最小権限、認証トークン管理、計7リファレンスファイル） |
