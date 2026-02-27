@@ -6,6 +6,20 @@ Claude Code本体がAgent Team APIを操作する2フェーズ方式のワーク
 
 ## Phase 1: 計画策定
 
+### Step 0: Agent Teams API ツールのロード（🔴 最初に必ず実行）
+
+**TeamCreate, TaskCreate, SendMessage 等は遅延ツール（deferred tools）。ToolSearch でロードしないと呼び出せない。**
+
+```
+ToolSearch("TeamCreate team")       → TeamCreate, TeamDelete がロード
+ToolSearch("TaskCreate task")       → TaskCreate, TaskUpdate, TaskList がロード
+ToolSearch("SendMessage message")   → SendMessage がロード
+```
+
+⚠️ **この手順を省略すると TeamCreate が使えず、tmux pane が開かない原因になる。**
+
+---
+
 ### Step 1: TeamCreate（即座に実行）
 
 **🔴 Claude Code本体はファイルを読まない・コードベースを分析しない。**

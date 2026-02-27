@@ -36,6 +36,22 @@ Claude Code（このスキルをロード）
 
 ---
 
+## 🔴 Step 0: Agent Teams API ツールのロード（最初に必ず実行）
+
+**Agent Teams API のツールはすべて「遅延ツール（deferred tools）」であり、ToolSearch で事前にロードしないと呼び出せない。**
+
+スキルをロードしたら、他のどの操作よりも先に以下を実行:
+
+```
+ToolSearch("TeamCreate team")       → TeamCreate, TeamDelete がロードされる
+ToolSearch("TaskCreate task")       → TaskCreate, TaskUpdate, TaskList がロードされる
+ToolSearch("SendMessage message")   → SendMessage がロードされる
+```
+
+**⚠️ これを省略すると TeamCreate が呼び出せず、`team_name` 付きで Task tool を呼んでも tmux pane は起動しない（バックグラウンド実行のみになる）。これが tmux pane が開かない最大の原因。**
+
+---
+
 ## 使用タイミング（ユーザー要求のテキストから即座に判断）
 
 **🔴 ファイルを読んで判断しない。ユーザーの要求文から以下に該当しそうなら即座にTeamCreate → planner起動:**
