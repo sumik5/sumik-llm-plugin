@@ -208,11 +208,15 @@ AWS上でのアプリケーション設計・構築・運用を包括的にカ�
 
 ### システム設計
 - [SYSTEM-DESIGN.md](references/SYSTEM-DESIGN.md) — 設計トレードオフ、分散システムの誤謬、アーキテクチャパターン
+- [CLOUD-DESIGN-PATTERNS.md](references/CLOUD-DESIGN-PATTERNS.md) — AWS CDP全57パターン（可用性、スケーリング、キャッシュ、非同期処理、運用保守、ネットワーク）
+- [ENTERPRISE-ARCHITECTURE.md](references/ENTERPRISE-ARCHITECTURE.md) — マルチアカウント戦略、Landing Zone、非機能要求グレード、14業務システムパターン
+- [VPC-ARCHITECTURE.md](references/VPC-ARCHITECTURE.md) — VPC/サブネット/CIDR設計、NAT/IGW、Transit Gateway、Security Group/NACL
 - [STORAGE-SELECTION.md](references/STORAGE-SELECTION.md) — RDS/DynamoDB/S3/ElastiCache選定ガイド
-- [NETWORKING.md](references/NETWORKING.md) — VPC/LB/CDN/Route 53設計、ネットワーク監視・トラブルシューティング
+- [NETWORKING.md](references/NETWORKING.md) — ロードバランシング、CDN、Route 53設計、ネットワーク監視・トラブルシューティング
 - [COMPUTE-SELECTION.md](references/COMPUTE-SELECTION.md) — EC2/Lambda/ECS/EKS/Fargate選定
 - [MESSAGING-INTEGRATION.md](references/MESSAGING-INTEGRATION.md) — SQS/SNS/EventBridge/Step Functions
 - [DESIGN-CASE-STUDIES.md](references/DESIGN-CASE-STUDIES.md) — 8つの実践的システム設計ケーススタディ
+- [MIGRATION-STRATEGIES.md](references/MIGRATION-STRATEGIES.md) — 7R移行戦略、AWS MGN、DB移行、大規模データ移行、移行後最適化
 
 ### サーバーレス
 - [SERVERLESS-PATTERNS.md](references/SERVERLESS-PATTERNS.md) — Lambda/API Gateway/DynamoDB/S3パターン
@@ -238,7 +242,7 @@ AWS上でのアプリケーション設計・構築・運用を包括的にカ�
 - [SECURITY.md](references/SECURITY.md) — IAM/VPC Security/KMS/Cognito/EKSセキュリティ
 - [SECURITY-ADVANCED.md](references/SECURITY-ADVANCED.md) — GuardDuty/Macie/Inspector/Security Hub、高度なセキュリティサービス
 - [SYSOPS-OPERATIONS.md](references/SYSOPS-OPERATIONS.md) — Systems Manager、Auto Scaling、コスト管理、バックアップ、トラブルシューティング
-- [COST-OPTIMIZATION.md](references/COST-OPTIMIZATION.md) — FinOps、rightsizing、Savings Plans、コストツール
+- [COST-OPTIMIZATION.md](references/COST-OPTIMIZATION.md) — FinOps、CCoE組織、rightsizing、Savings Plans、タギングガバナンス、ネットワークコスト最適化
 
 ### AI/ML
 - [BEDROCK-API.md](references/BEDROCK-API.md) — Bedrock API、モデル選定、プロンプトエンジニアリング

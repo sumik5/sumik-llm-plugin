@@ -965,6 +965,161 @@ should_use_on_demand(daily_requests=5_000_000, peak_to_avg_ratio=5)
 
 ---
 
+## 10. FinOps ガバナンスと組織
+
+### 10.1 CCoE（Cloud Center of Excellence）
+
+| 役割 | 責務 | メンバー構成 |
+|------|------|------------|
+| **FinOpsリード** | コスト最適化の全体推進、KPI設定 | クラウドアーキテクト/FinOps専門家 |
+| **クラウドアーキテクト** | アーキテクチャ最適化提案、Savings Plans購入判断 | SA/インフラチーム |
+| **ビジネスオーナー** | ROI評価、コスト配分承認、予算管理 | 事業部門リーダー |
+| **エンジニアリング** | リソース最適化の実装、タグ付け遵守 | 開発/運用チーム |
+| **経理/財務** | 請求管理、チャージバック運用、予算策定 | 財務部門 |
+
+### 10.2 FinOps成熟度モデル
+
+| レベル | 状態 | アクション |
+|--------|------|----------|
+| **Crawl（初期）** | コストの可視化が不十分 | Cost Explorer有効化、基本タグ設定、Budgetアラート |
+| **Walk（成長）** | サービス別コストを把握 | rightsizing実施、Savings Plans導入、タグ付け強制 |
+| **Run（成熟）** | FinOpsが文化として定着 | ユニットコスト管理、自動最適化、予測分析、CCoE運営 |
+
+### 10.3 コスト配分とチャージバック
+
+**チャージバック vs ショーバック:**
+
+| 方式 | 説明 | 効果 |
+|------|------|------|
+| **チャージバック** | 実際のコストを事業部門に課金 | 直接的なコスト意識向上 |
+| **ショーバック** | コスト情報の可視化のみ（課金なし） | 段階的なコスト意識醸成 |
+
+**ユニットコスト指標:**
+
+| 指標 | 計算式 | 用途 |
+|------|--------|------|
+| トランザクション単価 | AWSコスト / トランザクション数 | API、Web |
+| ユーザー単価 | AWSコスト / アクティブユーザー数 | SaaS |
+| 注文単価 | AWSコスト / 注文数 | EC |
+| GB単価 | AWSコスト / 処理データ量 | データ処理 |
+
+---
+
+## 11. タギングガバナンス
+
+### 11.1 タグ強制の仕組み
+
+| 手段 | レベル | 動作 |
+|------|--------|------|
+| **AWS Organizations タグポリシー** | アカウント/OU | タグキー/値の標準化を強制 |
+| **IAM ポリシー条件** | リソース作成時 | タグなしリソース作成を拒否 |
+| **AWS Config Rules** | 事後検出 | タグ未設定リソースを検出・通知 |
+| **Service Catalog TagOptions** | テンプレート | カタログ経由のプロビジョニング時にタグ強制 |
+
+#### IAMによるタグ強制例
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": ["ec2:RunInstances", "rds:CreateDBInstance"],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/Environment": "true",
+          "aws:RequestTag/CostCenter": "true",
+          "aws:RequestTag/Owner": "true"
+        }
+      }
+    }
+  ]
+}
+```
+
+#### AWS Config Ruleによる検出
+
+```yaml
+Resources:
+  RequiredTagsRule:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: required-tags
+      Source:
+        Owner: AWS
+        SourceIdentifier: REQUIRED_TAGS
+      InputParameters:
+        tag1Key: Environment
+        tag2Key: CostCenter
+        tag3Key: Owner
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::EC2::Instance
+          - AWS::RDS::DBInstance
+          - AWS::S3::Bucket
+```
+
+---
+
+## 12. ネットワークコスト最適化
+
+### 12.1 データ転送コスト構造
+
+| 転送パターン | コスト | 最適化方法 |
+|-------------|--------|----------|
+| **インターネット→AWS** | 無料 | - |
+| **AWS→インターネット** | $0.09/GB～ | CloudFront使用で削減 |
+| **同一AZ内** | 無料 | 同一AZに配置 |
+| **AZ間** | $0.01/GB（双方向） | 通信量の多いサービスは同一AZ |
+| **リージョン間** | $0.02/GB～ | リージョン間通信の最小化 |
+| **VPC Peering** | AZ間と同等 | Transit GWより安価 |
+| **NAT Gateway処理** | $0.045/GB | VPC Endpointで回避 |
+
+### 12.2 データ転送コスト削減パターン
+
+```
+パターン1: VPC Endpoint活用
+  Before: EC2 → NAT GW → Internet → S3 ($0.045/GB + $0.09/GB)
+  After:  EC2 → VPC Endpoint → S3 (無料)
+
+パターン2: CloudFront活用
+  Before: ユーザー → EC2 ($0.09/GB)
+  After:  ユーザー → CloudFront → EC2 ($0.085/GB, キャッシュでさらに削減)
+
+パターン3: 同一AZ配置
+  Before: EC2(AZ-a) ↔ RDS(AZ-c) ($0.01/GB × 双方向)
+  After:  EC2(AZ-a) ↔ RDS(AZ-a) (無料)
+  ※ ただし可用性とのトレードオフ
+```
+
+---
+
+## 13. AWS追加コスト管理ツール
+
+### 13.1 AWS Cost and Usage Reports (CUR)
+
+| 項目 | 説明 |
+|------|------|
+| **用途** | 最も詳細なコストデータ（行レベル） |
+| **出力先** | S3バケット → Athena/QuickSightで分析 |
+| **粒度** | 時間/日/月単位 |
+| **活用** | カスタムコスト分析、BIダッシュボード構築 |
+
+### 13.2 AWS Cost Categories
+
+- **コスト分類ルール**: サービス、タグ、アカウント等の条件でコストを業務カテゴリに分類
+- **階層構造**: 複数のルールを組み合わせて多次元分析
+- **Cost Explorer統合**: 分類結果をCost Explorerで直接フィルタリング
+
+### 13.3 AWS Billing Conductor
+
+- **カスタム請求グループ**: 複数アカウントのコストを独自のグループに集約
+- **レート調整**: マークアップ/マークダウンでコスト調整（リセラー向け）
+- **マルチテナント請求**: テナントごとの詳細な請求管理
+
+---
+
 ## 参考リソース
 
 ### AWS公式ドキュメント

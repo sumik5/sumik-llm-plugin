@@ -2,10 +2,13 @@
 name: developing-aws
 description: >-
   AWS development guide covering serverless (Lambda, API Gateway, DynamoDB, Step Functions),
-  CDK infrastructure as code, EKS Kubernetes, SRE operations, cost optimization (FinOps),
+  CDK infrastructure as code, EKS Kubernetes, SRE operations, cost optimization (FinOps, CCoE),
   security (IAM, VPC, KMS, Cognito, GuardDuty), generative AI (Bedrock, RAG, Agents),
   database services (Aurora, DynamoDB, ElastiCache), data engineering (Glue, Athena, Redshift),
-  developer tools (CodePipeline, Amplify), SageMaker ML, and SysOps operations.
+  developer tools (CodePipeline, Amplify), SageMaker ML, SysOps operations,
+  Cloud Design Patterns (57 CDP patterns), VPC architecture (subnet, CIDR, Transit Gateway),
+  enterprise architecture (multi-account, Landing Zone, 14 business system patterns),
+  and cloud migration strategies (7R, AWS MGN, database migration).
   MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in package.json,
   cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), or eksctl configs.
   For GCP, use developing-google-cloud.
