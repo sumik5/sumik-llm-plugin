@@ -10,6 +10,7 @@
 - Bash固有の機能とベストプラクティス
 - シェル自動化・システム管理タスク
 - スクリプトの堅牢性・保守性・セキュリティ
+- ペネトレーションテスト自動化（認可されたセキュリティテスト）
 
 **除外スコープ**:
 - Docker固有のパターン → `managing-docker` スキルを使用
@@ -282,7 +283,7 @@ fi
 
 ## サブファイルナビゲーション
 
-このスキルは15サブファイルに分割されている。以下の判断基準テーブルを参照し、適切なファイルを選択すること。
+このスキルは21サブファイルに分割されている。以下の判断基準テーブルを参照し、適切なファイルを選択すること。
 
 | 参照ファイル | 参照すべき状況 | 主なトピック |
 |-------------|--------------|------------|
@@ -301,6 +302,12 @@ fi
 | [PATTERNS.md](references/PATTERNS.md) | 設計パターンの選択 | デザインパターン、アンチパターン |
 | [BEST-PRACTICES.md](references/BEST-PRACTICES.md) | コード品質の向上 | ベストプラクティス集 |
 | [CLI-TOOLS.md](references/CLI-TOOLS.md) | CLIツール開発、API統合 | CLIツール構築、API連携、インタラクティブ |
+| [PENTEST-FUNDAMENTALS.md](references/PENTEST-FUNDAMENTALS.md) | ペンテスト用スクリプトの基礎 | 倫理的考慮、ラボ環境、自動化パフォーマンス |
+| [RECON-SCANNING.md](references/RECON-SCANNING.md) | ネットワーク偵察・スキャニング | Nmap自動化、NSE、結果パース |
+| [WEB-SECURITY-ASSESSMENT.md](references/WEB-SECURITY-ASSESSMENT.md) | Webアプリ脆弱性評価 | Nikto、dirb、SQLMap自動化 |
+| [EXPLOITATION.md](references/EXPLOITATION.md) | エクスプロイト・ポストエクスプロイト | パスワードクラック、権限昇格、Metasploit |
+| [WIFI-SECURITY-AUDIT.md](references/WIFI-SECURITY-AUDIT.md) | Wi-Fiセキュリティ監査 | Kismet、Wifite、ワイヤレスプロトコル |
+| [PENTEST-REPORTING.md](references/PENTEST-REPORTING.md) | ペンテストレポート・E2Eテスト | レポート自動化、可視化、E2E手法 |
 
 ### ファイル選択のフローチャート
 
@@ -320,7 +327,13 @@ fi
 ├─ システム堅牢化 → HARDENING.md
 ├─ デザインパターン → PATTERNS.md
 ├─ コード品質 → BEST-PRACTICES.md
-└─ CLIツール構築 → CLI-TOOLS.md
+├─ CLIツール構築 → CLI-TOOLS.md
+├─ ペンテスト基礎・ラボ環境 → PENTEST-FUNDAMENTALS.md
+├─ ネットワーク偵察・Nmap → RECON-SCANNING.md
+├─ Webアプリ脆弱性スキャン → WEB-SECURITY-ASSESSMENT.md
+├─ パスワード・権限昇格・Metasploit → EXPLOITATION.md
+├─ Wi-Fiセキュリティ → WIFI-SECURITY-AUDIT.md
+└─ ペンテストレポート → PENTEST-REPORTING.md
 ```
 
 ---

@@ -384,17 +384,13 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 
 既存のMarkdown、PDF、EPUB、URL、複数ファイル、またはフォルダからスキルを作成する場合:
 
-1. **入力形式の特定**（MD/PDF/EPUB/URL/複数ファイル/フォルダ）
-2. **Markdown変換**（PDF: `scripts/pdf-to-markdown.mjs`、EPUB/その他: pandoc、URL: curl + pandoc + `scripts/filter.lua`）
-3. **複数ファイル入力の場合**: Phase 0.5で全ファイル概要分析 & グルーピング実施
-   - 全ファイルの概要テーブル作成
-   - 意味的グルーピング分析（同一スキルにまとめるべきファイル群を提案）
-   - 既存スキルとの一括重複チェック
-   - AskUserQuestionでグルーピング・統合方針を確認
-4. **6フェーズの変換ワークフロー**を各スキルグループごとに実行（Phase 1→2→3→3.5→4→5）
-5. **Phase 4（生成）**: orchestrating-teams 2フェーズ方式で並列実行
-   - 単一スキル・複数ファイル分割 → orchestrating-teams（planner + implementers並列）
-   - 複数スキルグループ → orchestrating-teams（グループごとにPhase 1-2を実行）
+1. **Phase 0: 入力判定**（Claude Code本体）- 入力ファイル・URL特定、作業ディレクトリ作成、TeamCreate
+2. **Phase A: 計画策定**（Planner タチコマ・Opus）- ファイル変換（PDF/EPUB/URL → Markdown）〜 内容分析 〜 構造設計を一括委譲。全結果を `docs/conversion-{skill-name}/` に永続化
+3. **Phase B: ユーザー確認**（Claude Code本体）- docs/ 読み込み → AskUserQuestion → 決定を `06-user-decisions.md` に保存
+4. **Phase C: 実装**（Implementer タチコマ × N・Sonnet）- docs/ の計画・ユーザー決定を読み込みスキルファイルを並列生成
+5. **Phase D: 品質チェック**（Claude Code本体）- 最終検証 → TeamDelete → リリース
+
+**Compaction耐性**: 全中間結果を `docs/conversion-{skill-name}/` に保存。各ステップ完了ごとにファイル書き込み。compaction後は `99-progress.md` から状態を復元して再開可能。
 
 詳細は [CONVERTING.md](references/CONVERTING.md) を参照。
 
@@ -653,7 +649,7 @@ AskUserQuestion(
 - **[TROUBLESHOOTING.md](references/TROUBLESHOOTING.md)**: トラブルシューティング
 
 ### ソース変換
-- **[CONVERTING.md](references/CONVERTING.md)**: ソース → スキル変換ワークフロー（6フェーズ）
+- **[CONVERTING.md](references/CONVERTING.md)**: ソース → スキル変換ワークフロー（5フェーズ: Phase 0→A→B→C→D）
 - **[NAMING-STRATEGY.md](references/NAMING-STRATEGY.md)**: 命名自動推定ロジック
 - **[TEMPLATES.md](references/TEMPLATES.md)**: テンプレート集
 

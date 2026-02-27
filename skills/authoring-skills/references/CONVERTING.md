@@ -34,7 +34,7 @@
 | フォルダ | `/path/to/folder/` |
 | 混在入力 | `/path/to/file1.md https://url2.com /path/to/folder/` |
 
-複数ファイルが入力された場合、Phase 0.5で全ファイルの概要分析とグルーピングを実施する。
+複数ファイルが入力された場合、Phase A（Plannerタチコマ）でグルーピング分析を実施する。
 
 ---
 
@@ -50,37 +50,129 @@
 
 ---
 
-## 変換ワークフロー（6フェーズ）
+## 変換ワークフロー（5フェーズ）
 
-### Phase 0: 前処理（PDF/EPUB/フォルダ対応）
+```
+Phase 0: 入力判定（Claude Code本体）- 最小限の処理
+    ↓
+Phase A: 計画策定（Plannerタチコマ・Opus）- ファイル変換〜構造設計をすべて委譲
+    ↓
+Phase B: ユーザー確認（Claude Code本体）- docs/読み込み → AskUserQuestion → docs/保存
+    ↓
+Phase C: 実装（Implementerタチコマ × N・Sonnet）- スキルファイル生成
+    ↓
+Phase D: 品質チェック（Claude Code本体）- 最終検証 → TeamDelete
+```
 
-**Markdownファイル1つの場合はこのPhaseをスキップしてPhase 1へ進む。**
+---
+
+### Phase 0: 入力判定（Claude Code本体）
+
+**Claude Code本体が行う最小限の処理。変換・分析・設計はすべて Phase A（Plannerタチコマ）に委譲する。**
 
 #### 0.1 入力判定
 
 | 入力タイプ | 判定方法 | 次のステップ |
 |-----------|---------|-------------|
-| 単一Markdownファイル | `.md`拡張子 | Phase 1へスキップ |
-| 単一PDFファイル | `.pdf`拡張子 | 0.2 PDF変換 |
-| pandoc対応形式 | `.epub`,`.docx`,`.odt`,`.rst`,`.tex`,`.html`,`.org`,`.adoc`,`.rtf`,`.pptx` | 0.2 pandoc変換 |
-| URL | `http://` or `https://` で始まる | 0.2 URL変換 |
-| フォルダ | ディレクトリパス | 0.1.1 ファイル列挙 |
+| 単一Markdownファイル | `.md`拡張子 | ファイル変換不要（Plannerが直接読み込む） |
+| 単一PDFファイル | `.pdf`拡張子 | Plannerが変換 |
+| pandoc対応形式 | `.epub`,`.docx`,`.odt`,`.rst`,`.tex`,`.html`,`.org`,`.adoc`,`.rtf`,`.pptx` | Plannerが変換 |
+| URL | `http://` or `https://` で始まる | Plannerが変換 |
+| フォルダ | ディレクトリパス | Plannerがファイル列挙・変換 |
 
-#### 0.1.1 フォルダ・複数ファイル処理
+#### 0.2 作業ディレクトリ作成・TeamCreate
 
-1. 指定フォルダ内の `.md`, `.pdf`, `.epub`, `.docx`, `.odt`, `.rst`, `.tex`, `.html`, `.org`, `.adoc`, `.rtf`, `.pptx` ファイルを再帰的に列挙（フォルダ入力の場合）
-2. 複数ファイルパス・URL が直接指定された場合はそのリストを使用
-3. 対象ファイルリストと作業計画を `docs/` に保存
-4. 各ファイルに対して以下を順次適用（Markdown変換の準備）:
-   - PDF → Phase 0.2 PDF変換
-   - pandoc対応形式（EPUB/DOCX/ODT/RST/LaTeX/HTML/Org/AsciiDoc/RTF/PPTX）→ Phase 0.2 pandoc変換
-   - URL → Phase 0.2 URL変換
-   - Markdown → そのまま次へ
-5. 全ファイルをMarkdown化した後、**Phase 0.5（全ファイル概要分析 & グルーピング）**へ進む
+入力ファイル名（または複数ファイルの場合は代表名）から `{skill-provisional-name}` を決定し、作業ディレクトリとチームを作成する:
 
-**注意**: 単一ファイル入力の場合はPhase 0.5をスキップしてPhase 1へ直行する（既存ワークフローとの互換性維持）。
+```bash
+# 作業ディレクトリ作成（Plannerが docs/ ファイルを書き込むために必要）
+mkdir -p docs/conversion-{skill-provisional-name}
+```
 
-#### 0.2 PDF/pandoc対応形式/URL → Markdown変換
+```json
+TeamCreate({
+  "team_name": "{skill-provisional-name}-conversion",
+  "description": "{skill-provisional-name} スキル変換"
+})
+```
+
+> **`{skill-provisional-name}` の決め方**: 入力ファイル名（拡張子除去）をケバブケースに変換。複数ファイルの場合は代表的なファイル名やフォルダ名を使用。実際のスキル名は Phase A の分析で確定する。
+
+---
+
+### Compaction耐性: docs/conversion-{skill-name}/ ファイル構成
+
+すべての中間結果は `docs/conversion-{skill-name}/` に保存する。各フェーズの完了ごとにファイルへ書き込み、compaction後も作業状態を復元できるようにする。
+
+```
+docs/conversion-{skill-name}/
+├── 00-input-files.md          # 入力ファイル一覧・変換済みMDパス
+├── 01-grouping-analysis.md    # 概要テーブル・グルーピング提案（複数ファイル時）
+├── 02-content-analysis.md     # 内容構造分析・スコープ比較・スキル名候補
+├── 03-design-plan.md          # 構造設計・Frontmatter・ファイル構成・トリガー設定
+├── 04-mutual-updates.md       # 類似スキルdescription相互更新計画
+├── 05-implementation-tasks.md # implementer用タスク分割（ファイル所有権・ソース範囲）
+├── 06-user-decisions.md       # ユーザー確認結果（Phase B後にClaude Code本体が作成）
+└── 99-progress.md             # 進捗状況（各Phase完了ステータス・復旧用）
+```
+
+#### 99-progress.md フォーマット
+
+```markdown
+# Conversion Progress: {skill-name}
+
+## Phase Status
+- [ ] Phase 0: 入力判定
+- [ ] Phase A: 計画策定（Planner）
+- [ ] Phase B: ユーザー確認
+- [ ] Phase C: 実装（Implementer）
+- [ ] Phase D: 品質チェック
+
+## 変換済みMDファイル
+（Phase A完了後に記録）
+
+## 確定スキル名
+（Phase B完了後に記録）
+
+## 作成ファイル
+（Phase C完了後に記録）
+```
+
+#### compaction発生時の復旧手順
+
+```
+compaction 発生時:
+1. docs/conversion-*/ ディレクトリを検索
+2. 99-progress.md を読み込み → 最後に完了したPhaseを特定
+3. 未完了Phaseから再開:
+   - Phase A 未完了 → Planner再起動（変換済みMDファイルがあれば変換ステップをスキップ）
+   - Phase B 未完了 → 03-design-plan.md を読み込み → ユーザー確認再実行
+   - Phase C 未完了 → Implementer再起動（生成済みファイルをスキップ）
+   - Phase D 未完了 → 品質チェック再実行
+```
+
+---
+
+### Phase A: 計画策定（Planner タチコマ・Opus）
+
+Claude Code本体は TeamCreate 後、Planner タチコマを起動してファイル変換から構造設計まですべてを委譲する。**Planner の完了通知を受けてから Phase B に進む。**
+
+#### A.1 Planner起動（Task tool呼び出し）
+
+```json
+Task({
+  "description": "計画策定",
+  "prompt": "## タスク: スキル変換計画の策定\n\n**作業ディレクトリ:** docs/conversion-{skill-name}/\n（存在しない場合はまず作成: `mkdir -p docs/conversion-{skill-name}/`）\n\n**入力ファイル・URL:**\n- {入力ファイルパス1 or URL1}\n- {入力ファイルパス2 or URL2（あれば）}\n\n## 実行ステップ\n\n### Step 1: ファイル変換（Markdown化）\n各入力ファイルを以下の方法でMarkdown変換する。変換済みMDパスを `docs/conversion-{skill-name}/00-input-files.md` に記録すること。\n\n**PDF変換:**\n> ⚠️ PDFファイルをReadツールで直接読み取ってはならない。APIの画像制限を超えるため専用スクリプトを使用すること。\n```bash\ncd skills/authoring-skills/scripts && npm install  # 初回のみ\nnode skills/authoring-skills/scripts/pdf-to-markdown.mjs <input.pdf> /tmp/output.md\n```\n\n**pandoc対応形式（EPUB/DOCX/ODT/RST/LaTeX/HTML/Org/AsciiDoc/RTF/PPTX）:**\n```bash\nif ! command -v pandoc &> /dev/null; then brew install pandoc; fi\npandoc -t markdown -o /tmp/<output>.md <input-file>\n```\n\n**URL変換:**\n```bash\ncurl -o /tmp/page.html '<URL>'\npandoc /tmp/page.html -f html -t gfm -L skills/authoring-skills/scripts/filter.lua -o /tmp/page.md\n```\n\n**変換結果の検証:**\n```bash\nnode skills/authoring-skills/scripts/validate-conversion.mjs <output.md> --type pdf --pages N\nnode skills/authoring-skills/scripts/validate-conversion.mjs <output.md> --type epub --chapters N\n```\nその他形式・URLは目視確認（本文が適切に抽出されているか確認）。\n\n### Step 2: グルーピング分析（複数ファイル時）\n複数ファイルの場合、全Markdownファイルを読み込み、以下を `docs/conversion-{skill-name}/01-grouping-analysis.md` に保存:\n- 各ファイルの概要テーブル（ファイル名・タイトル・主要トピック・推定行数・ドメイン）\n- 意味的グルーピング提案（同一技術・スコープ → 1スキル、異なる技術 → 別スキル）\n- 既存 `skills/` との一括重複チェック結果（既存スキルのfrontmatterと比較）\n- 判断が必要なケースはその理由と候補を記録（Claude Code本体がPhase BでAskUserQuestion実施）\n\n### Step 3: 内容構造分析\n変換済みMarkdownを読み込み、以下を `docs/conversion-{skill-name}/02-content-analysis.md` に保存:\n- セクション数とトピック一覧\n- コード例の有無・言語\n- 判断基準テーブルの有無\n- 推定総行数（全ファイル合計）\n- 既存スキルとのスコープ比較（`skills/` 内の既存スキルdescriptionと照合）\n- スキル名候補2-3個（gerund形式、`skills/authoring-skills/references/NAMING-STRATEGY.md` 参照）\n- 相互description更新が必要な類似スキルリスト\n\n### Step 4: 構造設計\n以下を設計して `docs/conversion-{skill-name}/03-design-plan.md` に保存:\n- Frontmatter設計（英語description・三部構成: What + When + 差別化）\n- SKILL.md + サブファイル構成（500行以下を目標。超過時はユーザー確認が必要と記録）\n- 判断分岐箇所（AskUserQuestion指示を配置する箇所の特定）\n- トリガー設定（REQUIRED/SessionStart hook/Use when パターン、`skills/authoring-skills/references/TEMPLATES.md` 参照）\n\n### Step 5: 相互更新設計\n類似スキルのdescription更新案を `docs/conversion-{skill-name}/04-mutual-updates.md` に保存:\n- 新規スキル → 既存スキルへの差別化参照\n- 既存スキル → 新規スキルへの差別化参照\n- 双方向の差別化文言案\n\n### Step 6: implementer用タスク分割\n生成する各ファイルの担当範囲を `docs/conversion-{skill-name}/05-implementation-tasks.md` に保存:\n- 各ファイルの所有権（target-file-path）\n- 対応するソースMarkdownのパス・対象セクション\n- 推定行数・複雑度\n\n### Step 7: 進捗更新\n`docs/conversion-{skill-name}/99-progress.md` のPhase Aを完了マーク。変換済みMDファイルのパスも記録する。\n\n## Compaction耐性規則\n- 各Stepの完了ごとに該当 docs/ ファイルに書き込む（まとめて後から書かない）\n- 大きなソースファイル分析時は、セクション単位で中間結果を保存\n- `skills/` 実装ファイルは変更しない（読み取り + `docs/` 作成のみ）\n\n## 参照\n- 変換コマンド詳細: `skills/authoring-skills/references/CONVERTING.md` の「A.2 変換コマンドリファレンス」\n- 命名戦略: `skills/authoring-skills/references/NAMING-STRATEGY.md`\n- テンプレート集: `skills/authoring-skills/references/TEMPLATES.md`",
+  "subagent_type": "sumik:タチコマ（アーキテクチャ）",
+  "model": "opus",
+  "team_name": "{skill-name}-conversion",
+  "name": "planner",
+  "run_in_background": true,
+  "mode": "bypassPermissions"
+})
+```
+
+#### A.2 変換コマンドリファレンス（Plannerが使用）
 
 **PDF変換（pdfjs-dist スクリプト）:**
 
@@ -173,7 +265,7 @@ WebFetchはpandocが利用できない場合のfallback手段として使用可�
 - `url`: 対象URL
 - `prompt`: `"この記事の本文をMarkdown形式で全文抽出してください"`
 
-#### 0.3 変換結果の検証
+#### A.3 変換結果の検証（Plannerが実行）
 
 ```bash
 # PDF（ページ数を指定）
@@ -197,237 +289,26 @@ node skills/authoring-skills/scripts/validate-conversion.mjs <output.md> --type 
 
 **URL変換の場合**: Readabilityによる本文抽出が行われるため、変換後のMarkdownが元ページの本文を適切に含んでいるか目視確認する。
 
-**警告が出た場合**: 変換結果を目視確認し、問題があれば手動でMarkdownを修正してからPhase 0.5（複数ファイル）またはPhase 1（単一ファイル）に進む。
+**警告が出た場合**: 変換結果を目視確認し、問題があれば手動でMarkdownを修正してから次のステップに進む。
 
-### Phase 0.5: 全ファイル概要分析 & グルーピング（複数ファイル入力時のみ）
+---
 
-**このPhaseは複数のファイル・URLが入力された場合にのみ実行する。単一ファイル入力の場合はスキップしてPhase 1へ進む。**
+### Phase B: ユーザー確認（Claude Code本体）
 
-Phase 0で全ファイルをMarkdown化した後、各ファイルの内容を俯瞰し、意味的にまとまるファイル群をグループ化する。グループごとに1つのスキルを作成する。
+Planner 完了後、Claude Code本体が docs/ を読み込み AskUserQuestion で確認し、結果を `06-user-decisions.md` に保存する。
 
-#### ステップ1: 全ファイル読み込み & 概要テーブル作成
+#### B.1 docs/ 読み込み
 
-全Markdownファイルを読み込み、各ファイルの概要情報を一覧化する:
-
-| ファイル名 | タイトル/主要見出し | 主要トピック | 推定行数 | ドメイン |
-|-----------|-------------------|------------|---------|---------|
-| docker-basics.md | Docker入門 | コンテナ基礎、イメージ、実行 | 800 | Docker |
-| docker-networking.md | Dockerネットワーク設計 | ブリッジ、オーバーレイ、DNS | 600 | Docker |
-| kubernetes-intro.md | Kubernetes概要 | Pod、Service、Deployment | 1000 | Kubernetes |
-
-**抽出項目:**
-- **タイトル/主要見出し**: ファイル先頭のH1、H2見出し
-- **主要トピック**: 頻出キーワード、セクション名から抽出
-- **推定行数**: Markdownファイルの行数
-- **ドメイン**: 技術領域・スコープの推定
-
-このテーブルをユーザーに提示し、次のステップへ進む。
-
-#### ステップ2: 意味的グルーピング分析
-
-トピック類似度・技術スコープ・内容の関連性に基づき、「同一スキルにまとめるべきファイル群」を提案する。
-
-**グルーピング判断基準:**
-
-| 条件 | 判断 | 例 |
-|------|------|-----|
-| 同一技術・同一スコープ | **1スキルにまとめる**（自動グルーピング） | `docker-basics.md` + `docker-networking.md` → `managing-docker` |
-| 同一技術・異なるレイヤー | **AskUserQuestionで確認** | `frontend-design.md` + `backend-api.md` → 分割 or 統合を確認 |
-| 異なる技術・関連トピック | **AskUserQuestionで確認** | `docker-guide.md` + `kubernetes-guide.md` → コンテナスキル統合 or 別スキル |
-| 完全に独立したドメイン | **別スキルとして作成**（自動分離） | `react-hooks.md` + `terraform-gcp.md` → 別々のスキル |
-
-**グルーピング提案の出力形式:**
-
-```
-グループA: managing-docker（推奨スキル名）
-  - docker-basics.md（コンテナ基礎）
-  - docker-networking.md（ネットワーク設計）
-
-グループB: developing-kubernetes（推奨スキル名）
-  - kubernetes-intro.md（基礎概念）
-
-グループC: 確認が必要
-  - docker-guide.md（Docker包括ガイド）
-  - kubernetes-guide.md（Kubernetes包括ガイド）
-  → 統合して1つの「コンテナオーケストレーション」スキルにするか、別々にするか？
+```bash
+# Planner完了通知受信後に以下を読み込む
+# - docs/conversion-{skill-name}/01-grouping-analysis.md（複数ファイル時）
+# - docs/conversion-{skill-name}/02-content-analysis.md
+# - docs/conversion-{skill-name}/03-design-plan.md
 ```
 
-#### ステップ3: 既存スキルとの一括重複チェック
+#### B.2 AskUserQuestion
 
-全グループを `skills/` ディレクトリ内の既存スキルと照合し、重複度を判定する。
-
-**重複度判定基準:**
-
-| 重複度 | 判断 | 例 |
-|--------|------|-----|
-| 完全一致（ドメイン・スコープが同じ） | **既存スキルに追記**推奨 | グループA: Docker運用 → 既存 `managing-docker` に追加 |
-| 部分一致（サブトピックとして独立性あり） | **既存スキルにサブファイルとして追加**推奨 | グループB: Docker最適化 → `managing-docker/references/OPTIMIZATION.md` |
-| 軽微な重複（独立性が高い） | **新規作成 + 相互参照**推奨 | グループC: Dockerセキュリティ → 新規 `securing-docker` + `managing-docker` に相互参照 |
-| 重複なし | **新規作成** | グループD: Terraform GCP → 新規 `deploying-terraform-gcp` |
-
-**重複度テーブルの出力形式:**
-
-| グループ | 既存スキルとの重複 | 推奨アクション |
-|---------|------------------|--------------|
-| グループA: managing-docker | `managing-docker`（完全一致） | 既存スキルに追記 |
-| グループB: developing-kubernetes | 重複なし | 新規作成 |
-| グループC: docker+kubernetes統合 | `managing-docker`, `developing-kubernetes`（部分一致） | AskUserQuestionで確認 |
-
-#### ステップ4: AskUserQuestion で確認
-
-グルーピング提案・既存スキル重複判定の結果をもとに、AskUserQuestionで最終的なグループ構成とスキル作成方針を確認する。
-
-**AskUserQuestion テンプレート例:**
-
-```python
-AskUserQuestion(
-    questions=[
-        {
-            "question": "以下のグルーピング提案を確認してください。変更が必要な場合は修正してください。",
-            "header": "グルーピング",
-            "options": [
-                {
-                    "label": "提案通り",
-                    "description": "グループA（managing-docker: 2ファイル）、グループB（developing-kubernetes: 1ファイル）"
-                },
-                {
-                    "label": "グループCを統合",
-                    "description": "docker-guide.md + kubernetes-guide.md を1つの「コンテナオーケストレーション」スキルにまとめる"
-                },
-                {
-                    "label": "グループCを分離",
-                    "description": "docker-guide.md と kubernetes-guide.md を別々のスキルにする"
-                },
-                {
-                    "label": "特定ファイルを除外",
-                    "description": "不要なファイルをスキップする"
-                }
-            ],
-            "multiSelect": False
-        },
-        {
-            "question": "既存スキルとの統合方針を確認してください。",
-            "header": "既存スキル統合",
-            "options": [
-                {
-                    "label": "グループAを既存 managing-docker に追記（推奨）",
-                    "description": "Docker運用スキルとして統合"
-                },
-                {
-                    "label": "グループAを新規スキルとして作成",
-                    "description": "既存スキルと独立させる"
-                }
-            ],
-            "multiSelect": False
-        }
-    ]
-)
-```
-
-**確認項目:**
-1. **グルーピングの承認/修正**: 自動提案されたグループ構成が妥当か、ファイルの移動・分割・統合が必要か
-2. **既存スキルとの統合/新規作成の判断**: 既存スキルに追記するか、新規作成するか
-3. **ファイル除外の選択**: 不要なファイルをスキップするか
-
-確認後、最終的な「スキルグループリスト」を確定する。
-
-**確定グループの出力形式:**
-
-```
-確定グループ:
-- Group 1: managing-docker（既存スキルに追記）
-  - docker-basics.md
-  - docker-networking.md
-
-- Group 2: developing-kubernetes（新規作成）
-  - kubernetes-intro.md
-```
-
-### Phase 1: 分析（Analysis）
-
-**Phase 0.5で確定した各スキルグループに対して、Phase 1→2→3→3.5→4→5を順番に実行する。**
-
-**単一ファイル入力の場合は、Phase 0.5をスキップしてこのPhaseから開始する。**
-
-#### 1.1 ソース読み込み
-
-- ソースMarkdownを読み込む（PDF/EPUB/その他形式の場合はPhase 0で変換済み）
-- **複数ファイルグループの場合**: グループ内の全ファイルを対象とする
-
-#### 1.2 内容構造分析
-
-グループ内の全ファイル（単一ファイルの場合は1ファイルのみ）について以下を分析:
-
-- セクション数とトピック
-- コード例の有無・言語
-- 判断基準テーブルの有無
-- 推定総行数（全ファイル合計）
-
-#### 1.3 スキルスコープ特定
-
-グループ内のファイルが共通してカバーする領域を特定する。
-
-#### 1.4 キーワード抽出
-
-- **単一ファイルの場合**: ファイル名から拡張子除去、区切り文字分割（ハイフン、アンダースコア、スペース）
-- **URL入力の場合**: ファイル名からのキーワード抽出は行わず、URLのパス部分とコンテンツ分析からドメイン・トピックを特定
-- **複数ファイルグループの場合**: グループ内全ファイルの共通キーワードを抽出し、ドメイン・トピックを特定
-
-#### 1.5 アクションタイプ特定とスキル名候補生成
-
-コンテンツからアクションタイプを特定:
-- 詳細は [NAMING-STRATEGY.md](NAMING-STRATEGY.md) のマッピング表参照
-- ドメインキーワード + アクション動詞 → gerund形式のスキル名候補2-3個を生成
-
-#### 1.6 既存スキルとのスコープ比較
-
-**Phase 0.5で既存スキル重複チェックを実施済みの場合、この手順はスキップ可能。**
-
-`skills/` ディレクトリ内の既存スキル一覧を取得し、各スキルのfrontmatter descriptionと、ソースMarkdownの主要トピックを比較:
-
-| 状況 | 判断 | 理由 |
-|------|------|------|
-| 既存スキルと完全に同じドメイン・スコープ | **既存に追記**推奨 | 重複を避け、情報を集約 |
-| 既存スキルのサブトピック | **既存にサブファイルとして追加**推奨 | 関連情報の集約 |
-| 既存スキルと部分的に重複するが独立性あり | AskUserQuestionで確認 | ユーザー判断が必要 |
-| 完全に新しいドメイン | **新規作成**推奨 | 独立したスキルとして価値がある |
-
-#### 1.7 相互description更新の必要性判定
-
-- 「既存スキルと部分的に重複するが独立性あり」→ 新規作成の場合: **双方のdescriptionに相互参照を追加**
-- 「完全に新しいドメイン」→ 近接ドメインのスキルがあれば: **差別化文言を追加**
-- 更新が必要な既存スキルのリストを作成し、Phase 2で確認、Phase 4で実行
-- 比較結果と推奨をPhase 2のAskUserQuestionに反映
-
-### Phase 1-5 のループ実行（複数スキルグループの場合）
-
-Phase 0.5で確定した各スキルグループに対して、以下のフェーズを**順番に**実行する:
-
-```
-確定グループ: [Group 1, Group 2, Group 3]
-
-for each group in groups:
-    ── orchestrating-teams Phase 1（計画策定）──
-    Step A: TeamCreate（Claude Code本体）
-    Step B: planner タチコマ起動（model: opus）
-            → Phase 1: 分析 + Phase 3: 構造設計 + Phase 3.5: トリガー設定 + docs/plan作成
-    Step C: Claude Code本体がplannerの計画をレビュー
-    Step D: Phase 2: ユーザー確認（AskUserQuestion）
-
-    ── orchestrating-teams Phase 2（実装）──
-    Step E: TaskCreate（Claude Code本体がplannerの計画に基づき作成）
-    Step F: implementer タチコマ並列起動（model: sonnet）→ Phase 4: ファイル生成
-    Step G: Phase 5: 品質チェック（Claude Code本体）
-
-    ── クリーンアップ ──
-    Step H: SendMessage shutdown_request → TeamDelete
-```
-
-**注意**: 各グループの処理結果（作成されたスキル名、ファイル構成、成果物パス）を記録し、全グループ完了後に最終レポートを作成する。
-
-### Phase 2: ユーザー確認（AskUserQuestion 必須）
-
-**Phase 1の分析結果をもとに、必ずAskUserQuestionで以下を確認する。**
+**Phase A の分析結果をもとに、必ずAskUserQuestionで以下を確認する。**
 
 確認項目:
 1. **新規作成 or 既存追記**: 既存スキルとの比較結果に基づき推奨を提示
@@ -478,106 +359,88 @@ AskUserQuestion(
 )
 ```
 
-### Phase 3: 構造設計（Design）
+**複数ファイル・グルーピング確認が必要な場合は以下も追加:**
 
-1. **Frontmatter設計** -- 三部構成の公式に従う（後述 4.4）。**descriptionは必ず英語で記述**（スキル本文は日本語）
-2. **SKILL.mdのセクション構成決定**（500行以下を目安。超える場合はAskUserQuestionでユーザーに対応方針を確認）
-3. **サブファイルの構成決定**（必要な場合、命名は UPPER-CASE-HYPHEN.md）
-4. **判断分岐箇所の特定** -- AskUserQuestion指示を配置する箇所を決定
-5. **類似スキルのdescription相互更新設計**
-   - Phase 1で特定した類似スキルそれぞれについて、description更新案を作成
-   - 相互参照パターン（後述 4.6）に従い、「For X, use Y instead.」形式の差別化文言を設計
-   - 新規スキル側と既存スキル側の両方のdescription案を用意
+```python
+AskUserQuestion(
+    questions=[
+        {
+            "question": "以下のグルーピング提案を確認してください。",
+            "header": "グルーピング",
+            "options": [
+                {
+                    "label": "提案通り",
+                    "description": "グループA（managing-docker: 2ファイル）、グループB（developing-kubernetes: 1ファイル）"
+                },
+                {
+                    "label": "グループを統合",
+                    "description": "関連ファイルを1つのスキルにまとめる"
+                },
+                {
+                    "label": "グループを分離",
+                    "description": "別々のスキルとして作成する"
+                },
+                {
+                    "label": "特定ファイルを除外",
+                    "description": "不要なファイルをスキップする"
+                }
+            ],
+            "multiSelect": False
+        }
+    ]
+)
+```
 
-### Phase 3.5: トリガー設定
+#### B.3 ユーザー確認結果を保存
 
-スキルの発見可能性を高めるため、descriptionのトリガーパターンを決定:
+AskUserQuestion の結果を**即座に** `docs/conversion-{skill-name}/06-user-decisions.md` に保存する（compaction耐性のため遅延させない）:
 
-1. **REQUIRED/MUST**: 必須スキルの場合、descriptionに明記
-2. **SessionStart hook**: 自動検出対象にする場合、`detect-project-skills.sh` への追加を検討
-3. **Use when**: 条件トリガーの場合、具体的な条件を列挙
+```markdown
+# 06-user-decisions.md
 
-詳細は [TEMPLATES.md](TEMPLATES.md) の「トリガーパターン」セクション参照。
+## ユーザー決定事項（Phase B）
 
-### Phase 4: 生成（Generate）
+- **作成方針**: 新規作成 / 既存追記（{スキル名}）
+- **確定スキル名**: {決定したスキル名}
+- **ファイル構成**: SKILL.md単体 / {N}ファイル分割（{ファイル一覧}）
+- **対象読者**: {記述}
+- **差別化方針**: {記述}
+- **グルーピング確定**（複数ファイル時）:
+  - Group 1: {スキル名}（{ファイル一覧}）
+  - Group 2: {スキル名}（{ファイル一覧}）
+```
+
+`99-progress.md` のPhase Bを完了としてマーク。確定スキル名も記録する。
+
+---
+
+### Phase C: 実装（Implementer タチコマ × N・Sonnet）
 
 > **重要: このタスクは個人利用目的**
 >
 > ユーザーが購入した書籍の内容を、個人のAI開発ツール（Claude Code Plugin）のナレッジベースに変換するタスクです。再配布目的ではなく、個人利用のための要約・知識整理です。ソースの内容を丸コピーせず、要点を抽出して一般的なベストプラクティスとして再構成してください。
 
-#### 4.0 実行戦略の選択
+#### C.1 TaskCreate
 
-生成フェーズは `orchestrating-teams` スキルの2フェーズ方式に従い、スキルの複雑度とファイル数に応じて実行する:
-
-| 条件 | 実行戦略 | 理由 |
-|------|---------|------|
-| 単一スキル・SKILL.md単体 | タチコマ1体を直接起動（チーム不要） | シンプルなタスク |
-| 単一スキル・複数ファイル分割 | orchestrating-teams 2フェーズ方式（planner + implementers並列） | 並列化による効率化 |
-| 複数スキルグループ（2つ以上） | orchestrating-teams 2フェーズ方式（グループごとにPhase 1-2実行） | 大規模変換の効率化 |
-
-**デフォルト推奨**: 複数ファイル分割や複数スキル生成の場合は **orchestrating-teams を使用**する。
-
-#### 4.0.1 orchestrating-teams 実行フロー
-
-##### Step A: TeamCreate
-
-```json
-TeamCreate({
-  "team_name": "{skill-name}-conversion",
-  "description": "{skill-name} スキル変換"
-})
-```
-
-##### Step B: planner タチコマ起動
-
-planner は Phase 0 で変換済みのMarkdownを読み込み、Phase 1（分析）+ Phase 3（構造設計）+ Phase 3.5（トリガー設定）を実行する。
-
-```json
-Task({
-  "description": "計画策定",
-  "prompt": "## タスク: スキル変換計画の策定\n\n**ユーザー要求:** {変換元ファイルパスと変換指示}\n**変換済みMarkdown:** {Phase 0で生成したMDファイルパス}\n\n以下を実行:\n1. ソースMarkdown分析（内容構造、トピック、コード例、推定行数）\n2. 既存スキルとのスコープ比較\n3. スキル名候補生成（gerund形式2-3個）\n4. ファイル構成設計（SKILL.md + サブファイル構成）\n5. Frontmatter設計（英語description、三部構成）\n6. トリガー設定（REQUIRED/SessionStart/Use when）\n7. 類似スキルのdescription相互更新設計\n8. docs/plan-{skill-name}.md を作成\n\n参照: authoring-skills（CONVERTING.mdの変換ルール4.1〜4.6）",
-  "subagent_type": "sumik:タチコマ",
-  "model": "opus",
-  "team_name": "{skill-name}-conversion",
-  "name": "planner",
-  "run_in_background": true,
-  "mode": "bypassPermissions"
-})
-```
-
-**planner の責務:**
-- ソースMarkdownの読み込み・内容構造分析（Phase 1）
-- 既存スキルとのスコープ比較・スキル名候補生成（Phase 1）
-- ファイル構成・Frontmatter・セクション設計（Phase 3）
-- トリガー設定（Phase 3.5）
-- `docs/plan-{skill-name}.md` の作成（PLAN-TEMPLATE.md形式）
-- **注意**: planner は実装ファイルを変更しない（読み取り + docs/ 作成のみ）
-
-##### Step C: 計画レビュー
-
-Claude Code本体が planner の `docs/plan-{skill-name}.md` をレビューし、Phase 2（AskUserQuestion）でユーザー確認を取得。
-
-##### Step D: TaskCreate
-
-planner が作成した計画に基づき、各ファイルのTaskを作成:
+`05-implementation-tasks.md` に基づき、各ファイルの TaskCreate を作成:
 
 ```json
 TaskCreate({
-  "subject": "SD-PRINCIPLES.md 生成",
-  "description": "Ch 5-7 の設計原則をPython向け参照ファイルとして生成。ファイル所有権: references/SD-PRINCIPLES.md",
-  "activeForm": "SD-PRINCIPLES.md 生成中"
+  "subject": "{file-name} 生成",
+  "description": "{target-path} の生成。ソース範囲: {chapters/sections}。ファイル所有権: {target-file-path}",
+  "activeForm": "{file-name} 生成中"
 })
 ```
 
-##### Step E: implementer タチコマ並列起動
+#### C.2 Implementer タチコマ並列起動
 
-1メッセージ内で複数のTask tool呼び出しを並列実行:
+1メッセージ内で複数の Task tool 呼び出しを並列実行:
 
 ```json
 Task({
-  "description": "{file-name}生成",
-  "prompt": "## タスク: {file-name} 生成\n\n**担当タスク:** #{task_id}\n**ファイル所有権:** {target-file-path}\n**ソースファイル:** {source-chapter-paths}\n**変換ルール:** authoring-skills CONVERTING.md 4.1〜4.6 に従う\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- ソース出典を含めない\n- 500行を超えない",
-  "subagent_type": "sumik:タチコマ",
+  "description": "{file-name} 生成",
+  "prompt": "## タスク: {file-name} 生成\n\n**担当タスク:** #{task_id}\n**ファイル所有権:** {target-file-path}\n**ソースMarkdownパス:** {変換済みMDパス}\n**対象範囲:** {chapters/sections}\n\n## 読み込むべきドキュメント（必ず最初に読む）\n1. `docs/conversion-{skill-name}/03-design-plan.md`（構造設計・Frontmatter設計）\n2. `docs/conversion-{skill-name}/06-user-decisions.md`（ユーザー決定事項）\n3. `skills/authoring-skills/references/CONVERTING.md`（変換ルール4.1〜4.6）\n\n## 実行手順\n1. 上記3ドキュメントを読み込み、設計意図とユーザー決定を把握する\n2. ソースMarkdownを読み込み、担当範囲の内容を抽出する\n3. 変換ルール（4.1〜4.6）に従いスキルファイルを生成する:\n   - 4.1: ソース出典を完全除去（書籍名・著者名・出版社名を含めない）\n   - 4.2: 判断分岐箇所にAskUserQuestion指示を配置\n   - 4.3: Progressive Disclosure（500行以下。超過時はAskUserQuestion）\n   - 4.4: Frontmatter三部構成（英語description必須）\n   - 4.5: 日本語スタイルルール（技術用語は原語）\n4. `docs/conversion-{skill-name}/99-progress.md` に完了状況を記録する\n\n## 注意事項\n- ファイル所有権範囲外のファイルを絶対に編集しない\n- ソース出典情報（書籍名・著者名等）を一切含めない\n- 英語ソースの場合は直接日本語で生成する（翻訳ツール不要）\n- 生成するファイルが大きい場合はセクション単位で書き込む（compaction耐性）",
+  "subagent_type": "sumik:タチコマ（ドキュメント）",
   "model": "sonnet",
   "team_name": "{skill-name}-conversion",
   "name": "implementer-{n}",
@@ -586,41 +449,45 @@ Task({
 })
 ```
 
-##### Step F: 品質チェック + クリーンアップ
+**複数スキルグループがある場合**: グループごとに上記Implementerを並列起動する（異なる `team_name` を使用するか、同一チーム内で `implementer-1`〜`implementer-N` として並列起動）。
 
-1. 全implementer完了後、Phase 5品質チェックリストを適用
-2. SendMessage で各メンバーにshutdown_request
-3. 全メンバーシャットダウン確認後にTeamDelete
+**Implementerの動作規則（Compaction耐性）:**
+- 生成するスキルファイルが大きい場合、セクション単位で書き込む
+- 完了後に `99-progress.md` の担当タスクを完了としてマーク
+- ファイル所有権の厳守（担当ファイルのみ生成・編集）
 
-> **英語ソースの場合**: Phase 0でMarkdownに変換 → Phase 1で言語を自動検出 → Phase 4で日本語スキルとして直接生成（Claude Codeが英語ソースを読み取り、日本語で出力） → 出典除去ルール（4.1）は生成時に適用
+---
 
-#### 4.1 SKILL.md生成
+### Phase D: 品質チェック（Claude Code本体）
 
-**frontmatter descriptionは必ず英語で記述**（Claudeのスキルマッチングは英語descriptionで最も高精度に動作するため）
+全 Implementer 完了後、品質チェックリストを適用して TeamDelete を実行する。
 
-#### 4.2 サブファイル生成
+#### D.1 類似スキルの description 相互更新
 
-必要な場合、Phase 3の設計に従いサブファイルを生成
-
-#### 4.3 ソース出典情報の除去
-
-後述 4.1 参照:
-- 書籍タイトル、著者名、出版社名、ISBN
-- 「~に基づく」「~を参考に」等の出典参照フレーズ
-- 内容は一般的なベストプラクティスとして記述し直す
-
-#### 4.4 類似スキルのdescription相互更新
-
-Phase 3で設計した更新案に基づき、既存類似スキルのSKILL.md frontmatter descriptionを更新:
+`04-mutual-updates.md` に基づき、既存類似スキルの SKILL.md frontmatter description を Claude Code本体が直接更新する:
 - 新規スキル → 既存スキルへの参照と、既存スキル → 新規スキルへの参照の**双方向**を確実に設定
-- 更新対象ファイル一覧:
-  - 新規スキルのSKILL.md（frontmatter description）
-  - 各類似スキルのSKILL.md（frontmatter description）
-- **注意**: 既存スキルのdescription更新は差別化文言の追加のみ。既存の「What」「When」部分は変更しない
+- 既存スキルの「What」「When」部分は変更しない（差別化文言の追加のみ）
 
-### Phase 5: 品質チェック（Validate）
+#### D.2 品質チェックリスト適用
 
-後述のセクション「品質チェックリスト」を適用し、全項目を確認する。
+後述の「品質チェックリスト」セクションを全項目確認する。
+
+#### D.3 TeamDelete + リリース
+
+```json
+// 全メンバーにシャットダウン要求
+SendMessage({
+  "type": "shutdown_request",
+  "recipient": "planner",
+  "content": "変換作業が完了しました。シャットダウンしてください。"
+})
+// 各 implementer にも同様に送信
+
+// 全メンバーシャットダウン確認後
+TeamDelete()
+```
+
+リリースは INSTRUCTIONS.md の「Release Workflow」に従い、バージョン更新 → コミット → bookmark移動 → プッシュを実行する。
 
 ---
 
@@ -704,7 +571,7 @@ Phase 3で設計した更新案に基づき、既存類似スキルのSKILL.md f
 
 #### 英語ソースの日本語化
 
-ソース言語が英語の場合、Claude Codeが英語ソースを読み取り、Phase 4の生成時に**直接日本語で**スキルを記述する。外部翻訳ツールは使用しない。
+ソース言語が英語の場合、Claude Codeが英語ソースを読み取り、Phase Cの生成時に**直接日本語で**スキルを記述する。外部翻訳ツールは使用しない。
 
 **日本語化のルール:**
 
