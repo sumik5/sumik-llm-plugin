@@ -27,7 +27,7 @@ sumik-claude-plugin/
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
 ├── agents/             # Agent定義 (22体)
-├── commands/           # スラッシュコマンド (10個)
+├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
 └── skills/             # ナレッジスキル (85個)
@@ -64,7 +64,7 @@ sumik-claude-plugin/
 | **タチコマ（テスト）** (tachikoma-test) | Sonnet | ユニット/インテグレーションテスト専門。TDD・Vitest/Jest・React Testing Library・モック戦略 |
 | **タチコマ（E2Eテスト）** (tachikoma-e2e-test) | Sonnet | E2Eテスト・ブラウザ自動化専門。Playwright Test・POM・ビジュアルテスト・アクセシビリティ・CI/CD統合 |
 
-### Commands (10個)
+### Commands (11個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -74,6 +74,7 @@ sumik-claude-plugin/
 | `/pull-request` | PR説明文の自動生成 |
 | `/git-tag` | アノテーション付きGitタグ作成 |
 | `/changelog` | CHANGELOG自動生成（Keep a Changelog形式） |
+| `/commit-msg` | 会話履歴とステージ済み変更からConventional Commitsコミットメッセージ生成 |
 | `/generate-user-story` | ユーザーストーリー＋E2Eテストドキュメント生成 |
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
