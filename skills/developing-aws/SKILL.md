@@ -2,23 +2,17 @@
 name: developing-aws
 description: >-
   AWS development guide covering serverless (Lambda, API Gateway, DynamoDB, Step Functions),
-  CDK infrastructure as code, EKS Kubernetes, SRE operations, cost optimization (FinOps, CCoE),
-  security (IAM, VPC, KMS, Cognito, GuardDuty), generative AI (Bedrock, RAG, Agents),
-  database services (Aurora, DynamoDB, ElastiCache), data engineering (Glue, Athena, Redshift),
-  developer tools (CodePipeline, Amplify), SageMaker ML, SysOps operations,
-  Cloud Design Patterns (57 CDP patterns), VPC architecture (subnet, CIDR, Transit Gateway),
+  CDK, EKS, SRE, cost optimization (FinOps/CCoE), security (IAM, VPC, KMS, GuardDuty),
+  GenAI (Bedrock, RAG, Agents), databases (Aurora, DynamoDB, ElastiCache),
+  data engineering (Glue, Athena, Redshift), developer tools (CodePipeline),
+  Cloud Design Patterns (57 CDP), VPC architecture (subnet, CIDR, Transit Gateway),
   enterprise architecture (multi-account, Landing Zone, 14 business system patterns),
   and cloud migration strategies (7R, AWS MGN, database migration).
   MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in package.json,
   cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), or eksctl configs.
-  For GCP, use developing-google-cloud.
-  For Terraform, use developing-terraform.
-  For Docker, use managing-docker.
-  For monitoring design, use designing-monitoring.
-  For RAG architecture, use building-rag-systems.
-  For LLMOps, use practicing-llmops.
-  For serverless security, use securing-serverless.
-  For application logging, use implementing-logging.
+  For GCP→developing-google-cloud, Terraform→developing-terraform, Docker→managing-docker,
+  monitoring→designing-monitoring, RAG→building-rag-systems, LLMOps→practicing-llmops,
+  serverless security→securing-serverless, logging→implementing-logging.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

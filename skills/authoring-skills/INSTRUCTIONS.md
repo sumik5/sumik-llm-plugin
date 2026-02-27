@@ -124,9 +124,20 @@ hooks:                                 # スキルスコープのライフサイ
 - Include what the skill does AND when to use it
 - Add differentiation when similar skills exist (e.g., "For X, use Y instead.")
 - Be specific and include key terms for discovery
-- **Length limit**: 1024文字以下にすること（Claude Codeのフロントマター解析の制約）
-  - 超過時の圧縮テクニック: 冗長な列挙を代表的なものに絞る、括弧内の詳細を削減、「Comprehensive」「covering」等の装飾語を削除
-  - 「For X, use Y instead」の差別化は優先的に維持する
+- 🔴 **Length limit**: description は **1024文字以下**（Claude Codeのフロントマター解析でこの長さを超えると切り捨てられる）
+  - **必ず検証**: SKILL.md 作成・編集後に以下のコマンドで文字数を確認すること
+    ```bash
+    python3 -c "import yaml; d=yaml.safe_load(open('skills/<name>/SKILL.md').read().split('---')[1]); l=len(d.get('description','')); print(f'{l}/1024 chars'); assert l<=1024, f'OVER: {l}'"
+    ```
+  - **超過時の圧縮テクニック**（優先順）:
+    1. 「Comprehensive」「covering」「and more」等の装飾語を削除
+    2. 冗長な列挙を代表的なものに絞る（例: 全サービス名 → 主要3-4個 + カテゴリ名）
+    3. 括弧内の詳細を削減（例: `(Lambda, API Gateway, DynamoDB, Step Functions)` → `(Lambda, DynamoDB)`）
+    4. ルーティングヒントを短縮（例: `For X, use Y instead` → `For X→Y`）
+  - **圧縮しても維持すべき要素**:
+    - 「Use when / MUST load when」のトリガー条件
+    - 「For X→Y」の差別化ルーティング
+    - 主要な検出キーワード（ファイル名、パッケージ名）
 
 See [NAMING.md](references/NAMING.md) for detailed naming guidelines.
 
@@ -320,7 +331,17 @@ description: >-
 See [REFERENCE.md](references/REFERENCE.md) for details.
 ```
 
-### Step 4: Test and Iterate
+### Step 4: Validate Description Length（🔴 必須）
+
+SKILL.md 作成・編集直後に description が1024文字以下であることを確認する:
+
+```bash
+python3 -c "import yaml; d=yaml.safe_load(open('skills/<name>/SKILL.md').read().split('---')[1]); l=len(d.get('description','')); print(f'{l}/1024 chars'); assert l<=1024, f'OVER: {l}'"
+```
+
+超過した場合は Description rules の圧縮テクニック（優先順）を適用して1024文字以内に収める。
+
+### Step 5: Test and Iterate
 
 1. Test with real usage scenarios
 2. Observe Claude's navigation patterns
