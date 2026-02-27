@@ -55,6 +55,10 @@
 ### 📖 実装例
 - **[EXAMPLES.md](./references/EXAMPLES.md)**: page.tsx、layout.tsx、Server Actions、API routes等の実装サンプル
 
+### 📚 実践パターン集
+- **[NP-APP-ROUTER-FUNDAMENTALS.md](./references/NP-APP-ROUTER-FUNDAMENTALS.md)**: Route Segment用語、Server/Client Component判断基準、データ取得パターン、Metadata API
+- **[NP-FULLSTACK-PATTERNS.md](./references/NP-FULLSTACK-PATTERNS.md)**: フルスタック構成、Prisma ORM、NextAuth.js認証、Server Actions、4種類のキャッシュ戦略
+
 ## 他のスキルとの連携
 
 このスキルは、以下の既存スキルと組み合わせて使用してください：
@@ -84,8 +88,10 @@
 
 ### 中級者向け
 1. **`developing-react`** スキル - React 19新機能・Internals・パフォーマンスルール
-2. **[DATABASE.md](./references/DATABASE.md)** - Prisma ORMでデータ層を構築
-3. **[TESTING.md](./references/TESTING.md)** - テスト戦略を学ぶ
+2. **[NP-APP-ROUTER-FUNDAMENTALS.md](./references/NP-APP-ROUTER-FUNDAMENTALS.md)** - App Router実装パターン（Route Segment・Server/Client Component・データ取得）
+3. **[NP-FULLSTACK-PATTERNS.md](./references/NP-FULLSTACK-PATTERNS.md)** - フルスタック実装（Prisma・NextAuth.js・Server Actions・キャッシュ戦略）
+4. **[DATABASE.md](./references/DATABASE.md)** - Prisma ORMでデータ層を構築
+5. **[TESTING.md](./references/TESTING.md)** - テスト戦略を学ぶ
 
 ### 上級者向け
 1. **[TOOLING.md](./references/TOOLING.md)** - 開発ツールの最適化

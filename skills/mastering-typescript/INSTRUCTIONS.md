@@ -186,3 +186,26 @@ TypeScript 5でのデザインパターンと設計原則の包括的ガイド�
 | [DP-FUNCTIONAL-REACTIVE.md](./references/DP-FUNCTIONAL-REACTIVE.md) | FP（Monads, Functors, Lenses）+ Reactive（Promises, Observables） |
 | [DP-ARCHITECTURE.md](./references/DP-ARCHITECTURE.md) | DDD, SOLID, MVC、パターン結合、Utility Types活用 |
 | [DP-ANTI-PATTERNS.md](./references/DP-ANTI-PATTERNS.md) | TypeScriptアンチパターン + OSSパターン（Apollo, tRPC） |
+
+---
+
+## JavaScript関数型プログラミング
+
+JavaScript/TypeScriptにおける関数型プログラミングの基礎から実践までの包括的ガイド。
+
+| ファイル | 内容 |
+|---------|------|
+| [JF-FOUNDATIONS.md](./references/JF-FOUNDATIONS.md) | FPの基礎概念（純粋関数・不変性・参照透過性）、JS固有の関数型特性 |
+| [JF-CORE-TECHNIQUES.md](./references/JF-CORE-TECHNIQUES.md) | 関数チェーン、カリー化、合成、Either型、Lodash/Ramda活用 |
+| [JF-PRACTICAL.md](./references/JF-PRACTICAL.md) | FPテスト戦略、メモ化、再帰最適化、リアクティブプログラミング |
+
+---
+
+## TypeScript実践入門ガイド
+
+TypeScriptのオブジェクト型と高度な型機能の実践的なガイド。
+
+| ファイル | 内容 |
+|---------|------|
+| [TI-OBJECTS-TYPES.md](./references/TI-OBJECTS-TYPES.md) | オブジェクトの型定義パターン、部分型関係、インデックス型、Map/Set型 |
+| [TI-ADVANCED-FEATURES.md](./references/TI-ADVANCED-FEATURES.md) | リテラル型、as const、型ガード、mapped/conditional types、コンパイラオプション |

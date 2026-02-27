@@ -135,7 +135,7 @@ sumik-claude-plugin/
 |--------|------|
 | `developing-react` | React 19.x 開発ガイド（Internals・パフォーマンスルール47+・アニメーション・RTLテスト） |
 | `remotion-best-practices` | Remotion動画作成ベストプラクティス（React、Three.js、アニメーション、キャプション） |
-| `developing-nextjs` | Next.js 16.x開発ガイド（App Router・Server Components・Cache Components）。React固有は`developing-react`参照 |
+| `developing-nextjs` | Next.js 16.x開発ガイド（App Router・Server Components・Cache Components・Turbopack・実践パターン集）。Route Segment・Parallel/Intercepting Routes・Prisma・NextAuth.js・Server Actions・4種キャッシュ戦略を含む10リファレンスファイル。React固有は`developing-react`参照 |
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
 | `developing-python` | Python 3.13開発（Effective Python 125項目・実践パターン50問・SEプロセス: SDLC/方法論/システムモデリング/プロジェクト実装パターン/API設計・デプロイ含む） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
