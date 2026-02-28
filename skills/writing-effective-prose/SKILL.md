@@ -11,6 +11,7 @@ description: >-
   graduation theses, business documents, web content, FAQ/help docs).
   For Zenn articles, use writing-zenn-articles instead.
   For LaTeX document compilation, use writing-latex instead.
+  For presentation-specific storytelling and delivery improvement, use improving-presentations instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (88個)
+└── skills/             # ナレッジスキル (89個)
 ```
 
 ---
@@ -80,7 +80,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (88個)
+### Skills (89個)
 
 #### コア開発
 
@@ -203,6 +203,7 @@ sumik-claude-plugin/
 | `reviewing-with-coderabbit` | CodeRabbitコードレビュー |
 | `writing-zenn-articles` | Zenn技術記事の作成・投稿ワークフロー（フロントマター仕様・命名規則・品質チェック・Lint設定） |
 | `designing-training` | 研修設計・ファシリテーション方法論（ニーズ分析・カリキュラム設計・90/20/8法則・EATフレームワーク・参加者主体技法・オンライン/ハイブリッド・スキルマップ・研修資料作成・12リファレンスファイル） |
+| `improving-presentations` | プレゼンテーション改善ガイド（5領域: ストーリーテリング・ロジカル構成・スライドデザイン・デリバリー・聴衆エンゲージメント、5冊統合、7ファイル） |
 | `writing-effective-prose` | 効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）を統合） |
 
 ### Scripts (1個)

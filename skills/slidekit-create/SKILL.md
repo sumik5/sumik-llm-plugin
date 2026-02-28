@@ -1,6 +1,6 @@
 ---
 name: slidekit-create
-description: Generate HTML slide presentations (1 slide = 1 HTML file, 1280x720px) using Tailwind CSS, Font Awesome, and Google Fonts. Use when the user asks to create a new presentation deck or slide HTML files. Covers design guidelines, 15 layout patterns, component library, and PPTX conversion compatibility rules. Supports style selection (creative, elegant, modern, professional, minimalist) and theme selection (marketing, portfolio, business, technology, education).
+description: Generate HTML slide presentations (1 slide = 1 HTML file, 1280x720px) using Tailwind CSS, Font Awesome, and Google Fonts. Use when the user asks to create a new presentation deck or slide HTML files. Covers design guidelines, 15 layout patterns, component library, and PPTX conversion compatibility rules. Supports style selection (creative, elegant, modern, professional, minimalist) and theme selection (marketing, portfolio, business, technology, education). For presentation content improvement (storytelling, structure, messaging), use improving-presentations instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
