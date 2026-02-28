@@ -118,6 +118,7 @@ get_skill_description() {
         "developing-aws") echo "AWS開発（システム設計・サーバーレス・CDK・EKS・SRE・コスト最適化・Bedrock）" ;;
         "architecting-micro-frontends") echo "マイクロフロントエンドアーキテクチャ" ;;
         "integrating-ai-web-apps") echo "AI web app integration with Vercel AI SDK, LangChain.js, and MCP (streaming, RAG, tool calling, structured data)" ;;
+        "styling-with-tailwind") echo "Tailwind CSSスタイリング方法論（v4プライマリ）" ;;
         *) echo "" ;;
     esac
 }
@@ -177,6 +178,12 @@ check_package_json() {
     if echo "$deps" | grep -qx "ai" || echo "$deps" | grep -q "^@langchain/"; then
         PROJECT_SKILLS+=("integrating-ai-web-apps")
     fi
+
+    # Tailwind CSS チェック（v4: package.json tailwindcss依存）
+    if echo "$deps" | grep -qx "tailwindcss"; then
+        HAS_DESIGN_PROJECT=true
+        PROJECT_SKILLS+=("styling-with-tailwind")
+    fi
 }
 
 # TypeScript プロジェクトチェック
@@ -201,9 +208,10 @@ check_design() {
         PROJECT_SKILLS+=("designing-frontend")
     fi
 
-    # Tailwind CSS
+    # Tailwind CSS（v3: tailwind.config.*, v4: package.json tailwindcss依存）
     if find "$WORK_DIR" -maxdepth 2 -name "tailwind.config.*" 2>/dev/null | grep -q .; then
         HAS_DESIGN_PROJECT=true
+        PROJECT_SKILLS+=("styling-with-tailwind")
     fi
 
     # .pen ファイル（Pencil MCP）

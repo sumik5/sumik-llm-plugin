@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (85個)
+└── skills/             # ナレッジスキル (86個)
 ```
 
 ---
@@ -80,7 +80,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (85個)
+### Skills (86個)
 
 #### コア開発
 
@@ -154,6 +154,7 @@ sumik-claude-plugin/
 | `implementing-design` | Figmaデザイン→コード |
 | `implementing-figma` | Figma MCP統合・基本/高度ワークフロー・Code Connect・デザイントークン同期 |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
+| `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
 
 #### ブラウザ自動化・E2Eテスト
 
