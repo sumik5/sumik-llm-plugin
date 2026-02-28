@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (87個)
+└── skills/             # ナレッジスキル (88個)
 ```
 
 ---
@@ -80,7 +80,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (87個)
+### Skills (88個)
 
 #### コア開発
 
@@ -105,6 +105,7 @@ sumik-claude-plugin/
 | `using-codex` | Codex CLI（OpenAI）連携（コード相談・レビュー・設計相談・バグ調査） |
 | `reviewing-plans-with-codex` | Codex CLI (gpt-5.3-codex) によるプランファイルレビュー（初回レビュー＋resume再レビュー） |
 | `reviewing-code` | コードレビュー方法論（PRの構成・効果的なコメント技法・TWA・アンチパターン対策） |
+| `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodexマルチエージェント形式（config.toml + agent .toml）に変換 |
 
 #### アーキテクチャ
 
