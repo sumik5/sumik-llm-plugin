@@ -26,7 +26,7 @@ sumik-claude-plugin/
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
-├── agents/             # Agent定義 (22体)
+├── agents/             # Agent定義 (23体)
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
@@ -37,7 +37,7 @@ sumik-claude-plugin/
 
 ## コンポーネント一覧
 
-### Agents (22体)
+### Agents (23体)
 
 | Agent | モデル | 説明 |
 |-------|--------|------|
@@ -63,6 +63,7 @@ sumik-claude-plugin/
 | **タチコマ（AI/ML）** (tachikoma-ai-ml) | Sonnet | AI/ML開発専門。Vercel AI SDK・LangChain.js・RAGシステム・MCP開発・LLMOps運用 |
 | **タチコマ（テスト）** (tachikoma-test) | Sonnet | ユニット/インテグレーションテスト専門。TDD・Vitest/Jest・React Testing Library・モック戦略 |
 | **タチコマ（E2Eテスト）** (tachikoma-e2e-test) | Sonnet | E2Eテスト・ブラウザ自動化専門。Playwright Test・POM・ビジュアルテスト・アクセシビリティ・CI/CD統合 |
+| **タチコマ（研修・プレゼン）** (tachikoma-training-presenter) | Sonnet | 研修設計・プレゼンテーション改善専門（自己進化型）。研修ニーズ分析・カリキュラム設計・プレゼン構成改善・デリバリー技法・文章品質向上 |
 
 ### Commands (11個)
 

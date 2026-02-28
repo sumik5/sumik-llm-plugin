@@ -1,7 +1,7 @@
 # Agent Definition Authoring Guide
 
 エージェント定義ファイル（`agents/*.md`）の作成・修正・改善を体系的にガイドするスキル。
-19体の専門タチコマ作成で確立したパターンと、公式ドキュメント・コミュニティのベストプラクティスに基づく。
+21体の専門タチコマ作成で確立したパターンと、公式ドキュメント・コミュニティのベストプラクティスに基づく。
 
 ---
 
@@ -588,6 +588,7 @@ authoring-agents を使用してエージェントの作成・修正・改善を
 | tachikoma-observability.md | タチコマ（オブザーバビリティ） | sonnet | 監視・OTel・ログ |
 | tachikoma-document.md | タチコマ（ドキュメント） | sonnet | 技術文書・記事 |
 | tachikoma-design.md | タチコマ（デザイン） | sonnet | Figma MCP・デザイン→コード |
+| tachikoma-training-presenter.md | タチコマ（研修・プレゼン） | sonnet | 研修設計・プレゼン改善（自己進化型） |
 
 ---
 
