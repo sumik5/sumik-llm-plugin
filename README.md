@@ -106,7 +106,7 @@ sumik-claude-plugin/
 | `using-codex` | Codex CLI（OpenAI）連携（コード相談・レビュー・設計相談・バグ調査） |
 | `reviewing-plans-with-codex` | Codex CLI (gpt-5.3-codex) によるプランファイルレビュー（初回レビュー＋resume再レビュー） |
 | `reviewing-code` | コードレビュー方法論（PRの構成・効果的なコメント技法・TWA・アンチパターン対策） |
-| `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodexマルチエージェント形式（config.toml + agent .toml）に変換 |
+| `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodexマルチエージェント形式（config.toml + agent .toml）に変換。フォルダ指定で一括変換・差分更新対応 |
 
 #### アーキテクチャ
 
