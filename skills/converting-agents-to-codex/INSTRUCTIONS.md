@@ -131,7 +131,7 @@ WebFetch(
    | ファイル名（拡張子なし） | `[agents.<key>]` | ハイフン → アンダースコア |
    | `description` | `description` | 置換済みテキストをそのまま転記 |
    | `name` | 参考情報 | developer_instructions 冒頭のコメントに含める |
-   | 固定値 | `model` | `"openai/gpt-5.2-codex"` |
+   | 固定値 | `model` | `"openai/gpt-5.3-codex"` |
    | 固定値 | `model_reasoning_effort` | `"high"` |
    | 固定値 | `sandbox_mode` | `"workspace-write"`（常に固定） |
    | Body + skills テーブル | `developer_instructions` | 下記テンプレート参照 |
