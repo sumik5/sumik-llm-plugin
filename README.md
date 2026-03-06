@@ -44,8 +44,8 @@ sumik-claude-plugin/
 | **タチコマ** (tachikoma) | Sonnet | 汎用実行Agent。専門タチコマでカバーされないタスクや複数ドメイン横断タスクを担当。並列実行対応(1-4体) |
 | **Serena Expert** (serena-expert) | Sonnet | /serenaコマンドを活用したトークン効率重視の開発Agent |
 | **タチコマ（Next.js）** (tachikoma-nextjs) | Sonnet | Next.js 16/React 19専門。App Router・Server Components・Turbopack・next-devtools統合 |
-| **タチコマ（デザイン）** (tachikoma-design) | Sonnet | Figma MCP全面活用のデザイン→コード変換専門。Figma Make統合・Code Connect・Design System Rules・デザイントークン同期 |
-| **タチコマ（フロントエンド）** (tachikoma-frontend) | Sonnet | フロントエンドUI/UX専門。shadcn/ui・Storybook・Figma→コード変換・データビジュアライゼーション |
+| **タチコマ（デザイン）** (tachikoma-design) | Sonnet | デザイン専門。Figma MCP全13ツール活用・デザインシステム構築/運用・Tailwind CSSスタイリング・UI/UXデザイン原則・デザイントークン同期 |
+| **タチコマ（フロントエンド）** (tachikoma-frontend) | Sonnet | フロントエンドコンポーネント実装専門。shadcn/ui・Storybook（CSF3・インタラクションテスト・a11y）・データビジュアライゼーション |
 | **タチコマ（TypeScript）** (tachikoma-typescript) | Sonnet | TypeScript型システム専門。高度な型パターン・ジェネリクス・条件型・GoFデザインパターン |
 | **タチコマ（フルスタックJS）** (tachikoma-fullstack-js) | Sonnet | フルスタックJS専門。NestJS/Express・REST API設計・構造化ログ |
 | **タチコマ（Python）** (tachikoma-python) | Sonnet | Python専門。Python 3.13+・uv/ruff/mypy・FastAPI/FastMCP・Google ADKエージェント構築 |
