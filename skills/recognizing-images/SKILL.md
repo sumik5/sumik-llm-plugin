@@ -8,4 +8,24 @@ disable-model-invocation: true
 argument-hint: "<path-to-image-or-directory>"
 ---
 
-詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
+## 禁止事項
+
+- 画像ファイルを Read ツールで読み込んではならない（トークン浪費。スクリプトが処理する）
+- INSTRUCTIONS.md の Read は不要
+- モデル一覧取得は不要
+- Claude自身のVision能力で画像を解釈してはならない。必ず以下のスクリプトを実行すること
+
+## 実行（以下の Bash コマンドを即座に実行すること）
+
+```bash
+python3 -c "import openai" 2>/dev/null || pip install openai -q
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/recognizing-images/scripts/recognize-image.py recognize \
+  --model "qwen/qwen3.5-9b" \
+  --path "$ARGUMENTS"
+```
+
+スクリプトの stdout がMarkdown形式の認識結果。そのまま出力する。
+
+## エラー時
+
+> LM Studio が起動中でモデルがロードされていることを確認してください。
