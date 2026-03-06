@@ -147,7 +147,7 @@
 
 - **developing-nextjs**: Next.js固有の最適化
 - **enforcing-type-safety**: TypeScript型安全性
-- **本スキル内のSTORYBOOK.md**: Storybook story作成ガイド（./references/STORYBOOK.md）
+- **developing-storybook**: Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルテスト）
 - **本スキル内のSHADCN.md**: shadcn/uiコンポーネント管理（./references/SHADCN.md）
 
 ## 📚 技術スタック別ガイド
@@ -171,9 +171,7 @@
 
 ## Storybook
 
-Storybook story作成ガイドライン。コンポーネントの視覚テスト、条件付きレンダリング、複雑なUI状態の管理。
-
-詳細: [STORYBOOK.md](./references/STORYBOOK.md)
+Storybook開発については **developing-storybook** スキルを参照。CSF3によるStory記述、インタラクションテスト（play関数）、アクセシビリティテスト、ビジュアルリグレッションテスト、Next.js統合、MSWモック等を包括的にカバー。
 
 ## shadcn/ui
 

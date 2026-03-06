@@ -91,6 +91,7 @@ get_skill_description() {
         "using-next-devtools") echo "Next.js DevTools MCP活用" ;;
         "mastering-typescript") echo "TypeScript型システム・パターン" ;;
         "designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
+        "developing-storybook") echo "Storybook開発（CSF3・テスト・a11y）" ;;
         "developing-go") echo "Go開発ガイド" ;;
         "developing-python") echo "Python開発ガイド" ;;
         "developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
@@ -205,7 +206,7 @@ check_design() {
     # Storybook
     if find "$WORK_DIR" -maxdepth 3 -name "*.stories.tsx" -o -name "*.stories.ts" 2>/dev/null | grep -q .; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("designing-frontend")
+        PROJECT_SKILLS+=("developing-storybook")
     fi
 
     # Tailwind CSS（v3: tailwind.config.*, v4: package.json tailwindcss依存）

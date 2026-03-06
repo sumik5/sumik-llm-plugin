@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (90個)
+└── skills/             # ナレッジスキル (91個)
 ```
 
 ---
@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (91個)
+### Skills (92個)
 
 #### コア開発
 
@@ -153,7 +153,8 @@ sumik-claude-plugin/
 |--------|------|
 | `building-design-systems` | デザインシステム構築・運用方法論（システム基礎・パターン分類・組織戦略・パターンライブラリ・UIパターンカタログ20+） |
 | `applying-design-guidelines` | UI/UXデザイン設計（視覚デザイン・認知心理学・実践的UIルール101） |
-| `designing-frontend` | フロントエンド実装（Storybook・shadcn/ui統合） |
+| `developing-storybook` | Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルリグレッション・Next.js統合・MSWモック） |
+| `designing-frontend` | フロントエンド実装（shadcn/ui統合） |
 | `implementing-design` | Figmaデザイン→コード |
 | `implementing-figma` | Figma MCP統合・基本/高度ワークフロー・Code Connect・デザイントークン同期 |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
