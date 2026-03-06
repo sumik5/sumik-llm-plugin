@@ -185,8 +185,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     rec_parser.add_argument(
         "--model",
-        default="qwen/qen3.5-9b",
-        help="使用するモデル名 (デフォルト: qwen/qen3.5-9b)",
+        default="qwen/qwen3.5-9b",
+        help="使用するモデル名 (デフォルト: qwen/qwen3.5-9b)",
     )
     rec_parser.add_argument(
         "--path",
