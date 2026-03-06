@@ -296,6 +296,90 @@ const meta = {
 } satisfies Meta<typeof Card>;
 ```
 
+## Play関数のコンポジション
+
+ストーリー間でplay関数を再利用し、複雑なフローを段階的に構築:
+
+```typescript
+export const StepOne: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.type(canvas.getByLabelText('メール'), 'test@example.com');
+    await userEvent.click(canvas.getByRole('button', { name: '次へ' }));
+  },
+};
+
+// StepOneのplay関数を再利用して拡張
+export const StepTwo: Story = {
+  play: async (context) => {
+    await StepOne.play!(context);
+    await context.userEvent.type(
+      context.canvas.getByLabelText('パスワード'),
+      'password123'
+    );
+    await context.userEvent.click(
+      context.canvas.getByRole('button', { name: '送信' })
+    );
+  },
+};
+```
+
+## excludeStoriesパターン
+
+ヘルパーデータをStory一覧から除外:
+
+```typescript
+const meta = {
+  component: TaskList,
+  excludeStories: /.*Data$/, // 正規表現でマッチするエクスポートを除外
+} satisfies Meta<typeof TaskList>;
+
+// Storybook UIに表示されないが、他のStoryから参照可能
+export const MockData = {
+  tasks: [
+    { id: '1', title: 'タスク1', state: 'TASK_INBOX' },
+    { id: '2', title: 'タスク2', state: 'TASK_PINNED' },
+  ],
+};
+
+export const Default: Story = {
+  args: { tasks: MockData.tasks },
+};
+```
+
+## Provider/Store デコレータパターン
+
+Redux等の状態管理ライブラリをStorybook内で動作させる:
+
+```typescript
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import taskReducer from '@/store/taskSlice';
+
+// カスタムProviderデコレータ
+const MockStore = ({ initialState, children }: {
+  initialState: Record<string, unknown>;
+  children: React.ReactNode;
+}) => (
+  <Provider store={configureStore({
+    reducer: { tasks: taskReducer },
+    preloadedState: initialState,
+  })}>
+    {children}
+  </Provider>
+);
+
+const meta = {
+  component: TaskList,
+  decorators: [
+    (Story) => (
+      <MockStore initialState={{ tasks: { items: [], status: 'idle' } }}>
+        <Story />
+      </MockStore>
+    ),
+  ],
+} satisfies Meta<typeof TaskList>;
+```
+
 ## CI/CD統合パターン
 
 ### GitHub Actions: Storybook Build + Test
