@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (92個)
+└── skills/             # ナレッジスキル (93個)
 ```
 
 ---
@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (93個)
+### Skills (94個)
 
 #### コア開発
 
@@ -190,6 +190,7 @@ sumik-claude-plugin/
 | `orchestrating-codex` | Codex Agentオーケストレーション（planner→implementer逐次起動・ドキュメント先行開発。Claude Code Team非対応環境用） |
 | `translating-with-lmstudio` | LM Studioローカル LLM による英語→日本語翻訳（OpenAI互換API、フラッシュカード作成・スキル変換連携） |
 | `recognizing-images` | LM Studioローカル VLM による画像テキスト認識（OCR、単一ファイル/ディレクトリ一括処理、Markdown出力） |
+| `converting-epub-images` | 画像ベースEPUBをLM Studio OCRで日本語テキスト（Markdown）に変換。~/Desktopに出力 |
 
 #### ドキュメント・品質
 

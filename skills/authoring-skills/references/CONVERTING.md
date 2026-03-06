@@ -252,12 +252,22 @@ pandocでEPUBをMarkdown変換した結果にテキストがほとんどなく `
    unzip -j "<input.epub>" "*.png" "*.jpg" "*.jpeg" "*.webp" -d /tmp/epub-images/
    ```
 
-2. **画像ファイル数を確認**:
+2. **ページ順序ファイルを生成**（pandoc出力から画像参照順を抽出）:
    ```bash
-   ls /tmp/epub-images/ | wc -l
+   # pandoc変換済みMDから画像参照順を抽出（ファイル名ソートよりも正確）
+   grep -o 'image_rsrc[A-Za-z0-9]*\.\(jpg\|png\|jpeg\|webp\)' /tmp/pandoc-output.md \
+     | python3 -c "import sys; seen=set(); [print(l.strip()) for l in sys.stdin if l.strip() not in seen and not seen.add(l.strip())]" \
+     > /tmp/epub-page-order.txt
+   echo "ページ数: $(wc -l < /tmp/epub-page-order.txt)"
+   ```
+   > **なぜファイル名ソートではなくpandoc出力順を使うか**: EPUB内の画像ファイル名はBase32風の独自命名（例: `image_rsrc39B`, `image_rsrc3A1`）であることが多く、`sort -V` では正しいページ順にならない。pandocの出力順はEPUB内のXHTML参照順に従うため、出版者が意図したページ順を正確に再現できる。
+
+3. **画像ファイル数を確認**:
+   ```bash
+   wc -l < /tmp/epub-page-order.txt
    ```
 
-3. **AskUserQuestionでOCR変換の可否を確認**（recognize-image.py 実行前に必須）:
+4. **AskUserQuestionでOCR変換の可否を確認**（recognize-image.py 実行前に必須）:
    ```python
    AskUserQuestion(
        questions=[{
@@ -273,21 +283,20 @@ pandocでEPUBをMarkdown変換した結果にテキストがほとんどなく `
    ```
    - **「スキップ」の場合**: pandocで変換済みのMarkdown（画像参照のみ）をそのままソースとして使用し、テキスト情報が限られる旨をユーザーに伝えてから通常フローに進む
 
-4. **recognize-image.py で変換**（「変換する」を選択した場合。前提: LM Studioが起動しモデルがロードされていること）:
-   - **10枚以下**: フォルダ一括処理
-     ```bash
-     python3 skills/authoring-skills/scripts/recognize-image.py --path /tmp/epub-images/ > /tmp/recognized-output.md
-     ```
-   - **10枚超**: 1ファイルずつ処理してリダイレクトで結合
-     ```bash
-     for img in /tmp/epub-images/*.{png,jpg,jpeg,webp}; do
-       [ -f "$img" ] || continue
-       python3 skills/authoring-skills/scripts/recognize-image.py --path "$img"
-       echo -e "\n\n---\n"
-     done > /tmp/recognized-output.md
-     ```
+5. **recognize-image.py で変換**（「変換する」を選択した場合。前提: LM Studioが起動しモデルがロードされていること）:
 
-5. **出力を変換済みMDとして使用**: `/tmp/recognized-output.md` をソースMarkdownとして、以降の通常変換フローに引き継ぐ。
+   `--order-file` でページ順を指定し、`--skip-blank` で空白ページ（15KB以下）を自動スキップする:
+   ```bash
+   python3 skills/authoring-skills/scripts/recognize-image.py \
+     --path /tmp/epub-images/ \
+     --order-file /tmp/epub-page-order.txt \
+     --skip-blank \
+     > /tmp/recognized-output.md
+   ```
+
+   > **空白ページスキップ**: 画像ベースEPUBには空白ページ（12KB程度の小さい画像）が含まれることがある。`--skip-blank` はファイルサイズ15KB以下の画像を空白と判定しスキップすることで、VLMへの無駄なリクエストを削減する。
+
+6. **出力を変換済みMDとして使用**: `/tmp/recognized-output.md` をソースMarkdownとして、以降の通常変換フローに引き継ぐ。
 
 **URL変換（curl + pandoc + filter.lua）:**
 
