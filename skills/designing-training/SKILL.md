@@ -11,6 +11,7 @@ description: >-
   Use when designing training programs, facilitating workshops,
   creating training materials, building skill maps, or managing training operations.
   For behavior design→applying-behavior-design. For presentation content→improving-presentations.
+  For design thinking process methodology (empathize/define/ideate/prototype/test)→practicing-design-thinking.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

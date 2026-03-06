@@ -13,6 +13,7 @@ description: >-
   NOT for design-to-code translation (use implementing-design),
   NOT for frontend code generation with shadcn/ui (use designing-frontend),
   NOT for Tailwind CSS configuration (use styling-with-tailwind).
+  NOT for design thinking process methodology (use practicing-design-thinking).
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

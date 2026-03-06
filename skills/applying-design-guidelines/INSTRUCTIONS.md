@@ -39,6 +39,12 @@ User experience principles based on cognitive psychology and HCI:
 - **[NAVIGATION-RULES.md](./references/NAVIGATION-RULES.md)**: ナビゲーション、ジャーニー、プログレスバー、通知のルール（ルール055-084）
 - **[ACCESSIBILITY-UX-RULES.md](./references/ACCESSIBILITY-UX-RULES.md)**: アクセシビリティ、デフォルト設定、ダークパターン回避のルール（ルール085-101）
 
+### デザイン理論基盤（Design Theory Foundation）
+
+エンジニアのためのビジュアルデザイン理論:
+
+- **[DESIGN-THEORY.md](./references/DESIGN-THEORY.md)**: デザインコンセプト構築、タイポグラフィ理論、情報整理の原則(CRAP/ゲシュタルト)、レイアウト(黄金比/三分割法)、色彩理論(配色・調和論・対比)、ビジュアル選定
+
 **IMPORTANT**: Great design requires all three perspectives. Visual beauty without usability is frustrating. Usability without aesthetics is forgettable. Practical rules without principles are fragile. Use all documents together for complete design guidance.
 
 ## Design Philosophy
