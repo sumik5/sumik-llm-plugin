@@ -2,14 +2,13 @@
 """LM Studio 画像認識スクリプト
 
 LM Studio のローカル VLM を使って画像からテキストを抽出し Markdown 形式で出力する。
-OpenAI 互換 API の Vision 機能を利用するため、openai パッケージが必要。
+lmstudio Python SDK を使用。
+https://lmstudio.ai/docs/python/llm-prediction/image-input
 """
 
 import sys
-import json
 import re
 import argparse
-import base64
 from pathlib import Path
 
 SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
@@ -20,44 +19,33 @@ RECOGNITION_PROMPT = (
 )
 
 
-def ensure_openai() -> None:
-    """openai パッケージが未インストールの場合、自動インストールする。"""
+def ensure_lmstudio() -> None:
+    """lmstudio パッケージが未インストールの場合、自動インストールする。"""
     try:
-        import openai  # noqa: F401
+        import lmstudio  # noqa: F401
     except ImportError:
         import subprocess
 
-        print("openai パッケージをインストールしています...", file=sys.stderr)
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "openai", "-q"])
+        print("lmstudio パッケージをインストールしています...", file=sys.stderr)
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "lmstudio", "-q"])
 
 
-def make_client(base_url: str):
-    """LM Studio 用の OpenAI クライアントを生成する。"""
-    from openai import OpenAI
+def strip_think_tags(text: str) -> str:
+    """推論モデル（Qwen 3.5等）の思考ブロックを除去する。
 
-    return OpenAI(base_url=f"{base_url.rstrip('/')}/v1", api_key="lm-studio")
-
-
-def encode_image(image_path: Path) -> str:
-    """画像ファイルを base64 エンコードする。"""
-    with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode("utf-8")
-
-
-def get_mime_type(image_path: Path) -> str:
-    """ファイル拡張子から MIME タイプを判定する。"""
-    ext = image_path.suffix.lower()
-    mime_map = {
-        ".png": "image/png",
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".webp": "image/webp",
-    }
-    return mime_map.get(ext, "image/png")
+    パターン1: <think>...</think> が完全にある場合
+    パターン2: <think> なしで </think> だけある場合（暗黙の思考開始）
+    """
+    # まず完全なタグペアを除去
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+    # </think> だけ残っている場合、それより前を全て除去
+    if "</think>" in text:
+        text = text.split("</think>", 1)[1]
+    return text.strip()
 
 
 def collect_image_files(path: Path) -> list[Path]:
-    """パスからの画像ファイルを収集する。ファイルなら単一、ディレクトリなら再帰検索。"""
+    """パスから画像ファイルを収集する。"""
     if path.is_file():
         if path.suffix.lower() in SUPPORTED_EXTENSIONS:
             return [path]
@@ -85,50 +73,16 @@ def collect_image_files(path: Path) -> list[Path]:
     sys.exit(1)
 
 
-def recognize_single_image(client, model: str, image_path: Path) -> str:
-    """単一画像を認識してテキストを返す。"""
-    base64_image = encode_image(image_path)
-    mime_type = get_mime_type(image_path)
+def recognize_single_image(model_name: str, image_path: Path) -> str:
+    """単一画像を認識してテキストを返す。lmstudio SDK 使用。"""
+    import lmstudio as lms
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": RECOGNITION_PROMPT},
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:{mime_type};base64,{base64_image}",
-                        },
-                    },
-                ],
-            }
-        ],
-        temperature=0.1,
-    )
-    content = response.choices[0].message.content or ""
-    # 推論モデル（Qwen 3.5等）の <think>...</think> タグを除去
-    content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
-    return content.strip()
-
-
-def cmd_list_models(args: argparse.Namespace) -> None:
-    """利用可能なモデル一覧を JSON 配列として stdout に出力する。"""
-    try:
-        client = make_client(args.base_url)
-        models = client.models.list()
-        model_ids = [m.id for m in models.data]
-        print(json.dumps(model_ids))
-    except Exception as exc:
-        print(
-            f"エラー: LM Studio API に接続できませんでした。\n"
-            f"LM Studio が起動していることを確認してください ({args.base_url})\n"
-            f"詳細: {exc}",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    image_handle = lms.prepare_image(str(image_path))
+    model = lms.llm(model_name)
+    chat = lms.Chat()
+    chat.add_user_message(RECOGNITION_PROMPT, images=[image_handle])
+    result = model.respond(chat)
+    return strip_think_tags(result.content)
 
 
 def cmd_recognize(args: argparse.Namespace) -> None:
@@ -137,10 +91,8 @@ def cmd_recognize(args: argparse.Namespace) -> None:
     image_files = collect_image_files(target_path)
 
     try:
-        client = make_client(args.base_url)
-
         if len(image_files) == 1:
-            result = recognize_single_image(client, args.model, image_files[0])
+            result = recognize_single_image(args.model, image_files[0])
             print(result)
         else:
             print(f"{len(image_files)} 件の画像を処理します...", file=sys.stderr)
@@ -150,7 +102,7 @@ def cmd_recognize(args: argparse.Namespace) -> None:
                     f"[{i}/{len(image_files)}] {image_file.name} を処理中...",
                     file=sys.stderr,
                 )
-                text = recognize_single_image(client, args.model, image_file)
+                text = recognize_single_image(args.model, image_file)
                 results.append(f"## {image_file.name}\n\n{text}")
 
             print("\n\n---\n\n".join(results))
@@ -158,60 +110,31 @@ def cmd_recognize(args: argparse.Namespace) -> None:
     except Exception as exc:
         print(
             f"エラー: 画像認識中に LM Studio API がエラーを返しました。\n"
-            f"LM Studio が起動しモデルがロードされていることを確認してください ({args.base_url})\n"
+            f"LM Studio が起動しモデルがロードされていることを確認してください。\n"
             f"詳細: {exc}",
             file=sys.stderr,
         )
         sys.exit(1)
 
 
-def build_parser() -> argparse.ArgumentParser:
+def main() -> None:
+    ensure_lmstudio()
+
     parser = argparse.ArgumentParser(
         description="LM Studio のローカル VLM を使って画像からテキストを抽出する"
     )
-
-    sub = parser.add_subparsers(dest="command", required=True)
-
-    # list-models サブコマンド
-    list_parser = sub.add_parser(
-        "list-models", help="利用可能なモデル一覧を JSON 配列で出力する"
-    )
-    list_parser.add_argument(
-        "--base-url",
-        default="http://localhost:1234",
-        help="LM Studio の API ベース URL (デフォルト: http://localhost:1234)",
-    )
-    list_parser.set_defaults(func=cmd_list_models)
-
-    # recognize サブコマンド
-    rec_parser = sub.add_parser(
-        "recognize", help="画像からテキストを抽出する"
-    )
-    rec_parser.add_argument(
+    parser.add_argument(
         "--model",
         default="qwen/qwen3.5-9b",
         help="使用するモデル名 (デフォルト: qwen/qwen3.5-9b)",
     )
-    rec_parser.add_argument(
+    parser.add_argument(
         "--path",
         required=True,
         help="画像ファイルまたは画像を含むディレクトリのパス",
     )
-    rec_parser.add_argument(
-        "--base-url",
-        default="http://localhost:1234",
-        help="LM Studio の API ベース URL (デフォルト: http://localhost:1234)",
-    )
-    rec_parser.set_defaults(func=cmd_recognize)
-
-    return parser
-
-
-def main() -> None:
-    ensure_openai()
-    parser = build_parser()
     args = parser.parse_args()
-    args.func(args)
+    cmd_recognize(args)
 
 
 if __name__ == "__main__":
