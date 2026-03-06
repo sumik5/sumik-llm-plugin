@@ -7,6 +7,7 @@ description: >-
   Use when styling web applications with Tailwind CSS or making CSS architecture decisions.
   For frontend code generation with shadcn/ui and Storybook, use designing-frontend instead.
   For general UI/UX design principles, use applying-design-guidelines instead.
+  For design system strategy beyond CSS (pattern language, organizational adoption, UI pattern catalog, measurement), use building-design-systems instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
