@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (95個)
+### Skills (96個)
 
 #### コア開発
 
@@ -175,6 +175,7 @@ sumik-claude-plugin/
 | `developing-aws` | AWS開発包括ガイド（システム設計・CDP57パターン・VPCアーキテクチャ・エンタープライズ基盤・14業務システム・移行戦略・サーバーレス・CDK・EKS・SRE運用・FinOps/CCoE・セキュリティ・Bedrock GenAI・32リファレンスファイル） |
 | `developing-google-cloud` | Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク・キャッシング包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ深掘り: IAM・VPC・KMS・DLP・SCC・DevSecOps CI/CD・Zero Trust/BeyondCorp・Anthos・Incident Response + データエンジニアリング + ネットワークエンジニアリング: VPC設計・ハイブリッド接続・LB/CDN・ネットワーク監視・Traffic Director/Service Mesh + Memorystore: マネージドRedis/Memcachedキャッシング・パフォーマンスエンジニアリング・レジリエンス・32リファレンスファイル） |
 | `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm、開発ワークフロー、DB連携、監視/ログ、デプロイ戦略含む・14リファレンスファイル） |
+| `managing-podman` | Podman daemonlessコンテナ管理（rootless、Buildah、Skopeo、Quadlet/systemd統合、Kubernetes YAML生成・実行、Docker移行、Podman AI Lab・14リファレンスファイル） |
 | `using-next-devtools` | Next.js DevTools |
 | `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
 | `implementing-logging` | アプリケーションログ実装ガイド（ログ設計原則・構造化ログ・収集アーキテクチャ・分析・セキュリティログ・AI/MLログ分析） |

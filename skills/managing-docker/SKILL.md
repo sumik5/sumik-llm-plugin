@@ -7,6 +7,7 @@ description: >-
   MUST load when Dockerfile, docker-compose.yml, docker-compose.yaml, or .dockerignore is detected.
   Covers container management via Docker MCP, multi-stage builds, cache optimization, security hardening,
   supply chain security, and image size minimization.
+  For Podman/Buildah/Skopeo workflows and rootless containers, use managing-podman instead.
   For Terraform IaC, use developing-terraform instead.
   For Google Cloud (Cloud Run, IAM, VPC, KMS), use developing-google-cloud instead.
   For AWS development (EKS, Lambda, CDK), use developing-aws instead.

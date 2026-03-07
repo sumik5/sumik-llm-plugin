@@ -97,6 +97,7 @@ get_skill_description() {
         "developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
         "developing-terraform") echo "Terraform IaC開発" ;;
         "managing-docker") echo "Docker開発環境・コンテナ管理" ;;
+        "managing-podman") echo "Podmanコンテナ管理（daemonless・rootless・Buildah/Skopeo）" ;;
         "writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
         "developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
         "automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
@@ -262,6 +263,15 @@ check_terraform() {
 check_docker() {
     if [[ -f "$WORK_DIR/Dockerfile" ]] || find "$WORK_DIR" -maxdepth 3 -name "docker-compose.*" 2>/dev/null | grep -q .; then
         PROJECT_SKILLS+=("managing-docker")
+    fi
+}
+
+# Podman チェック
+check_podman() {
+    if find "$WORK_DIR" -maxdepth 3 -name "Containerfile" 2>/dev/null | grep -q . \
+        || find "$WORK_DIR" -maxdepth 3 -name "podman-compose.*" 2>/dev/null | grep -q . \
+        || [[ -d "$WORK_DIR/.containers" ]]; then
+        PROJECT_SKILLS+=("managing-podman")
     fi
 }
 
@@ -487,6 +497,7 @@ check_python_deps
 check_bash
 check_terraform
 check_docker
+check_podman
 check_cloud_run
 check_aws
 check_writing
