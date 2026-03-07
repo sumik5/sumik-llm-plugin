@@ -1,6 +1,15 @@
 ---
 name: applying-design-guidelines
-description: UI/UX design principles covering visual design, user experience fundamentals, practical interface design rules, and design theory fundamentals. Use when making design decisions, evaluating existing interfaces, or implementing UI components. Covers typography, color, motion, cognitive psychology, interaction patterns, and 101 practical Do/Don't rules for forms, controls, navigation, and accessibility. Also covers design theory foundations for engineers: design concept building (purpose/target/message), typography theory (font classification, modular scale), information organization principles (CRAP principles, Gestalt laws), layout theory (golden ratio, rule of thirds), color theory (Munsell attributes, tone, color harmony by Judd's 4 principles, simultaneous contrast), and visual selection methodology. For frontend code generation, use designing-frontend instead. For behavioral psychology-based product design methodology (CREATE funnel, habit formation), use applying-behavior-design instead. For data chart design principles (chart selection, color scales, statistical visualization), use designing-data-visualizations instead. For implementing design tokens and design systems with Tailwind CSS, use styling-with-tailwind instead. For building, evaluating, or evolving a complete design system (pattern language, organizational strategy, pattern library, measurement), use building-design-systems instead. For human-centered design process methodology (empathize, define, ideate, prototype, test), use practicing-design-thinking instead.
+description: >-
+  UI/UX design principles covering visual design, user experience fundamentals,
+  practical interface design rules, and design theory fundamentals.
+  Use when making design decisions, evaluating existing interfaces, or implementing UI components.
+  Covers typography, color, motion, cognitive psychology, interaction patterns,
+  and 101 practical Do/Don't rules. Also covers design theory foundations for engineers
+  (concept building, typography theory, CRAP/Gestalt, layout theory, color theory).
+  NOT for frontend codegen (designing-frontend), behavior design (applying-behavior-design),
+  data charts (designing-data-visualizations), Tailwind (styling-with-tailwind),
+  design systems (building-design-systems), or design thinking (practicing-design-thinking).
 license: Complete terms in LICENSE.txt
 ---
 

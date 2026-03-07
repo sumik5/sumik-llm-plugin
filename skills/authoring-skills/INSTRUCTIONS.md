@@ -116,7 +116,7 @@ Match specificity to task fragility:
 ```yaml
 ---
 name: skill-name                      # 推奨（省略時はディレクトリ名を使用）
-description: >-                        # 推奨（省略時は本文最初の段落）
+description: >-                        # 🔴 必ず >- を使用（インライン文字列はコロンでYAMLエラー）
   What it does. Use when trigger.
 argument-hint: "[issue-number]"        # オートコンプリートで表示
 disable-model-invocation: true         # Claudeの自動ロードを禁止
@@ -155,6 +155,7 @@ hooks:                                 # スキルスコープのライフサイ
 - Include what the skill does AND when to use it
 - Add differentiation when similar skills exist (e.g., "For X, use Y instead.")
 - Be specific and include key terms for discovery
+- 🔴 **YAML構文安全**: description は必ず `>-`（folded block scalar）で記述する。インライン文字列（`description: text...`）はコロン（`:`）を含むとYAMLパーサーが「キー: 値」として誤解釈し、`mapping values are not allowed in this context` エラーになる
 - 🔴 **Length limit**: description は **1024文字以下**（Claude Codeのフロントマター解析でこの長さを超えると切り捨てられる）
   - **必ず検証**: SKILL.md 作成・編集後に以下のコマンドで文字数を確認すること
     ```bash
@@ -634,6 +635,7 @@ AskUserQuestion(
 | Deep nesting | Partial file reads | Keep references one level deep |
 | Windows paths | Cross-platform errors | Use forward slashes only |
 | Description over 1024 chars | Truncated by Claude Code parser | Compress: reduce enumerations, drop filler words |
+| Inline description with colons | YAML parse error (`mapping values are not allowed`) | Always use `>-` block scalar instead of inline string |
 | Missing name field | Inconsistent skill identification | Always include name matching directory name |
 | Sub-feature naming | Scope expansion requires rename (e.g., `-make` → tool name) | Name after the tool itself (e.g., `implementing-figma`), manage sub-features via sections/references |
 
