@@ -9,6 +9,7 @@ description: >-
   For frontend decomposition patterns (micro-frontends), use architecting-micro-frontends instead.
   For green/sustainable microservices trade-offs and carbon-efficient architecture, use building-green-software instead.
   For data architecture patterns (read-side optimization, caching strategies), use architecting-data instead.
+  For internal service architecture using Clean Architecture layers and dependency rules, use applying-clean-architecture instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

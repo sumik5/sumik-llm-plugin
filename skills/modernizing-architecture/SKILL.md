@@ -8,6 +8,7 @@ description: >-
   For DDD domain modeling, use applying-domain-driven-design instead.
   For micro-frontend architecture patterns, use architecting-micro-frontends instead.
   For comprehensive trade-off analysis across code/API/system levels, use analyzing-software-tradeoffs.
+  For target architecture design using Clean Architecture principles, use applying-clean-architecture.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

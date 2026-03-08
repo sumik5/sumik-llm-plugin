@@ -8,6 +8,8 @@ description: >-
   in any framework. For Next.js-specific features (App Router, Server Components, Cache Components),
   use developing-nextjs instead. For E2E testing with Playwright, use testing-e2e-with-playwright.
   For general testing methodology, use testing-code.
+  For Clean Architecture patterns in React (DI, SPA layer mapping, Redux integration), see references/CLEAN-ARCHITECTURE.md.
+  For general Clean Architecture principles, use applying-clean-architecture.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

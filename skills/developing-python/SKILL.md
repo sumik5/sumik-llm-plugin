@@ -1,12 +1,13 @@
 ---
 name: developing-python
 description: >-
-  Modern Python development guide covering project setup, tooling, Pythonic best practices and exercise patterns (file I/O, data manipulation, function design, OOP composition, iterators, comprehension idioms), OOP design principles, GoF design patterns, and software engineering process (SDLC, system modeling, methodologies, project implementation patterns, CI/CD, API design). MUST load when pyproject.toml or requirements.txt is detected.
-  Covers Python 3.13 + uv + ruff + mypy, FastAPI/FastMCP, pytest, Docker, Effective Python items (idioms, data structures, concurrency, testing),
-  software design (encapsulation, Demeter's Law, LSP, Design by Contract, behavioral/creational/structural patterns in Python),
-  and SE practices (SDLC phases, Scrum/Kanban, system architecture, code organization, data persistence, API framework comparison, deployment strategies).
+  Modern Python development guide covering project setup, tooling, Pythonic best practices, OOP design principles, GoF design patterns, and SE process. MUST load when pyproject.toml or requirements.txt is detected.
+  Covers Python 3.13 + uv + ruff + mypy, FastAPI/FastMCP, pytest, Docker, Effective Python idioms,
+  software design patterns (encapsulation, LSP, Design by Contract), and SE practices (SDLC, Scrum/Kanban, CI/CD, deployment).
   For language-agnostic clean code principles, use writing-clean-code.
   For application logging design and structured logging patterns, use implementing-logging.
+  For Clean Architecture in Python (layer implementation, test patterns, legacy refactoring), see references/CA-PYTHON.md.
+  For general Clean Architecture principles, use applying-clean-architecture.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

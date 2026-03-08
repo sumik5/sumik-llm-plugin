@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (93個)
+└── skills/             # ナレッジスキル (94個)
 ```
 
 ---
@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (97個)
+### Skills (98個)
 
 #### コア開発
 
@@ -126,6 +126,7 @@ sumik-claude-plugin/
 | `avoiding-sql-antipatterns` | SQLアンチパターン回避（論理設計・物理設計・クエリ・アプリ開発の25パターン） |
 | `designing-relational-databases` | リレーショナルDB設計ガイド（エンティティモデリング・ER図・正規化1NF-BCNF・インデックス・非正規化・PostgreSQL実装: マイクロサービスアーキテクチャ・ACID/トランザクション・関数/プロシージャ・AAAセキュリティ） |
 | `applying-behavior-design` | 行動変容デザイン（CREATEファネル、3戦略）|
+| `applying-clean-architecture` | Clean Architecture原則（依存性ルール・同心円モデル・コンポーネント原則・境界設計・アンチパターン） |
 | `building-green-software` | グリーンソフトウェアエンジニアリング（カーボン効率・運用効率・カーボンアウェアネス・測定方法論・GSMM・グリーンAI） |
 | `building-rag-systems` | RAGシステム構築ガイド（11種データソース読み込み・5種チャンキング戦略・パイプラインアーキテクチャ・Python実装） |
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |

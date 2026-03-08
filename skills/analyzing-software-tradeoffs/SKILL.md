@@ -9,6 +9,7 @@ description: >-
   existing systems. For specific clean code rules, use writing-clean-code; for
   microservices patterns, use architecting-microservices; for API endpoint design,
   use designing-web-apis.
+  For Clean Architecture-specific design decisions and layer boundary trade-offs, use applying-clean-architecture.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

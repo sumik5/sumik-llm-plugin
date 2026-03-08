@@ -7,6 +7,7 @@ description: >-
   Language-agnostic clean code guide.
   For language-specific practices and design patterns, use developing-go, mastering-typescript, or developing-python.
   For trade-off analysis on code duplication, error handling, and flexibility decisions, use analyzing-software-tradeoffs.
+  For architecture-level clean design with dependency rules, layer separation, and component principles, use applying-clean-architecture.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

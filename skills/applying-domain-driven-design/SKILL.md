@@ -7,6 +7,7 @@ description: >-
   For socio-technical architecture modernization and trade-off analysis, use modernizing-architecture instead.
   For microservices distributed patterns (Saga, messaging, granularity), use architecting-microservices instead.
   For data architecture read-side patterns and caching strategies, use architecting-data instead.
+  For Clean Architecture layer design, dependency rule enforcement, and concentric model application, use applying-clean-architecture instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
