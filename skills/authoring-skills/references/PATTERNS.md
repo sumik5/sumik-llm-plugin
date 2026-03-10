@@ -463,10 +463,44 @@ argument-hint: "[調査対象のディレクトリ or パターン]"
 4. ユーザーにファイルパスを報告
 ````
 
+### バンドルスクリプトとの連携（`${CLAUDE_SKILL_DIR}` 活用）
+
+スキルディレクトリ内にHTMLジェネレータスクリプトをバンドルし、`${CLAUDE_SKILL_DIR}` で参照できる:
+
+````yaml
+---
+name: generate-report
+description: データからインタラクティブHTMLレポートを生成
+context: fork
+---
+
+## レポート生成
+
+以下のスクリプトを実行してHTMLを生成する:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/generate_html.py \
+  --data "$ARGUMENTS" \
+  --output "/tmp/report-${CLAUDE_SESSION_ID}.html"
+```
+
+生成されたファイルパスをユーザーに報告する。
+````
+
+スキル構造:
+```
+generate-report/
+├── SKILL.md
+├── INSTRUCTIONS.md
+└── scripts/
+    └── generate_html.py   # ← ${CLAUDE_SKILL_DIR}/scripts/generate_html.py でアクセス
+```
+
 ### キーテクニック
 
 - **HTMLファイル生成**: ブラウザで直接開ける自己完結型HTMLを生成
 - **セッションID活用**: `${CLAUDE_SESSION_ID}` でファイル名の一意性を確保
+- **スキルディレクトリ参照**: `${CLAUDE_SKILL_DIR}` でバンドルスクリプトへの絶対パスを取得
 - **スタイルガイド埋め込み**: 一貫したビジュアルスタイルをスキルに組み込む
 - **SVG/Mermaid活用**: テキストベースのダイアグラム生成も可能
 

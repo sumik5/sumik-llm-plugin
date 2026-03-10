@@ -144,7 +144,7 @@ sumik-claude-plugin/
 | `developing-python` | Python 3.13開発（Effective Python 125項目・実践パターン50問・SEプロセス: SDLC/方法論/システムモデリング/プロジェクト実装パターン/API設計・デプロイ含む） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
 | `developing-fullstack-javascript` | フルスタックJS |
-| `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド） |
+| `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド + Total TypeScript: satisfies・余剰プロパティ・コンパイラ振る舞い） |
 | `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・コード硬化・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |
 | `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド（Agent、Tool、Runner、Session、Memory、Plugin System、Grounding、Context Management、Session Rewind/Resume、Action Confirmations、Event System、GKE Deployment含む9リファレンスファイル） |
 | `integrating-ai-web-apps` | Vercel AI SDK + LangChain.js + MCPによるWebアプリAI統合 |

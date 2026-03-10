@@ -42,6 +42,10 @@
 
 authoring-skills 自身に改善すべき点を発見した場合、**タスク完了時に自動的に修正・追記を行う**（ユーザーの個別指示は不要）。詳細は後述の「自己改善プロトコル」セクションを参照。
 
+### 公式ドキュメントとの同期
+
+ユーザーが公式ドキュメントの確認を指示した場合、または新しいClaude Code機能がスキル作成に関連すると判断した場合、Claude Code公式スキルドキュメント（`https://code.claude.com/docs/en/skills`）をWebFetchで取得し、authoring-skillsの記載内容と差分を分析する。未反映の新機能・仕様変更があれば、自己改善プロトコルに従い改善提案を行う。
+
 ## When to Use
 
 - **Creating new skills**: Before writing a new SKILL.md
@@ -61,7 +65,7 @@ The context window is a shared resource. Challenge each piece of information:
 
 **Default assumption**: Claude is already very smart. Only add context Claude doesn't already have.
 
-> **注意**: スキルのコンテキスト占有量は環境変数 `SLASH_COMMAND_TOOL_CHAR_BUDGET`（デフォルト15,000文字）で制御される。多数のスキルを使用する場合、この上限を意識してスキルを簡潔に保つ。
+> **注意**: スキルのコンテキスト占有量はコンテキストウィンドウの**2%**（フォールバック: 16,000文字）で動的に算出される。環境変数 `SLASH_COMMAND_TOOL_CHAR_BUDGET` で上書き可能。多くのスキルを使用している場合、`/context` コマンドで除外されたスキルの警告を確認できる。
 
 ### 2. Two-Stage Loading（二段階ロード） 🔴 必須パターン
 
@@ -179,8 +183,43 @@ See [NAMING.md](references/NAMING.md) for detailed naming guidelines.
 
 | 変数 | 説明 | 使用例 |
 |------|------|--------|
-| `$ARGUMENTS` | `/skill-name arg1 arg2` の引数部分 | `Review PR $ARGUMENTS` |
+| `$ARGUMENTS` | `/skill-name arg1 arg2` の引数全体 | `Review PR $ARGUMENTS` |
+| `$ARGUMENTS[N]` | N番目の引数（0始まり） | `/migrate SearchBar React Vue` → `$ARGUMENTS[0]` = `SearchBar` |
+| `$N` | `$ARGUMENTS[N]` の短縮形 | `$0`, `$1`, `$2` |
 | `${CLAUDE_SESSION_ID}` | 現在のセッションID | ログファイル名に使用 |
+| `${CLAUDE_SKILL_DIR}` | スキルのSKILL.mdが存在するディレクトリパス | `${CLAUDE_SKILL_DIR}/scripts/helper.py` |
+
+> **注意**: `$ARGUMENTS` が本文に含まれない場合、引数は自動的に `ARGUMENTS: <value>` として末尾に追加される。
+
+### 動的コンテキスト注入（`` !`command` ``）
+
+スキル本文で `` !`command` `` 構文を使用すると、シェルコマンドの出力がスキル内容に**前処理**で埋め込まれる。Claudeはコマンドではなく実行結果のみを受け取る。
+
+**使用例（PRサマリースキル）**:
+
+````yaml
+---
+name: pr-summary
+description: PRの変更を要約
+context: fork
+agent: Explore
+---
+
+## PRコンテキスト
+- PR差分: !`gh pr diff`
+- PRコメント: !`gh pr view --comments`
+- 変更ファイル: !`gh pr diff --name-only`
+
+## タスク
+このPRを要約してください...
+````
+
+**動作フロー**:
+1. 各 `` !`command` `` が即座に実行される（Claudeが見る前）
+2. コマンド出力がプレースホルダーを置換
+3. Claudeは完全にレンダリングされたプロンプトのみ受け取る
+
+詳細なパターンは [PATTERNS.md](references/PATTERNS.md) の「Dynamic Context Injection」を参照。
 
 ## スキルコンテンツタイプ
 
@@ -202,11 +241,25 @@ See [NAMING.md](references/NAMING.md) for detailed naming guidelines.
 
 `disable-model-invocation` と `user-invocable` の組み合わせでスキルの呼び出し方法を制御する:
 
-| パターン | `disable-model-invocation` | `user-invocable` | 挙動 |
-|---------|--------------------------|------------------|------|
-| **自動+手動** | `false`（デフォルト） | `true`（デフォルト） | Claudeが自動ロード + `/name`で手動呼出し可能 |
-| **手動のみ** | `true` | `true` | `/name`でのみ呼出し可能。自動ロード禁止 |
-| **バックグラウンド** | `false` | `false` | Claudeが必要時に自動ロード。`/`メニュー非表示 |
+| パターン | `disable-model-invocation` | `user-invocable` | ユーザー呼出し | Claude呼出し | コンテキストローディング |
+|---------|--------------------------|------------------|-------------|------------|---------------------|
+| **自動+手動** | `false`（デフォルト） | `true`（デフォルト） | ✅ | ✅ | descriptionは常にコンテキスト内。フル内容は呼出し時にロード |
+| **手動のみ** | `true` | `true` | ✅ | ❌ | descriptionはコンテキスト**外**。フル内容はユーザー呼出し時にロード |
+| **バックグラウンド** | `false` | `false` | ❌ | ✅ | descriptionは常にコンテキスト内。フル内容は呼出し時にロード |
+
+> **🔴 重要**: `disable-model-invocation: true` を設定すると、descriptionがコンテキストから**完全に除外**される。Claudeはそのスキルの存在すら認識しなくなるため、ユーザーが明示的に `/name` で呼び出した時のみ動作する。
+
+## スキルのPermission制御
+
+`/permissions` でClaudeのスキルアクセスを制御できる:
+
+| 操作 | 設定 |
+|------|------|
+| 全スキル無効化 | deny rule に `Skill` を追加 |
+| 特定スキルのみ許可 | `Skill(commit)` （完全一致）/ `Skill(review-pr *)` （前方一致） |
+| 特定スキル拒否 | deny rule に `Skill(deploy *)` を追加 |
+
+> **注意**: `user-invocable: false` はメニュー表示のみを制御し、Skillツールアクセスは制御しない。プログラム的な呼び出しをブロックするには `disable-model-invocation: true` を使用。
 
 ## スキルトリガー機構
 
@@ -297,6 +350,15 @@ monorepo/
 ```
 
 各パッケージの `.claude/skills/` ディレクトリが自動的にスキャンされる。
+
+### --add-dir からのスキル読み込み
+
+`--add-dir` で追加されたディレクトリ内の `.claude/skills/` もスキルとして自動ロードされ、**ライブ変更検出**に対応する（セッション中の編集が再起動なしで反映）。
+
+```bash
+# プロジェクトスコープ外のスキルを追加する例
+claude --add-dir /path/to/shared-skills
+```
 
 See [STRUCTURE.md](references/STRUCTURE.md) for progressive disclosure patterns.
 
@@ -418,7 +480,7 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 
 authoring-skills を使用してスキルの作成・変換・変更を完了した直後。
 
-### 分析の5観点
+### 分析の6観点
 
 | # | 観点 | 探すもの |
 |---|------|---------|
@@ -427,14 +489,16 @@ authoring-skills を使用してスキルの作成・変換・変更を完了し
 | 3 | **繰り返しパターン** | 複数のスキル作成で共通して発生した判断・構造パターン |
 | 4 | **エッジケース** | 既存ガイドラインでカバーされていなかった状況・判断 |
 | 5 | **アンチパターン** | 実行中に発見した「やってはいけないこと」 |
+| 6 | **公式ドキュメントの変更追従** | Claude Code公式ドキュメント（https://code.claude.com/docs/en/skills）に記載されているが、authoring-skills にまだ反映されていない新機能・仕様変更・ベストプラクティス |
 
 ### 実行手順
 
 1. タスク完了報告の後、会話中のユーザー指示・フィードバックを振り返る
-2. 上記5観点で改善候補を抽出
-3. 既存の INSTRUCTIONS.md / references/* と照合し、**未記載のもののみ**リスト化
-4. AskUserQuestion で改善提案を提示し承認を得る
-5. 承認された項目を INSTRUCTIONS.md または適切な reference ファイルに追記
+2. 上記6観点で改善候補を抽出
+3. **観点6（公式ドキュメント追従）については**: ユーザーから公式ドキュメントの確認指示があった場合、または新機能が話題に上った場合に、WebFetch で公式ドキュメント（https://code.claude.com/docs/en/skills）を取得し、authoring-skills の記載内容と差分を分析する
+4. 既存の INSTRUCTIONS.md / references/* と照合し、**未記載のもののみ**リスト化
+5. AskUserQuestion で改善提案を提示し承認を得る
+6. 承認された項目を INSTRUCTIONS.md または適切な reference ファイルに追記
 
 ### 追記ルール
 
@@ -624,6 +688,12 @@ AskUserQuestion(
 
 **When to include**: If your skill has sections where multiple valid approaches exist (architecture choices, library selection, deployment strategies), add an AskUserQuestion section guiding users to confirm before proceeding.
 
+### Extended Thinking Pattern
+
+スキル本文に `ultrathink` を含めると、**拡張思考モード**が有効化される。複雑なアーキテクチャ分析・多ファイル横断リファクタリング・セキュリティ監査等、深い推論が必要なスキルにのみ使用する。
+
+詳細なパターンは [PATTERNS.md](references/PATTERNS.md) の「Extended Thinking」を参照。
+
 ## Anti-Patterns to Avoid
 
 | Anti-Pattern | Problem | Solution |
@@ -638,6 +708,8 @@ AskUserQuestion(
 | Inline description with colons | YAML parse error (`mapping values are not allowed`) | Always use `>-` block scalar instead of inline string |
 | Missing name field | Inconsistent skill identification | Always include name matching directory name |
 | Sub-feature naming | Scope expansion requires rename (e.g., `-make` → tool name) | Name after the tool itself (e.g., `implementing-figma`), manage sub-features via sections/references |
+| Task content without `context: fork` | Guidelines run inline with no actionable task, wasting context | Add `context: fork` for task-type skills with explicit instructions |
+| `context: fork` with reference content | Subagent receives guidelines but no task, returns without output | Use inline (no `context: fork`) for reference/convention skills |
 
 ## Detailed Documentation
 
