@@ -1,6 +1,12 @@
 ---
 name: slidekit-templ
-description: "Convert PDF presentations to HTML slide templates using a visual reproduction approach. Pipeline: PDF → slide screenshots → Claude writes HTML matching each screenshot. Use when the user wants to convert a PDF to HTML slide templates, reproduce a presentation as HTML, or create reusable templates from existing decks. Triggers: 'pdf to html', 'convert pdf to template', 'reproduce this deck as html', 'create template from pdf'."
+description: >-
+  Convert PDF presentations to HTML slide templates using a visual reproduction approach.
+  Pipeline: PDF → slide screenshots → Claude writes HTML matching each screenshot.
+  Use when the user wants to convert a PDF to HTML slide templates, reproduce a presentation
+  as HTML, or create reusable templates from existing decks.
+  Triggers: 'pdf to html', 'convert pdf to template', 'reproduce this deck as html',
+  'create template from pdf'.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

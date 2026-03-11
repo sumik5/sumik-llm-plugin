@@ -16,6 +16,7 @@ skills:
   - implementing-logging
   - writing-clean-code
   - enforcing-type-safety
+  - testing-code
   - securing-code
 ---
 

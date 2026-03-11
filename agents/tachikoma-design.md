@@ -7,7 +7,6 @@ skills:
   - implementing-design
   - implementing-figma
   - applying-design-guidelines
-  - practicing-design-thinking
   - building-design-systems
   - styling-with-tailwind
   - writing-clean-code

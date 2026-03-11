@@ -6,10 +6,4 @@ description: |
   Triggers: pull request, code review, PR description, LGTM, review comment, team working agreement, TWA, review bottleneck, review delay.
 ---
 
-このスキルはコードレビューの全体像をカバーする。
-
-- **コアガイドライン**: [INSTRUCTIONS.md](./INSTRUCTIONS.md)
-- **レビュープロセス・ワークフロー**: [references/REVIEW-PROCESS.md](./references/REVIEW-PROCESS.md)
-- **効果的なコメント技法**: [references/EFFECTIVE-COMMENTS.md](./references/EFFECTIVE-COMMENTS.md)
-- **TWA・チーム合意**: [references/TEAM-AGREEMENTS.md](./references/TEAM-AGREEMENTS.md)
-- **レビューの問題点・遅延・抜け穴**: [references/ANTI-PATTERNS.md](./references/ANTI-PATTERNS.md)
+詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

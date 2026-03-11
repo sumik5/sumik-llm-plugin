@@ -10,11 +10,3 @@ description: >-
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
-
-## 参照ファイル
-
-| ファイル | 内容 |
-|---------|------|
-| `INSTRUCTIONS.md` | APIテスト戦略全体像・設計テスト・探索テスト・自動化・テスト戦略確立 |
-| `references/CONTRACT-TESTING.md` | コントラクトテストの概念・Pact実装・Consumer-Driven Contract Testing |
-| `references/PERFORMANCE-SECURITY.md` | パフォーマンステスト・セキュリティテスト・本番環境でのテスト |

@@ -1,9 +1,10 @@
 ---
 name: using-codex
-description: |
+description: >-
   Codex CLI（OpenAI）を使用してコードや文言について相談・レビューを行う。
-  トリガー: "codex", "codexと相談", "codexに聞いて", "コードレビュー", "レビューして"
-  使用場面: (1) 文言・メッセージの検討、(2) コードレビュー、(3) 設計の相談、(4) バグ調査、(5) 解消困難な問題の調査
+  Use when consulting Codex for code review, message/wording discussion, design consultation,
+  bug investigation, or difficult problem analysis.
+  Triggers: "codex", "codexと相談", "codexに聞いて".
   For plan document review with Codex, use reviewing-plans-with-codex instead.
 ---
 

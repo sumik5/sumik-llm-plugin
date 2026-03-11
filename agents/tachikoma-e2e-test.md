@@ -13,6 +13,8 @@ skills:
   - testing-e2e-with-playwright
   - automating-browser
   - writing-clean-code
+  - enforcing-type-safety
+  - securing-code
 ---
 
 # 言語設定（最優先・絶対遵守）

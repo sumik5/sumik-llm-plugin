@@ -1,5 +1,15 @@
 # Web API テスト戦略ガイド
 
+## 参照ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `INSTRUCTIONS.md` | APIテスト戦略全体像・設計テスト・探索テスト・自動化・テスト戦略確立 |
+| `references/CONTRACT-TESTING.md` | コントラクトテストの概念・Pact実装・Consumer-Driven Contract Testing |
+| `references/PERFORMANCE-SECURITY.md` | パフォーマンステスト・セキュリティテスト・本番環境でのテスト |
+
+---
+
 ## 1. テスト戦略の全体像
 
 ### 1.1 品質とリスクの定義

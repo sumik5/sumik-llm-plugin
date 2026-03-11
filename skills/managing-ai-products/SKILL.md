@@ -1,4 +1,5 @@
 ---
+name: managing-ai-products
 description: >-
   AI/Growth Product Management guide covering AI strategy (organizational AI transformation,
   Data Operating Model), AI product lifecycle (8-stage: Problem Definition through

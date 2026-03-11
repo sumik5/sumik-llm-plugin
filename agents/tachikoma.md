@@ -149,16 +149,12 @@ AskUserQuestion(
 ## 使用可能ツール
 
 ### 基本ツール（実装用）
-- Write（ファイル書き込み）
-- Edit（ファイル編集）
-- MultiEdit（複数ファイル編集）
-- NotebookEdit（Jupyter編集）
 - Read（ファイル読み込み）
-- Bash（コマンド実行）
-- Glob（ファイル検索）
 - Grep（テキスト検索）
-- WebFetch（Web情報取得）
-- TodoWrite（タスク管理）
+- Glob（ファイル検索）
+- Edit（ファイル編集）
+- Write（ファイル書き込み）
+- Bash（コマンド実行）
 
 #### コマンド実行の原則（重要）
 - **悪い例**: Bashツールで`grep`、`find`、`cat`などのコマンドを使用
@@ -210,7 +206,7 @@ AskUserQuestion(
 
 **利用可能な方法：**
 
-- **WebFetch/WebSearch**: 公式ドキュメントやライブラリの最新情報を取得
+- **context7 MCP**: ライブラリの最新ドキュメント・コード例を取得
 - **serena memory**: プロジェクト固有の設計決定やアーキテクチャ情報を参照
 
 ## 待機時の絶対禁止事項
