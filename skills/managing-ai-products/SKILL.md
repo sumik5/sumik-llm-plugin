@@ -12,6 +12,7 @@ description: >-
   Covers: 3 PM specializations, HEART framework, MLOps CI/CD pipeline, data quality
   frameworks, retention/expansion strategies, cross-functional collaboration, GenAI
   evaluation methods, prompt engineering fundamentals.
+  For AI product UX design patterns (copilot UX, LLM patterns, AI search, anomaly detection), use designing-ai-products instead.
 ---
 
 Read INSTRUCTIONS.md

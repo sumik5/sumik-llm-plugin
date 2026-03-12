@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (98個)
+└── skills/             # ナレッジスキル (99個)
 ```
 
 ---
@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (98個)
+### Skills (99個)
 
 #### コア開発
 
@@ -155,6 +155,7 @@ sumik-claude-plugin/
 |--------|------|
 | `building-design-systems` | デザインシステム構築・運用方法論（システム基礎・パターン分類・組織戦略・パターンライブラリ・UIパターンカタログ20+） |
 | `applying-design-guidelines` | UI/UXデザイン設計（視覚デザイン・認知心理学・実践的UIルール101） |
+| `designing-ai-products` | AIプロダクトUXデザインフレームワーク（ストーリーボード・デジタルツイン・Value Matrix・Copilot配置・7 LLMパターン・AI Search・Forecasting UI・Anomaly Detection・Agentic AI UX・RITE・AI倫理・バイアス対策） |
 | `developing-storybook` | Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルリグレッション・Next.js統合・MSWモック） |
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合） |
 | `implementing-design` | Figmaデザイン→コード |

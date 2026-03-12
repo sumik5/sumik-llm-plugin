@@ -9,7 +9,8 @@ description: >-
   (concept building, typography theory, CRAP/Gestalt, layout theory, color theory).
   NOT for frontend codegen (designing-frontend), behavior design (applying-behavior-design),
   data charts (designing-data-visualizations), Tailwind (styling-with-tailwind),
-  design systems (building-design-systems), or design thinking (practicing-design-thinking).
+  design systems (building-design-systems), design thinking (practicing-design-thinking),
+  or AI-specific UX patterns (designing-ai-products).
 license: Complete terms in LICENSE.txt
 ---
 
