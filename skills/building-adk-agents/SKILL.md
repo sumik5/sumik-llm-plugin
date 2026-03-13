@@ -1,21 +1,15 @@
 ---
 name: building-adk-agents
 description: >-
-  Google ADK (Agent Development Kit) for building intelligent AI agents with Python.
+  Google ADK (Agent Development Kit) for building AI agents with Python.
   MUST load when google-adk is detected in requirements or pyproject.toml.
-  Covers Agent taxonomy, Agent types (LlmAgent/Sequential/Parallel/Loop/Base),
-  Tools (FunctionTool/OpenAPI/MCP), Multi-Agent orchestration,
-  A2A Protocol (JSON-RPC/REST), Runner, Session, Artifact, Memory, State lifecycle,
-  Context (Caching/Compaction), RAG (Corpus/Vector Search/Agentic),
-  Grounding, Plugin System, Callbacks/Guardrails (6 types), SSE Streaming,
-  Live Agent (LiveRunner/LiveRequestQueue/RunConfig/live_events stream),
-  Agent structuring patterns (tools.py/context.py/examples.py/prompt.py/agent.py),
-  ADK Web interactive debugging (trace/events/state inspection),
-  Formal Evaluation (evaluation datasets, tool trajectory, response matching),
-  UI Integration (CopilotKit/Streamlit/Slack), Code Execution,
-  LLM Models (Gemini/LiteLLM/Anthropic), Deployment (Cloud Run/Vertex/GKE),
-  CI/CD, Cost optimization, Security (IAM/Data privacy), Responsible AI.
+  Covers Agent types (LlmAgent/Sequential/Parallel/Loop), Tools (FunctionTool/OpenAPI/MCP),
+  Multi-Agent orchestration, A2A Protocol, Runner/Session/Artifact/Memory/State lifecycle,
+  RAG (Corpus/Vector Search/Agentic), Callbacks/Guardrails, SSE Streaming,
+  Live Agent, ADK Web debugging, Formal Evaluation, UI Integration,
+  Deployment (Cloud Run/Vertex/GKE), Security, and Responsible AI.
   Distinct from developing-python (general) by focusing on ADK patterns.
+  For LangChain/LangGraph based agents, see building-langchain-agents.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

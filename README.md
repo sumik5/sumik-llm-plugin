@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (100個)
+└── skills/             # ナレッジスキル (101個)
 ```
 
 ---
@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (100個)
+### Skills (101個)
 
 #### コア開発
 
@@ -149,6 +149,7 @@ sumik-claude-plugin/
 | `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド（Agent、Tool、Runner、Session、Memory、Plugin System、Grounding、Context Management、Session Rewind/Resume、Action Confirmations、Event System、Live Agent（LiveRunner/LiveRequestQueue/RunConfig）、Agent構造化パターン（tools.py/context.py/examples.py/prompt.py）、ADK Web デバッグ、Formal Evaluation、GKE Deployment含む10リファレンスファイル） |
 | `building-realtime-multimodal-agents` | リアルタイムマルチモーダルAIエージェント（WebSocket/Web Audio API/Gemini Live API）。双方向ストリーミング・Two-Serverアーキテクチャ・AudioWorklet・VAD・ビデオ統合・Function Calling・Cloud Runデプロイ |
 | `integrating-ai-web-apps` | Vercel AI SDK + LangChain.js + MCPによるWebアプリAI統合 |
+| `building-langchain-agents` | LangChain/LangGraph Pythonエージェント開発（ReAct・Memory・Guardrails・Human-in-the-loop・MCP統合・LangSmith評価・LangGraph Platformデプロイ・ローカルLLM推論エンジン） |
 
 #### フロントエンド・デザイン
 

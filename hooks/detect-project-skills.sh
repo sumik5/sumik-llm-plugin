@@ -104,6 +104,7 @@ get_skill_description() {
         "testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
         "implementing-opentelemetry") echo "OpenTelemetry 分散トレーシング" ;;
         "building-adk-agents") echo "Google ADK AIエージェント開発" ;;
+        "building-langchain-agents") echo "LangChain/LangGraph AIエージェント開発（Python）" ;;
         "building-nextjs-saas") echo "Next.js SaaSアプリケーション構築" ;;
         "implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
         "searching-web") echo "gemini CLI によるWeb検索" ;;
@@ -333,6 +334,11 @@ check_python_deps() {
     # Google ADK チェック
     if echo "$deps_content" | grep -q "google-adk"; then
         PROJECT_SKILLS+=("building-adk-agents")
+    fi
+
+    # LangChain / LangGraph チェック
+    if echo "$deps_content" | grep -qE "(langchain|langgraph)"; then
+        PROJECT_SKILLS+=("building-langchain-agents")
     fi
 
     # OpenTelemetry チェック（Python）

@@ -8,6 +8,7 @@ description: >-
   ingestion pipelines, or implementing text chunking strategies. For Python language best practices,
   use developing-python instead. For LLMOps operational framework, use practicing-llmops.
   For JavaScript/LangChain.js RAG in web apps with Vercel AI SDK, see integrating-ai-web-apps.
+  For LangChain/LangGraph specific RAG pipeline implementation, see building-langchain-agents.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

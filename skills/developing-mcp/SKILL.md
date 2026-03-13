@@ -9,6 +9,7 @@ description: >-
   MUST load when building MCP servers or clients.
   For Claude Code plugin MCP configuration, use plugin-dev:mcp-integration instead.
   For MCP integration with Vercel AI SDK in web apps, see integrating-ai-web-apps.
+  For consuming MCP tools from LangGraph agents, see building-langchain-agents.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
