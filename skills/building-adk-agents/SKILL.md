@@ -7,7 +7,11 @@ description: >-
   Tools (FunctionTool/OpenAPI/MCP), Multi-Agent orchestration,
   A2A Protocol (JSON-RPC/REST), Runner, Session, Artifact, Memory, State lifecycle,
   Context (Caching/Compaction), RAG (Corpus/Vector Search/Agentic),
-  Grounding, Plugin System, Callbacks/Guardrails (6 types), SSE Streaming, Live API,
+  Grounding, Plugin System, Callbacks/Guardrails (6 types), SSE Streaming,
+  Live Agent (LiveRunner/LiveRequestQueue/RunConfig/live_events stream),
+  Agent structuring patterns (tools.py/context.py/examples.py/prompt.py/agent.py),
+  ADK Web interactive debugging (trace/events/state inspection),
+  Formal Evaluation (evaluation datasets, tool trajectory, response matching),
   UI Integration (CopilotKit/Streamlit/Slack), Code Execution,
   LLM Models (Gemini/LiteLLM/Anthropic), Deployment (Cloud Run/Vertex/GKE),
   CI/CD, Cost optimization, Security (IAM/Data privacy), Responsible AI.

@@ -117,6 +117,7 @@ LLMOps成熟度は3段階で評価する。
 | [EVALUATION.md](references/EVALUATION.md) | 評価フレームワーク、メトリクス、ベンチマーク、人手評価 |
 | [SECURITY-GOVERNANCE.md](references/SECURITY-GOVERNANCE.md) | LLMSecOps、プライバシー、ガバナンス、監査フレームワーク |
 | [SCALING-INFRASTRUCTURE.md](references/SCALING-INFRASTRUCTURE.md) | ハードウェア選定、リソース管理、分散訓練、監視 |
+| [AGENTOPS.md](references/AGENTOPS.md) | **🆕** AgentOps詳細リファレンス（ロール・FM選定・Prompt Catalog・評価・アーキテクチャ） |
 
 ---
 
@@ -140,3 +141,163 @@ LLMOps成熟度は3段階で評価する。
 2. **課題特定**: 10の課題から優先順位を決定
 3. **リファレンス参照**: 該当セクションの詳細実装を確認
 4. **段階的導入**: Level 0 → 1 → 2へ段階的に自動化を進める
+
+---
+
+## MLOps → GenAIOps → AgentOps 進化
+
+「Ops」ディシプリンは**加算的進化**を遂げる。旧来のレイヤーはなくならず、新しい課題に対応した上位概念が積み重なる。
+
+### 進化の全体像
+
+```
+Model Development（モデル創造者）
+  DevOps
+    └── MLOps（非決定論的ML対応: 継続監視・再訓練・データガバナンス）
+          └── FMOps / LLMOps（大規模Foundation Model対応）
+
+Application Development（モデル消費者）
+  GenAIOps（非決定論的GenAIアプリケーション本番化）
+    ├── PromptOps（プロンプト再利用・バージョニング・評価）
+    ├── RAGOps（データ取得パイプライン〜回答生成の標準化）
+    └── AgentOps（エージェント+ツールの複合システム本番化）
+```
+
+**重要**: ほとんどの企業は**Model Consumer**。既存FMをAPI経由で消費し、アプリケーション開発に集中する。
+
+### AgentOps固有の4課題
+
+GenAIOps（PromptOps/RAGOps）が解決済みの課題に加え、AgentOpsは以下の4課題を扱う:
+
+| 課題 | 説明 | なぜ難しいか |
+|------|------|------------|
+| **1. Autonomous Decision-Making** | ツール選択・実行順序をエージェントが自律決定 | 入出力だけでなく「推論パス」の評価が必要 |
+| **2. Tool Orchestration & Governance** | 複数ツールの連携・ライフサイクル管理 | Tool Registry による組織横断ガバナンスが必須 |
+| **3. Complex Memory Management** | Short-Term（会話内）+ Long-Term（セッション横断）メモリ | データプライバシー・ガバナンス・評価への影響 |
+| **4. Multi-Agent Systems** | 専門エージェント群の協調・分散システム管理 | マイクロサービス的な監視・デバッグが必要 |
+
+---
+
+## Agent評価プロセス
+
+GenAIOpsのPrompt Catalogベース評価を**拡張**する5段階プロセス。
+
+### 5段階評価フロー
+
+| ステップ | 内容 |
+|---------|------|
+| Step 1: Tool Unit Tests | 各ツールを単独で検証（前提条件） |
+| Step 2: データセット拡張 | Prompt Catalogにfunction-calling data追加 |
+| Step 3: Trajectory Evaluation | ツール選択成功率・パラメータ精度・不要呼び出し防止率 |
+| Step 4: End-to-End Evaluation | ユーザー入力→最終出力の品質・正確性（従来GenAIOps評価） |
+| Step 5: Operational Metrics | レイテンシ・コストの本番適合性確認 |
+
+**Evaluation Prompt Catalogの拡張**: 従来のプロンプト+期待出力ペアに、期待ツール呼び出し列・パラメータ例・ツール出力例を追加する。
+
+**FM Reference Table**: 組織として5〜20モデルをEULA法的審査済みで事前登録し、自社データ評価と精度/コスト/レイテンシのトレードオフで選定する（詳細 → [AGENTOPS.md](references/AGENTOPS.md)）。
+
+---
+
+## Tool Registry
+
+### 概要
+
+組織全体のツールを一元管理する**権威あるカタログ**。
+
+```
+Tool Registry（中央カタログ）
+  ├── Local Functions（内部システム上のコード関数）
+  ├── Private APIs（セキュアクラウド上のプライベートAPI）
+  └── Public Services（サードパーティの公開サービス）
+         ↓
+  各エージェントは「tool list」（レジストリのサブセット）を受け取る
+```
+
+### 提供価値
+
+| 価値 | 説明 |
+|------|------|
+| **再利用性** | 既存ツールの検索・発見（車輪の再発明防止） |
+| **標準化** | ツール定義・インターフェースの統一 |
+| **セキュリティ** | アクセス制御・脆弱性管理の一元化 |
+| **監査可能性** | ツール使用履歴・バージョン変更の追跡 |
+
+### メタデータ管理
+
+各ツールエントリーに含める情報:
+- **バージョン**: セマンティックバージョニング
+- **オーナーシップ**: 担当チーム・連絡先
+- **セキュリティ分類**: データアクセスレベル・副作用の種別
+- **依存関係**: 必要な認証・外部サービス
+- **使用例**: Few-shot examples for LLM tool selection
+
+Tool RegistryはMCP標準（`developing-mcp` スキル参照）で実装可能。MCPサーバーとして公開し、各エージェントがMCPクライアントとして消費する。
+
+---
+
+## Agent Registry
+
+### 概要
+
+組織内の全デプロイ済みエージェントを管理する**中央ディレクトリ**。
+
+### AgentCard（A2Aプロトコル）
+
+各エージェントの「名刺」として機能するメタデータ:
+- **能力記述**: エージェントが解決できるタスク
+- **入出力スキーマ**: 期待する入力・出力の形式
+- **エンドポイント**: 呼び出し方法（A2Aプロトコル）
+- **ツール一覧**: エージェントが使用するツールのリスト
+
+### Agent Template Catalog
+
+Agent Registryはソースコードへのリンクを通じて**テンプレートカタログ**としても機能:
+- 既存エージェントのコードを雛形として新規開発を加速
+- ベストプラクティスが組み込まれたスターターテンプレート
+- ゼロから始めずに「似たエージェント」を起点に開発
+
+### ガバナンス機能
+
+| 機能 | 説明 |
+|------|------|
+| **バージョニング** | エージェント定義のバージョン管理・ロールバック |
+| **アクセス制御** | 誰がエージェントを呼び出せるか（IAM連携） |
+| **ツール認可** | エージェントがアクセス可能なツール・データの範囲 |
+| **監査ログ** | エージェント間通信・ツール呼び出しの記録 |
+
+**Agents as a Service**: エージェントを独立マイクロサービスとしてデプロイし、専用CI/CDパイプラインで管理。A2Aプロトコルで他エージェントと通信し、Agent Registryで発見・アクセス制御する。
+
+---
+
+## Memory & Data Governance
+
+### 2種類のメモリ
+
+| 種類 | 配置場所 | 用途 | 実装例 |
+|------|---------|------|--------|
+| **Short-Term Memory** | Production Environment（エージェントと同居） | 進行中会話のコンテキスト追跡（マルチターン） | Cloud Trace / OpenTelemetry |
+| **Long-Term Memory** | Data Project（永続ストレージ） | 過去会話・ユーザー嗜好の記憶（セッション横断） | BigQuery / Firestore / Spanner（Graph DB） |
+
+Long-Term Memoryの蓄積データはVector化してRAGシステムに入力することで、エージェントが過去の会話文脈を参照できる。
+
+### データガバナンス要件
+
+メモリには**機密・個人情報**が含まれる可能性があるため:
+
+- **開発時の露出防止**: テスト環境で本番メモリにアクセスできないよう分離
+- **アクセスポリシー**: 誰がメモリを読み書きできるかをIAMで制御
+- **データ保持ポリシー**: Short-Term（セッション終了後に削除）vs Long-Term（保持期間定義）
+- **PII検出・マスキング**: 個人情報の自動検出と匿名化パイプライン
+
+---
+
+## Unified AgentOps Platform アーキテクチャ
+
+| レイヤー | GenAIOps（既存） | AgentOps追加 |
+|---------|----------------|-------------|
+| **Data Project** | RAG向けデータ準備・Evaluation Prompt Catalog | Long-Term Memory / Trajectory評価データ |
+| **Development** | GenAI App開発環境 | Agents as a Service開発・CI/CDパイプライン |
+| **Production** | GenAIアプリ本番稼働 | Short-Term Memory / A2A通信 |
+| **Governance（AI Control Tower）** | Prompt Template Catalog / モデルレジストリ | **Tool Registry + Agent Registry** |
+
+詳細なリファレンスアーキテクチャ・ロール定義・評価フロー → [AGENTOPS.md](references/AGENTOPS.md)

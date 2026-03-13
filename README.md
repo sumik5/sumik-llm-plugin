@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (99個)
+└── skills/             # ナレッジスキル (100個)
 ```
 
 ---
@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (99個)
+### Skills (100個)
 
 #### コア開発
 
@@ -130,7 +130,7 @@ sumik-claude-plugin/
 | `building-green-software` | グリーンソフトウェアエンジニアリング（カーボン効率・運用効率・カーボンアウェアネス・測定方法論・GSMM・グリーンAI） |
 | `building-rag-systems` | RAGシステム構築ガイド（11種データソース読み込み・5種チャンキング戦略・パイプラインアーキテクチャ・Python実装） |
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
-| `practicing-llmops` | LLMOps運用フレームワーク（データ・モデル適応・API・評価・セキュリティ・スケーリング） |
+| `practicing-llmops` | LLMOps/AgentOps運用フレームワーク（データ・モデル適応・API・評価・セキュリティ・スケーリング・AgentOps（MLOps→GenAIOps→AgentOps進化）・Tool Registry・Agent Registry（AgentCard/A2A）・Memory & Data Governance） |
 | `analyzing-software-tradeoffs` | ソフトウェア設計トレードオフ分析（コードレベル: 重複・例外処理・柔軟性・最適化、API: 使いやすさ・バージョニング、分散システム: 一貫性・配信セマンティクス、メタ判断: ライブラリ選定・トレンド評価・日時データ・12リファレンスファイル） |
 
 #### フレームワーク
@@ -146,7 +146,8 @@ sumik-claude-plugin/
 | `developing-fullstack-javascript` | フルスタックJS |
 | `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド + Total TypeScript: satisfies・余剰プロパティ・コンパイラ振る舞い） |
 | `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・コード硬化・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |
-| `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド（Agent、Tool、Runner、Session、Memory、Plugin System、Grounding、Context Management、Session Rewind/Resume、Action Confirmations、Event System、GKE Deployment含む9リファレンスファイル） |
+| `building-adk-agents` | Google ADK (Agent Development Kit) AIエージェント開発ガイド（Agent、Tool、Runner、Session、Memory、Plugin System、Grounding、Context Management、Session Rewind/Resume、Action Confirmations、Event System、Live Agent（LiveRunner/LiveRequestQueue/RunConfig）、Agent構造化パターン（tools.py/context.py/examples.py/prompt.py）、ADK Web デバッグ、Formal Evaluation、GKE Deployment含む10リファレンスファイル） |
+| `building-realtime-multimodal-agents` | リアルタイムマルチモーダルAIエージェント（WebSocket/Web Audio API/Gemini Live API）。双方向ストリーミング・Two-Serverアーキテクチャ・AudioWorklet・VAD・ビデオ統合・Function Calling・Cloud Runデプロイ |
 | `integrating-ai-web-apps` | Vercel AI SDK + LangChain.js + MCPによるWebアプリAI統合 |
 
 #### フロントエンド・デザイン

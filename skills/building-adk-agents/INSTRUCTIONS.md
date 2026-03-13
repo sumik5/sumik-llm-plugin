@@ -339,6 +339,152 @@ AskUserQuestion(
 
 ---
 
+## Live Agent設計パターン
+
+テキストベースAgentをリアルタイム音声対話のLive Agentに変換するパターン。
+
+### テキストAgent → Live Agent変換手順
+
+| ステップ | 変更内容 | 詳細 |
+|---------|---------|------|
+| 1 | `InMemoryRunner` → `LiveRunner` | `runner.run_live()` でLiveセッション起動 |
+| 2 | `LiveRequestQueue` 作成 | リアルタイム音声入力のバッファリングキュー |
+| 3 | `RunConfig` 設定 | 音声モダリティ・音声種類・言語コードを指定 |
+| 4 | イベントストリーム処理 | `live_events` から音声/割り込み/ターン完了を処理 |
+
+### start_agent_session() パターン
+
+```python
+async def start_agent_session(root_agent, session_id: str, context: dict = {}):
+    # RunConfig: 音声出力設定
+    run_config = RunConfig(
+        response_modalities=["AUDIO"],
+        speech_config=types.SpeechConfig(
+            voice_config=types.VoiceConfigDict(
+                {"prebuilt_voice_config": {"voice_name": "Aoede"}}
+            ),
+            language_code="en-GB"
+        )
+    )
+    runner = InMemoryRunner(app_name="app", agent=root_agent)
+
+    # state=context でセッション状態にコンテキストを注入
+    session_obj = await runner.session_service.create_session(
+        app_name="app", user_id="user", state=context
+    )
+    live_request_queue = LiveRequestQueue()
+    live_events = runner.run_live(
+        session=session_obj,
+        live_request_queue=live_request_queue,
+        run_config=run_config
+    )
+    return live_events, live_request_queue
+```
+
+**重要**: `state=context` はADKの最重要概念。セッション共有メモリにコンテキスト全体を注入する。
+
+### handle_frontend_messages() / handle_agent_responses() パターン
+
+```python
+# フロントエンド→Agent: 音声チャンクをキューに送信
+async def handle_frontend_messages(client_ws, live_request_queue):
+    async for message in client_ws:
+        data = json.loads(message)
+        for chunk in data["realtimeInput"]["mediaChunks"]:
+            if chunk["mime_type"] == "audio/pcm":
+                audio_blob = types.Blob(
+                    data=base64.b64decode(chunk["data"]),
+                    mime_type="audio/pcm;rate=16000"
+                )
+                live_request_queue.send_realtime(audio_blob)
+
+# Agent→フロントエンド: イベントストリームを分類して転送
+async def handle_agent_responses(client_ws, live_events):
+    async for event in live_events:
+        if event.interrupted:
+            await client_ws.send(json.dumps({"type": "interrupted"}))
+        elif event.turn_complete:
+            await client_ws.send(json.dumps({"type": "turn_complete"}))
+        elif event.content and event.content.parts[0].inline_data:
+            audio_b64 = base64.b64encode(
+                event.content.parts[0].inline_data.data
+            ).decode("utf-8")
+            await client_ws.send(json.dumps({"type": "audio", "data": audio_b64}))
+```
+
+詳細APIリファレンスは [LIVE-AGENT.md](references/LIVE-AGENT.md) を参照。
+
+---
+
+## Agent構造化パターン（Modular Agent Design）
+
+Agentが複雑化したとき、単一ファイルで管理するのではなく設計コンポーネントを分離する。
+
+### ファイル分離パターン
+
+| ファイル | 役割 | 内容の例 |
+|---------|------|---------|
+| `tools.py` | ツール関数群 | `add`, `subtract` 等の関数（docstringが Function Declaration のソース） |
+| `context.py` | 動的コンテキスト | ユーザープロファイル（JSONオブジェクト）、DBから取得した実行時データ |
+| `examples.py` | ゴールデンパス | 理想的な応答例シナリオ（モデルの振る舞いを示す） |
+| `prompt.py` | 指示テンプレート | `{student_profile}`, `{examples}` プレースホルダーを含む instruction |
+| `agent.py` | アセンブリポイント | 上記をimportして `Agent` を生成するファクトリ関数 |
+
+```python
+# agent.py
+from .tools import add, subtract, multiply, divide
+from .prompt import instruction_prompt
+from .context import context
+from .examples import examples
+
+def create_math_agent(model=MODEL):
+    context["examples"] = examples  # contexにexamplesを注入
+    math_agent = Agent(
+        model=model,
+        name="agent_math",
+        instruction=instruction_prompt,  # {student_profile}と{examples}が自動展開される
+        tools=[add, subtract, multiply, divide],
+    )
+    return math_agent, context
+
+# ADK Web/CLI向けエントリーポイント
+root_agent = create_math_agent()[0]
+```
+
+**なぜ `.py` ファイルか**: `.txt`/`.json` と違い、コンテキストをDBから動的取得したり、クエリに応じて最適な例を選択できる。スケーラブルなAgent設計のベストプラクティス。
+
+---
+
+## ADK Web & Formal Evaluation
+
+### adk webによるインタラクティブデバッグ
+
+```bash
+# agent.pyにroot_agent変数を定義してから起動
+adk web  # http://127.0.0.1:8000 でUI起動
+```
+
+**デバッグパネル機能**:
+- **Trace**: ツール呼び出しのグラフ表示（reasoning processを視覚化）
+- **Events**: rawイベントデータ（function call引数・結果を確認）
+- **State**: セッション状態の現在値
+- **マイクアイコン**: 任意のAgentをクイック音声テスト（本番はLive Agent構成が必要）
+
+### Formal Evaluation（評価データセット + 自動評価）
+
+```bash
+# 評価実行
+adk eval <agent_path> <evalset_path>
+```
+
+**評価ワークフロー**:
+
+1. **評価データセット作成**: ADK Webで理想的な会話を行い、1クリックでJSONに保存
+2. **評価実行**: tool trajectory（正しいツールを正しい順序で呼び出したか） + response matching（最終応答が期待値と一致するか）で採点
+3. **Pass/Fail分析**: 各テストケースの合否と改善箇所を特定。新機能追加のたびに評価ケースを追加して回帰を検出する
+
+---
+
 ## 関連リソース
 
 - 公式ドキュメント: https://google.github.io/adk-docs/
