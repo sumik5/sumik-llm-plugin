@@ -155,7 +155,7 @@ sumik-claude-plugin/
 |--------|------|
 | `building-design-systems` | デザインシステム構築・運用方法論（システム基礎・パターン分類・組織戦略・パターンライブラリ・UIパターンカタログ20+） |
 | `applying-design-guidelines` | UI/UXデザイン設計（視覚デザイン・認知心理学・実践的UIルール101） |
-| `designing-ai-products` | AIプロダクトUXデザインフレームワーク（ストーリーボード・デジタルツイン・Value Matrix・Copilot配置・7 LLMパターン・AI Search・Forecasting UI・Anomaly Detection・Agentic AI UX・RITE・AI倫理・バイアス対策） |
+| `designing-ai-experiences` | AI体験設計フレームワーク（メンタルモデル・3チャネル入力設計・処理/レイテンシーUX・出力5原則・5 Agenticパターン・ストーリーボード・Value Matrix・Copilot配置・7 LLMパターン・AI-First IA・Forecasting/Anomaly Detection UI・MUSE/RITE・AI倫理） |
 | `developing-storybook` | Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルリグレッション・Next.js統合・MSWモック） |
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合） |
 | `implementing-design` | Figmaデザイン→コード |
