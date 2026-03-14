@@ -5,7 +5,8 @@ description: >-
   basic and advanced workflows (Figma Make, Code Connect, Design System Rules, design token sync),
   and visual validation. Use when converting Figma designs to code or managing design systems.
   Requires Figma MCP server. For general design implementation principles (non-Figma), use
-  implementing-design instead.
+  implementing-design instead. For building design systems within Figma (token architecture,
+  variables, modes, components), use constructing-figma-design-systems instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

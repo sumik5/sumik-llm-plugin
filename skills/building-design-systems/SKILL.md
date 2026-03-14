@@ -8,7 +8,8 @@ description: >-
   planning organizational adoption, or building a pattern library.
   NOT for component styling (applying-design-guidelines),
   design-to-code (implementing-design), frontend codegen (designing-frontend),
-  Tailwind config (styling-with-tailwind), or design thinking (practicing-design-thinking).
+  Tailwind config (styling-with-tailwind), design thinking (practicing-design-thinking),
+  or Figma-specific construction with variables and tokens (constructing-figma-design-systems).
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
