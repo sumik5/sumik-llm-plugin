@@ -4,12 +4,30 @@
 
 ## 目次
 
+0. [フレーミングの選択：Problem-first vs Tool-first](#フレーミングの選択problem-first-vs-tool-first)
 1. [Sequential Workflow Orchestration（順次ワークフロー）](#1-sequential-workflow-orchestration順次ワークフロー)
 2. [Multi-MCP Coordination（複数MCP連携）](#2-multi-mcp-coordination複数mcp連携)
 3. [Iterative Refinement（反復改善）](#3-iterative-refinement反復改善)
 4. [Context-Aware Tool Selection（コンテキスト依存ツール選択）](#4-context-aware-tool-selectionコンテキスト依存ツール選択)
 5. [Domain-Specific Intelligence（ドメイン知識埋め込み）](#5-domain-specific-intelligenceドメイン知識埋め込み)
 6. [Skills + MCP連携](#skills--mcp連携)
+7. [パターン選択ガイド](#パターン選択ガイド)
+
+---
+
+## フレーミングの選択：Problem-first vs Tool-first
+
+スキルの設計に入る前に、どちらのフレーミングが適切かを決める。大半のスキルはどちらかに寄る傾向がある。
+
+| フレーミング | ユーザーの出発点 | スキルの役割 | 例 |
+|------------|----------------|------------|-----|
+| **Problem-first** | 成果を記述する（「プロジェクトワークスペースをセットアップしたい」） | ツールを自動調整し、手順をガイド | `ProjectHub` セットアップスキル |
+| **Tool-first** | ツールアクセスを持っている（「Notion MCPに接続した」） | ベストプラクティスと活用方法を教える | Notion活用スキル |
+
+**判断基準:**
+- ユーザーがゴールから始まる → Problem-first
+- ユーザーがツールを持っており、使い方を知りたい → Tool-first
+- どちらのフレーミングかを明確にしておくと、適切な構造・テスト戦略を選びやすくなる
 
 ---
 
@@ -335,6 +353,24 @@ MCP接続失敗時:
 - Domain-Specific Intelligence（プロジェクト管理のベストプラクティス）
 
 パターンは処方箋ではなく、早期採用者や内部チームが作成したスキルから得られた共通アプローチです。あなたのユースケースに最適なパターンを選択・組み合わせてください。
+
+---
+
+## パターン選択ガイド
+
+| 状況 | 推奨パターン |
+|-----|------------|
+| 「ステップAの後にステップBが必要」という依存関係がある | Pattern 1 (Sequential) |
+| 複数のサービス・APIを連携させる必要がある | Pattern 2 (Multi-MCP) |
+| 品質が反復によって向上する成果物を生成する | Pattern 3 (Iterative) |
+| 同じゴールに複数の手段があり状況で選ぶ | Pattern 4 (Context-Aware) |
+| ユーザーが知らなくても良い専門知識を自動適用したい | Pattern 5 (Domain Intelligence) |
+| スキルロード時にリアルタイム情報を注入したい | Pattern 7 (Dynamic Context) |
+| メインコンテキストを汚染せずに独立タスクを実行したい | Pattern 8 (Subagent) |
+| リッチなビジュアル出力（HTML/SVG）を生成したい | Pattern 9 (Visual Output) |
+| 複雑な多段階推論が必要なタスクを扱う | Pattern 10 (Extended Thinking) |
+
+複数のパターンを組み合わせることも可能（例: Multi-MCP + Domain Intelligence、Sequential + Iterative）。
 
 ---
 

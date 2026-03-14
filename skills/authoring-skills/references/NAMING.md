@@ -205,6 +205,37 @@ name: managing-containers
 description: Manages Docker containers and Compose stacks. Use when working with Docker, containers, or containerized deployments.
 ```
 
+## Positioning Your Skill（スキルのポジショニング）
+
+スキルの description や README がユーザーに「使ってみたい」と思わせるかどうかは、どう説明するかで決まる。
+
+### 成果にフォーカスする（Focus on Outcomes, Not Features）
+
+| アプローチ | 例 |
+|-----------|-----|
+| ✅ 成果フォーカス | 「ProjectHub スキルでプロジェクトワークスペースを数秒でセットアップ — ページ、データベース、テンプレートを含む — 手動設定の30分を節約」 |
+| ❌ 機能フォーカス | 「ProjectHub スキルはYAML frontmatterとMarkdown指示を含むフォルダで、MCPサーバーツールを呼び出します」 |
+
+**言い換えのポイント:**
+- 「何をするか」より「何が変わるか・何が省けるか」を先に書く
+- 時間・手間の削減、エラーの防止、品質の向上など具体的な恩恵を示す
+- ユーザーが今抱えている「痛み」に直接応える表現を選ぶ
+
+### MCP + Skills ストーリーを強調する
+
+スキルとMCPを組み合わせている場合、その相乗効果をストーリーとして伝える:
+
+```
+「MCPサーバーでClaudeにLinearプロジェクトへのアクセスを提供。
+スキルでチームのスプリント計画ワークフローを教える。
+両者でAI駆動のプロジェクト管理を実現。」
+```
+
+このストーリー構造は「MCPが扉を開き、スキルが地図を渡す」という役割分担を明確にし、
+ユーザーが両方のコンポーネントの価値を理解しやすくする。
+
+---
+
 ## Common Mistakes
 
 ### Mistake 1: No Trigger Conditions

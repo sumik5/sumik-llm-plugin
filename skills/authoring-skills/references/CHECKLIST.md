@@ -234,6 +234,45 @@ head -5 SKILL.md | grep "^name:"
 head -10 SKILL.md | grep "^description:"
 ```
 
+## Lifecycle Checklist（ライフサイクルチェックリスト）
+
+スキルの開発・公開・保守の各段階での確認項目。
+
+### Before You Start（開始前）
+- [ ] 2-3個の具体的ユースケースを特定
+- [ ] 必要なツールを特定（組み込み or MCP？）
+- [ ] 既存スキルやサンプルを確認
+- [ ] フォルダ構造を計画
+
+### During Development（開発中）
+- [ ] フォルダ名がケバブケース
+- [ ] SKILL.md（正確なスペル）が存在
+- [ ] YAML frontmatterが `---` デリミタで囲まれている
+- [ ] name: ケバブケース、スペース・大文字なし
+- [ ] description: WHAT と WHEN を含む
+- [ ] XML tags (`<` or `>`) が存在しない
+- [ ] 指示が明確でアクション可能
+- [ ] エラーハンドリングを含む
+- [ ] サンプルを提供
+- [ ] 参照を明示的にリンク
+
+### Before Upload / Share（公開前）
+- [ ] 明示的なタスクでトリガーをテスト済み
+- [ ] 言い換え表現でトリガーをテスト済み
+- [ ] 無関係なトピックでトリガーされないことを確認
+- [ ] 機能テストが通過
+- [ ] ツール連携が動作（該当する場合）
+- [ ] .zipファイルに圧縮（アップロードする場合）
+
+### After Upload / Share（公開後）
+- [ ] 実際の会話でテスト
+- [ ] under/over-triggeringを監視
+- [ ] ユーザーフィードバックを収集
+- [ ] description と指示をイテレーション
+- [ ] metadata の version を更新
+
+---
+
 ## Final Review Questions
 
 Before sharing, ask yourself:
