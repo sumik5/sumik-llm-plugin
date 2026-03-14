@@ -163,6 +163,7 @@ sumik-claude-plugin/
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合） |
 | `implementing-design` | Figmaデザイン→コード |
 | `implementing-figma` | Figma MCP統合・基本/高度ワークフロー・Code Connect・デザイントークン同期 |
+| `designing-figma-ui` | Figma UIデザインワークフロー（ワイヤーフレーム→プロトタイプ→詳細デザイン→ハンドオフ・Auto Layout・コンポーネント/バリアント・カラー/テキストスタイル・ダークモード・UIスタック5状態・エンジニア協業） |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
 | `creating-ai-design-creatives` | AI画像生成プロンプトと広告クリエイティブ制作（バナー・SNS・ポスター向け51テンプレート・6カテゴリ、デザイン4原則・フォント・色彩・ツール調整） |

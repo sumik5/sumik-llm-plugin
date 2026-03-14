@@ -7,6 +7,8 @@ description: >-
   Requires Figma MCP server. For general design implementation principles (non-Figma), use
   implementing-design instead. For building design systems within Figma (token architecture,
   variables, modes, components), use constructing-figma-design-systems instead.
+  For Figma UI design workflow (wireframes, prototypes, handoff, style systems),
+  use designing-figma-ui instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
