@@ -8,10 +8,12 @@ Apply these guidelines when:
 - Designing interaction patterns and information architecture
 - Evaluating existing interfaces for improvements
 - Ensuring production-grade design quality
+- Designing interfaces for multiple devices (PC, smartphone, tablet, TV)
+- Making navigation or layout decisions across screen sizes
 
 ## Structure
 
-This skill consists of three complementary perspectives:
+This skill consists of four complementary perspectives:
 
 ### ui-design.md
 Visual design principles focused on aesthetics and brand:
@@ -45,7 +47,15 @@ User experience principles based on cognitive psychology and HCI:
 
 - **[DESIGN-THEORY.md](./references/DESIGN-THEORY.md)**: デザインコンセプト構築、タイポグラフィ理論、情報整理の原則(CRAP/ゲシュタルト)、レイアウト(黄金比/三分割法)、色彩理論(配色・調和論・対比)、ビジュアル選定
 
-**IMPORTANT**: Great design requires all three perspectives. Visual beauty without usability is frustrating. Usability without aesthetics is forgettable. Practical rules without principles are fragile. Use all documents together for complete design guidance.
+### マルチデバイスUIデザイン（Multi-device UI Design）
+
+マルチデバイス対応のインターフェース設計原則:
+
+- **[DEVICE-CONSTRAINTS.md](./references/DEVICE-CONSTRAINTS.md)**: デバイス別の物理的制約（PC/スマホ/タブレット/TV）、入力手段（タッチ/マウス/キーボード/リモコン）、画面特性（解像度/密度/アスペクト比）、Android vs iPhone
+- **[PLATFORM-AND-COGNITION.md](./references/PLATFORM-AND-COGNITION.md)**: Web vs ネイティブアプリの判断基準、メディア最適化、パフォーマンス、色・形・動きの認知特性、インタラクションコスト、一貫性とシンプルさ、シグニファイアとアフォーダンス
+- **[NAVIGATION-AND-STRUCTURE.md](./references/NAVIGATION-AND-STRUCTURE.md)**: 階層モデル（縦・横・前後）、トップ・一覧・詳細パターン、ナビゲーション配置、カラムレイアウト選択、スクロール vs ページング、ミニマルデザイン、マルチデバイス戦略（レスポンシブ/アダプティブ/ミラーリング）
+
+**IMPORTANT**: Great design requires all four perspectives. Visual beauty without usability is frustrating. Usability without aesthetics is forgettable. Practical rules without principles are fragile. Device-agnostic design without understanding constraints is incomplete. Use all documents together for complete design guidance.
 
 ## Design Philosophy
 
