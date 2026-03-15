@@ -13,7 +13,7 @@ Apply these guidelines when:
 
 ## Structure
 
-This skill consists of four complementary perspectives:
+This skill consists of five complementary perspectives:
 
 ### ui-design.md
 Visual design principles focused on aesthetics and brand:
@@ -55,7 +55,14 @@ User experience principles based on cognitive psychology and HCI:
 - **[PLATFORM-AND-COGNITION.md](./references/PLATFORM-AND-COGNITION.md)**: Web vs ネイティブアプリの判断基準、メディア最適化、パフォーマンス、色・形・動きの認知特性、インタラクションコスト、一貫性とシンプルさ、シグニファイアとアフォーダンス
 - **[NAVIGATION-AND-STRUCTURE.md](./references/NAVIGATION-AND-STRUCTURE.md)**: 階層モデル（縦・横・前後）、トップ・一覧・詳細パターン、ナビゲーション配置、カラムレイアウト選択、スクロール vs ページング、ミニマルデザイン、マルチデバイス戦略（レスポンシブ/アダプティブ/ミラーリング）
 
-**IMPORTANT**: Great design requires all four perspectives. Visual beauty without usability is frustrating. Usability without aesthetics is forgettable. Practical rules without principles are fragile. Device-agnostic design without understanding constraints is incomplete. Use all documents together for complete design guidance.
+### ユーザビリティ評価とデザインマインドセット（Usability & Mindset）
+
+UIの「分からない」を診断し、設計者の思考パターンを点検するための視点:
+
+- **[USABILITY-PATTERNS.md](./references/USABILITY-PATTERNS.md)**: 「分からない」の3要因モデル（場所・操作・状態）、実例1〜6のケーススタディ、UI評価チェックリスト
+- **[DESIGN-MINDSET.md](./references/DESIGN-MINDSET.md)**: サンクコスト・機能肥大化・売り手都合・プロトタイピング・謙虚さの5テーマ
+
+**IMPORTANT**: Great design requires all five perspectives. Visual beauty without usability is frustrating. Usability without aesthetics is forgettable. Practical rules without principles are fragile. Device-agnostic design without understanding constraints is incomplete. Strong patterns and mindset without self-awareness leads to repeated mistakes. Use all documents together for complete design guidance.
 
 ## Design Philosophy
 

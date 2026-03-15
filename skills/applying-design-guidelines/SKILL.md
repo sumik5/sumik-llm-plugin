@@ -2,13 +2,16 @@
 name: applying-design-guidelines
 description: >-
   UI/UX design principles covering visual design, user experience, interface rules,
-  design theory, and multi-device UI design.
+  design theory, multi-device UI design, usability evaluation, and design mindset.
   Use when making design decisions, evaluating interfaces, implementing UI components,
-  or designing for multiple devices (PC, smartphone, tablet, TV).
+  designing for multiple devices (PC, smartphone, tablet, TV),
+  diagnosing usability problems, or reviewing UI quality.
   Covers typography, color, motion, cognitive psychology, 101 Do/Don't rules,
   design theory (CRAP/Gestalt, layout, color), device constraints (touch/mouse/keyboard/remote),
   platform differences (Web vs native), information architecture, navigation patterns,
-  and cross-device strategies (responsive/adaptive/mirroring).
+  cross-device strategies (responsive/adaptive/mirroring),
+  usability patterns ("can't find/operate/understand" framework, case studies),
+  and design mindset (sunk cost, feature creep, prototyping, humility).
   NOT for frontend codegen→designing-frontend, behavior→applying-behavior-design,
   data charts→designing-data-visualizations, Tailwind→styling-with-tailwind,
   design systems→building-design-systems, design thinking→practicing-design-thinking,
