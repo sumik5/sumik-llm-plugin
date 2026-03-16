@@ -21,7 +21,7 @@
 |------|----------------------|---------------------------|
 | 配置 | `agents/<name>.md` | `skills/<name>/SKILL.md` |
 | 構造 | 単一ファイル（YAML + Markdown body） | SKILL.md + INSTRUCTIONS.md + references/ |
-| 起動 | Task tool の `subagent_type` で指定 | Skill tool でロード |
+| 起動 | Agent tool の `subagent_type` で指定 | Skill tool でロード |
 | 目的 | **独立した実行エージェント**の定義 | **知識・ガイドライン**の提供 |
 | コンテキスト | 独立した専用ウィンドウ | 親会話のコンテキストに注入 |
 | skills フィールド | スキル全文をプリロード | なし |
@@ -108,6 +108,28 @@ description: "An agent that helps with web development tasks."
 
 ---
 
+## 自動委譲の仕組み
+
+Claude Code本体はリクエスト内のタスク説明、サブエージェントの `description` フィールド、現在のコンテキストに基づいてタスクを**自動的に委譲**する。
+
+### 積極的委譲を促すには
+
+- description に **"Use proactively when"** や **"Use immediately after"** のフレーズを含める
+- 具体的なトリガー条件を明記（ファイルパターン、技術名、タスク種類）
+
+### 明示的なリクエスト
+
+ユーザーは特定のサブエージェントを名指しでリクエストすることもできる:
+
+```text
+Use the test-runner subagent to fix failing tests
+Have the code-reviewer subagent look at my recent changes
+```
+
+→ description の質がルーティング精度を直接決定するため、三部構成の設計が最重要。
+
+---
+
 ## ツール制限戦略（🔴 重要）
 
 **`tools` フィールドの省略は全ツールへの暗黙的アクセス権を付与する。** これはセキュリティリスクであり、#1アンチパターンとして報告されている。
@@ -120,10 +142,12 @@ description: "An agent that helps with web development tasks."
 | 実装系（Next.js, Python等） | `Read, Grep, Glob, Edit, Write, Bash` | 標準的な実装権限 |
 | ドキュメント系 | `Read, Grep, Glob, Edit, Write` | Bash不要の場合が多い |
 
-### MCP・Taskツールの考慮
+### MCP・Agent ツールの考慮
 
 - MCPツールが必要なエージェントは `mcpServers` で明示的に指定
 - サブエージェントは他のサブエージェントを起動できない（Agent tool不可）
+
+> **注記**: v2.1.63 で `Task` ツールが `Agent` にリネームされた。設定やエージェント定義の既存の `Task(...)` 参照はエイリアスとして引き続き機能する。本ドキュメントでは `Agent` を正式名称として使用する。
 
 ### Agent(agent_type) 構文（メインエージェント用）
 
@@ -180,6 +204,37 @@ CLI フラグでも指定可能: `claude --disallowedTools "Agent(Explore)"`
 
 ---
 
+## フォアグラウンドとバックグラウンド実行
+
+サブエージェントはフォアグラウンド（ブロッキング）またはバックグラウンド（並行）で実行できる。
+
+### フォアグラウンド実行
+- メイン会話を**ブロック**して完了を待つ
+- 権限プロンプトや質問（`AskUserQuestion`等）はユーザーに渡される
+- 結果が次のステップに必要な場合に使用
+
+### バックグラウンド実行
+- メイン会話と**並行**して実行
+- 起動前にClaude Codeが必要なツール権限を事前プロンプト
+- 実行開始後は事前承認された権限を継承し、未承認のものは自動拒否
+- `AskUserQuestion` は失敗するが、エージェントは続行する
+
+### 制御方法
+
+| 方法 | 説明 |
+|------|------|
+| `background: true`（フロントマター） | 常にバックグラウンド実行 |
+| Claude への指示 | 「run this in the background」 |
+| **Ctrl+B** | 実行中のタスクをバックグラウンドに移動 |
+| `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` | 全バックグラウンドタスク機能を無効化 |
+
+### エージェント設計への影響
+
+- バックグラウンド実行前提のエージェントは `AskUserQuestion` に依存しない設計にする
+- 権限不足で失敗した場合、Resume してフォアグラウンドで再試行可能
+
+---
+
 ## スキルプリロード戦略
 
 ### コア品質スキル（4種）
@@ -203,6 +258,12 @@ CLI フラグでも指定可能: `claude --disallowedTools "Agent(Explore)"`
 | Go | enforcing-type-safety 除外 | 静的型付け言語（型ガード不要） |
 | Bash | enforcing-type-safety, testing-code 除外 | シェルスクリプトの特性 |
 
+### スキル継承ルール（🔴 重要）
+
+- **サブエージェントは親の会話からスキルを継承しない**。明示的に `skills` フィールドにリストする必要がある
+- スキルの全文がコンテキストに注入される（参照リンクではない）
+- これは Skills の `context: fork` の逆パターン: `skills` フィールドではサブエージェント側がスキルコンテンツを制御する
+
 ### コンテキスト予算管理
 
 スキルは **全文がコンテキストに注入** される。過剰なプリロードはコンテキストウィンドウを圧迫し、エージェントの推論能力を低下させる。
@@ -224,6 +285,34 @@ CLI フラグでも指定可能: `claude --disallowedTools "Agent(Explore)"`
 | **inherit** | 親会話のモデルを継承 | 親依存 | 特に指定不要な場合 |
 
 **コスト最適化:** メインセッションをOpusで実行し、実装タチコマはSonnetで集中タスクを処理する。3体並列実行時は通常3-4倍のトークン消費。
+
+---
+
+## 永続メモリ設計
+
+### 推奨デフォルトスコープ
+
+- **`user`** が推奨デフォルト。サブエージェントの知識が特定コードベースにのみ関連する場合は `project` または `local` を使用
+
+### メモリ有効時の自動動作
+
+メモリが有効な場合:
+- システムプロンプトにメモリディレクトリの読み書き指示が自動追加される
+- `MEMORY.md` の最初の200行がシステムプロンプトに含まれる（200行超過時はキュレート指示が追加）
+- Read, Write, Edit ツールが自動的に有効化される
+
+### メモリ活用のヒント
+
+- エージェントに**作業前にメモリを確認**するよう指示: 「このPRをレビューし、以前に見たパターンについてメモリを確認してください」
+- **タスク完了後にメモリ更新**を指示: 「完了したので、学習したことをメモリに保存してください」
+- body に直接メモリ管理指示を含めることで、エージェントが積極的に知識ベースを維持するようになる:
+
+```markdown
+Update your agent memory as you discover codepaths, patterns, library
+locations, and key architectural decisions. This builds up institutional
+knowledge across conversations. Write concise notes about what you found
+and where.
+```
 
 ---
 
@@ -291,6 +380,38 @@ hooks:
 
 ---
 
+## サブエージェント活用パターン
+
+### パターン1: 大量操作の分離
+
+テスト実行・ドキュメント取得・ログ処理など大量の出力を生成する操作をサブエージェントに委譲し、関連する概要のみをメイン会話に返す:
+
+```text
+Use a subagent to run the test suite and report only the failing tests with their error messages
+```
+
+### パターン2: 並行研究
+
+独立した調査を複数のサブエージェントに同時実行させる:
+
+```text
+Research the authentication, database, and API modules in parallel using separate subagents
+```
+
+⚠️ 各サブエージェントの結果がメイン会話に返されるため、多数の詳細な結果はコンテキストを消費する。持続的な並列性が必要な場合はエージェントチーム（Agent Teams）を検討。
+
+### パターン3: チェーン実行
+
+マルチステップワークフローでサブエージェントを順序立てて使用:
+
+```text
+Use the code-reviewer subagent to find performance issues, then use the optimizer subagent to fix them
+```
+
+各サブエージェントがタスクを完了して結果を返し、Claudeが関連コンテキストを次のサブエージェントに渡す。
+
+---
+
 ## Resume とトランスクリプト永続化
 
 ### Resume メカニズム
@@ -306,13 +427,35 @@ hooks:
 ~/.claude/projects/{project}/{sessionId}/subagents/agent-{agentId}.jsonl
 ```
 
-### Auto-compaction
+### セッション永続化
 
-サブエージェントはメイン会話と同じ auto-compaction ロジックを使用（デフォルト: 容量95%で発動）。`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 環境変数で閾値調整可能。
+- サブエージェントトランスクリプトはメイン会話とは**独立して永続化**される
+- メイン会話が compaction されても、サブエージェントトランスクリプトは影響を受けない
+- 同じセッションを再開することで、Claude Code 再起動後も Resume 可能
+- トランスクリプトは `cleanupPeriodDays` 設定（デフォルト: 30日）に基づいてクリーンアップされる
+
+### Auto-compaction の詳細
+
+- デフォルトで容量95%で発動
+- `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 環境変数で閾値を調整可能（例: `50` で50%）
+- compaction イベントはトランスクリプトファイルにログされる:
+
+```json
+{
+  "type": "system",
+  "subtype": "compact_boundary",
+  "compactMetadata": {
+    "trigger": "auto",
+    "preTokens": 167189
+  }
+}
+```
 
 ---
 
 ## Markdown body（システムプロンプト）設計
+
+> **🔴 重要**: サブエージェントはこのMarkdown body（＋基本的な環境詳細）**のみ**をシステムプロンプトとして受け取る。完全な Claude Code システムプロンプトは受け取らない。そのため、エージェントに必要な知識・ルール・制約はすべて body 内に含める必要がある。
 
 ### 構成順序
 
@@ -675,6 +818,38 @@ claude --agents '{
 
 ---
 
+## 🔴 公式ドキュメント同期プロトコル（毎回必須）
+
+このスキルが使用されるたびに、**最初のステップとして**以下を実行する:
+
+### Step 0: 公式ドキュメントの取得と差分確認
+
+1. `https://code.claude.com/docs/ja/sub-agents` を WebFetch で取得
+2. 現在の INSTRUCTIONS.md と比較し、以下の差分を確認:
+   - 新しいフロントマターフィールドの追加
+   - 既存フィールドの仕様変更
+   - 新しいベストプラクティス・パターン
+   - 非推奨（deprecated）になった機能
+3. 差分が見つかった場合:
+   - AskUserQuestion で差分内容と改善提案を提示
+   - 承認後、INSTRUCTIONS.md / AGENT-TEMPLATE.md を更新
+   - 更新完了後、本来のタスク（エージェント作成・改善等）を実行
+4. 差分がない場合: そのまま本来のタスクを実行
+
+### 追加チェック対象URL（関連する場合のみ）
+
+| チェック対象 | URL | 確認ポイント |
+|------------|-----|-----------|
+| サブエージェント仕様 | `https://code.claude.com/docs/ja/sub-agents` | フロントマター、ツール構文、フック仕様 |
+| スキル仕様 | `https://code.claude.com/docs/ja/skills` | skills フィールドとの連携 |
+| フック仕様 | `https://code.claude.com/docs/ja/hooks` | フックイベント、入力スキーマ |
+| MCP仕様 | `https://code.claude.com/docs/ja/mcp` | mcpServers 設定形式 |
+| 設定仕様 | `https://code.claude.com/docs/ja/settings` | 権限設定、環境変数、ツール一覧 |
+
+> **注意**: 公式ドキュメントは常に変わりうる。このスキルの内容が古くなっている可能性を常に考慮し、公式ドキュメントを信頼する。
+
+---
+
 ## 自己改善プロトコル（🔴 タスク完了後必須）
 
 エージェント作成・変更タスクの完了後、このスキル自身（authoring-agents）を改善する機会を逃さない。
@@ -699,7 +874,7 @@ authoring-agents を使用してエージェントの作成・修正・改善を
 1. タスク完了報告の後、会話中のユーザー指示・フィードバックを振り返る
 2. 上記6観点で改善候補を抽出
 3. **公式ドキュメントチェック（🔴 必須）**:
-   - `https://code.claude.com/docs/en/sub-agents` を WebFetch で取得
+   - `https://code.claude.com/docs/ja/sub-agents` を WebFetch で取得
    - 以下の観点で差分を確認:
      - 新しいフロントマターフィールドの追加
      - 既存フィールドの仕様変更
@@ -714,11 +889,11 @@ authoring-agents を使用してエージェントの作成・修正・改善を
 
 | チェック対象 | 確認URL | 確認ポイント |
 |------------|---------|-----------|
-| サブエージェント仕様 | `https://code.claude.com/docs/en/sub-agents` | フロントマターフィールド、ツール構文、フック仕様 |
-| スキル仕様 | `https://code.claude.com/docs/en/skills` | skills フィールドとの連携、`context: fork` |
-| フック仕様 | `https://code.claude.com/docs/en/hooks` | 新しいフックイベント、入力スキーマ変更 |
-| MCP仕様 | `https://code.claude.com/docs/en/mcp` | mcpServers フィールドの設定形式 |
-| 設定仕様 | `https://code.claude.com/docs/en/settings` | 権限設定、環境変数、ツール一覧 |
+| サブエージェント仕様 | `https://code.claude.com/docs/ja/sub-agents` | フロントマターフィールド、ツール構文、フック仕様 |
+| スキル仕様 | `https://code.claude.com/docs/ja/skills` | skills フィールドとの連携、`context: fork` |
+| フック仕様 | `https://code.claude.com/docs/ja/hooks` | 新しいフックイベント、入力スキーマ変更 |
+| MCP仕様 | `https://code.claude.com/docs/ja/mcp` | mcpServers フィールドの設定形式 |
+| 設定仕様 | `https://code.claude.com/docs/ja/settings` | 権限設定、環境変数、ツール一覧 |
 
 ### 追記ルール
 
