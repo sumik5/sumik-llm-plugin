@@ -4,6 +4,11 @@ description: "General-purpose Tachikoma execution agent for tasks not covered by
 model: sonnet
 color: orange
 tools: Read, Grep, Glob, Edit, Write, Bash
+skills:
+  - writing-clean-code
+  - enforcing-type-safety
+  - testing-code
+  - securing-code
 ---
 
 # 言語設定（最優先・絶対遵守）

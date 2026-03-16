@@ -1,10 +1,11 @@
 ---
 name: タチコマ（インフラ）
-description: "Infrastructure/DevOps specialized Tachikoma execution agent. Handles Docker containers, Compose orchestration, CI/CD pipeline configuration, and DevOps methodology. Use proactively when working with Dockerfiles, docker-compose.yml, CI/CD configs, or implementing DevOps practices. Detects: Dockerfile or docker-compose.* files."
+description: "Infrastructure/DevOps specialized Tachikoma execution agent. Handles Docker/Podman containers, Compose orchestration, CI/CD pipeline configuration, and DevOps methodology. Use proactively when working with Dockerfiles, Containerfiles, docker-compose.yml, CI/CD configs, or implementing DevOps practices. Detects: Dockerfile, Containerfile, docker-compose.*, or podman-related files."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - managing-docker
+  - managing-podman
   - practicing-devops
   - writing-clean-code
   - securing-code
