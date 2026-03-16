@@ -13,7 +13,8 @@ description: >-
   NOT for codegen→designing-frontend, behavior→applying-behavior-design,
   charts→designing-data-visualizations, Tailwind→styling-with-tailwind,
   design systems→building-design-systems, design thinking→practicing-design-thinking,
-  AI UX→designing-ai-experiences, AI creatives→creating-ai-design-creatives.
+  AI UX→designing-ai-experiences, AI creatives→creating-ai-design-creatives,
+  print/graphic design fundamentals→designing-graphics.
 license: Complete terms in LICENSE.txt
 ---
 
