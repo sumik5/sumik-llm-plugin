@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (105個)
+└── skills/             # ナレッジスキル (106個)
 ```
 
 ---
@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (104個)
+### Skills (105個)
 
 #### コア開発
 
@@ -169,6 +169,7 @@ sumik-claude-plugin/
 | `designing-graphics` | グラフィックデザイン基礎（造形理論・色彩理論・タイポグラフィ・レイアウト構成・ゲシュタルト心理学・配色セオリー・グリッドシステム・視線誘導） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
 | `creating-ai-design-creatives` | AI画像生成プロンプトと広告クリエイティブ制作（バナー・SNS・ポスター向け51テンプレート・6カテゴリ、デザイン4原則・フォント・色彩・ツール調整） |
+| `understanding-ui-philosophy` | インターフェイス哲学（Fluid Interfaces・自己帰属感・モーション4分類・制約設計・Experiencability・exUI・ウェルビーイング設計の「なぜそうデザインすべきか」WHY体系、43のIf X then Yルール、8リファレンスファイル） |
 
 #### ブラウザ自動化・E2Eテスト
 
