@@ -114,18 +114,17 @@ architect: docs/design/**
 
 ---
 
-## Jujutsu連携注意事項
+## Git連携注意事項
 
-### jj操作の原則
-- **このプロジェクトはJujutsu (jj) を使用** - gitコマンドは原則使用禁止（`jj git`サブコマンドを除く）
-- **jj読み取り操作のみ許可**: `jj status`, `jj diff`, `jj log`, `jj bookmark list`
-- **jj書込操作はリーダー（Claude Code本体）のみ**: `jj new`, `jj commit`, `jj describe`, `jj push` はユーザー確認必須
-- **詳細は `rules/jujutsu.md` 参照**
+### git操作の原則
+- **Git を使用**
+- **git読み取り操作のみ許可**: `git status`, `git diff`, `git log`, `git branch -a`
+- **git書込操作はリーダー（Claude Code本体）のみ**: `git commit`, `git push` はユーザー確認必須
 
 ### チーム作業時の注意
-- **各メンバーの変更は同一 change（`@`）に統合される**
+- **各メンバーの変更は同一ブランチに統合される**
 - **コンフリクトを避けるため、ファイル所有権パターンを厳守**
-- 作業完了後、`jj status` で全変更を確認してからコミット判断をユーザーに委ねる
+- 作業完了後、`git status` で全変更を確認してからコミット判断をユーザーに委ねる
 
 ---
 

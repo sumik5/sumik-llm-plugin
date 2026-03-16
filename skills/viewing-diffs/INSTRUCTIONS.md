@@ -79,12 +79,11 @@ Bash ツールの `run_in_background: true` で実行する。difit はWebサー
 
 ```bash
 git diff --merge-base main feature | difit
-jj diff --git | difit
+git diff HEAD | difit
 ```
 
 ## 注意事項
 
 - ネイティブモード（`difit <target>`）を優先すること。コメント機能やファイル検出が優れている
-- jj colocate 環境でも git 操作はそのまま動作する
 - PR レビューモードは GitHub CLI（`gh auth login`）の認証情報を使用。未認証の場合は public リポジトリのみ対応
 - ポートが使用中の場合は自動でインクリメントされる

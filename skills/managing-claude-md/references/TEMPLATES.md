@@ -273,7 +273,7 @@ root/
 - **テスト**: TDD、カバレッジ 100% 目標
 
 ## バージョン管理
-- **VCS**: Jujutsu (jj)
+- **VCS**: Git
 - **コミットメッセージ**: Conventional Commits 形式
 
 ## セキュリティ

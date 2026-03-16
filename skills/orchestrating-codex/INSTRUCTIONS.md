@@ -40,7 +40,7 @@ Codex本体 → tachikoma-architecture agent（計画策定・Wave分割）
 
 - Codex CLI がインストール済み
 - `~/dotfiles/codex/agents/` にagent定義ファイルが存在
-- Jujutsu (jj) が使用可能
+- Git が使用可能
 
 ---
 
@@ -196,17 +196,17 @@ Wave 3: E2Eテスト (tachikoma-e2e-test) ∥ 統合テスト (tachikoma-test)
 
 ---
 
-## Jujutsu連携注意事項
+## Git連携注意事項
 
-### jj操作の原則
-- **Jujutsu (jj) を使用** - gitコマンドは原則使用禁止（`jj git`サブコマンドを除く）
-- **jj読み取り操作は全agent許可**: `jj status`, `jj diff`, `jj log`
-- **jj書込操作はCodex本体のみ**: `jj new`, `jj commit`, `jj describe`, `jj push` → ユーザー確認必須
+### git操作の原則
+- **Git を使用**
+- **git読み取り操作は全agent許可**: `git status`, `git diff`, `git log`
+- **git書込操作はCodex本体のみ**: `git commit`, `git push` → ユーザー確認必須
 
 ### 並列作業時の注意
-- **全agentの変更は同一 change（`@`）に統合される**（Wave内の並列agentも同様）
+- **全agentの変更は同一ブランチに統合される**（Wave内の並列agentも同様）
 - ファイル所有権が分離されていれば並列書き込みでも競合しない
-- 作業完了後、`jj status` で全変更を確認してからコミット判断をユーザーに委ねる
+- 作業完了後、`git status` で全変更を確認してからコミット判断をユーザーに委ねる
 
 ---
 

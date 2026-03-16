@@ -520,18 +520,18 @@ authoring-skills を使用してスキルの作成・変換・変更を完了し
 
 スキルの作成・変更・削除がすべて完了した後、以下の4ステップを**必ず全て実行**する。途中で止めないこと。
 
-### Quick Reference（jj環境）
+### Quick Reference
 
 ```bash
 # 1. バージョン更新（Edit ツールで .claude-plugin/plugin.json を編集）
-# 2. コミット
-jj commit -m "feat(skills): ..."
-# 3. main bookmark を移動 + タグ作成
-jj bookmark set main -r @-
-jj bookmark set <version> -r @-
+# 2. ステージング・コミット
+git add -A
+git commit -m "feat(skills): ..."
+# 3. タグ作成
+git tag <version>
 # 4. プッシュ（main とタグの両方）
-jj git push -b main
-jj git push -b <version>
+git push origin main
+git push origin <version>
 ```
 
 ### 1. バージョン更新
@@ -546,60 +546,46 @@ jj git push -b <version>
 
 ### 2. コミット
 
-`writing-conventional-commits` スキルに従い、Conventional Commits形式でコミットメッセージを作成する。`jj diff --stat` と変更内容からメッセージを判断し、`jj commit -m` で直接コミットする:
+`writing-conventional-commits` スキルに従い、Conventional Commits形式でコミットメッセージを作成する。`git diff --stat` と変更内容からメッセージを判断し、`git commit -m` で直接コミットする:
 
 ```bash
 # メッセージ例
-jj commit -m "feat(skills): <スキル名>新設"           # 新スキル追加
-jj commit -m "docs(skills): <変更内容>"               # 既存スキル改善
-jj commit -m "feat(skills): <スキルA>新設、<スキルB>改善"  # 複数変更
+git add -A
+git commit -m "feat(skills): <スキル名>新設"           # 新スキル追加
+git commit -m "docs(skills): <変更内容>"               # 既存スキル改善
+git commit -m "feat(skills): <スキルA>新設、<スキルB>改善"  # 複数変更
 ```
 
-> **⚠️ `gcauto -y` は使用禁止。** Claude Codeを内部起動するため、Claude Codeセッション内では必ずネストセッションエラーになる。本スキルは常にClaude Code内で実行されるため、`jj commit -m "..."` を直接使用すること。
+> **⚠️ `gcauto -y` は使用禁止。** Claude Codeを内部起動するため、Claude Codeセッション内では必ずネストセッションエラーになる。本スキルは常にClaude Code内で実行されるため、`git commit -m "..."` を直接使用すること。
 
-### 3. bookmark移動 + タグ作成（🔴 必須）
+### 3. タグ作成（🔴 必須）
 
-コミット後、`jj commit` により `@` は新しい空changeに移動し、実際のコミットは `@-` にある。**main bookmarkとバージョンタグの両方を `@-` に設定する**:
+コミット後、バージョンタグを作成する:
 
 ```bash
-# jj環境: main bookmark を移動（これを忘れるとpush時にエラー）
-jj bookmark set main -r @-
-
-# jj環境: バージョンタグを作成
-jj bookmark set <version> -r @-
-
-# git環境:
 git tag <version>
 ```
 
 > **タグ命名規則**: `v` プレフィックスなし（例: `6.1.1`）。既存タグ履歴に合わせること。
-
-> **⚠️ 罠: `jj bookmark set main -r @-` を忘れると、main が古いコミットを指したままになり、push しても変更がリモートに反映されない。**
 
 ### 4. プッシュ
 
 mainとタグの**両方**をリモートにプッシュする:
 
 ```bash
-# jj環境（⚠️ `jj push` はエイリアス。未設定環境では `jj git push` を使用）
-jj git push -b main
-jj git push -b <version>
-
-# git環境
 git push origin main
 git push origin <version>
 ```
 
-> **⚠️ 罠: `jj git push -b main` だけではタグはプッシュされない。タグ用に別途 `jj git push -b <version>` が必要。**
+> **⚠️ 罠: `git push origin main` だけではタグはプッシュされない。タグ用に別途 `git push origin <version>` が必要。**
 
 ### リリースチェックリスト
 
 - [ ] `.claude-plugin/plugin.json` のバージョン更新済み
 - [ ] コミットメッセージがConventional Commits形式
-- [ ] `jj bookmark set main -r @-` 実行済み
-- [ ] `jj bookmark set <version> -r @-` 実行済み
-- [ ] `jj git push -b main` 実行済み
-- [ ] `jj git push -b <version>` 実行済み
+- [ ] `git tag <version>` 実行済み
+- [ ] `git push origin main` 実行済み
+- [ ] `git push origin <version>` 実行済み
 
 ---
 

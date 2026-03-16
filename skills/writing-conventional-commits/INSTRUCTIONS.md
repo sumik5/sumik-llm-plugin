@@ -91,8 +91,8 @@ feat: added new validation
 | コマンド | 説明 |
 |---------|------|
 | `gcauto -y` | AI生成メッセージによるコミット（Conventional Commits準拠・非対話式） |
-| `jj describe -m "type(scope): description"` | 手動でメッセージ設定 |
-| `jj commit -m "type(scope): description"` | メッセージ設定と新規change作成 |
+| `git commit --amend -m "type(scope): description"` | 手動でメッセージ修正 |
+| `git commit -m "type(scope): description"` | メッセージ設定とコミット作成 |
 
 ## Related Skills
 
