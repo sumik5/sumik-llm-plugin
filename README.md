@@ -105,7 +105,7 @@ sumik-claude-plugin/
 | `writing-conventional-commits` | Conventional Commits 1.0.0準拠コミットメッセージガイド（type/scope/BREAKING CHANGE判定・SemVer連携） |
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
 | `using-codex` | Codex CLI（OpenAI）連携（コード相談・レビュー・設計相談・バグ調査） |
-| `reviewing-plans-with-codex` | Codex CLI (gpt-5.3-codex) によるプランファイルレビュー（初回レビュー＋resume再レビュー） |
+| `reviewing-plans-with-codex` | 固定ラッパースクリプト経由の Codex プランファイルレビュー（初回レビュー＋resume再レビュー） |
 | `reviewing-code` | コードレビュー方法論（PRの構成・効果的なコメント技法・TWA・アンチパターン対策） |
 | `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodexマルチエージェント形式（config.toml + agent .toml）に変換。フォルダ指定で一括変換・差分更新対応 |
 

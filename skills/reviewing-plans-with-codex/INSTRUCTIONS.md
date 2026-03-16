@@ -1,13 +1,13 @@
 # Codex プランレビュー
 
-Codex CLI (gpt-5.3-codex) を使用してMarkdownプランファイルの致命的問題をレビューする。
+スキル同梱の固定ラッパースクリプト `scripts/codex-plan-review.sh` を使用して Markdown プランファイルの致命的問題をレビューする。
 
 ## 2つのモード
 
 | モード | 用途 | コマンド |
 |-------|------|---------|
-| **初回レビュー** (デフォルト) | 新規プランの致命的問題を指摘 | `codex exec -m gpt-5.3-codex "..."` |
-| **再レビュー** (`--resume`) | 更新済みプランの再確認 | `codex exec resume --last -m gpt-5.3-codex "..."` |
+| **初回レビュー** (デフォルト) | 新規プランの致命的問題を指摘 | `scripts/codex-plan-review.sh "<plan_file_fullpath>"` |
+| **再レビュー** (`--resume`) | 更新済みプランの再確認 | `scripts/codex-plan-review.sh "<plan_file_fullpath>" --resume` |
 
 ## 実行手順
 
@@ -63,7 +63,7 @@ AskUserQuestion(questions=[
 #### 初回レビュー（デフォルト）
 
 ```bash
-codex exec -m gpt-5.3-codex "このプランをレビューしてください。瑣末な点へのクソリプはしないでください。致命的な点のみを指摘してください: {plan_file_fullpath}"
+scripts/codex-plan-review.sh "{plan_file_fullpath}"
 ```
 
 `{plan_file_fullpath}` はプランファイルの**フルパス（絶対パス）**に置換する。
@@ -71,7 +71,7 @@ codex exec -m gpt-5.3-codex "このプランをレビューしてください。
 #### 再レビュー（`--resume` 指定時）
 
 ```bash
-codex exec resume --last -m gpt-5.3-codex "プランを更新したのでレビューを再度してください。瑣末なクソリプはせず、致命的な点だけ指摘してください: {plan_file_fullpath}"
+scripts/codex-plan-review.sh "{plan_file_fullpath}" --resume
 ```
 
 ### 5. エラーハンドリング

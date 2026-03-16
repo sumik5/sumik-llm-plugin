@@ -1,7 +1,7 @@
 ---
 name: using-codex
 description: >-
-  Codex CLI（OpenAI）を使用してコードや文言について相談・レビューを行う。
+  固定ラッパースクリプト経由で Codex CLI（OpenAI）を使用してコードや文言について相談・レビューを行う。
   Use when consulting Codex for code review, message/wording discussion, design consultation,
   bug investigation, or difficult problem analysis.
   Triggers: "codex", "codexと相談", "codexに聞いて".

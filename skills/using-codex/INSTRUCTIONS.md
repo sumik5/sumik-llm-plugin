@@ -1,10 +1,10 @@
 # Codex
 
-Codex CLIを使用してコードレビュー・分析を実行するスキル。
+スキル同梱の固定ラッパースクリプト `scripts/codex-consult.sh` を使用してコードレビュー・分析を実行するスキル。
 
 ## 実行コマンド
 
-codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd <project_directory> "<request>"
+scripts/codex-consult.sh "<project_directory>" "<request>"
 
 ## プロンプトのルール
 
@@ -16,10 +16,8 @@ codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd <project_direct
 
 | パラメータ | 説明 |
 |-----------|------|
-| `-m gpt-5.3-codex` | 使用モデル指定 |
-| `--full-auto` | 完全自動モードで実行 |
-| `--sandbox read-only` | 読み取り専用サンドボックス（安全な分析用） |
-| `--cd <dir>` | 対象プロジェクトのディレクトリ |
+| `scripts/codex-consult.sh` | 固定オプション付きラッパースクリプト |
+| `<project_directory>` | 対象プロジェクトのディレクトリ |
 | `"<request>"` | 依頼内容（日本語可） |
 
 ## 使用例
@@ -27,26 +25,26 @@ codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd <project_direct
 **注意**: 各例では末尾に「確認不要、具体的な提案まで出力」の指示を含めている。
 
 ### コードレビュー
-codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd /path/to/project "このプロジェクトのコードをレビューして、改善点を指摘してください。確認や質問は不要です。具体的な修正案とコード例まで自主的に出力してください。"
+scripts/codex-consult.sh "/path/to/project" "このプロジェクトのコードをレビューして、改善点を指摘してください。"
 
 ### バグ調査
-codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd /path/to/project "認証処理でエラーが発生する原因を調査してください。確認や質問は不要です。原因の特定と具体的な修正案まで自主的に出力してください。"
+scripts/codex-consult.sh "/path/to/project" "認証処理でエラーが発生する原因を調査してください。"
 
 ### アーキテクチャ分析
-codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd /path/to/project "このプロジェクトのアーキテクチャを分析して説明してください。確認や質問は不要です。改善提案まで自主的に出力してください。"
+scripts/codex-consult.sh "/path/to/project" "このプロジェクトのアーキテクチャを分析して説明してください。"
 
 ### リファクタリング提案
-codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd /path/to/project "技術的負債を特定し、リファクタリング計画を提案してください。確認や質問は不要です。具体的なコード例まで自主的に出力してください。"
+scripts/codex-consult.sh "/path/to/project" "技術的負債を特定し、リファクタリング計画を提案してください。"
 
 ### デザイン相談（UI/UX）
-codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd /path/to/project "あなたは世界トップクラスのUIデザイナーです。以下の観点からこのプロジェクトのUIを評価してください: (1) 視覚的階層構造とタイポグラフィ、(2) 余白・スペーシングのリズム、(3) カラーパレットのコントラストとアクセシビリティ、(4) インタラクションパターンの一貫性、(5) ユーザーの認知負荷の軽減。確認や質問は不要です。具体的な改善案をコード例付きで提示してください。"
+scripts/codex-consult.sh "/path/to/project" "あなたは世界トップクラスのUIデザイナーです。以下の観点からこのプロジェクトのUIを評価してください: (1) 視覚的階層構造とタイポグラフィ、(2) 余白・スペーシングのリズム、(3) カラーパレットのコントラストとアクセシビリティ、(4) インタラクションパターンの一貫性、(5) ユーザーの認知負荷の軽減。"
 
-codex exec -m gpt-5.3-codex --full-auto --sandbox read-only --cd /path/to/project "UXリサーチャー兼デザイナーとして、このフォームのユーザビリティを分析してください。Nielsen の10ヒューリスティクスに基づき、(1) エラー防止の仕組み、(2) ユーザーの制御と自由度、(3) 一貫性と標準、(4) 認識vs記憶の負荷、(5) 柔軟性と効率性を評価してください。確認や質問は不要です。改善したTailwind CSSコードまで自主的に提示してください。"
+scripts/codex-consult.sh "/path/to/project" "UXリサーチャー兼デザイナーとして、このフォームのユーザビリティを分析してください。Nielsen の10ヒューリスティクスに基づき、(1) エラー防止の仕組み、(2) ユーザーの制御と自由度、(3) 一貫性と標準、(4) 認識vs記憶の負荷、(5) 柔軟性と効率性を評価してください。"
 
 ## 実行手順
 
 1. ユーザーから依頼内容を受け取る
 2. 対象プロジェクトのディレクトリを特定する（現在のワーキングディレクトリまたはユーザー指定）
 3. **プロンプトを作成する際、末尾に「確認や質問は不要です。具体的な提案まで自主的に出力してください。」を必ず追加する**
-4. 上記コマンド形式でCodexを実行
+4. 上記スクリプト形式でCodexを実行
 5. 結果をユーザーに報告
