@@ -9,6 +9,7 @@ description: >-
   use developing-python instead. For LLMOps operational framework, use practicing-llmops.
   For JavaScript/LangChain.js RAG in web apps with Vercel AI SDK, see integrating-ai-web-apps.
   For LangChain/LangGraph specific RAG pipeline implementation, see building-langchain-agents.
+  For GenAI design pattern-level RAG architecture decisions (Basic RAG vs Deep Search, indexing strategies), use designing-genai-patterns.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

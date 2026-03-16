@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (103個)
+└── skills/             # ナレッジスキル (104個)
 ```
 
 ---
@@ -81,7 +81,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (103個)
+### Skills (104個)
 
 #### コア開発
 
@@ -132,6 +132,7 @@ sumik-claude-plugin/
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
 | `practicing-llmops` | LLMOps/AgentOps運用フレームワーク（データ・モデル適応・API・評価・セキュリティ・スケーリング・AgentOps（MLOps→GenAIOps→AgentOps進化）・Tool Registry・Agent Registry（AgentCard/A2A）・Memory & Data Governance） |
 | `analyzing-software-tradeoffs` | ソフトウェア設計トレードオフ分析（コードレベル: 重複・例外処理・柔軟性・最適化、API: 使いやすさ・バージョニング、分散システム: 一貫性・配信セマンティクス、メタ判断: ライブラリ選定・トレンド評価・日時データ・12リファレンスファイル） |
+| `designing-genai-patterns` | 32のGenAIデザインパターン（コンテンツ制御・RAG・モデル能力拡張・信頼性・エージェント・デプロイ最適化・安全ガードレール） |
 
 #### フレームワーク
 

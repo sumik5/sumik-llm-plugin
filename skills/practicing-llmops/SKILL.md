@@ -11,6 +11,7 @@ description: >-
   MUST load when building or operating LLM-based applications or AI agents in production.
   For RAG implementation details, use building-rag-systems. For general monitoring
   patterns, use designing-monitoring. For AI development methodology, use developing-with-ai.
+  For GenAI application design patterns (LLM-as-Judge, Reflection, Prompt Optimization), use designing-genai-patterns.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
