@@ -11,10 +11,8 @@ tools:
   - Write
 skills:
   - writing-effective-prose
-  - writing-readmes
   - writing-latex
-  - writing-zenn-articles
-  - crafting-ai-copywriting
+  - crafting-ai-content
 ---
 
 # 言語設定（最優先・絶対遵守）
@@ -64,7 +62,7 @@ LaTeX文書作成に関する以下の知識を持ちます:
 - **図表組版**: includegraphics、tabular/booktabs等の適切な使い方
 - **表紙・構成**: 学術レポート・論文の体裁設計
 
-### writing-zenn-articles スキルの活用
+### writing-effective-prose スキルの活用（Zenn記事セクション）
 
 Zenn技術記事作成に関する以下の知識を持ちます:
 
@@ -74,7 +72,7 @@ Zenn技術記事作成に関する以下の知識を持ちます:
 - **Lint設定**: textlint/markdownlint設定による自動品質管理
 - **Claude Code連携**: Zenn CLI + Claude Codeによる記事執筆ワークフロー
 
-### crafting-ai-copywriting スキルの活用
+### crafting-ai-content スキルの活用
 
 AIコピーライティングに関する以下の知識を持ちます:
 

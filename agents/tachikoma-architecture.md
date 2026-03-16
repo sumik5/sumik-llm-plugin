@@ -12,7 +12,6 @@ skills:
   - applying-domain-driven-design
   - architecting-microservices
   - modernizing-architecture
-  - analyzing-software-tradeoffs
   - architecting-data
   - building-multi-tenant-saas
   - applying-clean-architecture
@@ -66,7 +65,7 @@ skills:
 - **8つのSagaパターン**: Choreography（イベント駆動）vs Orchestration（中央指揮）。Compensating Transaction（補償トランザクション）で分散整合性を維持
 - **メッセージングパターン**: Outbox Pattern（二重書き込み防止）、Inbox Pattern（冪等性保証）、Dead Letter Queue
 
-### アーキテクチャトレードオフ分析（analyzing-software-tradeoffs / modernizing-architecture）
+### アーキテクチャトレードオフ分析（modernizing-architecture）
 
 - **トレードオフマトリクス**: 一貫性・可用性・パーティション耐性（CAP定理）のトレードオフを体系的に評価
 - **移行戦略**: Strangler Fig Pattern（段階的置き換え）、Branch by Abstraction、Feature Toggle活用

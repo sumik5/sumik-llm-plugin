@@ -13,7 +13,7 @@ description: >-
   Use when designing UX for AI features, copilot/agent interfaces,
   AI input/output flows, or conducting AI user research.
   For AI product management→managing-ai-products.
-  For UI/UX principles→applying-design-guidelines.
+  For UI/UX principles→designing-ux.
   For design thinking→practicing-design-thinking.
 ---
 

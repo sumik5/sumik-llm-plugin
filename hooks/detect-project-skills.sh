@@ -24,7 +24,7 @@ COMMON_DEV_SKILLS=(
     "researching-libraries"
     "architecting-microservices"
     "modernizing-architecture"
-    "implementing-logging"
+    "implementing-observability"
 )
 
 # ライティングスキル（.tex検出時に適用）
@@ -36,22 +36,19 @@ WRITING_SKILLS=(
 
 # デザインスキル（フロントエンド/デザイン検出時に適用）
 DESIGN_SKILLS=(
-    "applying-design-guidelines"
+    "designing-ux"
     "applying-behavior-design"
     "implementing-design"
-    "implementing-figma"
 )
 
 # データベーススキル（DB関連検出時に適用）
 DATABASE_SKILLS=(
-    "avoiding-sql-antipatterns"
-    "understanding-database-internals"
-    "designing-relational-databases"
+    "developing-databases"
 )
 
 # オブザーバビリティスキル（監視・可観測性検出時に適用）
 OBSERVABILITY_SKILLS=(
-    "designing-monitoring"
+    "implementing-observability"
 )
 
 # MCP開発スキル（MCP開発検出時に適用）
@@ -84,7 +81,7 @@ get_skill_description() {
         "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
         "architecting-microservices") echo "CQRS/Saga/粒度決定/データ所有権/ワークフロー・コントラクト" ;;
         "modernizing-architecture") echo "社会技術的モダナイゼーション・トレードオフ分析手法" ;;
-        "implementing-logging") echo "アプリケーションログ設計・構造化ログ・収集・分析・セキュリティログ" ;;
+        "implementing-observability") echo "監視・オブザーバビリティ設計（ログ・トレース・メトリクス・OpenTelemetry）" ;;
         "applying-domain-driven-design") echo "DDD戦略/戦術パターン・データ分解・データメッシュ" ;;
         "developing-react") echo "React 19.x 開発（Internals・パフォーマンス・アニメーション・RTL）" ;;
         "developing-nextjs") echo "Next.js 16 / React 19開発" ;;
@@ -96,26 +93,20 @@ get_skill_description() {
         "developing-python") echo "Python開発ガイド" ;;
         "developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
         "developing-terraform") echo "Terraform IaC開発" ;;
-        "managing-docker") echo "Docker開発環境・コンテナ管理" ;;
-        "managing-podman") echo "Podmanコンテナ管理（daemonless・rootless・Buildah/Skopeo）" ;;
+        "managing-containers") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
         "writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
         "developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
         "automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
         "testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
-        "implementing-opentelemetry") echo "OpenTelemetry 分散トレーシング" ;;
         "building-adk-agents") echo "Google ADK AIエージェント開発" ;;
         "building-langchain-agents") echo "LangChain/LangGraph AIエージェント開発（Python）" ;;
         "building-nextjs-saas") echo "Next.js SaaSアプリケーション構築" ;;
         "implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
         "searching-web") echo "gemini CLI によるWeb検索" ;;
-        "applying-design-guidelines") echo "UI/UX設計原則（理論）" ;;
+        "designing-ux") echo "UX戦略・デザイン思考・グラフィックデザイン・AIエクスペリエンス設計" ;;
         "applying-behavior-design") echo "行動変容デザイン（CREATEファネル）" ;;
-        "implementing-design") echo "Figmaデザイン→コード変換" ;;
-        "implementing-figma") echo "Figma Make・Code Connect・デザイントークン同期" ;;
-        "avoiding-sql-antipatterns") echo "SQLアンチパターン回避（25パターン）" ;;
-        "understanding-database-internals") echo "DB内部構造（ストレージエンジン・分散システム）" ;;
-        "designing-relational-databases") echo "リレーショナルDB設計（エンティティ・ER図・正規化・最適化・PostgreSQL実装ガイド）" ;;
-        "designing-monitoring") echo "監視・オブザーバビリティ設計" ;;
+        "implementing-design") echo "Figmaデザイン→コード変換（Code Connect・デザイントークン同期）" ;;
+        "developing-databases") echo "DB設計・SQLアンチパターン・内部構造・リレーショナル設計（正規化・最適化・PostgreSQL）" ;;
         "developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
         "developing-google-cloud") echo "Google Cloud 開発・セキュリティ（Cloud Run + IAM/VPC/KMS/DLP/SCC）" ;;
         "developing-aws") echo "AWS開発（システム設計・サーバーレス・CDK・EKS・SRE・コスト最適化・Bedrock）" ;;
@@ -174,7 +165,7 @@ check_package_json() {
 
     # OpenTelemetry チェック（JS）
     if echo "$deps" | grep -q "^@opentelemetry/"; then
-        PROJECT_SKILLS+=("implementing-opentelemetry")
+        PROJECT_SKILLS+=("implementing-observability")
     fi
 
     # AI Web App チェック（Vercel AI SDK / LangChain.js）
@@ -263,7 +254,7 @@ check_terraform() {
 # Docker チェック
 check_docker() {
     if [[ -f "$WORK_DIR/Dockerfile" ]] || find "$WORK_DIR" -maxdepth 3 -name "docker-compose.*" 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("managing-docker")
+        PROJECT_SKILLS+=("managing-containers")
     fi
 }
 
@@ -272,7 +263,7 @@ check_podman() {
     if find "$WORK_DIR" -maxdepth 3 -name "Containerfile" 2>/dev/null | grep -q . \
         || find "$WORK_DIR" -maxdepth 3 -name "podman-compose.*" 2>/dev/null | grep -q . \
         || [[ -d "$WORK_DIR/.containers" ]]; then
-        PROJECT_SKILLS+=("managing-podman")
+        PROJECT_SKILLS+=("managing-containers")
     fi
 }
 
@@ -343,7 +334,7 @@ check_python_deps() {
 
     # OpenTelemetry チェック（Python）
     if echo "$deps_content" | grep -q "opentelemetry-"; then
-        PROJECT_SKILLS+=("implementing-opentelemetry")
+        PROJECT_SKILLS+=("implementing-observability")
     fi
 }
 

@@ -5,7 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - integrating-ai-web-apps
-  - building-rag-systems
+  - designing-genai-patterns
   - practicing-llmops
   - developing-mcp
   - developing-with-ai
@@ -47,7 +47,7 @@ skills:
 - **LangChain.js統合**: Chain・Agent・Memory の構築。LCELパイプライン（`|` 演算子）によるチェーン合成
 - **プロバイダー抽象化**: OpenAI/Anthropic/Google/Groq を統一インターフェースで切り替え
 
-### RAGシステム構築（building-rag-systems）
+### RAGシステム構築（designing-genai-patterns）
 
 - **データローディングパイプライン**: Word/PDF/CSV/音声/動画/マルチモーダルの11種類のソースに対応。`DocumentLoader` 実装パターン
 - **データ前処理**: メタデータエンリッチメント（ソース・タイムスタンプ・重要度スコア）・テキスト品質向上（正規化・重複排除）

@@ -6,7 +6,7 @@ description: >-
   practical refactoring recipes, and software design laws (simplicity, change, defect probability, testing).
   Language-agnostic clean code guide.
   For language-specific practices and design patterns, use developing-go, mastering-typescript, or developing-python.
-  For trade-off analysis on code duplication, error handling, and flexibility decisions, use analyzing-software-tradeoffs.
+  For trade-off analysis on code duplication, error handling, and flexibility decisions, use modernizing-architecture.
   For architecture-level clean design with dependency rules, layer separation, and component principles, use applying-clean-architecture.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: designing-frontend
-description: Creates distinctive, production-grade frontend code with shadcn/ui integration. Use when implementing web components, pages, or applications requiring creative, polished UI code. Covers HTML/CSS/JS code generation and shadcn/ui component management. For Storybook story creation and component testing, use developing-storybook instead. For theoretical UI/UX design principles, use applying-design-guidelines instead. For Tailwind CSS methodology, component design patterns, and design system construction, use styling-with-tailwind instead. For design system methodology (pattern language, organizational strategy, UI pattern catalog, anti-patterns), use building-design-systems instead.
+description: Creates distinctive, production-grade frontend code with shadcn/ui integration. Use when implementing web components, pages, or applications requiring creative, polished UI code. Covers HTML/CSS/JS code generation and shadcn/ui component management. For Storybook story creation and component testing, use developing-storybook instead. For theoretical UI/UX design principles, use designing-ux instead. For Tailwind CSS methodology, component design patterns, and design system construction, use styling-with-tailwind instead. For design system methodology (pattern language, organizational strategy, UI pattern catalog, anti-patterns), use building-design-systems instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

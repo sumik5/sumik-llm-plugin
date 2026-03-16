@@ -5,7 +5,6 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - building-design-systems
-  - constructing-figma-design-systems
   - writing-clean-code
   - enforcing-type-safety
   - testing-code

@@ -6,8 +6,9 @@ description: >-
   LangGraph StateGraph agents (tool calling, ReAct, multi-agent Router/Supervisor),
   MCP server integration, and productionization (memory, guardrails, LangSmith).
   MUST load when langchain or langgraph is detected in requirements or pyproject.toml.
-  For general RAG theory, use building-rag-systems. For JavaScript/Vercel AI SDK, use integrating-ai-web-apps.
+  For general RAG theory, use designing-genai-patterns. For JavaScript/Vercel AI SDK, use integrating-ai-web-apps.
   For MCP protocol internals, use developing-mcp. For Google ADK agents, use building-adk-agents.
+disable-model-invocation: true
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

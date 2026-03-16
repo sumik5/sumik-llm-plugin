@@ -566,5 +566,276 @@
 
 | スキル | 使い分け |
 |--------|---------|
-| **writing-zenn-articles** | Zennプラットフォーム特化（フロントマター、公開フロー） |
 | **writing-latex** | LaTeX文書作成（upLaTeX+dvipdfmx環境、日本語学術文書のコンパイル） |
+| **creating-presentations** | プレゼンコンテンツ改善・HTMLスライド生成・Google Slides生成 |
+
+---
+
+## README作成
+
+プロジェクトの README.md を設計・構成・作成するためのガイド。
+
+### Quick Start（最小限テンプレート）
+
+```markdown
+# プロジェクト名
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+一言説明（高校生でも理解できるレベルで、専門用語を最小限に）。
+
+## インストール
+
+\`\`\`bash
+npm install your-package
+\`\`\`
+
+## クイックスタート
+
+\`\`\`bash
+your-package --help
+\`\`\`
+
+## ドキュメント
+
+詳細ドキュメントは [docs/](docs/) を参照。
+
+## ライセンス
+
+MIT
+```
+
+### 対象読者の特定
+
+README作成前に対象読者を決定する。
+
+| 対象 | 主なニーズ | 優先セクション |
+|------|-----------|--------------|
+| **ユーザー** | インストール・使い方・トラブルシューティング | Getting Started・クイックスタート・リファレンス |
+| **開発者** | ローカル環境構築・テスト・アーキテクチャ | セットアップ・テスト・コントリビューション |
+| **両方** | 概要・バッジ・ライセンス | プロジェクト概要・コミュニティ |
+
+主要閲覧者の言語でREADMEを書く。OSS国際プロジェクトは英語、社内ツールは日本語が一般的。
+
+### 必須セクション構成
+
+**1. プロジェクト概要（名前 + 説明）**
+- H1（`# プロジェクト名`）は文書に1つだけ
+- 説明は1〜3文で完結させる。高校生レベルの読みやすさを目指す
+- エコシステムでの位置づけ、類似ツールとの差異を明記する
+
+**2. バッジ** — 推奨は3〜5個まで
+
+```markdown
+[![npm version](https://img.shields.io/npm/v/your-package.svg)](https://www.npmjs.com/package/your-package)
+[![CI](https://github.com/user/repo/actions/workflows/ci.yml/badge.svg)](...)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+```
+
+shields.io 技術スタックバッジフォーマット:
+```
+https://img.shields.io/badge/-{name}-{color}.svg?logo={logo}&style=for-the-badge
+```
+
+**3. インストール・セットアップ**
+- 前提条件（Node.js バージョン等）を明記
+- コマンドにはコードブロックと言語指定を必ず付ける
+
+**4. クイックスタート / 使い方**
+- READMEに複数のチュートリアルを含めない（1つに絞るかリンクにする）
+- 最短で動作確認できる例を示す
+
+**5. ドキュメントリンク** — 外部ドキュメントへのリンクをまとめる
+
+**6. 開発者向け情報**
+- ローカル環境構築手順。アーキテクチャが長い場合は `ARCHITECTURE.md` に分離してリンク
+
+**7. コミュニティ / コントリビューション**
+- バグ報告・機能要望リンク、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md` へのリンク
+
+**8. ライセンス**
+```markdown
+## ライセンス
+
+[MIT](LICENSE) © 2024 Your Name
+```
+
+### プロジェクトタイプ別の追加推奨
+
+| タイプ | 追加推奨セクション |
+|--------|-----------------|
+| ライブラリ/パッケージ | 類似ライブラリとの比較表・ブラウザ/Node.jsサポート表・Peer dependencies |
+| Webアプリケーション | スクリーンショット/デモURL・環境変数テーブル・デプロイ手順 |
+| CLIツール | コマンドリファレンス表（コマンド・操作内容・等価コマンド） |
+| OSSプロジェクト | 動的バッジ（スター数等）・GitHub Template機能・引用セクション |
+
+### Markdown書式規範
+
+- H1は文書に1つのみ（プロジェクト名）。見出し階層は4レベル以内（H2〜H4）
+- 太字は `**text**`（段落の10%以下）
+- リストはハイフン（`-`）で統一
+- コードブロックに言語指定を必ず付ける（`\`\`\`bash`, `\`\`\`typescript` 等）
+- 全画像に Alt テキスト: `![説明](path/to/image.png)`
+- 目次は1000文字未満なら省略可
+
+### 品質チェックリスト（公開前）
+
+- [ ] H1見出しが1つのみ
+- [ ] 全リンクが有効（404なし）
+- [ ] コードブロックに言語指定がある
+- [ ] 全画像にAltテキストがある
+- [ ] インストール手順を実際に試した
+- [ ] 古いバージョン情報が残っていない
+- [ ] モバイル表示で読みやすい（行が長すぎない）
+
+### アンチパターン
+
+| アンチパターン | 改善策 |
+|--------------|--------|
+| 複数チュートリアルをREADMEに詰め込む | 1つに絞るかdocs/に分離 |
+| バッジを10個以上使う | 3〜5個に絞る |
+| コードブロックに言語指定なし | 必ず言語を指定 |
+| 「このREADMEは随時更新されます」 | 削除。実際に更新する |
+| リリースノートをREADMEに書く | CHANGELOG.mdに分離 |
+
+---
+
+## Zenn記事作成
+
+Zenn CLIベースの技術記事リポジトリにおける記事作成・品質管理のワークフロー。
+
+### ファイル仕様
+
+- 形式: `NNN-slug-name.md`（NNN: 3桁の連番、slug: ケバブケース）
+- 配置: `articles/` ディレクトリ
+
+### フロントマター（必須）
+
+```yaml
+---
+title: "記事タイトル"
+emoji: "🎯"
+type: "tech"           # "tech"（技術記事）または "idea"（アイデア）
+topics: ["tag1", "tag2"]  # 英数字小文字、最大5個（5個を目標に埋める）
+published: false
+---
+```
+
+### 本文の書き方
+
+- H2（`##`）から開始。H1は使用しない
+- 構成例: 始めに → 本題セクション群 → 終わりに
+- prhルールにより「はじめに」「おわりに」はエラー → 漢字表記を使うこと
+
+**Zenn固有のMarkdown記法:**
+
+```markdown
+:::message
+情報ブロック（注意書き・補足情報）
+:::
+
+:::message alert
+警告ブロック（重要な注意事項）
+:::
+```
+
+### ワークフロー
+
+**Step 0: トレンド調査とタイトル設計**
+
+WebFetchで `https://zenn.dev` / `https://zenn.dev/trending` を確認してタイトルを設計する。
+
+| パターン | 例 |
+|---------|-----|
+| 体験型 | 「〇〇してみた」「〇〇を導入した話」 |
+| 数値型 | 「〇〇選」「N個の〇〇」「〇〇を50%削減した方法」 |
+| 問題解決型 | 「〇〇で困ったときの対処法」 |
+| 逆説・挑発型 | 「〇〇はもう古い」「〇〇をやめた理由」 |
+| How-to型 | 「〇〇入門」「〇〇完全ガイド」 |
+
+タイトルのチェック: 具体的か / 検索されそうか / クリックしたくなるか / 内容と一致しているか
+
+**Step 0.5: topicsタグの設計**
+
+`https://zenn.dev/topics/{タグ名}` で記事数を確認し、「大きなプール + ニッチ」戦略で5個を選定する:
+
+| 枠 | 目的 | 例 |
+|---|---|---|
+| 1-2個 | 記事の中心テーマ | `claudecode`, `nextjs` |
+| 1-2個 | 広い発見プール | `ai`, `typescript` |
+| 1-2個 | ニッチだが検索意図が一致 | `ccusage`, `tmux` |
+
+**Step 1〜6:**
+
+```bash
+# Step 1: 記事番号決定
+ls articles/ | sort | tail -1
+
+# Step 2: ファイル作成 (published: false で開始)
+# articles/NNN-slug-name.md を作成
+
+# Step 3: 本文執筆（です・ます調、技術用語は英語のまま）
+
+# Step 4: 画像追加（必要に応じて）
+mkdir -p images/NNN
+# 参照: ![alt text](/images/NNN/filename.png)
+
+# Step 5: 品質チェック
+pnpm exec textlint articles/NNN-slug-name.md
+pnpm exec markdownlint-cli2 articles/NNN-slug-name.md
+pnpm exec textlint --fix articles/NNN-slug-name.md  # 自動修正
+pnpm run lint  # 全件Lint
+
+# Step 6: 公開
+# published: true に変更 → GitHub push
+```
+
+### Lint環境
+
+| ツール | 設定ファイル | 目的 |
+|--------|------------|------|
+| textlint | `.textlintrc.yml` | 日本語品質チェック |
+| markdownlint-cli2 | `.markdownlint-cli2.jsonc` | Markdown形式統一 |
+| Prettier | `.prettierrc.yml` | コード・Markdown整形 |
+| prh | `prh/` | 表記揺れ検査 |
+| cspell | `.cspell.json` | スペルチェック |
+
+**既知のLintルール矛盾への対処:**
+
+1. `ja-space-around-code` と `ja-space-between-half-and-full-width` が競合 → `pnpm exec textlint --fix` を実行すると自動解決
+2. prh: 「はじめに」→「始めに」、「おわりに」→「終わりに」
+
+Lintルール間の矛盾（循環エラー等）は **記事内容を言い換えるのではなく Lint 設定側を修正**する。
+
+### 品質チェックリスト
+
+- [ ] タイトルが具体的・検索性が高い・クリックしたくなる
+- [ ] ファイル名が `NNN-slug-name.md` 形式
+- [ ] フロントマターの5フィールドがすべて記入済み
+- [ ] topicsが英数字小文字で5個（「大きなプール + ニッチ」）
+- [ ] 見出しが `##` から開始
+- [ ] コードブロックに言語指定あり
+- [ ] `pnpm run lint` でエラーなし
+- [ ] 全角スペースが混入していない
+- [ ] Claude Code関連記事の場合、末尾に宣伝セクション（@CCChangelogJA）を追加済み
+
+### 宣伝セクション（Claude Code関連記事のみ）
+
+topicsに `claudecode` / `claude` を含む、またはタイトルに「Claude Code」を含む記事の末尾に追加する:
+
+```markdown
+## 宣伝
+
+Claude CodeのCHANGELOGを日本語で随時ポストしているXアカウントを運用しています。アップデート情報をキャッチアップしたければぜひフォローしてください。
+
+👉 [@CCChangelogJA](https://x.com/CCChangelogJA)
+```
+
+### 文体ルール
+
+**このリポジトリの統一文体: です・ます調**
+
+- 既存記事はすべてです・ます調で統一。だ・である調に変えない
+- AI臭除去と文体変更は別問題。文体を維持しつつAI臭だけを除去する
+- 自分の体験を交えた語り口。「〜してみました」「〜になりました」等
+- 技術用語はそのまま英語

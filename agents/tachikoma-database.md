@@ -4,9 +4,7 @@ description: "Database specialized Tachikoma execution agent. Handles relational
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
-  - designing-relational-databases
-  - avoiding-sql-antipatterns
-  - understanding-database-internals
+  - developing-databases
   - writing-clean-code
   - securing-code
 ---
@@ -35,7 +33,7 @@ skills:
 
 ## 専門領域
 
-### エンティティモデリング・正規化（designing-relational-databases）
+### エンティティモデリング・正規化（developing-databases）
 
 - **要件分析からエンティティ設計**: ユーザーストーリーからエンティティ・属性・関係を識別。ER図（Crow's Foot記法）の作成
 - **正規化プロセス**: 1NF（繰り返しグループ排除）→ 2NF（部分関数依存排除）→ 3NF（推移的関数依存排除）→ BCNF（ボイスコッド正規形）
@@ -44,7 +42,7 @@ skills:
 - **トランザクション設計**: ACID特性の保証。分離レベル（READ COMMITTED/REPEATABLE READ/SERIALIZABLE）の適切な選択
 - **PostgreSQL固有機能**: Functions・Stored Procedures・Triggers・JSONB型・partitioning・Row Level Security（RLS）
 
-### SQLアンチパターン回避（avoiding-sql-antipatterns）
+### SQLアンチパターン回避（developing-databases）
 
 - **論理設計アンチパターン**: Jaywalking（カンマ区切りリスト禁止・Junction Table使用）、Naive Trees（再帰的ツリー→CTEまたはClosure Table使用）、EAV（Entity-Attribute-Value）の危険性
 - **物理設計アンチパターン**: Float数値の精度問題（NUMERIC/DECIMAL推奨）、ENUM代わりのルックアップテーブル、インデックス過不足
@@ -52,7 +50,7 @@ skills:
 - **アプリケーション開発アンチパターン**: プリペアドステートメントなしのSQL（SQLインジェクション）、N+1クエリ問題（JOIN/IN句で解決）、接続管理（接続プーリング）
 - **25個の名前付きアンチパターン**: Bill Karwin著「SQLアンチパターン」に基づく検出シグナル・解決策・例外ケース
 
-### データベースインターナル（understanding-database-internals）
+### データベースインターナル（developing-databases）
 
 - **B-treeインデックス**: ページ構造・分割・マージアルゴリズム。クラスタリングインデックス vs 非クラスタリングインデックス。複合インデックスの列順
 - **LSM-tree（Log-Structured Merge-tree）**: MemTable + SSTable。Compaction戦略（Leveled/Size-tiered）。RocksDB/Cassandraのストレージ構造

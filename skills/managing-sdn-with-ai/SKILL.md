@@ -5,7 +5,8 @@ description: >-
   covering architecture patterns, SDN operations, security, infrastructure
   automation, and SD-WAN optimization. Use when designing, implementing,
   or operating AI-driven SDN/SD-WAN systems. For general network monitoring
-  patterns, use designing-monitoring instead.
+  patterns, use implementing-observability instead.
+disable-model-invocation: true
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -249,6 +249,8 @@ agent: Explore
 
 > **🔴 重要**: `disable-model-invocation: true` を設定すると、descriptionがコンテキストから**完全に除外**される。Claudeはそのスキルの存在すら認識しなくなるため、ユーザーが明示的に `/name` で呼び出した時のみ動作する。
 
+> **いつ設定すべきか**: 設定判断フローチャート・スキル統合基準・スキル数管理ガイドラインは [CONTEXT-MANAGEMENT.md](references/CONTEXT-MANAGEMENT.md) を参照。
+
 ## スキルのPermission制御
 
 `/permissions` でClaudeのスキルアクセスを制御できる:
@@ -715,6 +717,7 @@ AskUserQuestion(
 
 ### 利用状況レビュー
 - **[USAGE-REVIEW.md](references/USAGE-REVIEW.md)**: スキル利用状況レビュー・棚卸しガイド
+- **[CONTEXT-MANAGEMENT.md](references/CONTEXT-MANAGEMENT.md)**: Context圧迫防止（`disable-model-invocation` ベストプラクティス・スキル統合判断基準・スキル数管理ガイドライン）
 
 ## オープンスタンダード
 

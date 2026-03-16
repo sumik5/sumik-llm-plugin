@@ -10,7 +10,7 @@ description: >-
   skill map creation, and training material development.
   Use when designing training programs, facilitating workshops,
   creating training materials, building skill maps, or managing training operations.
-  For behavior design→applying-behavior-design. For presentation content→improving-presentations.
+  For behavior design→applying-behavior-design. For presentation content→creating-presentations.
   For design thinking process methodology (empathize/define/ideate/prototype/test)→practicing-design-thinking.
 ---
 

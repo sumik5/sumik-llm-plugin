@@ -7,6 +7,7 @@ description: >-
   or when non-engineers need to investigate codebases, synthesize research, or
   generate product artifacts. For AI-assisted code development methodology,
   use developing-with-ai instead.
+disable-model-invocation: true
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

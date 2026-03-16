@@ -13,6 +13,7 @@ description: >-
   frameworks, retention/expansion strategies, cross-functional collaboration, GenAI
   evaluation methods, prompt engineering fundamentals.
   For AI product UX design patterns (copilot UX, LLM patterns, AI input/output design, agentic AI), use designing-ai-experiences instead.
+disable-model-invocation: true
 ---
 
 Read INSTRUCTIONS.md

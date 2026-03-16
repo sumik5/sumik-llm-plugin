@@ -7,6 +7,7 @@ description: >-
   multi-team frontend architecture.
   For backend microservices patterns (Saga, granularity), use architecting-microservices instead.
   For socio-technical modernization strategy, use modernizing-architecture instead.
+disable-model-invocation: true
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

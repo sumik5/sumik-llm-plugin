@@ -5,6 +5,7 @@ description: >-
   Use when creating new agents, modifying existing agent definitions, or adding specialized Tachikoma variants.
   Self-updating: always fetches latest official docs (https://code.claude.com/docs/ja/sub-agents) first and improves its own content.
   For skill creation, use authoring-skills instead. For agent runtime behavior, see implementing-as-tachikoma.
+disable-model-invocation: true
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

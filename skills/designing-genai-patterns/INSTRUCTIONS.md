@@ -324,3 +324,61 @@ LLMの出力を直接制御するための基本パラメータ:
 | 自律コーディングエージェント | P21+P22+P13 | P18+P31+P25 |
 | コスト最適化LLMシステム | P24+P25+P26 | P27+P6 |
 | マルチエージェント教育コンテンツ | P23+P6+P17+P28 | P32+P25+P18 |
+
+---
+
+## RAGシステム構築
+
+RAG (Retrieval-Augmented Generation) の実装ガイド。企業データの約80%は非構造化データ（Word・PDF・Excel等）であり、RAGが必要な理由:
+
+1. Foundation Modelのコンテキストサイズ制限
+2. コストと応答時間の最適化
+3. 知識の鮮度（最新情報をリアルタイムで検索）
+4. ハルシネーション軽減（実データに基づく回答）
+
+### RAGアーキテクチャ概要
+
+```
+Indexingフェーズ:  Load Data → Split Text → Embeddings → Store (Vector DB)
+Runtimeフェーズ: User Question → Embed Query → Similarity Search → LLM Answer
+```
+
+### データ読み込みクイックリファレンス
+
+| ソース | 推奨ライブラリ | 用途 |
+|-------|-------------|------|
+| Word (.docx) | python-docx / unstructured | テキスト抽出・要素分類 |
+| PDF | PyPDF2 | テキスト+メタデータ抽出（シンプルなPDF） |
+| CSV/Excel | pandas + openpyxl | 行→テキスト変換・Text-to-SQL対応 |
+| Audio | OpenAI Whisper | Speech-to-Text変換 |
+| 画像(OCR) | Tesseract + pytesseract | テキスト中心の画像 |
+| 画像(Multimodal) | GPT-4o / Claude / Gemini | 図表・グラフ理解 |
+| 動画 | moviepy + Whisper + GPT-4o | フレーム抽出+音声文字起こし |
+
+詳細は [RAG-DATA-LOADING.md](references/RAG-DATA-LOADING.md) を参照。
+
+### チャンキング戦略の選定
+
+```
+ドキュメントの構造は？
+├── 構造なし（ログ）               → Character Splitting
+├── 段落・見出しあり              → Recursive Text Splitting（推奨デフォルト）
+├── Markdown/HTML/LaTeX          → Document-Aware Splitting
+├── 会話・音声文字起こし          → Semantic Chunking
+└── 複雑・長文・相互参照多        → Agentic Chunking（LLM活用）
+```
+
+チャンクサイズ推奨: 1,000-2,000 tokens、オーバーラップ: 10-20%
+
+詳細は [RAG-DATA-PREPARATION.md](references/RAG-DATA-PREPARATION.md) を参照。
+
+### よくある落とし穴
+
+- ❌ 一律の小さなチャンクサイズ → ✅ ドキュメント構造を考慮した適切な分割
+- ❌ メタデータなし → ✅ 日付・カテゴリ・著者等でフィルタリング可能に
+- ❌ ベクトル検索のみ → ✅ ベクトル + メタデータフィルタ + キーワードのハイブリッド
+- ❌ 感覚的な評価のみ → ✅ Precision・Recall・MRR等の定量的指標
+
+### ユーザー確認が必要な場面
+
+RAGフレームワーク選択（LangChain/LlamaIndex/カスタム）、ベクトルストア選択（pgvector/Pinecone/Chroma等）、Embedding model選択、クラウドAPI vs ローカルモデルはAskUserQuestionで確認してください。

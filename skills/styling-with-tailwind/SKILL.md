@@ -6,7 +6,7 @@ description: >-
   migration strategies, and design system construction with design tokens.
   Use when styling web applications with Tailwind CSS or making CSS architecture decisions.
   For frontend code generation with shadcn/ui and Storybook, use designing-frontend instead.
-  For general UI/UX design principles, use applying-design-guidelines instead.
+  For general UI/UX design principles, use designing-ux instead.
   For design system strategy beyond CSS (pattern language, organizational adoption, UI pattern catalog, measurement), use building-design-systems instead.
 ---
 

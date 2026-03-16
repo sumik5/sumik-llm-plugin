@@ -5,6 +5,7 @@ description: >-
   Use when implementing components, APIs, system designs, tests, bug fixes, or optimizations
   with structured problem-solving approach.
   Available for Claude Code本体 and all Agents including Tachikoma.
+disable-model-invocation: true
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

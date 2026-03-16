@@ -5,6 +5,7 @@ description: >-
   (size limits, progressive disclosure, essential elements, living documentation).
   Use when starting new projects, reviewing existing CLAUDE.md, or when Claude repeatedly
   makes the same mistakes. For skill file authoring, use authoring-skills instead.
+disable-model-invocation: true
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

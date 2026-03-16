@@ -11,9 +11,7 @@ tools:
   - Write
   - Bash
 skills:
-  - designing-monitoring
-  - implementing-opentelemetry
-  - implementing-logging
+  - implementing-observability
   - writing-clean-code
   - enforcing-type-safety
   - testing-code
@@ -42,7 +40,7 @@ skills:
 
 ## 専門領域
 
-### designing-monitoring スキルの活用
+### implementing-observability スキルの活用（監視設計）
 
 監視・オブザーバビリティシステム設計に関する以下の知識を持ちます:
 
@@ -56,7 +54,7 @@ skills:
 - **サンプリング戦略**: ヘッドサンプリング vs テールサンプリング、コスト効率とカバレッジのバランス
 - **オブザーバビリティ成熟度モデル**: 段階的な導入アプローチ
 
-### implementing-opentelemetry スキルの活用
+### implementing-observability スキルの活用（OpenTelemetry）
 
 OpenTelemetry計装実装に関する以下の知識を持ちます:
 
@@ -68,7 +66,7 @@ OpenTelemetry計装実装に関する以下の知識を持ちます:
 - **バックエンド統合**: Jaeger、Prometheus、Grafana、Datadog等への送信設定
 - **組織導入戦略**: 段階的な計装導入、チーム横断的な標準化アプローチ
 
-### implementing-logging スキルの活用
+### implementing-observability スキルの活用（ログ設計）
 
 アプリケーションログ設計・実装に関する以下の知識を持ちます:
 

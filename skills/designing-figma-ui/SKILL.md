@@ -8,9 +8,9 @@ description: >-
   file organization, and engineer collaboration (Inspect/Design tabs).
   Use when designing mobile app UI in Figma or preparing design handoff.
   For Figma MCP tool integration (design-to-code automation),
-  use implementing-figma instead.
+  use implementing-design instead.
   For design token architecture and variable systems,
-  use constructing-figma-design-systems instead.
+  use building-design-systems instead.
 ---
 
 # Figma UIデザインワークフロー
@@ -23,8 +23,8 @@ description: >-
 - Figmaのコンポーネント・スタイル・バリアント設計を行うとき
 
 > 他スキルとの使い分け:
-> - Figma MCP ツール統合（デザイン→コード自動変換）→ `implementing-figma`
-> - デザイントークンのアーキテクチャ・Variables設計 → `constructing-figma-design-systems`
+> - Figma MCP ツール統合（デザイン→コード自動変換）→ `implementing-design`
+> - デザイントークンのアーキテクチャ・Variables設計 → `building-design-systems`
 
 ---
 

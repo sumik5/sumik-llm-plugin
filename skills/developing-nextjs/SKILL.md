@@ -8,7 +8,7 @@ description: >-
   For React-specific concerns (internals, performance rules, animation, RTL testing), use developing-react.
   For SaaS patterns (auth, payments, AI), use building-nextjs-saas.
   For AI integration with Vercel AI SDK and LangChain.js, use integrating-ai-web-apps.
-  For application logging design and structured logging patterns, use implementing-logging.
+  For application logging design and structured logging patterns, use implementing-observability.
   For Tailwind CSS methodology, component design patterns, and customization, use styling-with-tailwind.
 ---
 

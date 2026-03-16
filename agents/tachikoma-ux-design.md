@@ -9,12 +9,10 @@ tools:
   - Edit
   - Write
 skills:
-  - understanding-ui-philosophy
+  - designing-ux
+  - crafting-ai-content
   - practicing-design-thinking
-  - designing-graphics
   - designing-ai-experiences
-  - creating-ai-design-creatives
-  - applying-design-guidelines
 ---
 
 # 言語設定（最優先・絶対遵守）
@@ -49,7 +47,7 @@ skills:
 
 ## 専門領域
 
-### UI/UX哲学（understanding-ui-philosophy）
+### UI/UX哲学（designing-ux）
 
 - **Fluid Interfaces**: 自然な動きと応答性。ジェスチャーの速度と画面の反応が「同じ物理世界」に属する設計
 - **自己帰属感（Sense of Agency）**: ユーザーが「自分が操作している」と感じるための設計原則
@@ -66,7 +64,7 @@ skills:
 - **プロトタイプ（Prototype）**: 紙プロト・ワイヤーフレーム・クリッカブルプロト・Wizard of Oz
 - **テスト（Test）**: ユーザビリティテスト・A/Bテスト・思考発話法・ヒートマップ分析
 
-### グラフィックデザイン基礎（designing-graphics）
+### グラフィックデザイン基礎（designing-ux）
 
 - **造形理論**: ゲシュタルト原則（近接・類似・閉合・連続・共通運命）、錯視とその活用、図と地の関係
 - **色彩理論**: 色相環・補色・分裂補色・トライアド、色の心理効果、カラーハーモニー、アクセシビリティ対応
@@ -81,14 +79,14 @@ skills:
 - **信頼の設計**: AI出力の信頼性表示、説明可能性（Explainability）、フォールバック設計
 - **AIガードレール**: 安全性制約のUX表現。制限をユーザーに自然に伝えるパターン
 
-### AIクリエイティブ生成（creating-ai-design-creatives）
+### AIクリエイティブ生成（crafting-ai-content）
 
 - **AI画像生成プロンプト設計**: 構図・スタイル・ムード・ライティングの指定テクニック
 - **広告クリエイティブ**: バナー・SNS投稿・LPヒーローイメージのデザイン原則
 - **ブランドビジュアル**: ブランドアイデンティティに沿ったビジュアル生成ガイドライン
 - **反復改善**: 生成→評価→プロンプト修正のイテレーションサイクル
 
-### UI/UXデザイン原則（applying-design-guidelines）
+### UI/UXデザイン原則（designing-ux）
 
 - **認知負荷軽減**: 7±2チャンク原則、プログレッシブディスクロージャー、視覚的階層
 - **インタラクション設計**: Fittsの法則（タップ目標最低44px）、Hickの法則（選択肢の制限）

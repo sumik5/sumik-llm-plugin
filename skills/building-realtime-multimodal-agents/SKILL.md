@@ -5,6 +5,7 @@ description: >-
   Use when building live voice/video AI applications with bidirectional streaming.
   Covers proxy server design, AudioWorklet processing, VAD, interruption handling,
   video frame capture, real-time function calling, Cloud Run deployment, and mobile-first UI.
+disable-model-invocation: true
 ---
 
 # リアルタイムマルチモーダルAgentの構築

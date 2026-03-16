@@ -5,9 +5,8 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - developing-fullstack-javascript
-  - designing-web-apis
-  - developing-api-spec-first
-  - implementing-logging
+  - developing-web-apis
+  - implementing-observability
   - writing-clean-code
   - enforcing-type-safety
   - testing-code

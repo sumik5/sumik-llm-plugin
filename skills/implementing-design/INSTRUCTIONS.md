@@ -154,6 +154,114 @@ When in doubt, defer to the project's established design system patterns. The de
 
 ## Related Skills
 
-- [`implementing-figma`](../implementing-figma/) — Figma MCP統合ワークフロー（get_design_context・Code Connect・デザイントークン同期）
 - [`applying-design-guidelines`](../applying-design-guidelines/) — UI/UXデザイン理論と原則
 - [`designing-frontend`](../designing-frontend/) — フロントエンドUIコード生成（shadcn/ui・Storybook）
+- [`building-design-systems`](../building-design-systems/) — デザインシステム設計・ガバナンス・Figma変数/トークン実装
+
+---
+
+## Figma MCP統合
+
+Figma MCPを使ったデザイン→コード変換の包括的ワークフロー。基本変換からFigma Make統合・Code Connect・Design System Rules・デザイントークン同期まで対応。
+
+### 基本ワークフロー（Step 1-7）
+
+**すべてのFigma→コード変換の基本フロー。順番を守って実行すること。**
+
+#### Step 1: Node ID の取得
+
+```
+URL: https://figma.com/design/:fileKey/:fileName?node-id=1-2
+→ fileKey: `/design/` 以降のセグメント
+→ nodeId: `node-id` クエリパラメータの値（例: `42-15`）
+```
+
+#### Step 2: デザインコンテキスト取得
+
+```
+get_design_context(fileKey=":fileKey", nodeId="1-2")
+```
+
+レスポンスが切り捨てられた場合: `get_metadata` でノードマップ取得 → 子ノードIDを特定 → `get_design_context` を子ノードごとに個別実行
+
+#### Step 3: ビジュアル参照取得
+
+```
+get_screenshot(fileKey=":fileKey", nodeId="1-2")
+```
+
+スクリーンショットが視覚的検証の唯一の正解。実装中は常に参照すること。
+
+#### Step 4-6: アセット・変換・パリティ
+
+- Figma MCPが返す `localhost` ソースのアセットはそのまま使用
+- Figma MCPの出力（React + Tailwind）はデザイン意図の表現。最終コードとしてそのまま使わずプロジェクト規約へ変換
+- ハードコード値を避けてデザイントークンを使用
+
+#### Step 7: バリデーション
+
+- [ ] レイアウト・タイポグラフィ・カラー一致
+- [ ] インタラクティブ状態（ホバー・アクティブ・無効）
+- [ ] レスポンシブ動作・アセット描画・アクセシビリティ
+
+### Figma MCP 全13ツール一覧
+
+| ツール | 対応環境 | 機能・用途 |
+|--------|---------|-----------|
+| `get_design_context` | リモート/デスクトップ | React+TailwindでFigmaフレームのコード生成 |
+| `get_variable_defs` | **デスクトップのみ** | 色・スペーシング・タイポグラフィの変数・スタイル抽出 |
+| `get_code_connect_map` | **デスクトップのみ** | FigmaノードID↔コードコンポーネントのマッピング取得 |
+| `add_code_connect_map` | **デスクトップのみ** | 新しいFigmaノード↔コードコンポーネントのマッピング追加 |
+| `get_code_connect_suggestions` | **デスクトップのみ** | 未マッピングFigmaコンポーネントへのコードマッピング提案 |
+| `send_code_connect_mappings` | **デスクトップのみ** | Code Connectマッピングの確認・送信 |
+| `get_screenshot` | リモート/デスクトップ | 選択範囲のスクリーンショット取得 |
+| `get_metadata` | リモート/デスクトップ | レイヤーID・名前・種類・位置・サイズのXML表現 |
+| `create_design_system_rules` | リモート/デスクトップ | コード生成一貫性のためのデザインシステムルールファイル生成 |
+| `get_figjam` | リモート/デスクトップ | FigJamダイアグラムのXML変換 |
+| `generate_diagram` | リモート/デスクトップ | Mermaid→FigJamダイアグラム生成 |
+| `generate_figma_design` | **リモートのみ** | UIをFigmaに送信（新規/既存/クリップボード） |
+| `whoami` | **リモートのみ** | 認証済みユーザー情報・権限確認 |
+
+### Code Connect 統合
+
+```
+1. get_code_connect_map でマッピング取得
+2. マッピング済み → 既存コンポーネントを import して再利用（新規作成禁止）
+3. 未マッピング → get_code_connect_suggestions で提案取得
+4. 実装後に add_code_connect_map でマッピング追加
+```
+
+### Design System Rules 生成
+
+```
+1. create_design_system_rules を実行（fileKey + デザインシステムページの nodeId を指定）
+2. プロジェクトルートに保存: .mcp/design-system-rules.txt
+3. get_design_context 呼び出し時にルールをプロンプトに含める
+```
+
+### デザイントークン同期ワークフロー
+
+`get_variable_defs` を使ったFigma Variables→コード変数の同期（デスクトップ環境必須）。
+
+| フェーズ | 内容 |
+|---------|------|
+| Phase 1: 準備 | 同期対象（JSONのみ/Typographyのみ/両方）・更新ファイル（globals.css/tailwind.config.ts）を確認 |
+| Phase 2: データ解析 | `get_variable_defs` で全Figma変数取得 → Primitive/Semantic/Font Familyに分類 |
+| Phase 3: データ変換 | 変数名: `Semantic/TextAndIcon/Heading` → `--semantic-text-icon-heading`。色: RGB→HSL |
+| Phase 4: 更新提案 | サンプル定義をユーザーに提示 → **ユーザー承認後**に本番適用 |
+| Phase 5: ファイル更新 | globals.css・tailwind.config.ts の更新 → prettier/biome フォーマット |
+
+### 接続設定
+
+| 環境 | エンドポイント |
+|------|--------------|
+| リモート（Claude Code） | `https://mcp.figma.com/mcp` |
+| デスクトップ | `http://127.0.0.1:3845/mcp` |
+
+接続確認: `whoami()` で認証済みユーザー情報を取得して確認する。
+
+### Figmaユーザー確認の原則
+
+確認すべき場面: ターゲットフレームワーク・コンポーネント粒度・デザイントークン同期対象・Code Connect候補複数の場合
+
+確認不要な場面: Figmaのカラー/フォント/スペーシングの忠実な再現・セマンティックHTMLの使用・CSS変数名変換規則（`/` → `-`）

@@ -8,8 +8,8 @@ description: >-
   implementing caching for enterprise systems.
   For microservices patterns (Saga, granularity), use architecting-microservices instead.
   For DDD domain modeling, use applying-domain-driven-design instead.
-  For database engine internals, use understanding-database-internals instead.
-  For relational DB schema design, use designing-relational-databases instead.
+  For database engine internals, use developing-databases instead.
+  For relational DB schema design, use developing-databases instead.
   For GCP-specific data services (BigQuery, Dataflow, Dataproc), use developing-google-cloud instead.
 ---
 

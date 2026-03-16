@@ -8,9 +8,9 @@ description: >-
   Use when designing infrastructure architecture, choosing deployment strategies,
   setting up CI/CD, or adopting DevOps practices incrementally.
   For Terraform-specific HCL/module development, use developing-terraform instead.
-  For Docker container operations, use managing-docker instead.
-  For monitoring system design, use designing-monitoring instead.
-  For application logging strategy and log pipeline architecture, use implementing-logging.
+  For Docker container operations, use managing-containers instead.
+  For monitoring system design, use implementing-observability instead.
+  For application logging strategy and log pipeline architecture, use implementing-observability.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

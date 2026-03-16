@@ -294,3 +294,76 @@ DS構築・支援の際にユーザーに確認すべき判断ポイント:
 | アンチパターン・Design Smell識別 | [ANTI-PATTERNS.md](references/ANTI-PATTERNS.md) |
 | 組織導入・ステークホルダー説得 | [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md) |
 | 実装・パターンライブラリ・測定 | [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) |
+| Figmaデザイントークン詳細設計 | [FIGMA-DESIGN-TOKENS.md](references/FIGMA-DESIGN-TOKENS.md) |
+| Figmaパターンライブラリ構築 | [FIGMA-PATTERN-LIBRARY.md](references/FIGMA-PATTERN-LIBRARY.md) |
+| FigmaとコードのCI/CD連携 | [FIGMA-CODE-INTEGRATION.md](references/FIGMA-CODE-INTEGRATION.md) |
+
+---
+
+## Figmaデザインシステム構築
+
+FigmaのVariables・デザイントークン・コンポーネントを使ったデザインシステム実装ガイド。
+
+> **理論・ガバナンス・組織戦略は上記の各セクションを参照。本セクションはFigma実装の実践手順。**
+
+### ファイル分割の段階
+
+```
+Stage 1: モノリシック（1ファイルにすべて・小規模・スタート時）
+Stage 2: ライブラリ分離（Library + Design ファイル）
+Stage 3: モジュール化（Foundation / Components / Patterns / Design Files）
+```
+
+チーム規模（デザイナー人数・プロジェクト数）に応じてStageを選択する。
+
+### デザイントークン3層構造
+
+```
+Primitive（プリミティブ）: 生の値。例: blue-500 = #3B82F6
+    ↓ 参照
+Theme/Alias（テーマ）: ブランド・テーマ別エイリアス
+    ↓ 参照
+Semantic（セマンティック）: 用途ベース。例: color/background/default
+```
+
+- **2層（Primitive + Semantic）**: シンプルで小規模向け
+- **3層（Primitive + Theme/Alias + Semantic）**: テーマ切替・ブランド複数対応向け
+
+詳細は [FIGMA-DESIGN-TOKENS.md](references/FIGMA-DESIGN-TOKENS.md) 参照。
+
+### カラーシステム実装手順
+
+1. `_PrimitiveColor` コレクション作成 → 全カラー値を登録
+2. `_ThemeColor` コレクション作成 → プリミティブを参照するエイリアスを登録
+3. `SemanticColor` コレクション作成（Light / Darkモードあり）→ テーマカラーを参照
+4. コレクション名先頭の `_` で非公開設定（内部実装の隠蔽）
+
+**アクセシビリティ**: セマンティックカラーのテキスト/背景の組み合わせで WCAG 2.1 AA（4.5:1以上）を確認。
+
+**ダークモード**: 後から追加する場合でも最初から用途ベースの名前にしておくこと（例: `color/background/default`）。
+
+### タイポグラフィシステム
+
+- フォントサイズは9段階（`font-size/10`〜`font-size/90`）を基本
+- コンポジットタイポグラフィトークン（`typography/{context}/{size}/{weight}`）をFigmaのテキストスタイルとして登録
+- スタイル名をコード側のトークン名と一致させる
+
+### コンポーネント優先順位
+
+1. **アトム**: ボタン・入力・テキスト・アイコン（最頻出）
+2. **モレキュール**: フォームグループ・カード・ナビゲーションアイテム
+3. **オーガニズム**: ヘッダー・サイドバー・モーダル・テーブル
+4. **テンプレート**: ページレイアウトの雛形
+
+### コード連携
+
+| 方法 | 規模 |
+|------|------|
+| 手動エクスポート | 小規模・シンプル |
+| Figmaプラグイン自動同期（Tokens Studio等） | 中規模 |
+| Figma REST APIを使ったCI/CD連携 | 大規模 |
+
+- **Storybook統合**: デザイントークンのリファレンスページをStorybookのDocsとして追加
+- **変更管理**: デザイン変更（Figma）とコード変更（PR）は対になることを明示
+
+詳細は [FIGMA-CODE-INTEGRATION.md](references/FIGMA-CODE-INTEGRATION.md) 参照。

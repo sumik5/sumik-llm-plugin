@@ -7,13 +7,13 @@ description: >-
   CDN, Traffic Director), and Memorystore (Redis/Memcached, cache patterns, resilience).
   MUST load when Dockerfile is detected with google-cloud packages, when cloudbuild.yaml is present,
   or when working with BigQuery, Dataflow, Dataproc, Cloud Interconnect, or Memorystore.
-  For Docker-specific patterns, use managing-docker instead.
-  For general monitoring design, use designing-monitoring instead.
+  For Docker-specific patterns, use managing-containers instead.
+  For general monitoring design, use implementing-observability instead.
   For code-level security (OWASP, CodeGuard), use securing-code instead.
   For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
   For AWS development, use developing-aws instead.
   For serverless security (GCS hacking, Cloud Run abuse), use securing-serverless instead.
-  For application logging, use implementing-logging.
+  For application logging, use implementing-observability.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

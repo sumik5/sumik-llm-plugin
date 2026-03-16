@@ -10,9 +10,9 @@ description: >-
   and cloud migration strategies (7R, AWS MGN, database migration).
   MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in package.json,
   cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), or eksctl configs.
-  For GCP→developing-google-cloud, Terraform→developing-terraform, Docker→managing-docker,
-  monitoring→designing-monitoring, RAG→building-rag-systems, LLMOps→practicing-llmops,
-  serverless security→securing-serverless, logging→implementing-logging.
+  For GCP→developing-google-cloud, Terraform→developing-terraform, Docker→managing-containers,
+  monitoring→implementing-observability, RAG→designing-genai-patterns, LLMOps→practicing-llmops,
+  serverless security→securing-serverless, logging→implementing-observability.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -220,3 +220,50 @@ AskUserQuestion(
 | Modernization Strategy Selector | 実行 | サブシステム別戦略選択 | references/TECHNICAL-MODERNIZATION.md |
 | Domain Message Flow Modeling | 実行 | アーキテクチャフローの設計 | references/TECHNICAL-MODERNIZATION.md |
 | Strategy Deck | 持続 | ナラティブ構築・ステークホルダー説得 | references/EXECUTION-STRATEGY.md |
+
+---
+
+## トレードオフ分析
+
+ソフトウェア設計における意思決定は常にトレードオフを伴う。「正解」は存在せず、**コンテキストによって最適解が変わる**。
+
+### 意思決定前の確認軸
+
+| 確認軸 | 問い |
+|--------|------|
+| **規模** | チーム人数・コードベースの大きさ・トラフィック量 |
+| **SLA要件** | 可用性・レイテンシ・整合性の要件レベル |
+| **変化速度** | 機能追加頻度・チームの拡大予測 |
+| **リソース制約** | 開発時間・運用コスト・技術スタック習熟度 |
+
+### 多軸評価の観点
+
+- **パフォーマンス**: レイテンシ・スループット・リソース消費
+- **保守性**: コード変更コスト・テスト容易性・デバッグしやすさ
+- **複雑性**: 認知負荷・依存関係数・障害点の数
+- **結合度**: 変更の波及範囲・独立デプロイ可能性
+
+### 頻出トレードオフ一覧
+
+| トピック | コアトレードオフ | 参照 |
+|---------|----------------|------|
+| コード重複 | 疎結合 vs DRY原則 | [TRADEOFF-CODE-DUPLICATION.md](references/TRADEOFF-CODE-DUPLICATION.md) |
+| 例外処理 | 検査例外 vs 非検査例外 vs 関数型 | [TRADEOFF-ERROR-HANDLING.md](references/TRADEOFF-ERROR-HANDLING.md) |
+| 柔軟性 | 拡張性 vs 複雑性・理解コスト | [TRADEOFF-FLEXIBILITY-COMPLEXITY.md](references/TRADEOFF-FLEXIBILITY-COMPLEXITY.md) |
+| 最適化タイミング | 早期最適化 vs SLA駆動最適化 | [TRADEOFF-OPTIMIZATION.md](references/TRADEOFF-OPTIMIZATION.md) |
+| API設計 | UXフレンドリー vs メンテナンスコスト | [TRADEOFF-API-USABILITY.md](references/TRADEOFF-API-USABILITY.md) |
+| 日時データ | ローカル時刻 vs UTC vs タイムゾーン対応 | [TRADEOFF-DATETIME.md](references/TRADEOFF-DATETIME.md) |
+| データローカリティ | 処理をデータに近づける vs 柔軟な分散 | [TRADEOFF-DATA-LOCALITY.md](references/TRADEOFF-DATA-LOCALITY.md) |
+| 分散一貫性 | 強整合性 vs 結果整合性 | [TRADEOFF-CONSISTENCY-ATOMICITY.md](references/TRADEOFF-CONSISTENCY-ATOMICITY.md) |
+| 配信セマンティクス | at-least-once vs exactly-once | [TRADEOFF-DATA-DELIVERY.md](references/TRADEOFF-DATA-DELIVERY.md) |
+| バージョン管理 | 前方互換 vs 破壊的変更 | [TRADEOFF-VERSIONING.md](references/TRADEOFF-VERSIONING.md) |
+| ライブラリ選定 | 外部依存 vs 自前実装 | [TRADEOFF-THIRD-PARTY-LIBS.md](references/TRADEOFF-THIRD-PARTY-LIBS.md) |
+| トレンド追従 | 新技術採用 vs 安定性・メンテナンスコスト | [TRADEOFF-TRENDS-AND-PARADIGMS.md](references/TRADEOFF-TRENDS-AND-PARADIGMS.md) |
+
+### ユーザー確認が必要な場面
+
+以下のいずれかに該当する場合は、実装前にAskUserQuestionで確認する:
+
+1. **コンテキスト情報が不明**: チーム規模・SLA・トラフィック規模が不明な場合
+2. **複数の有効な選択肢が並立**: どちらも合理的でコンテキスト次第な場合
+3. **後から変更が困難**: APIの公開・データスキーマ設計・アーキテクチャ分割のような後戻りコストが高い決断

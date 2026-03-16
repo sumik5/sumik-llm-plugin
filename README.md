@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (107個)
+└── skills/             # ナレッジスキル (84個)
 ```
 
 ---
@@ -83,7 +83,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (107個)
+### Skills (84個)
 
 #### コア開発
 
@@ -94,7 +94,6 @@ sumik-claude-plugin/
 | `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・ソフトウェアデザインの法則含む25カテゴリのコードスメル検出・リファクタリング） |
 | `enforcing-type-safety` | 型安全性強制（any禁止） |
 | `testing-code` | テストファースト（Vitest/Playwright）。RTL固有は`developing-react`参照 |
-| `testing-web-apis` | Web APIテスト戦略（設計テスト・探索テスト・コントラクトテスト・自動化・パフォーマンス・セキュリティ・本番モニタリング） |
 | `conducting-ab-tests` | A/Bテスト・オンラインコントロール実験（実験設計・統計分析・OEC・信用性検証・実験プラットフォーム・実験文化） |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
@@ -106,35 +105,28 @@ sumik-claude-plugin/
 | `applying-semantic-versioning` | SemVer 2.0.0仕様準拠バージョン判断ガイド（MAJOR/MINOR/PATCH判定・プレリリース・範囲指定・よくある誤り） |
 | `writing-conventional-commits` | Conventional Commits 1.0.0準拠コミットメッセージガイド（type/scope/BREAKING CHANGE判定・SemVer連携） |
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
-| `using-codex` | Codex CLI（OpenAI）連携（コード相談・レビュー・設計相談・バグ調査） |
-| `reviewing-plans-with-codex` | 固定ラッパースクリプト経由の Codex プランファイルレビュー（初回レビュー＋resume再レビュー） |
+| `using-codex` | Codex CLI（OpenAI）統合スキル。コード相談・プランレビュー・Wave並列Agentオーケストレーション・Claude Code→Codex Agent変換（単体/フォルダ一括）を網羅 |
 | `reviewing-code` | コードレビュー方法論（PRの構成・効果的なコメント技法・TWA・アンチパターン対策） |
-| `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodexマルチエージェント形式（config.toml + agent .toml）に変換。フォルダ指定で一括変換・差分更新対応 |
+| `developing-databases` | DB設計・SQLアンチパターン・DB内部構造を統合した包括的データベース開発ガイド（リレーショナルDB設計・正規化・PostgreSQL・25のSQLアンチパターン・Bツリー/LSMストレージエンジン・分散システム・合意アルゴリズム） |
 
 #### アーキテクチャ
 
 | スキル | 説明 |
 |--------|------|
 | `applying-domain-driven-design` | DDD実践ガイド（戦略的設計・戦術的パターン・イベントストーミング・業務データ分解・ポリグロットDB選択） |
-| `modernizing-architecture` | Socio-technicalアーキテクチャモダナイゼーション（戦略・ドメイン設計・チーム組織・トレードオフ分析方法論） |
-| `designing-web-apis` | Web API設計ベストプラクティス |
-| `developing-api-spec-first` | API仕様ファースト開発方法論（仕様記述・E2Eテストフレームワーク・技術的負債返済・防御的プログラミング） |
+| `modernizing-architecture` | Socio-technicalアーキテクチャモダナイゼーション＋トレードオフ分析（戦略・ドメイン設計・チーム組織・コード/API/分散システム/メタ判断の12カテゴリトレードオフ方法論） |
+| `developing-web-apis` | Web API開発統合ガイド（API設計ベストプラクティス・Spec First開発方法論・APIテスト戦略）。エンドポイント設計・HTTPスペック・バージョニング・セキュリティ・コントラクトテスト・自動化を網羅 |
 | `building-multi-tenant-saas` | マルチテナントSaaSアーキテクチャ設計ガイド |
 | `building-nextjs-saas` | Next.js AI SaaSアプリ構築パターン（認証・決済・AI API・クレジット課金） |
 | `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
 | `architecting-microservices` | マイクロサービスアーキテクチャパターン設計（CQRS・Event Sourcing・8種のSaga・分散トランザクション・サービス粒度・データ所有権・ワークフロー・コントラクト・メッセージング・レジリエンス・セキュリティ） |
 | `architecting-micro-frontends` | マイクロフロントエンドアーキテクチャ（垂直/水平分割、Module Federation/iframe/Web Components/SSR/ESI構成パターン、意思決定フレームワーク、組織導入） |
-| `understanding-database-internals` | データベース内部構造の包括的リファレンス。ストレージエンジン（Bツリー、LSMツリー、トランザクション）、分散システム（合意アルゴリズム、レプリケーション、一貫性モデル）、DB選択・設計ガイドをカバー |
-| `avoiding-sql-antipatterns` | SQLアンチパターン回避（論理設計・物理設計・クエリ・アプリ開発の25パターン） |
-| `designing-relational-databases` | リレーショナルDB設計ガイド（エンティティモデリング・ER図・正規化1NF-BCNF・インデックス・非正規化・PostgreSQL実装: マイクロサービスアーキテクチャ・ACID/トランザクション・関数/プロシージャ・AAAセキュリティ） |
 | `applying-behavior-design` | 行動変容デザイン（CREATEファネル、3戦略）|
 | `applying-clean-architecture` | Clean Architecture原則（依存性ルール・同心円モデル・コンポーネント原則・境界設計・アンチパターン） |
 | `building-green-software` | グリーンソフトウェアエンジニアリング（カーボン効率・運用効率・カーボンアウェアネス・測定方法論・GSMM・グリーンAI） |
-| `building-rag-systems` | RAGシステム構築ガイド（11種データソース読み込み・5種チャンキング戦略・パイプラインアーキテクチャ・Python実装） |
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
 | `practicing-llmops` | LLMOps/AgentOps運用フレームワーク（データ・モデル適応・API・評価・セキュリティ・スケーリング・AgentOps（MLOps→GenAIOps→AgentOps進化）・Tool Registry・Agent Registry（AgentCard/A2A）・Memory & Data Governance） |
-| `analyzing-software-tradeoffs` | ソフトウェア設計トレードオフ分析（コードレベル: 重複・例外処理・柔軟性・最適化、API: 使いやすさ・バージョニング、分散システム: 一貫性・配信セマンティクス、メタ判断: ライブラリ選定・トレンド評価・日時データ・12リファレンスファイル） |
-| `designing-genai-patterns` | 32のGenAIデザインパターン（コンテンツ制御・RAG・モデル能力拡張・信頼性・エージェント・デプロイ最適化・安全ガードレール） |
+| `designing-genai-patterns` | 32のGenAIデザインパターン（コンテンツ制御・RAG・モデル能力拡張・信頼性・エージェント・デプロイ最適化・安全ガードレール）＋RAGシステム実装（11種データソース・5種チャンキング戦略・パイプライン） |
 
 #### フレームワーク
 
@@ -158,20 +150,16 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `building-design-systems` | デザインシステム構築・運用方法論（システム基礎・パターン分類・組織戦略・パターンライブラリ・UIパターンカタログ20+） |
-| `constructing-figma-design-systems` | Figmaバリアブル・デザイントークン・コンポーネントによるデザインシステム実践構築（トークン3層階層・カラーシステム・タイポグラフィ・パターンライブラリ・Style Dictionary/Storybook連携） |
-| `applying-design-guidelines` | UI/UXデザイン設計（視覚デザイン・認知心理学・実践的UIルール101・ユーザビリティ3要因モデル・デザインマインドセット5テーマ） |
+| `building-design-systems` | デザインシステム構築・運用・Figma実装方法論（DS基礎・パターン分類・組織戦略・UIパターンカタログ20+・Figmaバリアブル/デザイントークン3層階層・カラーシステム・タイポグラフィ・Style Dictionary/Storybook連携） |
+| `designing-ux` | UI/UX・グラフィックデザイン・インターフェイス哲学を統合したデザイン総合スキル（UIデザインガイドライン101ルール・認知心理学・グラフィック基礎: 造形/色彩/タイポグラフィ/レイアウト・Fluid Interfaces・自己帰属感・モーション理論・Experiencability） |
+| `crafting-ai-content` | AIコンテンツ制作統合スキル（AIコピーライティング: 15の心理的プロンプトテクニック・マーケティングコピー/広告見出し/SNS投稿 ＋ AI画像生成クリエイティブ: バナー/SNS/ポスター向け51テンプレート） |
 | `designing-ai-experiences` | AI体験設計フレームワーク（メンタルモデル・3チャネル入力設計・処理/レイテンシーUX・出力5原則・5 Agenticパターン・ストーリーボード・Value Matrix・Copilot配置・7 LLMパターン・AI-First IA・Forecasting/Anomaly Detection UI・MUSE/RITE・AI倫理） |
 | `developing-storybook` | Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルリグレッション・Next.js統合・MSWモック） |
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合） |
-| `implementing-design` | Figmaデザイン→コード |
-| `implementing-figma` | Figma MCP統合・基本/高度ワークフロー・Code Connect・デザイントークン同期 |
+| `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証） |
 | `designing-figma-ui` | Figma UIデザインワークフロー（ワイヤーフレーム→プロトタイプ→詳細デザイン→ハンドオフ・Auto Layout・コンポーネント/バリアント・カラー/テキストスタイル・ダークモード・UIスタック5状態・エンジニア協業） |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
-| `designing-graphics` | グラフィックデザイン基礎（造形理論・色彩理論・タイポグラフィ・レイアウト構成・ゲシュタルト心理学・配色セオリー・グリッドシステム・視線誘導） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
-| `creating-ai-design-creatives` | AI画像生成プロンプトと広告クリエイティブ制作（バナー・SNS・ポスター向け51テンプレート・6カテゴリ、デザイン4原則・フォント・色彩・ツール調整） |
-| `understanding-ui-philosophy` | インターフェイス哲学（Fluid Interfaces・自己帰属感・モーション4分類・制約設計・Experiencability・exUI・ウェルビーイング設計の「なぜそうデザインすべきか」WHY体系、43のIf X then Yルール、8リファレンスファイル） |
 
 #### ブラウザ自動化・E2Eテスト
 
@@ -184,14 +172,11 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `designing-monitoring` | 監視・オブザーバビリティシステム設計（アンチパターン、デザインパターン、レイヤー別戦略、テレメトリーパイプライン、アラート・オンコール・インシデント管理、オブザーバビリティ概念、SLO、サンプリング戦略、成熟度モデル） |
+| `implementing-observability` | オブザーバビリティ統合ガイド（監視設計: アンチパターン・6層戦略・SLO・テレメトリーパイプライン・成熟度モデル ＋ OpenTelemetry実装: トレース/メトリクス/ログAPI・Collector・セマンティック規則 ＋ ログ設計: 構造化ログ・収集パイプライン・AI/ML分析・セキュリティ） |
 | `developing-aws` | AWS開発包括ガイド（システム設計・CDP57パターン・VPCアーキテクチャ・エンタープライズ基盤・14業務システム・移行戦略・サーバーレス・CDK・EKS・SRE運用・FinOps/CCoE・セキュリティ・Bedrock GenAI・32リファレンスファイル） |
 | `developing-google-cloud` | Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク・キャッシング包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ深掘り: IAM・VPC・KMS・DLP・SCC・DevSecOps CI/CD・Zero Trust/BeyondCorp・Anthos・Incident Response + データエンジニアリング + ネットワークエンジニアリング: VPC設計・ハイブリッド接続・LB/CDN・ネットワーク監視・Traffic Director/Service Mesh + Memorystore: マネージドRedis/Memcachedキャッシング・パフォーマンスエンジニアリング・レジリエンス・32リファレンスファイル） |
-| `managing-docker` | Docker包括的ガイド（Engine内部、ネットワーク、ボリューム、セキュリティ、AI/Wasm、開発ワークフロー、DB連携、監視/ログ、デプロイ戦略含む・14リファレンスファイル） |
-| `managing-podman` | Podman daemonlessコンテナ管理（rootless、Buildah、Skopeo、Quadlet/systemd統合、Kubernetes YAML生成・実行、Docker移行、Podman AI Lab・14リファレンスファイル） |
+| `managing-containers` | コンテナ管理統合ガイド（Docker: Engine内部・Compose・マルチステージビルド・キャッシュ最適化・セキュリティ・MCP統合 ＋ Podman: daemonlessアーキテクチャ・rootless・Buildah/Skopeo・Quadlet/systemd統合・Kubernetes YAML生成・Docker移行） |
 | `using-next-devtools` | Next.js DevTools |
-| `implementing-opentelemetry` | OpenTelemetry計装・Collector・オブザーバビリティ導入 |
-| `implementing-logging` | アプリケーションログ実装ガイド（ログ設計原則・構造化ログ・収集アーキテクチャ・分析・セキュリティログ・AI/MLログ分析） |
 | `developing-terraform` | Terraform/Terragrunt IaC開発（HCL・モジュール・ステート・Terragrunt・mise・AWS/GCP） |
 | `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 | `practicing-devops` | DevOps方法論・IaCツール選定・オーケストレーション比較・CI/CD・プラットフォームエンジニアリング |
@@ -201,9 +186,7 @@ sumik-claude-plugin/
 | `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
 | `viewing-diffs` | difit GitHub風差分ビューア（git diff のブラウザ表示・自動インストール対応） |
 | `orchestrating-teams` | Agent Teamオーケストレーション（チーム編成・タチコマ並列起動・進捗管理・docs先行開発） |
-| `orchestrating-codex` | Codex Agentオーケストレーション（planner→implementer逐次起動・ドキュメント先行開発。Claude Code Team非対応環境用） |
 | `translating-with-lmstudio` | LM Studioローカル LLM による英語→日本語翻訳（OpenAI互換API、フラッシュカード作成・スキル変換連携） |
-| `recognizing-images` | LM Studioローカル VLM による画像テキスト認識（OCR、単一ファイル/ディレクトリ一括処理、Markdown出力） |
 | `converting-epub-images` | 画像ベースEPUBをLM Studio OCRで日本語テキスト（Markdown）に変換。~/Desktopに出力 |
 
 #### ドキュメント・品質
@@ -211,21 +194,14 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `mermaid-diagrams` | Mermaidダイアグラム作成（22+種類：構造設計・フロー・プロジェクト管理・データ可視化・バージョン管理・思考整理・専門用途、23リファレンスファイル） |
-| `crafting-ai-copywriting` | AIコピーライティング（15の心理的プロンプト技法） |
+| `creating-presentations` | プレゼンテーション統合スキル（コンテンツ品質改善: ストーリー構成/スライドデザイン/デリバリー/聴衆エンゲージメント ＋ HTMLスライド生成: 1スライド=1HTML・Tailwind CSS・15レイアウトパターン ＋ PDF→HTMLテンプレート変換 ＋ Google Slides自動生成: GAS slideData） |
 | `writing-latex` | LaTeX文書作成 |
-| `generating-google-slides` | Google Slides自動生成（GAS slideDataオブジェクト生成） |
-| `slidekit-create` | HTMLスライドプレゼンテーション生成（1スライド=1HTML、Tailwind CSS、15レイアウトパターン、5スタイル×5テーマ） |
-| `slidekit-templ` | PDFプレゼンテーション→HTMLスライドテンプレート変換（視覚再現アプローチ） |
 | `authoring-agents` | エージェント定義（agents/*.md）の作成ガイド（フロントマター・スキルプリロード・テンプレート） |
 | `authoring-skills` | スキル作成・ソース変換・利用状況レビュー統合ガイド |
-| `searching-with-exa` | Exa MCP統合（7カテゴリ検索: 企業・コード・人物・財務・学術・個人サイト・Tweet/X、Web検索第一優先ツール） |
-| `searching-web` | Web検索 fallback（gemini CLI、Exa MCP使用不可時） |
+| `searching-web` | Web検索統合スキル（Exa MCP第一優先: 7カテゴリ検索/企業・コード・人物・財務・学術・個人サイト・Tweet/X ＋ gemini CLIフォールバック） |
 | `reviewing-with-coderabbit` | CodeRabbitコードレビュー |
-| `writing-zenn-articles` | Zenn技術記事の作成・投稿ワークフロー（フロントマター仕様・命名規則・品質チェック・Lint設定） |
 | `designing-training` | 研修設計・ファシリテーション方法論（ニーズ分析・カリキュラム設計・90/20/8法則・EATフレームワーク・参加者主体技法・オンライン/ハイブリッド・スキルマップ・研修資料作成・12リファレンスファイル） |
-| `improving-presentations` | プレゼンテーション改善ガイド（5領域: マインドセット準備・ストーリー構成・スライドデザイン・デリバリー・聴衆エンゲージメント、10冊統合、3つのゴール・核設計・4聴衆タイプ・三幕構成・AIDMA・空雨傘型・聞くパラダイム・緊張管理・Q&A対策・PUNCH原則、7ファイル） |
-| `writing-effective-prose` | 効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）を統合） |
-| `writing-readmes` | README.md作成ガイド（構造設計・セクション構成・Markdownベストプラクティス・バッジ活用・プロジェクトタイプ別テンプレート） |
+| `writing-effective-prose` | 統合文章術スキル（論理構成・AI臭除去・技術文書7Cs・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）・技術ブログ・README作成・Zenn記事作成・投稿ワークフロー） |
 | `practicing-design-thinking` | デザイン思考プロセス方法論（共感・問題定義・発想・プロトタイプ・テストの5ステップ、タテマエメソッド・HMW・エクストリームユーザー法・雑っぴんぐ等EDP実践知識） |
 
 ### Scripts (1個)

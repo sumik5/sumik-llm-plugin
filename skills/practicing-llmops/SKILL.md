@@ -9,8 +9,8 @@ description: >-
   Memory & Data Governance (short-term/long-term memory, privacy), and
   Unified AgentOps Platform architecture.
   MUST load when building or operating LLM-based applications or AI agents in production.
-  For RAG implementation details, use building-rag-systems. For general monitoring
-  patterns, use designing-monitoring. For AI development methodology, use developing-with-ai.
+  For RAG implementation details, use designing-genai-patterns. For general monitoring
+  patterns, use implementing-observability. For AI development methodology, use developing-with-ai.
   For GenAI application design patterns (LLM-as-Judge, Reflection, Prompt Optimization), use designing-genai-patterns.
 ---
 

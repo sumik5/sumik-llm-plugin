@@ -6,6 +6,7 @@ description: >-
   trustworthiness validation (SRM, novelty effects), and experimentation platform architecture.
   Use when designing A/B tests, analyzing experiment results, or building experimentation infrastructure.
   For general software testing, use testing-code instead.
+disable-model-invocation: true
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
