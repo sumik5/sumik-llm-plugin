@@ -203,6 +203,10 @@ AskUserQuestion(
 | **[ROOT-CAUSE-ANALYSIS.md](references/ROOT-CAUSE-ANALYSIS.md)** | 根本原因分析 | ファネル分析、フィッシュボーン、データ収集 |
 | **[PROCESS-WORKFLOWS.md](references/PROCESS-WORKFLOWS.md)** | プロセス | Kanban、Sprint Zero、リリース計画 |
 | **[CASE-STUDY-PATTERNS.md](references/CASE-STUDY-PATTERNS.md)** | ケーススタディ | 7つの横断パターン（状況→課題→アプローチ→成果→教訓） |
+| **[AI-PLAYBOOK-FOUNDATIONS.md](references/AI-PLAYBOOK-FOUNDATIONS.md)** | AI基礎 | AI/ML基礎知識、用語集、学習プロセス、AIライフサイクル8段階 |
+| **[AI-PLAYBOOK-ROLES.md](references/AI-PLAYBOOK-ROLES.md)** | AI PMロール | AI-Experiences/AI-Builder/AI-Enhanced PM 3専門化、比較、キャリア選択 |
+| **[AI-PLAYBOOK-STRATEGY.md](references/AI-PLAYBOOK-STRATEGY.md)** | AI戦略 | AI機会評価、ケイパビリティマッチング、ROI算出9ステップ、AI A/Bテスト |
+| **[AI-PLAYBOOK-OPERATIONS.md](references/AI-PLAYBOOK-OPERATIONS.md)** | AI運用 | MLOps概要、バイアス緩和、責任あるAI、法的コンプライアンス |
 
 ---
 
@@ -221,6 +225,22 @@ AI導入の成功は、組織の成熟度に大きく依存する。5ピラー×
 ### 6.3 AIプロダクトケーススタディ
 
 実際のAIプロダクト事例（Computer Vision、GenAIチャットボット、動的価格設定、広告AI）から、PMの判断ポイントと教訓を学ぶ。詳細は [AI-CASE-STUDIES.md](references/AI-CASE-STUDIES.md) を参照。
+
+### 6.4 AI/ML基礎知識
+
+AIプロダクトを扱うPMが知るべきAI/MLの基本概念（AI vs ML、学習プロセス、Confusion Matrix、過学習/未学習、HITL）とAIライフサイクル8段階。詳細は [AI-PLAYBOOK-FOUNDATIONS.md](references/AI-PLAYBOOK-FOUNDATIONS.md) を参照。
+
+### 6.5 AI PM専門化ロール
+
+AI PMの3つの専門化（AI-Experiences / AI-Builder / AI-Enhanced）の役割・スキルセット・キャリアパス。詳細は [AI-PLAYBOOK-ROLES.md](references/AI-PLAYBOOK-ROLES.md) を参照。
+
+### 6.6 AI機会評価とROI
+
+プロダクトにAIを導入する機会の発見・評価方法、ROI算出9ステップ、AI特有のA/Bテスト設計。詳細は [AI-PLAYBOOK-STRATEGY.md](references/AI-PLAYBOOK-STRATEGY.md) を参照。
+
+### 6.7 MLOpsと責任あるAI
+
+MLOpsの5コンポーネント（PM視点）、AIバイアス緩和、倫理的AI構築チェックリスト、法的コンプライアンス。詳細は [AI-PLAYBOOK-OPERATIONS.md](references/AI-PLAYBOOK-OPERATIONS.md) を参照。
 
 ---
 
@@ -265,7 +285,100 @@ AI導入の成功は、組織の成熟度に大きく依存する。5ピラー×
 
 ---
 
-## 8. まとめ
+## 8. AIプロダクトマネジメント
+
+AIプロダクト特有の課題（モデルドリフト、データ品質、期待値管理）に対応するPMの実践知識。
+
+### AIプロダクトの3専門化
+
+| 専門化 | 担当領域 | 核心スキル |
+|--------|---------|-----------|
+| **AI-Experiences PM** | AIとユーザーの接点を設計 | UXリサーチ、AI UX原則、説明可能性 |
+| **AI-Builder PM** | AIシステムの基盤を構築 | MLOps、データパイプライン、モデル評価 |
+| **AI-Enhanced PM** | PMの業務をAIで強化 | AI活用プロセス設計、ワークフロー自動化 |
+
+### AIプロダクトライフサイクル（8段階）
+
+```
+Problem Definition → Data Collection → Preprocessing → Feature Engineering
+→ Model Training → Evaluation → Deployment → Retraining
+```
+
+各段階でのPM役割、MLOps用語、ROI算出9ステップ → **[AIP-AI-PM-GUIDE.md](references/AIP-AI-PM-GUIDE.md)**
+
+詳細リファレンス:
+- AIプロダクトライフサイクル → **[AIP-AI-LIFECYCLE.md](references/AIP-AI-LIFECYCLE.md)**
+- AI戦略・データ品質（PROMT/EDGE） → **[AIP-AI-STRATEGY.md](references/AIP-AI-STRATEGY.md)**
+- グロースメトリクス・RAD・PLG → **[AIP-GROWTH-METRICS.md](references/AIP-GROWTH-METRICS.md)**
+- 責任あるAI・倫理チェックリスト → **[AIP-RESPONSIBLE-AI.md](references/AIP-RESPONSIBLE-AI.md)**
+- プロダクト設計・HEART詳細 → **[AIP-PRODUCT-DESIGN.md](references/AIP-PRODUCT-DESIGN.md)**
+- 3専門化比較・キャリアパス → **[AIP-TEAM-CAREER.md](references/AIP-TEAM-CAREER.md)**
+
+---
+
+## 9. A/Bテスト実践
+
+オンラインコントロール実験（A/Bテスト）の設計・実行・解析の体系的手法。
+
+### A/Bテストの核心概念
+
+**OEC（Overall Evaluation Criterion）**: 実験の成否を判断する単一の総合評価基準。正規化が重要（「ユーザーあたり収益」など）。
+
+**実験設計の4決定**: ランダム化単位 → ターゲット母集団 → サンプルサイズ → 実験期間
+
+**必要サンプルサイズ**: `≈ 16 × σ² / δ²`（σ²=分散、δ=検出したい最小差）
+
+### 信用性チェック（トワイマンの法則）
+
+> 面白そうな結果はたいてい間違っている
+
+| 落とし穴 | 対策 |
+|---------|------|
+| p値ピーキング | 事前に決めた期間が経過後に判定 |
+| SRM（サンプル比率ミスマッチ） | 実験前に比率確認。SRM検出時は結果を無効化 |
+| ノベルティ効果 | 効果の時間変化をプロット、安定まで実験延長 |
+
+統計的検定・サンプルサイズ計算 → **[AB-STATISTICS.md](references/AB-STATISTICS.md)**
+実験プラットフォーム・組織文化 → **[AB-PLATFORM-AND-CULTURE.md](references/AB-PLATFORM-AND-CULTURE.md)**
+A/Bテスト全手法ガイド → **[AB-EXPERIMENTATION-GUIDE.md](references/AB-EXPERIMENTATION-GUIDE.md)**
+
+---
+
+## 10. Claude Code PM活用
+
+PMがClaude Codeを使ってコードベース調査・要件定義・競合分析を効率化する実践ガイド。
+
+### 5つのコア能力
+
+| 能力 | PM活用例 |
+|------|---------|
+| ファイル読み書き | コードベース調査結果をMarkdownで保存、PRDをリポジトリに生成 |
+| シェルコマンド実行 | git logで変更履歴調査 |
+| 永続コンテキスト（CLAUDE.md） | プロダクト用語集・主要ユーザージャーニーを永続化 |
+| Subagent並列処理 | 競合3社を並列調査、フィードバック500件を分割分析 |
+| MCP外部連携 | Jira/Slack/Figma/DBに直接接続 |
+
+### PM調査の4パターン
+
+| パターン | 質問例 |
+|---------|--------|
+| 「Xはどう動く？」 | 割引コード検証はどう実装されている？ |
+| 「Xはどのデータにアクセス？」 | 購入履歴機能はどのデータを使う？ |
+| 「Xが起きたら？」 | 決済が途中で失敗したらどうなる？ |
+| 「なぜXが起きる？」 | 検索フィルタが「もっと見る」で消えるのはなぜ？ |
+
+**Permission Mode推奨**: plan mode（読み取り専用）でコードベース調査。成果物生成時はacceptEdits。
+
+コードベース調査・バグトリアージ → **[CCPM-INVESTIGATION-PATTERNS.md](references/CCPM-INVESTIGATION-PATTERNS.md)**
+競合分析・フィードバック分析 → **[CCPM-RESEARCH-SYNTHESIS.md](references/CCPM-RESEARCH-SYNTHESIS.md)**
+PRD・ユーザーストーリー生成 → **[CCPM-REQUIREMENTS-DOCS.md](references/CCPM-REQUIREMENTS-DOCS.md)**
+スキル設計・MCP・Subagent → **[CCPM-ADVANCED-WORKFLOWS.md](references/CCPM-ADVANCED-WORKFLOWS.md)**
+PMプロンプトテンプレート集 → **[CCPM-PROMPT-TEMPLATES.md](references/CCPM-PROMPT-TEMPLATES.md)**
+Claude Code PM総合ガイド → **[CCPM-GUIDE.md](references/CCPM-GUIDE.md)**
+
+---
+
+## 11. まとめ
 
 **優先すべき3原則:**
 
