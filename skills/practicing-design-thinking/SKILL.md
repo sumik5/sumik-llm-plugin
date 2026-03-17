@@ -11,6 +11,7 @@ description: >-
   For visual UI/UX design guidelines→designing-ux.
   For AI-specific UX→designing-ai-experiences.
   For behavior change→applying-behavior-design.
+  For 5-plane product UX framework (Strategy→Surface)→designing-ux.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

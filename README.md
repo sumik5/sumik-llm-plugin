@@ -151,7 +151,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `building-design-systems` | デザインシステム構築・運用・Figma実装方法論（DS基礎・パターン分類・組織戦略・UIパターンカタログ20+・Figmaバリアブル/デザイントークン3層階層・カラーシステム・タイポグラフィ・Style Dictionary/Storybook連携） |
-| `designing-ux` | UI/UX・グラフィックデザイン・インターフェイス哲学を統合したデザイン総合スキル（UIデザインガイドライン101ルール・認知心理学・グラフィック基礎: 造形/色彩/タイポグラフィ/レイアウト・Fluid Interfaces・自己帰属感・モーション理論・Experiencability） |
+| `designing-ux` | UI/UX・グラフィックデザイン・インターフェイス哲学・UXエレメント5段階モデルを統合したデザイン総合スキル（UIデザインガイドライン101ルール・認知心理学・グラフィック基礎: 造形/色彩/タイポグラフィ/レイアウト・Fluid Interfaces・自己帰属感・モーション理論・Experiencability・5段階フレームワーク: Strategy→Scope→Structure→Skeleton→Surface） |
 | `crafting-ai-content` | AIコンテンツ制作統合スキル（AIコピーライティング: 15の心理的プロンプトテクニック・マーケティングコピー/広告見出し/SNS投稿 ＋ AI画像生成クリエイティブ: バナー/SNS/ポスター向け51テンプレート） |
 | `designing-ai-experiences` | AI体験設計フレームワーク（メンタルモデル・3チャネル入力設計・処理/レイテンシーUX・出力5原則・5 Agenticパターン・ストーリーボード・Value Matrix・Copilot配置・7 LLMパターン・AI-First IA・Forecasting/Anomaly Detection UI・MUSE/RITE・AI倫理） |
 | `developing-storybook` | Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルリグレッション・Next.js統合・MSWモック） |
