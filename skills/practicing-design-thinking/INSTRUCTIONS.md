@@ -1,3 +1,15 @@
+> **📚 このスキルは2つの方法論体系を含みます:**
+> - **d.school/IDEOデザイン思考**（本ファイル）: 共感→問題定義→発想→プロトタイプ→テスト
+> - **ISO 9241-210 HCDベースUXデザイン方法論**（references/配下）: UX理論・7段階プロセス・22種リサーチ手法
+>
+> ISO HCD/UXリサーチ手法の詳細は以下を参照:
+> - [UX-THEORY.md](references/UX-THEORY.md) — UX理論基盤
+> - [DESIGN-PROCESS.md](references/DESIGN-PROCESS.md) — 7段階HCDプロセス
+> - [RESEARCH-METHODS.md](references/RESEARCH-METHODS.md) — リサーチ手法
+> - [DESIGN-EVALUATION-METHODS.md](references/DESIGN-EVALUATION-METHODS.md) — 設計・評価手法
+
+---
+
 # practicing-design-thinking — 詳細ガイド
 
 > 出典: 「エンジニアのためのデザイン思考入門」（東京工業大学 EDP）

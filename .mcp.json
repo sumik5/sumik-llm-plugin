@@ -12,22 +12,6 @@
       ],
       "env": {}
     },
-    "next-devtools": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "next-devtools-mcp@latest"
-      ],
-      "env": {}
-    },
-    "deepwiki": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "https://mcp.deepwiki.com/sse"
-      ],
-      "env": {}
-    },
     "puppeteer": {
       "command": "npx",
       "args": [
@@ -41,43 +25,6 @@
       "args": [
         "chrome-devtools-mcp@latest",
         "--isolated"
-      ],
-      "env": {}
-    },
-    "mcp-pandoc": {
-      "command": "uvx",
-      "args": [
-        "mcp-pandoc"
-      ],
-      "env": {}
-    },
-    "shadcn": {
-      "command": "npx",
-      "args": [
-        "shadcn@latest",
-        "mcp"
-      ],
-      "env": {}
-    },
-    "docker": {
-      "command": "uvx",
-      "args": [
-        "docker-mcp"
-      ],
-      "env": {}
-    },
-    "mcp-docker": {
-      "command": "docker",
-      "args": ["mcp", "gateway", "run"],
-      "type": "stdio"
-    },
-    "terraform": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "hashicorp/terraform-mcp-server"
       ],
       "env": {}
     },

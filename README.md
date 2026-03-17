@@ -202,7 +202,7 @@ sumik-claude-plugin/
 | `reviewing-with-coderabbit` | CodeRabbitコードレビュー |
 | `designing-training` | 研修設計・ファシリテーション方法論（ニーズ分析・カリキュラム設計・90/20/8法則・EATフレームワーク・参加者主体技法・オンライン/ハイブリッド・スキルマップ・研修資料作成・12リファレンスファイル） |
 | `writing-effective-prose` | 統合文章術スキル（論理構成・AI臭除去・技術文書7Cs・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）・技術ブログ・README作成・Zenn記事作成・投稿ワークフロー） |
-| `practicing-design-thinking` | デザイン思考プロセス方法論（共感・問題定義・発想・プロトタイプ・テストの5ステップ、タテマエメソッド・HMW・エクストリームユーザー法・雑っぴんぐ等EDP実践知識） |
+| `practicing-design-thinking` | デザイン思考・UXデザイン方法論（d.school/IDEO 5ステップ + ISO 9241-210 HCDベース7段階プロセス・UX理論・22種リサーチ/評価手法（エスノグラフィ・ペルソナ・ジャーニーマップ・KA法・構造化シナリオ・SUS・ヒューリスティック評価等）・4リファレンスファイル） |
 
 ### Scripts (1個)
 
