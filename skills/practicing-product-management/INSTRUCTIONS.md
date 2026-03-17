@@ -7,7 +7,8 @@
 3. [クイックリファレンス](#3-クイックリファレンス)
 4. [ユーザー確認の原則](#4-ユーザー確認の原則askuserquestion)
 5. [詳細ガイドへのリンク](#5-詳細ガイド)
-6. [まとめ](#6-まとめ)
+6. [AI時代のPM実践](#6-ai時代のpm実践)
+7. [まとめ](#7-まとめ)
 
 ---
 
@@ -19,6 +20,8 @@
 - プロダクトアナリティクスの分析
 - 成長施策の立案・グロースメトリクスの解釈
 - 収益モデルの選定・改善
+- AI成熟度評価・組織のAI readiness判断
+- AI導入によるPM役割の変化への対応
 
 ---
 
@@ -184,10 +187,31 @@ AskUserQuestion(
 | **[PM-FUNDAMENTALS.md](references/PM-FUNDAMENTALS.md)** | Ch1-3 | PMの定義・UXスキルの活用法・キャリア転身ガイド |
 | **[EXECUTION-CADENCES.md](references/EXECUTION-CADENCES.md)** | Ch4-5 | アジャイルケイデンス・エンジニア管理・ビジネススキル |
 | **[GROWTH-STRATEGY.md](references/GROWTH-STRATEGY.md)** | Ch6-11 | アナリティクス・実験・収益モデル・ロードマップ・PM-UX協働・リーダーシップ |
+| **[AI-PM-EVOLUTION.md](references/AI-PM-EVOLUTION.md)** | AI時代 | AI時代のPM役割進化・スキルシフト・組織変革 |
+| **[AI-MATURITY-ASSESSMENT.md](references/AI-MATURITY-ASSESSMENT.md)** | AI成熟度 | 5ピラー×12フォーカスエリア成熟度評価フレームワーク |
+| **[AI-CASE-STUDIES.md](references/AI-CASE-STUDIES.md)** | AIケース | 4つのAIプロダクト事例（CV・GenAI・動的価格・広告AI） |
 
 ---
 
-## 6. まとめ
+## 6. AI時代のPM実践
+
+AI技術の普及により、PMの役割と求められるスキルが大きく変化している。
+
+### 7.1 PM役割の進化
+
+AIツールの導入により、PMの業務はルーティンタスクの自動化から戦略的判断へシフトしている。詳細は [AI-PM-EVOLUTION.md](references/AI-PM-EVOLUTION.md) を参照。
+
+### 7.2 組織AI成熟度評価
+
+AI導入の成功は、組織の成熟度に大きく依存する。5ピラー×12フォーカスエリアの成熟度フレームワークで現状を評価し、段階的な導入計画を策定する。詳細は [AI-MATURITY-ASSESSMENT.md](references/AI-MATURITY-ASSESSMENT.md) を参照。
+
+### 7.3 AIプロダクトケーススタディ
+
+実際のAIプロダクト事例（Computer Vision、GenAIチャットボット、動的価格設定、広告AI）から、PMの判断ポイントと教訓を学ぶ。詳細は [AI-CASE-STUDIES.md](references/AI-CASE-STUDIES.md) を参照。
+
+---
+
+## 7. まとめ
 
 **優先すべき3原則:**
 

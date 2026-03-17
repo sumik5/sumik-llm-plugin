@@ -10,7 +10,7 @@ description: >-
   designing growth experiments, setting product metrics, building AI-native products,
   or navigating MLOps and deployment challenges.
   For AI product UX patterns→designing-ai-experiences.
-  For general PM fundamentals (agile cadences, AARRR, roadmaps, PM-UX collaboration), use practicing-product-management instead.
+  For general PM fundamentals, AI-era PM role evolution, and AI maturity assessment, use practicing-product-management instead.
 disable-model-invocation: true
 ---
 
