@@ -14,6 +14,9 @@
 | **既存DS評価・再構築** | デザイン負債の蓄積・不整合の増大・複数プロダクトへの展開時 |
 | **組織導入計画** | ステークホルダー説得・ROI試算・導入ロードマップ策定 |
 | **パターンライブラリ構築** | インターフェースインベントリ→パターン定義→ライブラリ整備 |
+| **DS立ち上げ・浸透** | 小さく始めて組織に浸透させる実践プロセス → [STARTING-GUIDE.md](references/STARTING-GUIDE.md) |
+| **コンテンツ策定** | ブランド・UI・コンテンツ・運用ガイドラインの作り方 → [CONTENT-GUIDELINES.md](references/CONTENT-GUIDELINES.md) |
+| **他組織の事例参照** | 多組織のDS実践パターンから学ぶ → [CASE-STUDIES.md](references/CASE-STUDIES.md) |
 
 **このスキルを使わないケース（→ 別スキルへ）:**
 
@@ -40,7 +43,10 @@ skills/building-design-systems/
     ├── UI-PATTERNS-CATALOG.md      # 20+具体UIパターン・組み合わせ手法・IA原則
     ├── ANTI-PATTERNS.md            # アンチパターン・Design Smell・ダークパターン
     ├── ORGANIZATION-STRATEGY.md    # 組織戦略・ステークホルダー説得・システムパラメータ
-    └── IMPLEMENTATION-OPERATIONS.md # 実装プロセス・パターンライブラリ構築・測定・維持
+    ├── IMPLEMENTATION-OPERATIONS.md # 実装プロセス・パターンライブラリ構築・測定・維持
+    ├── STARTING-GUIDE.md           # DS立ち上げ・浸透・チーム構成・運用の実践ガイド
+    ├── CONTENT-GUIDELINES.md       # DSコンテンツ（ガイドライン）の策定プロセス
+    └── CASE-STUDIES.md             # 多組織のDS実践パターン・自己診断フレームワーク
 ```
 
 ### 各リファレンスの役割
@@ -53,6 +59,9 @@ skills/building-design-systems/
 | [ANTI-PATTERNS.md](references/ANTI-PATTERNS.md) | 問題のあるパターンの識別・デザイン負債の管理 |
 | [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md) | 組織への導入・ステークホルダー説得・体制設計 |
 | [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | 実装の進め方・パターンライブラリ構築・運用ガバナンス |
+| [STARTING-GUIDE.md](references/STARTING-GUIDE.md) | DSを小さく始めて浸透させる実践プロセス・チーム構成・運用ツール |
+| [CONTENT-GUIDELINES.md](references/CONTENT-GUIDELINES.md) | ブランド・UI・コンテンツ・運用ガイドラインの策定プロセス |
+| [CASE-STUDIES.md](references/CASE-STUDIES.md) | 多組織のDS実践パターン・自己診断フレームワーク |
 
 ---
 
@@ -217,6 +226,9 @@ UIが独立した再利用可能な部品に分解できる → Modular
 | ユーザーの要求 | 選択すべきスキル | 選択しないスキル |
 |------------|---------------|---------------|
 | 「デザインシステムを新規構築したい」 | `building-design-systems` | — |
+| 「DSを小さく立ち上げたい」 | `building-design-systems` → [STARTING-GUIDE.md](references/STARTING-GUIDE.md) | — |
+| 「DSコンテンツを何からどう作るか知りたい」 | `building-design-systems` → [CONTENT-GUIDELINES.md](references/CONTENT-GUIDELINES.md) | — |
+| 「他組織のDS事例を参考にしたい」 | `building-design-systems` → [CASE-STUDIES.md](references/CASE-STUDIES.md) | — |
 | 「パターンライブラリを整備したい」 | `building-design-systems` | — |
 | 「組織にDS導入を提案したい」 | `building-design-systems` | — |
 | 「ボタンの色やスペーシングを調整したい」 | `applying-design-guidelines` | `building-design-systems` |
@@ -297,6 +309,9 @@ DS構築・支援の際にユーザーに確認すべき判断ポイント:
 | Figmaデザイントークン詳細設計 | [FIGMA-DESIGN-TOKENS.md](references/FIGMA-DESIGN-TOKENS.md) |
 | Figmaパターンライブラリ構築 | [FIGMA-PATTERN-LIBRARY.md](references/FIGMA-PATTERN-LIBRARY.md) |
 | FigmaとコードのCI/CD連携 | [FIGMA-CODE-INTEGRATION.md](references/FIGMA-CODE-INTEGRATION.md) |
+| DS立ち上げ・浸透の実践プロセス | [STARTING-GUIDE.md](references/STARTING-GUIDE.md) |
+| コンテンツ（ガイドライン）策定プロセス | [CONTENT-GUIDELINES.md](references/CONTENT-GUIDELINES.md) |
+| 多組織のDS実践パターン・自己診断 | [CASE-STUDIES.md](references/CASE-STUDIES.md) |
 
 ---
 
