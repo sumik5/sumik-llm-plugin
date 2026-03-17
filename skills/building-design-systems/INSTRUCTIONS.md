@@ -17,6 +17,8 @@
 | **DS立ち上げ・浸透** | 小さく始めて組織に浸透させる実践プロセス → [STARTING-GUIDE.md](references/STARTING-GUIDE.md) |
 | **コンテンツ策定** | ブランド・UI・コンテンツ・運用ガイドラインの作り方 → [CONTENT-GUIDELINES.md](references/CONTENT-GUIDELINES.md) |
 | **他組織の事例参照** | 多組織のDS実践パターンから学ぶ → [CASE-STUDIES.md](references/CASE-STUDIES.md) |
+| **合意形成の実践** | 企画書作成後の5チャネル活用・反対意見対処・繰り返しコミュニケーション → [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md) |
+| **DS更新周知・運用見直し** | 更新周知6ステップ・形骸化防止・運用主体者パターン（横断/単一）→ [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) |
 
 **このスキルを使わないケース（→ 別スキルへ）:**
 
@@ -44,6 +46,9 @@ skills/building-design-systems/
     ├── ANTI-PATTERNS.md            # アンチパターン・Design Smell・ダークパターン
     ├── ORGANIZATION-STRATEGY.md    # 組織戦略・ステークホルダー説得・システムパラメータ
     ├── IMPLEMENTATION-OPERATIONS.md # 実装プロセス・パターンライブラリ構築・測定・維持
+    ├── FIGMA-DESIGN-TOKENS.md      # Figmaデザイントークン設計（3層構造・実装手順）
+    ├── FIGMA-PATTERN-LIBRARY.md    # Figmaパターンライブラリ構築・ガイドライン3原則
+    ├── FIGMA-CODE-INTEGRATION.md   # FigmaとコードのCI/CD連携・エンジニア連携実践
     ├── STARTING-GUIDE.md           # DS立ち上げ・浸透・チーム構成・運用の実践ガイド
     ├── CONTENT-GUIDELINES.md       # DSコンテンツ（ガイドライン）の策定プロセス
     └── CASE-STUDIES.md             # 多組織のDS実践パターン・自己診断フレームワーク
@@ -54,11 +59,14 @@ skills/building-design-systems/
 | ファイル | 読むべきタイミング |
 |---------|-----------------|
 | [FOUNDATIONS.md](references/FOUNDATIONS.md) | DSとは何かの基礎を確認したいとき・用語の整理・導入タイミング判断 |
-| [DESIGN-PATTERNS.md](references/DESIGN-PATTERNS.md) | パターンの分類・定義プロセス・共有言語の構築 |
+| [DESIGN-PATTERNS.md](references/DESIGN-PATTERNS.md) | パターンの分類・定義プロセス・共有言語の構築・CEV命名パターン |
 | [UI-PATTERNS-CATALOG.md](references/UI-PATTERNS-CATALOG.md) | 具体的なUIパターンの選択・組み合わせ・IA設計 |
 | [ANTI-PATTERNS.md](references/ANTI-PATTERNS.md) | 問題のあるパターンの識別・デザイン負債の管理 |
-| [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md) | 組織への導入・ステークホルダー説得・体制設計 |
-| [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | 実装の進め方・パターンライブラリ構築・運用ガバナンス |
+| [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md) | 組織への導入・ステークホルダー説得・体制設計・企画書テンプレート・合意形成パターン |
+| [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | 実装の進め方・パターンライブラリ構築・更新周知フレームワーク・運用主体者パターン |
+| [FIGMA-DESIGN-TOKENS.md](references/FIGMA-DESIGN-TOKENS.md) | Figmaデザイントークン3層設計・カラー/タイポグラフィ実装手順 |
+| [FIGMA-PATTERN-LIBRARY.md](references/FIGMA-PATTERN-LIBRARY.md) | Figmaパターンライブラリ構築・ファイル分割・ガイドライン3原則 |
+| [FIGMA-CODE-INTEGRATION.md](references/FIGMA-CODE-INTEGRATION.md) | FigmaとコードのCI/CD連携・Storybook統合・エンジニア連携実践 |
 | [STARTING-GUIDE.md](references/STARTING-GUIDE.md) | DSを小さく始めて浸透させる実践プロセス・チーム構成・運用ツール |
 | [CONTENT-GUIDELINES.md](references/CONTENT-GUIDELINES.md) | ブランド・UI・コンテンツ・運用ガイドラインの策定プロセス |
 | [CASE-STUDIES.md](references/CASE-STUDIES.md) | 多組織のDS実践パターン・自己診断フレームワーク |
@@ -202,7 +210,23 @@ UIが独立した再利用可能な部品に分解できる → Modular
 エンジニアリング文化が強い・スケーラビリティ優先 → Distributed
 ```
 
-### ステップ5: パターンを定義・体系化する
+### ステップ5: 合意形成を進める
+
+企画書完成後、ステークホルダーの合意を取り付けるための5チャネル:
+
+| チャネル | 推奨タイミング |
+|---------|--------------|
+| **ミーティング（全体説明会）** | 企画書完成後・全関係者への一斉説明 |
+| **1on1（個別コミュニケーション）** | 懸念を持つ関係者の早期特定・解消 |
+| **ワークショップ** | DS設計方針を協働で決定したいとき |
+| **定期的な進捗共有** | 長期プロジェクトのモメンタム維持 |
+| **ユーザーインタビュー** | UX改善が目的に含まれるとき |
+
+> 合意形成は一度で完結しない。繰り返しのコミュニケーションで徐々に詳細を詰め、意見を柔軟に取り入れながら企画書を最適化し続ける。
+
+**詳細**: [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md)
+
+### ステップ6: パターンを定義・体系化する
 
 **機能パターンの体系化フロー:**
 1. **準備**: プロダクトのコア画面10〜12を選択・多職種チーム編成
@@ -231,6 +255,10 @@ UIが独立した再利用可能な部品に分解できる → Modular
 | 「他組織のDS事例を参考にしたい」 | `building-design-systems` → [CASE-STUDIES.md](references/CASE-STUDIES.md) | — |
 | 「パターンライブラリを整備したい」 | `building-design-systems` | — |
 | 「組織にDS導入を提案したい」 | `building-design-systems` | — |
+| 「DS導入の合意を取り付けたい」 | `building-design-systems` → [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md) | — |
+| 「DS更新を周知したい」 | `building-design-systems` → [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | — |
+| 「DS運用の形骸化を防ぎたい」 | `building-design-systems` → [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | — |
+| 「DS運用を専任担当者と兼任どちらにすべきか」 | `building-design-systems` → [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | — |
 | 「ボタンの色やスペーシングを調整したい」 | `applying-design-guidelines` | `building-design-systems` |
 | 「Figmaデザインをコードに変換したい」 | `implementing-design` | `building-design-systems` |
 | 「shadcn/uiでコンポーネントを作りたい」 | `designing-frontend` | `building-design-systems` |
@@ -292,6 +320,11 @@ DS構築・支援の際にユーザーに確認すべき判断ポイント:
     （コミュニケーション戦略の選択: 外交・教育・営業・広報）
 12. DS構築の成功をどのようなメトリクスで測定しますか？
     （OKR設定の起点）
+13. 合意形成のメインチャネルはどれですか？
+    （ミーティング全体説明 / 1on1個別対応 / ワークショップ協働）
+14. DS運用は専任担当者を置く横断運用ですか、
+    それともデザイナー全員で回す単一運用ですか？
+    （複数プロダクト横断 → 担当者あり推奨 / 1プロダクト → 担当者なしも可）
 ```
 
 ---
@@ -301,14 +334,14 @@ DS構築・支援の際にユーザーに確認すべき判断ポイント:
 | テーマ | 参照先 |
 |-------|-------|
 | DSの定義・歴史・用語整理 | [FOUNDATIONS.md](references/FOUNDATIONS.md) |
-| 機能/知覚パターン・原則・命名 | [DESIGN-PATTERNS.md](references/DESIGN-PATTERNS.md) |
+| 機能/知覚パターン・原則・命名・CEV命名パターン | [DESIGN-PATTERNS.md](references/DESIGN-PATTERNS.md) |
 | 具体UIパターン20+のカタログ | [UI-PATTERNS-CATALOG.md](references/UI-PATTERNS-CATALOG.md) |
 | アンチパターン・Design Smell識別 | [ANTI-PATTERNS.md](references/ANTI-PATTERNS.md) |
-| 組織導入・ステークホルダー説得 | [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md) |
-| 実装・パターンライブラリ・測定 | [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) |
+| 組織導入・ステークホルダー説得・企画書テンプレート・合意形成パターン | [ORGANIZATION-STRATEGY.md](references/ORGANIZATION-STRATEGY.md) |
+| 実装・パターンライブラリ・更新周知フレームワーク・運用主体者パターン | [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) |
 | Figmaデザイントークン詳細設計 | [FIGMA-DESIGN-TOKENS.md](references/FIGMA-DESIGN-TOKENS.md) |
-| Figmaパターンライブラリ構築 | [FIGMA-PATTERN-LIBRARY.md](references/FIGMA-PATTERN-LIBRARY.md) |
-| FigmaとコードのCI/CD連携 | [FIGMA-CODE-INTEGRATION.md](references/FIGMA-CODE-INTEGRATION.md) |
+| Figmaパターンライブラリ構築・ガイドライン3原則 | [FIGMA-PATTERN-LIBRARY.md](references/FIGMA-PATTERN-LIBRARY.md) |
+| FigmaとコードのCI/CD連携・エンジニア連携実践 | [FIGMA-CODE-INTEGRATION.md](references/FIGMA-CODE-INTEGRATION.md) |
 | DS立ち上げ・浸透の実践プロセス | [STARTING-GUIDE.md](references/STARTING-GUIDE.md) |
 | コンテンツ（ガイドライン）策定プロセス | [CONTENT-GUIDELINES.md](references/CONTENT-GUIDELINES.md) |
 | 多組織のDS実践パターン・自己診断 | [CASE-STUDIES.md](references/CASE-STUDIES.md) |
