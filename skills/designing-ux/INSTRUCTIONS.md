@@ -8,6 +8,32 @@
 | グラフィックデザイン基礎 | 造形・色彩・タイポグラフィ・レイアウト | 印刷物・ポスター・エディトリアルデザイン |
 | インターフェイス哲学 | デザインの「なぜ」・Fluid Interfaces・進化論 | 設計判断の根拠・モーション理論・exUI・ウェルビーイング |
 | UXエレメント（5段階モデル） | Strategy→Scope→Structure→Skeleton→Surface | プロダクトUXの構造分解・段階別設計・要件整理 |
+| 認知心理学基盤 | 知覚・視覚・記憶・思考・物理操作の科学的基盤 | UIレイアウト設計根拠・ユーザーエラー分析・定量的判断 |
+
+---
+
+## 認知心理学基盤
+
+UIデザイン原則の根拠となる認知心理学の知見。「何をすべきか」（ガイドライン）だけでなく「なぜそうすべきか」を理解するための科学的基盤。
+
+### When to Use
+
+以下の場面で参照:
+- UIレイアウト・視覚的階層の設計根拠が必要な時
+- ユーザーエラーの原因を認知科学的に分析する時
+- インタラクティブ要素のサイズ・配置を定量的に判断する時
+- 応答性要件の設定根拠を知りたい時
+- ヒューリスティック評価の認知科学的根拠が必要な時
+
+### Structure
+
+| ファイル | 領域 | 主要トピック |
+|---------|------|------------|
+| [PSYCHOLOGY-PERCEPTION-AND-BIAS.md](references/PSYCHOLOGY-PERCEPTION-AND-BIAS.md) | 知覚とバイアス | 認知バイアス（プライミング・習慣化・注意の瞬き）、ゲシュタルト7原則、視覚的階層化 |
+| [PSYCHOLOGY-VISUAL-SYSTEM.md](references/PSYCHOLOGY-VISUAL-SYSTEM.md) | 視覚システム | 色覚の限界と色使いガイドライン、周辺視野の活用、可読性の最適化 |
+| [PSYCHOLOGY-MEMORY-AND-ATTENTION.md](references/PSYCHOLOGY-MEMORY-AND-ATTENTION.md) | 記憶と注意力 | 作業記憶の限界、Change Blindness、Information Scent、認識vs想起 |
+| [PSYCHOLOGY-THINKING-AND-LEARNING.md](references/PSYCHOLOGY-THINKING-AND-LEARNING.md) | 思考と学習 | デュアルプロセス理論（System 1/2）、学習促進設計、意思決定バイアス |
+| [PSYCHOLOGY-PHYSICAL-INTERACTION.md](references/PSYCHOLOGY-PHYSICAL-INTERACTION.md) | 物理的操作 | フィッツの法則、ステアリングの法則、脳の時定数と応答性要件 |
 
 ---
 
