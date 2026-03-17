@@ -155,7 +155,7 @@ sumik-claude-plugin/
 | `crafting-ai-content` | AIコンテンツ制作統合スキル（AIコピーライティング: 15の心理的プロンプトテクニック・マーケティングコピー/広告見出し/SNS投稿 ＋ AI画像生成クリエイティブ: バナー/SNS/ポスター向け51テンプレート） |
 | `designing-ai-experiences` | AI体験設計フレームワーク（メンタルモデル・3チャネル入力設計・処理/レイテンシーUX・出力5原則・5 Agenticパターン・ストーリーボード・Value Matrix・Copilot配置・7 LLMパターン・AI-First IA・Forecasting/Anomaly Detection UI・MUSE/RITE・AI倫理） |
 | `developing-storybook` | Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルリグレッション・Next.js統合・MSWモック） |
-| `designing-frontend` | フロントエンド実装（shadcn/ui統合） |
+| `designing-frontend` | フロントエンド実装（shadcn/ui統合・オブジェクト指向UI設計（OOUI）：オブジェクト抽出・ビュー/ナビゲーション・レイアウトパターン） |
 | `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証） |
 | `designing-figma-ui` | Figma UIデザインワークフロー（ワイヤーフレーム→プロトタイプ→詳細デザイン→ハンドオフ・Auto Layout・コンポーネント/バリアント・カラー/テキストスタイル・ダークモード・UIスタック5状態・エンジニア協業） |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |

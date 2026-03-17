@@ -12,6 +12,7 @@ description: >-
   For AI-specific UX→designing-ai-experiences.
   For behavior change→applying-behavior-design.
   For 5-plane product UX framework (Strategy→Surface)→designing-ux.
+  For object-oriented UI structure design (object modeling, view/navigation patterns)→designing-frontend.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
