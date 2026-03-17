@@ -38,6 +38,15 @@ Visual design principles focused on aesthetics and brand:
 - Anti-patterns to avoid (generic AI aesthetics)
 - Creating memorable, distinctive interfaces
 
+#### GUIDELINES-UI-DESIGN-WORKFLOW.md
+UIデザインのワークフロー・プロセス・組織内役割:
+- デザイン＝解像度を高める行為の定義
+- UIデザイナーのスキルマップと担当業務
+- 情報→UI要素への翻訳プロセス
+- 画面設計の忠実度レベル（スケッチ→モックアップ）
+- スタイルガイドによる品質管理
+- 組織内でのステークホルダー連携
+
 #### GUIDELINES-UX-DESIGN.md
 User experience principles based on cognitive psychology and HCI:
 - Mental models and task flows
