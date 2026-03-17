@@ -6,7 +6,7 @@ description: >-
   strategies (cache-aside, read-through, write-through, write-around).
   Use when designing data flow architecture, choosing read scalability strategies, or
   implementing caching for enterprise systems.
-  For microservices patterns (Saga, granularity), use architecting-microservices instead.
+  For microservices patterns (Saga, granularity), use architecting-infrastructure instead.
   For DDD domain modeling, use applying-domain-driven-design instead.
   For database engine internals, use developing-databases instead.
   For relational DB schema design, use developing-databases instead.

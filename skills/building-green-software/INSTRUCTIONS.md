@@ -358,7 +358,7 @@ SCI = ((E * I) + M) / R
 ## Related Skills
 
 - [designing-monitoring](../designing-monitoring/SKILL.md) - 監視システム設計、SLO/SLI、オブザーバビリティ（グリーンソフトウェア測定と相互補完）
-- [architecting-microservices](../architecting-microservices/SKILL.md) - マイクロサービスアーキテクチャ（グリーン化のトレードオフを理解）
+- [architecting-infrastructure](../architecting-infrastructure/SKILL.md) - マイクロサービスアーキテクチャ（グリーン化のトレードオフを理解）
 - [implementing-opentelemetry](../implementing-opentelemetry/SKILL.md) - OpenTelemetry実装（カーボンメトリクス収集に活用可能）
 
 ---

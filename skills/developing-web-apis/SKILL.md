@@ -6,8 +6,7 @@ description: >-
   and testing strategy (design testing, contract testing, automation, performance, security testing).
   Use when designing REST APIs, writing API specs, adopting spec-first development, or building API test strategies.
   For framework-specific implementation (Express, NestJS), use respective framework skill.
-  For microservices patterns, use architecting-microservices instead.
-  For trade-off analysis of API usability vs maintenance, use modernizing-architecture.
+  For microservices patterns and trade-off analysis of API usability vs maintenance, use architecting-infrastructure instead.
 disable-model-invocation: true
 ---
 

@@ -6,7 +6,7 @@ description: >-
   requirements or optimizing carbon footprint. Covers code efficiency patterns, operational
   efficiency, carbon-aware computing, green AI/ML, measurement methodologies, and the Green
   Software Maturity Matrix. For monitoring-specific patterns, use implementing-observability instead.
-  For microservices architecture decisions, use architecting-microservices instead.
+  For microservices architecture decisions, use architecting-infrastructure instead.
 disable-model-invocation: true
 ---
 

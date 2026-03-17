@@ -11,6 +11,7 @@ description: >-
   For Docker container operations, use managing-containers instead.
   For monitoring system design, use implementing-observability instead.
   For application logging strategy and log pipeline architecture, use implementing-observability.
+  For vendor-neutral infrastructure design patterns (availability, security, performance, operations), use architecting-infrastructure.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

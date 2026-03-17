@@ -22,8 +22,7 @@ ALWAYS_SKILLS=(
 # 共通開発スキル（言語プロジェクト検出時に適用）
 COMMON_DEV_SKILLS=(
     "researching-libraries"
-    "architecting-microservices"
-    "modernizing-architecture"
+    "architecting-infrastructure"
     "implementing-observability"
 )
 
@@ -80,8 +79,7 @@ get_skill_description() {
         "applying-semantic-versioning") echo "SemVer 2.0.0仕様に基づくバージョン判断（MAJOR/MINOR/PATCH判定・プレリリース・範囲指定）" ;;
         "writing-conventional-commits") echo "Conventional Commits 1.0.0準拠のコミットメッセージフォーマット（type/scope/BREAKING CHANGE・SemVer連携）" ;;
         "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
-        "architecting-microservices") echo "CQRS/Saga/粒度決定/データ所有権/ワークフロー・コントラクト" ;;
-        "modernizing-architecture") echo "社会技術的モダナイゼーション・トレードオフ分析手法" ;;
+        "architecting-infrastructure") echo "インフラパターン127種＋マイクロサービス（CQRS/Saga/粒度決定）＋モダナイゼーション・トレードオフ分析" ;;
         "implementing-observability") echo "監視・オブザーバビリティ設計（ログ・トレース・メトリクス・OpenTelemetry）" ;;
         "applying-domain-driven-design") echo "DDD戦略/戦術パターン・データ分解・データメッシュ" ;;
         "developing-react") echo "React 19.x 開発（Internals・パフォーマンス・アニメーション・RTL）" ;;

@@ -313,8 +313,7 @@ Read Model構築（CQRS）
 
 ## 関連スキル
 
-- **modernizing-architecture**: 社会技術的アーキテクチャのモダナイゼーション
-- **architecting-microservices**: マイクロサービス分散パターン（Saga、メッセージング）
+- **architecting-infrastructure**: 社会技術的アーキテクチャのモダナイゼーション、マイクロサービス分散パターン（Saga、メッセージング）
 - **designing-web-apis**: REST API設計ベストプラクティス
 - **writing-clean-code**: SOLID原則とクリーンコード実践
 

@@ -26,7 +26,7 @@
 - データの履歴追跡、監査証跡、時間軸に沿った分析が必要
 
 **他スキルとの使い分け**:
-- マイクロサービスのSaga、粒度決定 → `architecting-microservices`
+- マイクロサービスのSaga、粒度決定 → `architecting-infrastructure`
 - DDDドメインモデリング → `applying-domain-driven-design`
 - データベースエンジン内部構造 → `understanding-database-internals`
 - リレーショナルDBスキーマ設計 → `designing-relational-databases`
@@ -162,7 +162,7 @@
 モノリシックアーキテクチャにおけるデータ管理の課題と最適化。
 
 #### Data in Microservices Architectures
-マイクロサービスにおけるデータ所有権、トランザクション境界、Sagaパターン。（詳細は `architecting-microservices` 参照）
+マイクロサービスにおけるデータ所有権、トランザクション境界、Sagaパターン。（詳細は `architecting-infrastructure` 参照）
 
 #### Data Domain Based Architectures
 ドメイン駆動設計に基づくデータアーキテクチャ。（詳細は `applying-domain-driven-design` 参照）
@@ -215,7 +215,7 @@ Data WarehouseからData Fabricへの移行パス。
 
 ## Related Skills
 
-- **architecting-microservices**: マイクロサービスの粒度、Saga、CQRS実装
+- **architecting-infrastructure**: マイクロサービスの粒度、Saga、CQRS実装
 - **applying-domain-driven-design**: 戦略的DDD、ドメインモデリング、境界づけられたコンテキスト
 - **understanding-database-internals**: データベースエンジン内部、インデックス、トランザクション分離レベル
 - **designing-relational-databases**: 正規化、スキーマ設計、PostgreSQL実装

@@ -10,8 +10,7 @@ tools:
 permissionMode: plan
 skills:
   - applying-domain-driven-design
-  - architecting-microservices
-  - modernizing-architecture
+  - architecting-infrastructure
   - architecting-data
   - building-multi-tenant-saas
   - applying-clean-architecture
@@ -57,7 +56,7 @@ skills:
 - **Repository**: Aggregateの永続化を抽象化。Infrastructure層への依存を逆転
 - **Domain Service**: 複数のAggregateにまたがるビジネスロジックを配置
 
-### マイクロサービスアーキテクチャ（architecting-microservices）
+### マイクロサービスアーキテクチャ（architecting-infrastructure）
 
 - **サービス粒度決定**: Single Business Capability原則。チームサイズ（2-pizza rule）・変更頻度・トランザクション境界から判断
 - **CQRS（Command Query Responsibility Segregation）**: 書き込みモデルと読み取りモデルを分離。読み取り側の独立スケーリングと最適化
@@ -65,7 +64,7 @@ skills:
 - **8つのSagaパターン**: Choreography（イベント駆動）vs Orchestration（中央指揮）。Compensating Transaction（補償トランザクション）で分散整合性を維持
 - **メッセージングパターン**: Outbox Pattern（二重書き込み防止）、Inbox Pattern（冪等性保証）、Dead Letter Queue
 
-### アーキテクチャトレードオフ分析（modernizing-architecture）
+### アーキテクチャトレードオフ分析（architecting-infrastructure）
 
 - **トレードオフマトリクス**: 一貫性・可用性・パーティション耐性（CAP定理）のトレードオフを体系的に評価
 - **移行戦略**: Strangler Fig Pattern（段階的置き換え）、Branch by Abstraction、Feature Toggle活用

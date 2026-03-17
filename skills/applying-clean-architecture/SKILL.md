@@ -9,7 +9,7 @@ description: >-
   logic from frameworks/UI/databases, or evaluating architecture decisions against Clean Architecture.
   For code-level clean practices (SOLID details, code smells, refactoring), use writing-clean-code.
   For domain modeling and bounded contexts, use applying-domain-driven-design.
-  For microservices distributed patterns, use architecting-microservices.
+  For microservices distributed patterns, use architecting-infrastructure.
   For language-specific Clean Architecture implementations, see developing-react or developing-python.
 ---
 

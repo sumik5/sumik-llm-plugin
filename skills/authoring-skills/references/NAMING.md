@@ -102,7 +102,7 @@ description: "...Covers Playwright MCP (lightweight automation), CLI agent (adva
 | Unified Tool | "All-in-one for X" | automating-browser (統合: Playwright MCP + CLIエージェント + E2Eテスト) |
 | General ↔ Specific | "Reference Y for general X" | convert-to-skill → authoring-skills |
 | Parent ↔ Child | "For specific use case, see Y" | authoring-skills → convert-to-skill |
-| Language-level ↔ Architecture-level | "Complements X with Y-level focus" | writing-clean-code ↔ modernizing-architecture |
+| Language-level ↔ Architecture-level | "Complements X with Y-level focus" | writing-clean-code ↔ architecting-infrastructure |
 | Foundation ↔ Advanced | "For advanced X, use Y" | mastering-typescript (統合済み: 言語機能+実装判断基準) |
 
 #### Mutual Update Requirement
@@ -313,8 +313,8 @@ Before finalizing your skill name and description:
 | `generating-` | 成果物自動生成 | `generating-google-slides` |
 | `removing-` | 特定要素の除去 | `removing-xxx` （例: 特定パターン除去スキル） |
 | `searching-` | 検索・情報収集 | `searching-web` |
-| `modernizing-` | レガシー刷新 | `modernizing-architecture` |
-| `architecting-` | アーキテクチャ設計 | `architecting-microservices` |
+| `modernizing-` | レガシー刷新 | `modernizing-legacy-systems` |
+| `architecting-` | アーキテクチャ設計 | `architecting-infrastructure` |
 | `authoring-` | スキル・コンテンツ作成 | `authoring-skills` |
 
 ### 命名規則チェックフロー

@@ -263,8 +263,8 @@ Q4: チームが大きく並行開発が必要か？
 |--------|------------|
 | コードレベルの SOLID・リファクタリング | `writing-clean-code` |
 | ドメイン設計・境界コンテキスト（Bounded Context） | `applying-domain-driven-design` |
-| マイクロサービス・CQRS・Saga パターン | `architecting-microservices` |
-| レガシーシステムのモダナイゼーション | `modernizing-architecture` |
+| マイクロサービス・CQRS・Saga パターン | `architecting-infrastructure` |
+| レガシーシステムのモダナイゼーション | `architecting-infrastructure` |
 | アーキテクチャトレードオフ分析 | `analyzing-software-tradeoffs` |
 | React 固有の CA 実装 | `developing-react` (CLEAN-ARCHITECTURE.md) |
 | Python 固有の CA 実装 | `developing-python` (CA-PYTHON.md) |

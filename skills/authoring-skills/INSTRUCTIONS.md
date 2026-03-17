@@ -282,7 +282,7 @@ detect-project-skills.sh は以下のスキルグループで構成される:
 | グループ | 検出条件 | 含まれるスキル |
 |---------|---------|--------------|
 | ALWAYS_SKILLS | 常時 | writing-clean-code, enforcing-type-safety, testing-code, securing-code, writing-effective-prose |
-| COMMON_DEV_SKILLS | 言語プロジェクト検出時 | researching-libraries, architecting-microservices, modernizing-architecture |
+| COMMON_DEV_SKILLS | 言語プロジェクト検出時 | researching-libraries, architecting-infrastructure |
 | 個別検出 | ファイル・依存関係 | developing-nextjs, developing-go 等（ファイルベースで1対1検出） |
 | WRITING_SKILLS | .tex 検出時 | writing-latex, writing-effective-prose, searching-web |
 | DESIGN_SKILLS | components.json/.stories.*/tailwind.config.* 検出時 | applying-design-guidelines, applying-behavior-design, implementing-design |

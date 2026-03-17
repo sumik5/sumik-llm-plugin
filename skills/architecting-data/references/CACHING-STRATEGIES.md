@@ -576,7 +576,7 @@ Calculated Results: 派生値キャッシュ
 
 ## Related Skills
 
-- **architecting-microservices**: サービス間キャッシュ戦略、分散キャッシュ
+- **architecting-infrastructure**: サービス間キャッシュ戦略、分散キャッシュ
 - **understanding-database-internals**: クエリプランナー、インデックス最適化（キャッシュ前の最適化）
 - **implementing-opentelemetry**: キャッシュHit/Miss率監視、レイテンシトレーシング
 - **designing-monitoring**: キャッシュパフォーマンスメトリクス、SLO設計

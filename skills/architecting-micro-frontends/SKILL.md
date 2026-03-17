@@ -5,8 +5,8 @@ description: >-
   (Module Federation, iframe, Web Components, SSR, ESI), decision framework, and organizational adoption.
   Use when decomposing frontend monoliths, choosing micro-frontend composition patterns, or designing
   multi-team frontend architecture.
-  For backend microservices patterns (Saga, granularity), use architecting-microservices instead.
-  For socio-technical modernization strategy, use modernizing-architecture instead.
+  For backend microservices patterns (Saga, granularity), use architecting-infrastructure instead.
+  For socio-technical modernization strategy, use architecting-infrastructure instead.
 disable-model-invocation: true
 ---
 
