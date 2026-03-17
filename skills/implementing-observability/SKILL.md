@@ -9,7 +9,7 @@ description: >-
   pipelines, setting up alerts, or establishing SLO-based reliability.
   Replaces: designing-monitoring, implementing-opentelemetry, implementing-logging.
   For LLM-specific monitoring, use practicing-llmops instead.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

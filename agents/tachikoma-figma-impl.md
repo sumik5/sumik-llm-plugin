@@ -7,7 +7,7 @@ skills:
   - implementing-design
   - styling-with-tailwind
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - securing-code
 mcpServers:

@@ -10,7 +10,6 @@ tools:
 permissionMode: plan
 skills:
   - securing-code
-  - securing-serverless
   - securing-ai-development
   - implementing-dynamic-authorization
   - managing-keycloak

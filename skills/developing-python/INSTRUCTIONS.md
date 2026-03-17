@@ -128,11 +128,85 @@ uv run mypy src/
 uv run pytest
 ```
 
+## 型安全性の原則（Python）
+
+Python開発において型安全性は必須要件。以下のルールは**絶対遵守**。
+
+### Any型禁止ルール
+
+```python
+# ❌ 絶対禁止: Any型の使用
+from typing import Any
+def process(data: Any) -> Any: ...  # 型チェックが無効化される
+
+# ❌ bare except（Any型と同等の危険性）
+try:
+    result = risky_operation()
+except:  # KeyboardInterrupt もキャッチしてしまう
+    pass
+
+# ❌ eval/exec（セキュリティリスク + 型安全性ゼロ）
+eval(user_input)
+
+# ✅ 代替手段
+def process(data: dict[str, str]) -> str: ...  # 明示的な型ヒント
+def process(data: Union[int, str]) -> str: ...  # Union型
+def process(data: MyProtocol) -> str: ...       # Protocol（構造的部分型）
+```
+
+| 禁止パターン | 代替手段 |
+|------------|--------|
+| `Any` | `Union`・`Optional`・`Protocol`・明示的な型ヒント |
+| bare `except` | 具体的な例外クラス指定 |
+| `eval`/`exec` | 安全な代替実装 |
+| 可変デフォルト引数 `= []` | `field(default_factory=list)` |
+
+### 型ヒント基本原則
+
+```python
+# ✅ すべての関数シグネチャに型ヒント必須
+def get_user(user_id: str) -> Optional[User]:
+    """IDでユーザーを取得。見つからない場合はNone。"""
+    return db.query(User).filter_by(id=user_id).first()
+
+# ✅ TypedDict（辞書型の構造を型安全に）
+from typing import TypedDict
+
+class UserDict(TypedDict):
+    id: str
+    name: str
+    email: str
+
+# ✅ Protocol（ダックタイピングを型安全に）
+from typing import Protocol
+
+class Drawable(Protocol):
+    def draw(self) -> None: ...
+
+# ✅ dataclass（データクラスを型安全に）
+from dataclasses import dataclass, field
+
+@dataclass
+class Team:
+    name: str
+    members: list[str] = field(default_factory=list)  # 可変デフォルト回避
+```
+
+### 詳細リファレンス
+
+| ファイル | 内容 |
+|---------|------|
+| [TYPE-SAFETY-PYTHON.md](./references/TYPE-SAFETY-PYTHON.md) | Any禁止・TypedDict・Protocol・dataclass の詳細 |
+| [TYPE-SAFETY-ANTI-PATTERNS.md](./references/TYPE-SAFETY-ANTI-PATTERNS.md) | Python固有アンチパターン・可変デフォルト引数等 |
+| [TYPE-SAFETY-REFERENCE.md](./references/TYPE-SAFETY-REFERENCE.md) | mypy/pyrightconfig設定・CI/CDチェックリスト |
+
+---
+
 ## 💡 重要な原則
 
 ### 型安全性
-- **any型の使用禁止**（詳細は `enforcing-type-safety` スキル参照）
-- strict型チェックモードの活用
+- **Any型の使用禁止**（詳細は上記「型安全性の原則」セクション参照）
+- strict型チェックモードの活用（mypy/pyright）
 - Pydanticモデルによるランタイムバリデーション
 
 ### テスト駆動開発
@@ -174,7 +248,7 @@ uv run pytest
 ## 🔗 関連スキル
 
 - **[writing-clean-code](../writing-clean-code/SKILL.md)**: SOLID原則とクリーンコード
-- **[enforcing-type-safety](../enforcing-type-safety/SKILL.md)**: 型安全性の確保
+- **[mastering-typescript](../mastering-typescript/SKILL.md)**: TypeScript型安全性（TypeScript開発時）
 - **[testing](../testing/SKILL.md)**: テストファーストアプローチ
 - **[securing-code](../securing-code/SKILL.md)**: セキュアコーディング
 - **[writing-effective-prose](../writing-effective-prose/SKILL.md)**: ドキュメント作成

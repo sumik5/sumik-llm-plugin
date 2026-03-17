@@ -7,7 +7,7 @@ description: >-
   Use when designing REST APIs, writing API specs, adopting spec-first development, or building API test strategies.
   For framework-specific implementation (Express, NestJS), use respective framework skill.
   For microservices patterns and trade-off analysis of API usability vs maintenance, use architecting-infrastructure instead.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

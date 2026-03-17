@@ -326,12 +326,56 @@ Wave 3: E2Eテスト (tachikoma-e2e-test) ∥ 統合テスト (tachikoma-test)
 
 ---
 
+## Codex基本操作
+
+スキル同梱のラッパースクリプトでコードレビュー・分析を実行する。
+
+### コード相談
+
+```bash
+scripts/codex-consult.sh "<project_directory>" "<request>"
+```
+
+- `<project_directory>`: 対象プロジェクトのディレクトリ
+- `<request>`: 依頼内容（末尾に「確認不要・具体的提案まで出力」指示を自動付与）
+
+### プランレビュー
+
+```bash
+# 初回レビュー
+scripts/codex-plan-review.sh "<plan_file_fullpath>"
+
+# 再レビュー（直近セッション継続）
+scripts/codex-plan-review.sh "<plan_file_fullpath>" --resume
+```
+
+codex未インストールの場合: `npm install -g @openai/codex` でインストールを案内して終了。
+
+---
+
+## Agent→Codex変換
+
+Claude Code Agent定義（`.md`）をCodexのマルチエージェント形式（`config.toml` + `agents/*.toml`）に変換する。
+
+詳細な変換手順・検証方法・よくある失敗は `references/CONVERTING-AGENTS.md` を参照。
+
+**重要ルール:**
+- `developer_instructions` は元のagent本文を主ソースにする（短く要約しない）
+- `[[skills.config]]` には `path = "~/.codex/skills/<skill>/SKILL.md"` と `enabled = true` を明示する
+- `mcp_servers` は推測で追加しない（配列形式は特に禁止）
+- 変換後はTOMLパースとCodex実ランタイムの警告確認を必ず行う
+
+---
+
 ## サブファイルナビゲーション
 
 | ファイル | 内容 |
 |---------|------|
 | `references/PLAN-TEMPLATE.md` | `docs/plan-{feature-name}.md` テンプレート・回復手順・実行ログ記録方法 |
 | `references/WORKFLOW-GUIDE.md` | Phase 1-2 詳細ワークフロー（計画策定 → ユーザー確認 → Wave並列実装 → 統合 → 完了） |
+| `references/CONVERTING-AGENTS.md` | Claude Code Agent → Codex形式変換ガイド（フィールドマッピング・検証手順・失敗パターン） |
+| `scripts/codex-consult.sh` | コード相談ラッパースクリプト（モデル固定・プロンプト補正付き） |
+| `scripts/codex-plan-review.sh` | プランレビューラッパースクリプト（初回・resume両モード対応） |
 
 ---
 

@@ -257,6 +257,67 @@ Q4: チームが大きく並行開発が必要か？
 
 ---
 
+## ドメイン駆動設計（DDD）との統合
+
+Clean ArchitectureとDDDは相補的な手法。CAはレイヤー間の依存性ルールを定め、DDDはドメイン層の内部構造（エンティティ、集約、ユビキタス言語）を提供する。
+
+### 戦略的設計：Bounded Contextとレイヤー構造の対応
+
+**Bounded Context** はCAの「エンティティ層」+「ユースケース層」の境界と一致させる：
+
+```
+Bounded Context A            Bounded Context B
+ ┌─────────────┐              ┌─────────────┐
+ │ Entities    │              │ Entities    │
+ │ Use Cases   │              │ Use Cases   │
+ └─────────────┘              └─────────────┘
+   ↕ ACL/Events                  ↕ ACL/Events
+```
+
+- 各Bounded Context内でユビキタス言語を維持する
+- Context間通信はAnticorruption Layer（ACL）またはDomain Eventで行う
+- 1つのBounded Contextが1つのマイクロサービスに対応することが多い
+
+### 戦術的パターン：エンティティ層での実装
+
+| DDDパターン | CAでの配置 | 役割 |
+|------------|-----------|------|
+| **Entity** | Entities層 | 識別子を持つビジネスオブジェクト |
+| **Value Object** | Entities層 | 不変・値等価なオブジェクト |
+| **Aggregate** | Entities層 | トランザクション境界を持つEntity群 |
+| **Domain Service** | Use Cases層 | 複数Aggregateにまたがるロジック |
+| **Repository** | Interface Adapters層 | Aggregateの永続化を抽象化 |
+| **Domain Event** | Use Cases層 | Aggregate間の疎結合な通知 |
+
+### Subdomain分類と実装パターン選択
+
+```
+Core Subdomain      → Domain Model + Ports & Adapters（CAを完全適用）
+Generic Subdomain   → 既製品・SaaS（CA境界でACLラップ）
+Supporting Subdomain→ Transaction Script / Active Record（Layered Architecture）
+```
+
+### Context MappingとCAのInterface Adapters層
+
+**Anticorruption Layer（ACL）はInterface Adapters層に実装**：
+
+```
+UseCase（内側）→ [Repository Interface] ← [Repository Impl → ACL → 外部サービス]
+```
+
+上流Bounded Contextのモデルを下流のモデルに変換するアダプターをInterface Adapters層に配置することで、依存性ルールを守りながらContext間の結合を最小化できる。
+
+### 詳細リファレンス
+
+- **[DDD-GUIDE.md](./references/DDD-GUIDE.md)**: DDDの全体構成・Quick Start・意思決定フレームワーク
+- **[DDD-STRATEGIC-DESIGN.md](./references/DDD-STRATEGIC-DESIGN.md)**: Bounded Context・Ubiquitous Language・Context Mapping
+- **[DDD-TACTICAL-PATTERNS.md](./references/DDD-TACTICAL-PATTERNS.md)**: Value Object・Entity・Aggregate・Event Sourcing
+- **[DDD-PRACTICE.md](./references/DDD-PRACTICE.md)**: イベントストーミング・既存システムへの導入・進化的設計
+- **[DDD-DATA-DECOMPOSITION.md](./references/DDD-DATA-DECOMPOSITION.md)**: データドメイン分割・ポリグロットDB選択
+- **[DDD-INTEGRATION.md](./references/DDD-INTEGRATION.md)**: マイクロサービス・イベント駆動・データメッシュとの統合
+
+---
+
 ## 相互参照マップ
 
 | 関心事 | 参照先スキル |

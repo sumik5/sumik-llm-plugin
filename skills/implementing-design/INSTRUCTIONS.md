@@ -160,6 +160,40 @@ When in doubt, defer to the project's established design system patterns. The de
 
 ---
 
+## Figma UIデザインワークフロー
+
+Figmaを使ったUIデザイン制作ワークフロー（ワイヤーフレーム→プロトタイプ→詳細デザイン→ハンドオフ）。デザイン側の視点からFigmaを操作する際に参照する。
+
+> 注: Figma MCP統合（デザイン→コード自動変換）は上記「Figma MCP統合」セクション参照。このセクションはFigma上でのUIデザイン作業自体を対象とする。
+
+### 4フェーズ制作フロー
+
+```
+Phase 1: ワイヤーフレーム → 8ptグリッド設定、Safe Area確保、UI Kit活用
+Phase 2: プロトタイプ   → Flow管理、インタラクション設定、Smart Animate
+Phase 3: 詳細デザイン   → コンポーネント化、バリアント設計、UIスタック（5状態）
+Phase 4: ハンドオフ    → スタイル命名整備、Inspect/Designタブ確認環境の整備
+```
+
+### コアプリンシプル
+
+- **8ptグリッドシステム**: 全レイアウト値を8の倍数で統一（@0.75x〜@4xで整数ピクセル保証）
+- **コンポーネント駆動設計**: 同じUIを2箇所以上で使う場合はコンポーネント化
+- **UIスタック（5状態）**: Blank/Loading/Partial/Error/Ideal の全状態を必ず設計
+- **スタイル命名規則**: `[Mode]/[Element]/[Type]` 形式（例: `Light/Label/1`, `Dark/Background/1`）
+
+### 詳細ガイド
+
+| ファイル | 内容 |
+|---------|------|
+| [`references/FIGMA-UI-DESIGN-GUIDE.md`](references/FIGMA-UI-DESIGN-GUIDE.md) | 制作ワークフロー全体・単位リファレンス・コアプリンシプル詳細 |
+| [`references/FIGMA-PRODUCTION-WORKFLOW.md`](references/FIGMA-PRODUCTION-WORKFLOW.md) | Auto Layout・コンポーネント/バリアント設計・ワイヤーフレーム・プロトタイプ |
+| [`references/FIGMA-HANDOFF-DESIGN.md`](references/FIGMA-HANDOFF-DESIGN.md) | カラースタイル設計・ダークモード対応・テキストスタイル・インタラクティブコンポーネント |
+| [`references/FIGMA-ENGINEER-COLLABORATION.md`](references/FIGMA-ENGINEER-COLLABORATION.md) | Inspect/Design/Prototypeタブ活用・画像書き出し設定 |
+| [`references/FIGMA-PLUGIN-WORKFLOW.md`](references/FIGMA-PLUGIN-WORKFLOW.md) | プラグイン活用（Unsplash・Content Reel）・推奨プラグイン |
+
+---
+
 ## Figma MCP統合
 
 Figma MCPを使ったデザイン→コード変換の包括的ワークフロー。基本変換からFigma Make統合・Code Connect・Design System Rules・デザイントークン同期まで対応。

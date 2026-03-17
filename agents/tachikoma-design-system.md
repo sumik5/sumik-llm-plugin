@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - building-design-systems
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - securing-code
 mcpServers:

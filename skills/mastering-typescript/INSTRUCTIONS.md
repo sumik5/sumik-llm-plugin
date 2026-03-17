@@ -114,17 +114,88 @@ interface UserResponse {
 
 ---
 
-## 5. 関連スキル
+## 5. 型安全性の原則（TypeScript）
+
+TypeScript開発において型安全性は最優先事項。以下のルールは**絶対遵守**。
+
+### 5.1 any型禁止ルール
+
+```typescript
+// ❌ 絶対禁止: any型の使用
+const data: any = fetchData()
+function process(x: any) { ... }
+const handler: Function = () => {}  // Function型もany相当
+
+// ✅ 代替手段
+const data: unknown = fetchData()   // unknown + 型ガード
+function process<T>(x: T) { ... }   // ジェネリクス
+type Handler = (x: number) => void  // 具体的な関数型
+```
+
+| 禁止パターン | 代替手段 |
+|------------|--------|
+| `any` | `unknown` + 型ガード |
+| `Function` | 具体的な関数型シグネチャ |
+| `!` の濫用 | `?.` オプショナルチェイニング |
+| `==` | `===` 厳密等価演算子 |
+
+### 5.2 型ガード3パターン
+
+```typescript
+// パターン1: typeof（プリミティブ型判定）
+function processValue(val: string | number): string {
+  if (typeof val === 'string') return val.toUpperCase()
+  return val.toString()
+}
+
+// パターン2: instanceof（クラスインスタンス判定）
+function handleError(error: unknown): void {
+  if (error instanceof ApiError) {
+    console.error(`API Error ${error.statusCode}`)
+  } else if (error instanceof Error) {
+    console.error(error.message)
+  }
+}
+
+// パターン3: カスタム型ガード（is述語）
+function isUser(value: unknown): value is User {
+  return typeof value === 'object' && value !== null &&
+         'id' in value && 'name' in value
+}
+
+if (isUser(data)) {
+  console.log(data.name)  // 型安全: Userとして推論される
+}
+```
+
+### 5.3 型安全性レベル
+
+| レベル | チェック項目 | 必須度 |
+|-------|------------|--------|
+| **レベル1: 基本** | any型不使用 / 全関数に型注釈 / strict mode有効 | 必須 |
+| **レベル2: 標準** | 型ガードの適切な使用 / ジェネリクス活用 / Utility Types活用 | 推奨 |
+| **レベル3: 高度** | 構造的部分型 / 型レベルプログラミング / 100%型カバレッジ | 理想 |
+
+### 5.4 詳細リファレンス
+
+| ファイル | 内容 |
+|---------|------|
+| [TS-TYPE-SAFETY.md](./references/TS-TYPE-SAFETY.md) | any禁止・型ガード・ジェネリクス・Utility Types の詳細 |
+| [TS-TYPE-ANTI-PATTERNS.md](./references/TS-TYPE-ANTI-PATTERNS.md) | TypeScript固有アンチパターン・共通アンチパターン |
+| [TS-TYPE-REFERENCE.md](./references/TS-TYPE-REFERENCE.md) | tsconfig設定・ESLint設定・CI/CDチェックリスト |
+
+---
+
+## 6. 関連スキル
 
 | スキル | 関係 |
 |--------|------|
-| `enforcing-type-safety` | 型安全性の強制ルール（`any`禁止等）。本スキルは「学ぶ」、あちらは「強制する」 |
 | `developing-nextjs` | Next.js固有のTypeScript設定・パターン（React性能最適化含む） |
 | `developing-fullstack-javascript` | フルスタックJS/TSアーキテクチャ戦略 |
 
 ---
 
-## 6. まとめ
+## 7. まとめ
 
 **優先順位:**
 

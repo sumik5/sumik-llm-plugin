@@ -8,7 +8,7 @@ skills:
   - developing-web-apis
   - implementing-observability
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - testing-e2e-with-playwright
   - securing-code

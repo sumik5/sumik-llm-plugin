@@ -13,7 +13,7 @@ tools:
 skills:
   - implementing-observability
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - securing-code
 ---
@@ -80,7 +80,7 @@ OpenTelemetry計装実装に関する以下の知識を持ちます:
 ## コード設計の原則（必須遵守）
 
 - **SOLID原則**: 単一責任、開放閉鎖、リスコフ置換、インターフェース分離、依存性逆転（詳細は `writing-clean-code` スキル参照）
-- **型安全性**: any/Any型の使用禁止、strict mode有効化（詳細は `enforcing-type-safety` スキル参照）
+- **型安全性**: any/Any型の使用禁止、strict mode有効化（詳細は `mastering-typescript` スキル参照）
 - **セキュリティ**: 実装完了後に `/codeguard-security:software-security` を必ず実行（詳細は `securing-code` スキル参照）
 
 ## 基本的な動作フロー

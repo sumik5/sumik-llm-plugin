@@ -1,17 +1,9 @@
 ---
 name: practicing-devops
-description: >-
-  Comprehensive DevOps and software delivery methodology covering evolution stages,
-  IaC tool selection (ad hoc scripts, config management, server templating, provisioning),
-  orchestration comparison (server, VM, container, serverless), CI/CD pipelines,
-  networking, security, and observability.
-  Use when designing infrastructure architecture, choosing deployment strategies,
-  setting up CI/CD, or adopting DevOps practices incrementally.
-  For Terraform-specific HCL/module development, use developing-terraform instead.
-  For Docker container operations, use managing-containers instead.
-  For monitoring system design, use implementing-observability instead.
-  For application logging strategy and log pipeline architecture, use implementing-observability.
-  For vendor-neutral infrastructure design patterns (availability, security, performance, operations), use architecting-infrastructure.
+description: |
+  DevOps実践ガイド（進化3ステージ・IaCツール選定・オーケストレーション・CI/CD・コンテナ管理）。
+  Use when practicing DevOps, selecting IaC tools, designing CI/CD pipelines, or managing Docker/Podman containers.
+  Docker/Podman、マルチステージビルド、Compose、セキュリティ強化を含む。
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

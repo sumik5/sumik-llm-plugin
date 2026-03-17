@@ -6,11 +6,10 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - integrating-ai-web-apps
   - designing-genai-patterns
-  - practicing-llmops
   - developing-mcp
   - developing-with-ai
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - securing-code
 ---
@@ -66,7 +65,7 @@ skills:
 - **MCPセキュリティ**: Tool Poisoning（悪意あるツール定義）・Shadowing（ツール名乗っ取り）・Rug Pull（後からツール変更）・Prompt Injection への対策
 - **TypeScript SDK**: `@modelcontextprotocol/sdk` を使用したサーバー実装。`Server` クラス・`StdioServerTransport`
 
-### LLMOps（practicing-llmops）
+### LLMOps・AgentOps（designing-genai-patterns）
 
 - **データエンジニアリングパイプライン**: 学習データの収集・クリーニング・品質評価・バージョン管理
 - **モデル適応戦略**: RAG（外部知識）vs Fine-tuning（ドメイン特化）vs プロンプトエンジニアリングのトレードオフ判断
@@ -74,6 +73,7 @@ skills:
 - **LLM評価メトリクス**: 忠実度（Faithfulness）・関連性（Relevance）・接地性（Groundedness）。RAGAS等の評価フレームワーク
 - **LLMSecOps**: プロンプトインジェクション検出・越境利用防止・PII（個人情報）マスキング・監査ログ
 - **インフラスケーリング**: Vector DBのシャーディング・エンベディングキャッシュ・非同期バッチ処理
+- **AgentOps**: Tool Registry・Agent Registry・Memory & Data Governance・MLOps→AgentOps進化
 
 ### AI支援開発（developing-with-ai）
 

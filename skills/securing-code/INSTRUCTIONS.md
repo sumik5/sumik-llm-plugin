@@ -202,6 +202,39 @@ Webアプリケーションに対する代表的な攻撃手法：
 - クラウドサービス調査（AWS IAM、Cognito、S3）
 - セキュリティ制限の回避（WAF、アクセス制御、暗号攻撃）
 
+---
+
+## サーバーレスセキュリティ
+
+Lambda/Cloud Run/Azure Functions等のサーバーレスアプリケーション固有の脅威モデルと防御策。
+
+### サーバーレス固有の17脅威カテゴリ
+
+IAM認証情報漏洩・ストレージ設定ミス・コードインジェクション・過剰権限・Supply Chain攻撃・DoS/Denial of Wallet等。
+詳細な攻撃シナリオ・防御策は [`references/SL-THREATS.md`](references/SL-THREATS.md) 参照。
+
+### クラウド横断セキュリティ原則
+
+- **最小権限**: ワイルドカード（`*`）禁止。関数単位で必要最小限の権限のみ付与
+- **シークレット管理**: ハードコード・環境変数平文保存禁止 → AWS Secrets Manager / GCP Secret Manager / Azure Key Vault使用
+- **ネットワーク分離**: 関数をVPC/VNet内に配置。内部リソースはPrivate Subnetに
+- **ロギング・監視**: CloudTrail/Cloud Audit Logs・GuardDuty/Security Command Center必須
+
+### クラウド別リファレンス
+
+| クラウド | ファイル | 主要トピック |
+|---------|---------|-------------|
+| AWS IAM | [`SL-AWS-IAM.md`](references/SL-AWS-IAM.md) | IAM認証情報悪用・権限昇格・AssumeRole攻撃 |
+| AWS Lambda | [`SL-AWS-LAMBDA.md`](references/SL-AWS-LAMBDA.md) | Function URL攻撃・VPC保護・Secrets Manager |
+| GCP Storage | [`SL-GCP-STORAGE.md`](references/SL-GCP-STORAGE.md) | GCSバケット攻撃・Dangling Bucket Takeover |
+| GCP Compute | [`SL-GCP-COMPUTE.md`](references/SL-GCP-COMPUTE.md) | Cloud Run権限昇格・Workload Identity |
+| Azure | [`SL-AZURE-FUNCTIONS.md`](references/SL-AZURE-FUNCTIONS.md) | Managed Identity悪用・RBAC権限昇格 |
+| コード分析 | [`SL-CODE-ANALYSIS.md`](references/SL-CODE-ANALYSIS.md) | Semgrep・IaCスキャン（Checkov）・依存関係スキャン |
+
+詳細ガイド全体は [`references/SL-SERVERLESS-GUIDE.md`](references/SL-SERVERLESS-GUIDE.md) 参照。
+
+---
+
 ## ユーザー確認の原則（AskUserQuestion）
 
 **判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**

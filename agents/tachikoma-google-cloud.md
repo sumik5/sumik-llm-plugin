@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - developing-google-cloud
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - securing-code
 ---
@@ -128,7 +128,7 @@ skills:
 - [ ] トリガーが適切なブランチ・イベントに設定されている
 
 ### 型安全性（TypeScript/Python）
-- [ ] `any` 型を使用していない（`enforcing-type-safety` スキル準拠）
+- [ ] `any` 型を使用していない（`mastering-typescript` スキル準拠）
 - [ ] Google Cloud クライアントライブラリの型定義を正確に使用
 - [ ] BigQuery スキーマの型定義が完備
 

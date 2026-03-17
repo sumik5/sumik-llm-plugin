@@ -5,9 +5,8 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - developing-python
-  - building-adk-agents
+  - building-ai-agents
   - writing-clean-code
-  - enforcing-type-safety
   - testing-code
   - securing-code
 ---

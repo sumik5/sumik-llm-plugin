@@ -13,7 +13,7 @@ skills:
   - testing-e2e-with-playwright
   - automating-browser
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - securing-code
 ---
 

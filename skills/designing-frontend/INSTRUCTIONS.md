@@ -178,6 +178,61 @@ UIの構造設計にオブジェクト指向アプローチを適用する手法
 - **[OOUI-WORKOUT.md](./references/OOUI-WORKOUT.md)**: 実践的な設計判断パターン集
 - **[OOUI-THEORY.md](./references/OOUI-THEORY.md)**: 理論的背景（OOP/GUI/モードレス）
 
+## 🏛️ マイクロフロントエンドアーキテクチャ
+
+大規模フロントエンドをチームごとに独立デプロイ可能な単位に分割するアーキテクチャスタイル。マイクロサービスの概念をフロントエンドに適用し、複数チームが同一Webアプリケーションを自律的に開発・デプロイできるようにする。
+
+### 採用判断基準
+
+**採用すべき状況:**
+- 複数チーム（5人以上）が同一フロントエンドを開発している
+- フロントエンドモノリスが肥大化し開発速度が低下している
+- ドメイン境界が明確でチームごとの技術選択が必要
+
+**避けるべき状況:**
+- 小規模チーム（5人未満）やシンプルなアプリケーション
+- 組織的な複雑さを受け入れる準備ができていない場合
+
+### 分割戦略
+
+| 戦略 | 特徴 | 推奨シーン |
+|------|------|---------|
+| **垂直分割** | URL/ページ単位。独立性高・SEO容易 | 大規模組織 |
+| **水平分割** | ページ内コンポーネント単位。リアルタイム更新・段階的移行向け | 中〜大規模 |
+| **ハイブリッド** | 両方の組み合わせ | 複合要件 |
+
+### 構成パターン選択
+
+| パターン | 統合場所 | SEO | 推奨シーン |
+|---------|---------|-----|---------|
+| **Module Federation** | クライアント | ★★ | SPA・大規模チーム |
+| **Web Components** | クライアント | ★★★★ | 汎用コンポーネント共有 |
+| **SSR Frameworks** | サーバ | ★★★★★ | SEO重視・初期表示高速 |
+| **ESI** | エッジ | ★★★★★ | グローバル低レイテンシ配信 |
+
+### 意思決定フレームワーク（4ステップ）
+
+1. **MFEの定義**: ビジネスドメイン・責任範囲・チームオーナーシップを明確化
+2. **DDD適用**: Bounded Context境界を基にMFEを分割（70%以上の時間を独立作業できる粒度）
+3. **構成方法選択**: クライアント/サーバ/エッジサイドから選択
+4. **通信設計**: Custom Events・URL Params・Web Storageで疎結合を維持
+
+### バックエンド統合パターン
+
+- **BFF（推奨）**: 1ドメイン = 1 APIエントリポイント。各MFEに最適化されたAPI
+- **API Gateway**: 認証・ロギング等の横断関心事を集約
+- **GraphQL Federation**: 複数データソースを柔軟に統合
+
+### 詳細リファレンス
+
+- **[MFE-ARCHITECTURE-GUIDE.md](./references/MFE-ARCHITECTURE-GUIDE.md)**: 意思決定フレームワーク・全体ガイド
+- **[MFE-COMPOSITION-PATTERNS.md](./references/MFE-COMPOSITION-PATTERNS.md)**: 各構成パターンの技術詳細と実装例
+- **[MFE-BUILD-AND-DEPLOY.md](./references/MFE-BUILD-AND-DEPLOY.md)**: CI/CD戦略・テストピラミッド・デプロイ戦略
+- **[MFE-BACKEND-PATTERNS.md](./references/MFE-BACKEND-PATTERNS.md)**: API統合パターン（BFF・API Gateway・GraphQL）
+- **[MFE-MIGRATION-AND-ORGANIZATION.md](./references/MFE-MIGRATION-AND-ORGANIZATION.md)**: 組織設計・段階的移行・ガバナンス
+
+---
+
 ## 🔗 関連スキル
 
 - **developing-nextjs**: Next.js固有の最適化

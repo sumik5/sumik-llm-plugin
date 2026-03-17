@@ -68,13 +68,62 @@ npx -y react-doctor@latest . --no-dead-code
 
 **スコア基準**: 75+ Great / 50-74 Needs work / <50 Critical
 
+## Storybook開発
+
+コンポーネント駆動開発（CDD）のためのStorybookガイド。CSF3 Story記述、インタラクションテスト（play関数）、アクセシビリティテスト（axe-core）、ビジュアルリグレッションテストをカバーする。
+
+### CSF3 基本パターン
+
+```typescript
+import type { Meta, StoryObj } from '@storybook/react';
+import { fn } from '@storybook/test';
+import { MyComponent } from '@/components/MyComponent';
+
+const meta = {
+  component: MyComponent,
+} satisfies Meta<typeof MyComponent>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  args: { onClick: fn(), children: 'テキスト' },
+};
+```
+
+### インタラクションテスト（play関数）
+
+```typescript
+play: async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  await userEvent.click(canvas.getByRole('button', { name: '送信' }));
+  await waitFor(() => expect(args.onSubmit).toHaveBeenCalled());
+}
+```
+
+### アクセシビリティテスト
+
+```typescript
+// .storybook/preview.ts
+parameters: { a11y: { test: 'error' } }  // 全ストーリーでa11y違反をエラーに
+```
+
+### Storybook リファレンス
+
+| ドキュメント | 内容 |
+|------------|------|
+| **[SB-STORYBOOK-GUIDE.md](./references/SB-STORYBOOK-GUIDE.md)** | Quick Start・全機能ガイド（MSW・Next.js統合・Decorators） |
+| **[SB-SETUP.md](./references/SB-SETUP.md)** | フレームワーク別セットアップ・設定詳細 |
+| **[SB-TESTING.md](./references/SB-TESTING.md)** | テスト戦略（インタラクション・ビジュアル・a11y・Portable Stories） |
+| **[SB-PATTERNS.md](./references/SB-PATTERNS.md)** | 高度なStoryパターン・MSW・Decorators・CI/CD統合 |
+
 ## 関連スキル
 
 | スキル | 関係 |
 |--------|------|
 | **`developing-nextjs`** | Next.js固有機能（App Router、Server Components）。React共通部分は本スキル参照 |
 | **`testing-code`** | テスト方法論（TDD、AAA パターン）。RTL固有は本スキル参照 |
-| **`designing-frontend`** | UIコンポーネント管理（shadcn/ui、Storybook） |
+| **`designing-frontend`** | UIコンポーネント管理（shadcn/ui） |
 | **`writing-clean-code`** | SOLID原則、クリーンコード（言語非依存） |
 | **`enforcing-type-safety`** | TypeScript型安全性。React型定義は本スキルのRI-TYPESCRIPT-REACT.md参照 |
 | **`mastering-typescript`** | TypeScript高度パターン。React統合はFRAMEWORK-INTEGRATION.md参照 |

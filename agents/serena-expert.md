@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - using-serena
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - securing-code
 ---

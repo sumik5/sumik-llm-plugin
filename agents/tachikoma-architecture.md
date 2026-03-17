@@ -9,11 +9,10 @@ tools:
   - Bash
 permissionMode: plan
 skills:
-  - applying-domain-driven-design
+  - applying-clean-architecture
   - architecting-infrastructure
   - architecting-data
   - building-multi-tenant-saas
-  - applying-clean-architecture
 ---
 
 # 言語設定（最優先・絶対遵守）

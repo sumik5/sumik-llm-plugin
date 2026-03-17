@@ -382,3 +382,61 @@ Runtimeフェーズ: User Question → Embed Query → Similarity Search → LLM
 ### ユーザー確認が必要な場面
 
 RAGフレームワーク選択（LangChain/LlamaIndex/カスタム）、ベクトルストア選択（pgvector/Pinecone/Chroma等）、Embedding model選択、クラウドAPI vs ローカルモデルはAskUserQuestionで確認してください。
+
+---
+
+## LLMOps・AgentOps運用
+
+LLMアプリケーションの本番運用に必要なOps実践体系。運用・監視・継続的改善の包括的ガイドを提供する。
+
+### LLMOps成熟度モデル
+
+| Level | 名称 | 特徴 |
+|-------|------|------|
+| **Level 0** | 手動オペレーション | スクリプトベース、手動デプロイ、モニタリングなし |
+| **Level 1** | 半自動化 | CI/CD統合、基本的なモニタリング、プロンプトバージョニング |
+| **Level 2** | 完全自動化 | エンドツーエンドパイプライン、リアルタイム評価、自動スケーリング |
+
+**目標**: Level 2を目指し、データパイプライン・評価・デプロイの自動化を段階的に導入する。
+
+### MLOps → GenAIOps → AgentOps 進化
+
+```
+DevOps → MLOps（非決定論的ML対応）
+           └── FMOps / LLMOps（大規模Foundation Model対応）
+
+GenAIOps（非決定論的GenAIアプリケーション本番化）
+  ├── PromptOps（プロンプト再利用・バージョニング・評価）
+  ├── RAGOps（データ取得パイプライン〜回答生成の標準化）
+  └── AgentOps（エージェント+ツールの複合システム本番化）
+```
+
+多くの企業は **Model Consumer**。既存FMをAPI経由で消費し、GenAIOps/AgentOpsに集中する。
+
+### LLM構築の10課題
+
+| # | 課題 | 主な対策 |
+|---|------|----------|
+| 1 | サイズと複雑性 | 構造化評価、複数メトリクス |
+| 2 | 訓練スケール | 分散訓練、ハードウェア計画 |
+| 3 | プロンプトエンジニアリング | バージョニング、監視パイプライン |
+| 4 | 推論レイテンシ | キャッシング、バッチ処理 |
+| 5 | 倫理的配慮 | フェアネス評価、セーフガード |
+| 6 | リソースオーケストレーション | 自動スケーリング、マルチモデル管理 |
+| 7 | 統合とツールキット | セキュアAPI設計、互換性テスト |
+| 8 | 広範な適用性 | 高速フィードバックループ、A/Bテスト |
+| 9 | プライバシーとセキュリティ | データ匿名化、入力検証 |
+| 10 | コスト | コスト監視、モデル最適化 |
+
+### 詳細リファレンスナビゲーション
+
+| ファイル | 内容 |
+|---------|------|
+| `references/OPS-LLMOPS-GUIDE.md` | LLMOps全体ガイド（成熟度・AgentOps・Tool Registry・Agent Registry） |
+| `references/OPS-DATA-ENGINEERING.md` | データパイプライン、前処理、ストレージ、埋め込み管理 |
+| `references/OPS-MODEL-ADAPTATION.md` | プロンプトエンジニアリング、ファインチューニング、RAG、量子化 |
+| `references/OPS-API-DEPLOYMENT.md` | APIファースト設計、ビジネスモデル、レイテンシ最適化 |
+| `references/OPS-EVALUATION.md` | 評価フレームワーク、メトリクス、ベンチマーク、人手評価 |
+| `references/OPS-SECURITY-GOVERNANCE.md` | LLMSecOps、プライバシー、ガバナンス、監査フレームワーク |
+| `references/OPS-SCALING-INFRASTRUCTURE.md` | ハードウェア選定、リソース管理、分散訓練、監視 |
+| `references/OPS-AGENTOPS.md` | AgentOps詳細（ロール・FM選定・Prompt Catalog・Tool Registry） |

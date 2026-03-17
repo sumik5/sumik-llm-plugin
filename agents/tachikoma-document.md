@@ -12,7 +12,7 @@ tools:
 skills:
   - writing-effective-prose
   - writing-latex
-  - crafting-ai-content
+  - creating-content
 ---
 
 # 言語設定（最優先・絶対遵守）
@@ -72,7 +72,7 @@ Zenn技術記事作成に関する以下の知識を持ちます:
 - **Lint設定**: textlint/markdownlint設定による自動品質管理
 - **Claude Code連携**: Zenn CLI + Claude Codeによる記事執筆ワークフロー
 
-### crafting-ai-content スキルの活用
+### creating-content スキルの活用
 
 AIコピーライティングに関する以下の知識を持ちます:
 

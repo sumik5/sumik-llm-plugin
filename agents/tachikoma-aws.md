@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - developing-aws
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - securing-code
 ---
@@ -135,7 +135,7 @@ skills:
 - [ ] Removal Policy が本番環境では `RETAIN` に設定されている
 
 ### 型安全性（TypeScript）
-- [ ] `any` 型を使用していない（`enforcing-type-safety` スキル準拠）
+- [ ] `any` 型を使用していない（`mastering-typescript` スキル準拠）
 - [ ] AWS SDK v3のCommand型を正確に指定
 - [ ] Lambdaハンドラーの入力・出力型定義が完備
 

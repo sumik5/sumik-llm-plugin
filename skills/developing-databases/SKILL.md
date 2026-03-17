@@ -8,7 +8,7 @@ description: >-
   engines, understanding consistency guarantees, or debugging distributed system behavior.
   Replaces: designing-relational-databases, avoiding-sql-antipatterns, understanding-database-internals.
   For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

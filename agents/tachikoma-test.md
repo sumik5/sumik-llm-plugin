@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - testing-code
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - securing-code
 ---
 

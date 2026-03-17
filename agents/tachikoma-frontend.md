@@ -5,10 +5,10 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - designing-frontend
-  - developing-storybook
+  - developing-react
   - designing-data-visualizations
   - writing-clean-code
-  - enforcing-type-safety
+  - mastering-typescript
   - testing-code
   - securing-code
 ---

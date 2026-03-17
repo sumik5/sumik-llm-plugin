@@ -444,6 +444,82 @@ UXデザインプロセスはマラソンである。短距離走のアプロー
 
 ---
 
+## デザイン思考プロセス（d.school/IDEO 5ステップ）
+
+ユーザー体験を中心に置いた問題解決・価値創造の方法論。「何を作るべきか」を探索するために使う。
+
+```
+共感（Empathize）→ 問題定義（Define）→ 発想（Ideate）→ プロトタイプ（Prototype）→ テスト（Test）
+```
+
+各ステップは線形ではなく、フィードバックによって反復するプロセス。
+
+### クイックリファレンス
+
+| ツール | フェーズ | 目的 |
+|--------|---------|------|
+| インタビュー・共感マップ | 共感 | Say/Do/Think/Feel でユーザー深層を収集 |
+| タテマエメソッド | 問題定義 | POV を TCS（矛盾・驚き）で鋭くする |
+| HMW（How Might We） | 発想 | 課題を「どうすれば？」に変換してアイデアを引き出す |
+| 雑っぴんぐ（CEP/CFP/DHP） | プロトタイプ | クイック＆ダーティで検証サイクルを高速化 |
+| KPT・カンバン | チーム | ふりかえりと WIP 制限でチーム協業を促進 |
+
+### 詳細リファレンス
+
+| ファイル | 内容 |
+|---------|------|
+| [DT-DESIGN-THINKING-GUIDE.md](references/DT-DESIGN-THINKING-GUIDE.md) | d.school/IDEO 5ステップ完全ガイド（本 INSTRUCTIONS.md の前スキル内容） |
+| [DT-UX-THEORY.md](references/DT-UX-THEORY.md) | UX理論基盤: UX定義・時間軸分類・利用文脈・認知工学 |
+| [DT-DESIGN-PROCESS.md](references/DT-DESIGN-PROCESS.md) | ISO 9241-210 HCDプロセス: 7段階プロセス・忠実度選択 |
+| [DT-RESEARCH-METHODS.md](references/DT-RESEARCH-METHODS.md) | リサーチ手法: エスノグラフィ・ペルソナ・ジャーニーマップ・KA法 |
+| [DT-DESIGN-EVALUATION-METHODS.md](references/DT-DESIGN-EVALUATION-METHODS.md) | 設計・評価手法: シナリオ法・ユーザビリティテスト・SUS |
+| [DT-TEAM-KAIZEN-PROCESS.md](references/DT-TEAM-KAIZEN-PROCESS.md) | チームカイゼン: OODAループ・ダブルダイヤモンド・プロセス可視化 |
+| [DT-DATA-DRIVEN-IMPROVEMENT.md](references/DT-DATA-DRIVEN-IMPROVEMENT.md) | データドリブン改善: 定量/定性データ・KGI/KPI・プロトタイプ活用 |
+| [DT-TEAM-USER-RESEARCH.md](references/DT-TEAM-USER-RESEARCH.md) | チーム参加型リサーチ: インタビュー実践・軽量UT・ゲリラインタビュー |
+| [DT-TEAM-PROTOTYPING.md](references/DT-TEAM-PROTOTYPING.md) | チーム協業プロトタイピング: パラレルトラック・軽量UT設計 |
+
+---
+
+## AIエクスペリエンス設計
+
+AIプロダクトのUXデザインに特化したフレームワーク。Input → Computation → Output の全フローをカバー。
+
+### AIプロジェクト失敗の5パターン（5 Fails）
+
+| # | パターン | 対策 |
+|---|---------|------|
+| 1 | 間違ったユースケース選択 | Value Matrixで価値検証 |
+| 2 | ビジョンの欠如 | AIストーリーボード（5要素）でフレーミング |
+| 3 | データ品質の無視 | デジタルツインで全体像可視化 |
+| 4 | ユーザーリサーチ省略 | MUSE / RITE でAI-Inclusive UCD |
+| 5 | 倫理・バイアス無視 | AI Humanifesto 5原則でチェック |
+
+### 主要設計フレームワーク
+
+| フレームワーク | 概要 |
+|--------------|------|
+| 3チャネルモデル | 暗黙コンテキスト・明示プロンプト・直接操作でユーザー意図を翻訳 |
+| CARE Framework | Context/Action/Results/Examples でプロンプトUI設計 |
+| 出力5原則 | Clear・Verifiable・Grounded・Actionable・Adjustable |
+| 5 Agenticパターン | Reflection/Tool Use/Planning/Multiagent/ReAct |
+
+### 詳細リファレンス
+
+| ファイル | 内容 |
+|---------|------|
+| [AIX-AI-EXPERIENCE-GUIDE.md](references/AIX-AI-EXPERIENCE-GUIDE.md) | AIインターフェース設計完全ガイド（前スキルINSTRUCTIONS.md全内容） |
+| [AIX-MENTAL-MODELS.md](references/AIX-MENTAL-MODELS.md) | ユーザーメンタルモデル・AI歴史・組織成熟度診断 |
+| [AIX-FRAMING-METHODS.md](references/AIX-FRAMING-METHODS.md) | ストーリーボード・デジタルツイン・Value Matrix |
+| [AIX-INPUT-DESIGN.md](references/AIX-INPUT-DESIGN.md) | 3チャネル設計・CARE Framework・Voice入力3タイプ |
+| [AIX-COMPUTATION-UX.md](references/AIX-COMPUTATION-UX.md) | 処理パイプライン・ルーティング・レイテンシー管理 |
+| [AIX-OUTPUT-DESIGN.md](references/AIX-OUTPUT-DESIGN.md) | 出力5原則・AI Overreliance対策・Watermarking |
+| [AIX-COPILOT-PATTERNS.md](references/AIX-COPILOT-PATTERNS.md) | SaaS Copilot配置・Discovery 4パターン・7 LLMパターン |
+| [AIX-AI-FIRST-UX.md](references/AIX-AI-FIRST-UX.md) | AI-First IA・Forecasting・Anomaly Detection UI |
+| [AIX-AGENTIC-DESIGN.md](references/AIX-AGENTIC-DESIGN.md) | 5 Agenticパターン詳細・チェックポイント・権限設計 |
+| [AIX-RESEARCH-AND-ETHICS.md](references/AIX-RESEARCH-AND-ETHICS.md) | MUSE・RITE・AIバイアス対策・AI Humanifesto |
+
+---
+
 ## UIデザイン実践TIPS
 
 UIの状態設計・フィードバック・コンポーネント選択・画面構成における実装レベルの判断基準。

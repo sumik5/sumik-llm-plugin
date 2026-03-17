@@ -5,13 +5,14 @@ description: >-
   RAG architecture (Basic RAG through Deep Search), model capabilities (Chain of Thought, Adapter Tuning),
   reliability (LLM-as-Judge, Reflection, Prompt Optimization), agentic systems (Tool Calling, Multiagent Collaboration),
   deployment optimization (SLM, Prompt Caching, Inference Optimization), safety guardrails (Self-Check, Guardrails),
-  and RAG system implementation (data loading from 11 source types, chunking strategies, vector stores).
+  RAG system implementation (data loading from 11 source types, chunking strategies, vector stores),
+  and LLMOps/AgentOps operations (maturity model Level 0–2, MLOps→GenAIOps→AgentOps evolution,
+  Tool Registry, Agent Registry, Memory & Data Governance, LLM evaluation metrics, LLMSecOps).
   Use when designing GenAI applications, choosing between RAG strategies, implementing agent architectures,
-  optimizing LLM reliability and deployment, or building RAG data pipelines.
-  For LLMOps operations and monitoring, use practicing-llmops.
+  optimizing LLM reliability and deployment, building RAG data pipelines, or operating LLM/Agent systems in production.
   For web app AI integration (Vercel AI SDK, LangChain.js), use integrating-ai-web-apps.
   For LangChain/LangGraph RAG pipelines, use building-langchain-agents.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

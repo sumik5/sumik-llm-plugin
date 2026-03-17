@@ -10,9 +10,7 @@ tools:
   - Write
 skills:
   - designing-ux
-  - crafting-ai-content
-  - practicing-design-thinking
-  - designing-ai-experiences
+  - creating-content
 ---
 
 # 言語設定（最優先・絶対遵守）
@@ -79,7 +77,7 @@ skills:
 - **信頼の設計**: AI出力の信頼性表示、説明可能性（Explainability）、フォールバック設計
 - **AIガードレール**: 安全性制約のUX表現。制限をユーザーに自然に伝えるパターン
 
-### AIクリエイティブ生成（crafting-ai-content）
+### AIクリエイティブ生成（creating-content）
 
 - **AI画像生成プロンプト設計**: 構図・スタイル・ムード・ライティングの指定テクニック
 - **広告クリエイティブ**: バナー・SNS投稿・LPヒーローイメージのデザイン原則

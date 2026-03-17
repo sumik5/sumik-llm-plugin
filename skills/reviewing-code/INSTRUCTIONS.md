@@ -394,6 +394,54 @@ PRを提出する前に、自分でコードを読み直す。開発中に見え
 
 ---
 
+## CodeRabbit統合レビュー
+
+CodeRabbitを使ったAI自動コードレビュー。機能実装後に自動でバグ・セキュリティ問題・品質リスクを検出し、修正ループを実行する。
+
+### 前提条件の確認
+
+```bash
+coderabbit --version 2>/dev/null || echo "NOT_INSTALLED"
+coderabbit auth status 2>&1
+```
+
+未インストール時: `curl -fsSL https://cli.coderabbit.ai/install.sh | sh`
+未認証時: `coderabbit auth login`
+
+### レビュー実行（デフォルト: 未コミットの変更）
+
+```bash
+coderabbit review --prompt-only --type uncommitted
+# 省略形
+cr review --prompt-only --type uncommitted
+```
+
+| フラグ | 説明 |
+|--------|------|
+| `-t all` | 全変更 |
+| `-t committed` | コミット済みのみ |
+| `-t uncommitted` | 未コミットのみ（デフォルト） |
+| `--base main` | 特定ブランチと比較 |
+| `--prompt-only` | Agent最適化の簡潔な出力 |
+| `--plain` | 修正提案付きの詳細出力 |
+
+### 自動修正ループ（デフォルトワークフロー）
+
+```
+レビュー実行 → Critical/Warning検出 → 修正 → 再レビュー（最大5回繰り返し）
+→ InfoのみまたはOK → 完了
+```
+
+**深刻度別分類**: Critical（セキュリティ脆弱性・クラッシュ）、Warning（バグ・アンチパターン）、Info（スタイル・軽微）
+
+**Info レベルは許容**: 特に要求がない限り修正不要。
+
+**修正が不明確またはリスクがある場合**: `AskUserQuestion` でユーザーに確認してから適用。
+
+詳細ワークフロー・全オプション → **[references/CODERABBIT-INTEGRATION.md](./references/CODERABBIT-INTEGRATION.md)**
+
+---
+
 ## サブファイル参照
 
 | 参照先 | 読む場面 |
@@ -402,3 +450,4 @@ PRを提出する前に、自分でコードを読み直す。開発中に見え
 | [references/EFFECTIVE-COMMENTS.md](./references/EFFECTIVE-COMMENTS.md) | コメント技法の詳細（5P・MMG・Triple-R・Conventional Comments） |
 | [references/TEAM-AGREEMENTS.md](./references/TEAM-AGREEMENTS.md) | TWAの設計とテンプレート |
 | [references/ANTI-PATTERNS.md](./references/ANTI-PATTERNS.md) | 問題パターンの診断と対策 |
+| [references/CODERABBIT-INTEGRATION.md](./references/CODERABBIT-INTEGRATION.md) | CodeRabbit CLI全手順・オプション |

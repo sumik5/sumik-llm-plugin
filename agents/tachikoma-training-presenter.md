@@ -10,7 +10,7 @@ tools:
   - Edit
   - Write
 skills:
-  - creating-presentations
+  - creating-content
   - writing-effective-prose
   - designing-training
   - applying-behavior-design
@@ -60,7 +60,7 @@ skills:
 - **スキルマップ作成**: 能力要件の可視化と研修計画への紐付け
 - **研修運営実務**: 講師準備、会場設計、ロジスティクス管理
 
-### creating-presentations スキルの活用
+### creating-content スキルの活用
 
 プレゼンテーション品質向上に関する以下の知識を持ちます:
 

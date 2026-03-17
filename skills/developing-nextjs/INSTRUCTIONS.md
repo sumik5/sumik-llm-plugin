@@ -59,6 +59,25 @@
 - **[NP-APP-ROUTER-FUNDAMENTALS.md](./references/NP-APP-ROUTER-FUNDAMENTALS.md)**: Route Segment用語、Server/Client Component判断基準、データ取得パターン、Metadata API
 - **[NP-FULLSTACK-PATTERNS.md](./references/NP-FULLSTACK-PATTERNS.md)**: フルスタック構成、Prisma ORM、NextAuth.js認証、Server Actions、4種類のキャッシュ戦略
 
+## SaaSアプリケーション構築
+
+Next.js App RouterベースのフルスタックAI SaaSアプリケーション構築パターン。認証（Clerk）、決済（PayPal/Stripe）、AI API統合（Replicate/OpenAI）、クレジット課金をカバーする。
+
+### 実装フェーズ別リファレンス
+
+| 実装フェーズ | 参照先 | 主要パターン |
+|---|---|---|
+| **認証・ユーザー管理** | [SAAS-AUTH-PATTERNS.md](./references/SAAS-AUTH-PATTERNS.md) | Clerk統合、Middleware保護、ソーシャルログイン |
+| **決済・課金** | [SAAS-PAYMENTS.md](./references/SAAS-PAYMENTS.md) | PayPal/Stripe統合、クレジットシステム、Webhook検証 |
+| **AI API統合** | [SAAS-AI-INTEGRATION.md](./references/SAAS-AI-INTEGRATION.md) | Replicate API、画像処理パイプライン、非同期ジョブ |
+| **データベース設計** | [SAAS-DB-PATTERNS.md](./references/SAAS-DB-PATTERNS.md) | Drizzle ORMスキーマ、トランザクション、マイグレーション |
+| **デプロイ** | [SAAS-DEPLOYMENT.md](./references/SAAS-DEPLOYMENT.md) | Vercel設定、環境変数、本番監視 |
+| **全体ガイド** | [SAAS-GUIDE.md](./references/SAAS-GUIDE.md) | アーキテクチャ概要、クイックスタートチェックリスト |
+
+**段階的実装順序**: 認証 → データベース → AI機能 → クレジット課金 → 決済 → デプロイ
+
+> エンタープライズB2B SaaS（組織管理・RBAC・テナント分離）は `building-multi-tenant-saas` を使用。
+
 ## 他のスキルとの連携
 
 このスキルは、以下の既存スキルと組み合わせて使用してください：

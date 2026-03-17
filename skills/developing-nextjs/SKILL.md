@@ -6,7 +6,7 @@ description: >-
   Prisma 7.x, Zod 4.x, Vitest 4.x, Playwright, Docker.
   MUST load when package.json contains 'next' or next.config.* is detected.
   For React-specific concerns (internals, performance rules, animation, RTL testing), use developing-react.
-  For SaaS patterns (auth, payments, AI), use building-nextjs-saas.
+  SaaS構築パターン（認証・決済・AI統合）を含む。
   For AI integration with Vercel AI SDK and LangChain.js, use integrating-ai-web-apps.
   For application logging design and structured logging patterns, use implementing-observability.
   For Tailwind CSS methodology, component design patterns, and customization, use styling-with-tailwind.

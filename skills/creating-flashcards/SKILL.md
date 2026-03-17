@@ -1,9 +1,9 @@
 ---
 name: creating-flashcards
 description: >-
-  Creates Anki flashcards from EPUB/PDF files by converting to markdown, auto-detecting content structure, and batch-importing via Anki MCP.
-  Use when converting textbooks, question banks, or study materials into spaced repetition flashcards.
-  For Anki MCP setup and direct card management, use using-anki-mcp instead.
+  Creates Anki flashcards from EPUB/PDF files via Anki MCP Server, covering MCP setup, deck/note-type management, and bulk import with HTML formatting.
+  Use when converting textbooks, question banks, or study materials into spaced repetition flashcards, or when managing Anki cards via MCP tools.
+  Covers full workflow: MCP setup → file conversion → content analysis → batch card creation. For MCP server/client development, use developing-mcp instead.
 argument-hint: "<file-path>"
 disable-model-invocation: true
 ---
