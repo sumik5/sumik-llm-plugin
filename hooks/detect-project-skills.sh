@@ -73,6 +73,7 @@ get_skill_description() {
     case "$skill" in
         "writing-clean-code") echo "コード実装前に必ずロード" ;;
         "enforcing-type-safety") echo "TypeScriptコード記述時にロード" ;;
+        "evaluating-with-promptfoo") echo "promptfooによるLLM評価・レッドチーミング" ;;
         "testing-code") echo "テスト作成・修正時にロード" ;;
         "securing-code") echo "実装完了後に必ずロード" ;;
         "writing-effective-prose") echo "効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書）" ;;
@@ -483,6 +484,25 @@ check_mcp_dev() {
     fi
 }
 
+# promptfoo チェック
+check_promptfoo() {
+    # promptfooconfig.yaml
+    if [[ -f "$WORK_DIR/promptfooconfig.yaml" ]] || [[ -f "$WORK_DIR/promptfooconfig.yml" ]] || [[ -f "$WORK_DIR/promptfooconfig.json" ]]; then
+        PROJECT_SKILLS+=("evaluating-with-promptfoo")
+        return
+    fi
+
+    # package.json の promptfoo 依存
+    local package_json="$WORK_DIR/package.json"
+    if [[ -f "$package_json" ]]; then
+        local deps
+        deps=$(jq -r '(.dependencies // {} | keys[]) , (.devDependencies // {} | keys[])' "$package_json" 2>/dev/null) || return
+        if echo "$deps" | grep -qx "promptfoo"; then
+            PROJECT_SKILLS+=("evaluating-with-promptfoo")
+        fi
+    fi
+}
+
 # 検出実行
 check_package_json
 check_typescript
@@ -502,6 +522,7 @@ check_cedar
 check_database
 check_observability
 check_mcp_dev
+check_promptfoo
 
 # 重複を除去（sortとuniqを使用）
 if [[ ${#PROJECT_SKILLS[@]} -gt 0 ]]; then

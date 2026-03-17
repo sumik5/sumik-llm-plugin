@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (84個)
+└── skills/             # ナレッジスキル (85個)
 ```
 
 ---
@@ -83,7 +83,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (84個)
+### Skills (85個)
 
 #### コア開発
 
@@ -126,6 +126,7 @@ sumik-claude-plugin/
 | `building-green-software` | グリーンソフトウェアエンジニアリング（カーボン効率・運用効率・カーボンアウェアネス・測定方法論・GSMM・グリーンAI） |
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
 | `practicing-llmops` | LLMOps/AgentOps運用フレームワーク（データ・モデル適応・API・評価・セキュリティ・スケーリング・AgentOps（MLOps→GenAIOps→AgentOps進化）・Tool Registry・Agent Registry（AgentCard/A2A）・Memory & Data Governance） |
+| `evaluating-with-promptfoo` | promptfooによるLLM評価・レッドチーミング（promptfooconfig.yaml設定・40+アサーション・プロバイダー・134+レッドチームプラグイン・CI/CD統合） |
 | `designing-genai-patterns` | 32のGenAIデザインパターン（コンテンツ制御・RAG・モデル能力拡張・信頼性・エージェント・デプロイ最適化・安全ガードレール）＋RAGシステム実装（11種データソース・5種チャンキング戦略・パイプライン） |
 
 #### フレームワーク
