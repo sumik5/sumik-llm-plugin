@@ -9,10 +9,8 @@ description: >-
   Use when making product decisions involving AI/ML features, evaluating AI opportunities,
   designing growth experiments, setting product metrics, building AI-native products,
   or navigating MLOps and deployment challenges.
-  Covers: 3 PM specializations, HEART framework, MLOps CI/CD pipeline, data quality
-  frameworks, retention/expansion strategies, cross-functional collaboration, GenAI
-  evaluation methods, prompt engineering fundamentals.
-  For AI product UX design patterns (copilot UX, LLM patterns, AI input/output design, agentic AI), use designing-ai-experiences instead.
+  For AI product UX patterns→designing-ai-experiences.
+  For general PM fundamentals (agile cadences, AARRR, roadmaps, PM-UX collaboration), use practicing-product-management instead.
 disable-model-invocation: true
 ---
 

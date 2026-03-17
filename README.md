@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (85個)
+└── skills/             # ナレッジスキル (86個)
 ```
 
 ---
@@ -83,7 +83,7 @@ sumik-claude-plugin/
 | `/difit` | GitHub風差分ビューア（difit）でコードdiff表示 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (85個)
+### Skills (86個)
 
 #### コア開発
 
@@ -102,6 +102,7 @@ sumik-claude-plugin/
 | `developing-with-ai` | AI支援開発メソドロジー（プロンプトエンジニアリング・コンテキストエンジニアリング・コード生成・QA・デバッグ・エージェント協調） |
 | `using-claude-code-as-pm` | PM向けClaude Code活用ガイド（コードベース調査・バグトリアージ・競合分析・フィードバック分析・要件生成・PMワークフロー自動化） |
 | `managing-ai-products` | AI/Growth PMガイド（AI戦略・ライフサイクル8段階・AI PM3専門化・RADフレームワーク・グロースメトリクス・責任あるAI・キャリアパス。5冊の書籍を体系化） |
+| `practicing-product-management` | プロダクトマネジメント実践ガイド（PM定義・アジャイルケイデンス・AARRR・PMF/GTM・収益モデル・ロードマップ・優先順位付け・PM-UX協働） |
 | `applying-semantic-versioning` | SemVer 2.0.0仕様準拠バージョン判断ガイド（MAJOR/MINOR/PATCH判定・プレリリース・範囲指定・よくある誤り） |
 | `writing-conventional-commits` | Conventional Commits 1.0.0準拠コミットメッセージガイド（type/scope/BREAKING CHANGE判定・SemVer連携） |
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |

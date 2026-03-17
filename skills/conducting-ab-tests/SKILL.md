@@ -6,6 +6,7 @@ description: >-
   trustworthiness validation (SRM, novelty effects), and experimentation platform architecture.
   Use when designing A/B tests, analyzing experiment results, or building experimentation infrastructure.
   For general software testing, use testing-code instead.
+  For product management context of experimentation (hypothesis-driven development, experiment prioritization), use practicing-product-management instead.
 disable-model-invocation: true
 ---
 
