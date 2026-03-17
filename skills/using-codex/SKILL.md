@@ -6,7 +6,8 @@ description: >-
   Wave parallel execution, or converting Claude Code agents to Codex format.
   Triggers: "codex", "codexと相談", "codexに聞いて", "codexでレビュー", "codexでオーケストレーション",
   "agentをcodexに変換". Covers: basic consultation, plan review (initial + resume),
-  multi-agent Wave orchestration, and Claude Code→Codex agent conversion (single/batch).
+  multi-agent Wave orchestration, and Claude Code→Codex agent conversion (single/batch),
+  including preservation of original developer_instructions and conversion of Claude skills to Codex [[skills.config]] entries.
 disable-model-invocation: true
 ---
 

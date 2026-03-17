@@ -1,21 +1,20 @@
 # Codex Agent ワークフローガイド
 
-Codex本体がAgentをWave単位で最大並列起動する2フェーズ方式のワークフロー。**Phase 1（計画策定・Wave分割）は `tachikoma_architecture` agent に委譲し、Phase 2（実装）でWave内のagentを全て同時並列起動**する。
+Codex本体がAgentをWave単位で最大並列起動する2フェーズ方式のワークフロー。**Phase 1（計画策定・Wave分割）はtachikoma-architecture agentに委譲し、Phase 2（実装）でWave内のagentを自然言語で全て同時起動する。** 実際の並列実行はCodexのネイティブ `max_threads`（デフォルト6）が制御する。
 
 ---
 
 ## Phase 1: 計画策定
 
-### Step 1: `tachikoma_architecture` agent 起動（即座に実行）
+### Step 1: tachikoma-architecture agent 起動（即座に実行）
 
 **🔴 Codex本体はファイルを読まない・コードベースを分析しない。**
 
-ユーザー要求を受け取ったら、即座に `tachikoma_architecture` agent を起動する:
+ユーザー要求を受け取ったら、即座に tachikoma-architecture agent を自然言語で起動する:
 
 ```
-Agent起動: tachikoma_architecture
+"Spawn tachikoma-architecture agent with the following task:"
 
-プロンプト:
 ## タスク: 実装計画の策定（Wave並列分割必須）
 
 **ユーザー要求:** {ユーザーの要求をそのまま記載}
@@ -40,7 +39,7 @@ Wave分割の原則:
 - 依存関係がないタスクを別Waveに分離すること（逐次実行はアンチパターン）
 ```
 
-**`tachikoma_architecture` agent の責務（全委譲）:**
+**tachikoma-architecture agent の責務（全委譲）:**
 1. **現状把握**: コードベースの読み込み・プロジェクト構造の理解・既存実装の分析
 2. **要件分析**: ユーザー要求の詳細化・変更対象ファイル・影響範囲の特定
 3. **タスク分解**: agentごとの担当タスク・依存関係の整理
@@ -49,13 +48,13 @@ Wave分割の原則:
 6. **Wave分割**: 依存関係グラフに基づきWave数を最小化した並列実行計画を策定
 7. **計画書作成**: `docs/plan-{feature-name}.md` を作成（Execution Wavesセクション必須）
 
-**`tachikoma_architecture` agent は実装コードを変更しない（読み取り専用 + docs/ への計画書作成のみ）。**
+**tachikoma-architecture agent は実装コードを変更しない（読み取り専用 + docs/ への計画書作成のみ）。**
 
 ---
 
 ### Step 2: 計画レビュー・承認
 
-`tachikoma_architecture` agent が `docs/plan-{feature-name}.md` を作成しユーザーに提示する。
+tachikoma-architecture agent が `docs/plan-{feature-name}.md` を作成しユーザーに提示する。
 
 **ユーザーへの提示方法（テキストベース）:**
 
@@ -67,7 +66,8 @@ Wave分割の原則:
 【計画概要】
 - Agent構成: {agent一覧}
 - タスク数: {合計タスク数}
-- 実行順序: {agent実行順}
+- 実行順序: {Wave構成}
+- 並列制御: config.toml max_threads={設定値}
 
 この計画で進めてよろしいですか？
 修正が必要な場合は、修正内容をお知らせください。
@@ -75,31 +75,34 @@ Wave分割の原則:
 
 **ユーザーの応答に基づく対応:**
 - **承認** → Phase 2 へ進む
-- **修正要求** → `tachikoma_architecture` agent を再起動し、ユーザーのフィードバックを渡して計画を修正
+- **修正要求** → tachikoma-architecture agent を再起動し、ユーザーのフィードバックを渡して計画を修正
 
 ---
 
 ## Phase 2: 実装（Wave並列起動）
 
-### Step 3: Wave内agentを全て同時並列起動
+### Step 3: Wave内agentを全て同時起動
 
-**🔴 最重要ルール: 同一Wave内のagentは1つずつではなく、全て同時に起動する。**
+**🔴 最重要ルール: 同一Wave内のagentは自然言語で一括指示し、全て同時に起動する。1つずつ指示してはならない。**
 
 Codex本体は以下のループを実行する:
 ```
 for each wave in plan.execution_waves:
-    # Wave内の全agentを同時に起動（1つずつ起動してはならない）
-    全agentを並列起動（agent_1, agent_2, ..., agent_N）
+    # Wave内の全agentを自然言語で同時起動（1つずつ起動してはならない）
+    "Spawn {agent_1} for {task_1} and {agent_2} for {task_2} ... simultaneously."
     全agentの完了を待機
     → 次のWaveへ
 ```
 
+**`max_threads` がキューを管理するため、agent数がmax_threadsを超えた場合は自動的にキューイングされる。Wave内agent数は `config.toml` の `max_threads` を超えないよう設計すること。**
+
 #### Agent起動プロンプトテンプレート
 
-```
-Agent起動: {agent名}
+各agentへ渡す指示の形式:
 
-プロンプト:
+```
+"Spawn {agent名} with the following task:
+
 ## タスク: {task_title}
 
 **担当タスク:** {task_ids}
@@ -120,119 +123,91 @@ Agent起動: {agent名}
 
 完了時:
 - 担当タスクのチェックリストを docs/plan-*.md で `- [x]` に更新
-- 作成・変更したファイル一覧を報告
+- 作成・変更したファイル一覧を報告"
 ```
 
 #### 起動例（3 Wave並列実行）
 
 **Wave 1: 独立タスク（2 agent同時起動）**
 
-以下の2つのagentを**同時に**起動する:
+以下の2つのagentを**1つの指示で同時に**起動する:
 
 ```
-Agent起動: tachikoma_database
+"Spawn tachikoma-database and tachikoma-typescript simultaneously:
 
-プロンプト:
+[tachikoma-database]
 ## タスク: DBスキーマ設計
-
 担当タスク: #1
 ファイル所有権: migrations/**, src/models/**
 実行計画: docs/plan-user-management.md を参照
-
 具体的な実装指示:
 - PostgreSQLテーブル定義・マイグレーション作成
 - Userモデル定義
-```
 
-```
-Agent起動: tachikoma_typescript
-
-プロンプト:
+[tachikoma-typescript]
 ## タスク: 共通型定義
-
 担当タスク: #2
 ファイル所有権: src/types/**
 実行計画: docs/plan-user-management.md を参照
-
 具体的な実装指示:
 - APIリクエスト/レスポンス型定義
-- 共通ユーティリティ型
+- 共通ユーティリティ型"
 ```
 
 → **Wave 1の全agent完了を待機**
 
 **Wave 2: API + UI（2 agent同時起動、Wave 1完了後）**
 
-以下の2つのagentを**同時に**起動する:
+以下の2つのagentを**1つの指示で同時に**起動する:
 
 ```
-Agent起動: tachikoma_fullstack_js
+"Spawn tachikoma-fullstack-js and tachikoma-nextjs simultaneously:
 
-プロンプト:
+[tachikoma-fullstack-js]
 ## タスク: REST API CRUD実装
-
 担当タスク: #3, #4
 ファイル所有権: src/api/**, src/services/**
 実行計画: docs/plan-user-management.md を参照
-
 具体的な実装指示:
 - GET/POST/PUT/DELETE エンドポイント実装
 - バリデーション、エラーハンドリング
+前のWaveの成果物: src/models/user.ts, src/types/user.ts
 
-前のWaveの成果物:
-- src/models/user.ts, src/types/user.ts
-```
-
-```
-Agent起動: tachikoma_nextjs
-
-プロンプト:
+[tachikoma-nextjs]
 ## タスク: Reactコンポーネント実装
-
 担当タスク: #5, #6
 ファイル所有権: src/components/**, src/pages/**
 実行計画: docs/plan-user-management.md を参照
-
 具体的な実装指示:
 - ユーザー一覧コンポーネント（データテーブル、ページネーション）
 - ユーザー編集フォーム（バリデーション、API連携）
-
-前のWaveの成果物:
-- src/types/user.ts（型定義を参照）
+前のWaveの成果物: src/types/user.ts（型定義を参照）"
 ```
 
 → **Wave 2の全agent完了を待機**
 
 **Wave 3: テスト（2 agent同時起動、Wave 2完了後）**
 
-以下の2つのagentを**同時に**起動する:
+以下の2つのagentを**1つの指示で同時に**起動する:
 
 ```
-Agent起動: tachikoma_test
+"Spawn tachikoma-test and tachikoma-e2e-test simultaneously:
 
-プロンプト:
+[tachikoma-test]
 ## タスク: 統合テスト作成
-
 担当タスク: #7
 ファイル所有権: tests/integration/**
 実行計画: docs/plan-user-management.md を参照
-
 具体的な実装指示:
 - APIエンドポイントの統合テスト
-```
 
-```
-Agent起動: tachikoma_e2e_test
-
-プロンプト:
+[tachikoma-e2e-test]
 ## タスク: E2Eテストシナリオ作成
-
 担当タスク: #8
 ファイル所有権: tests/e2e/**
 実行計画: docs/plan-user-management.md を参照
-
 具体的な実装指示:
-- Playwrightによるユーザー登録・編集・削除フロー検証
+- Playwrightによるユーザー登録・編集・削除フロー検証"
 ```
 
 ---
@@ -256,13 +231,13 @@ Wave N 並列起動 → 全agent完了待ち → Wave N+1 並列起動
 ```markdown
 ## 実行ログ
 
-- [2026-02-18 10:00] tachikoma_architecture agent 起動（計画策定）
+- [2026-02-18 10:00] tachikoma-architecture agent 起動（計画策定）
 - [2026-02-18 10:30] 計画書作成完了、ユーザー承認取得
-- [2026-02-18 10:35] Wave 1 並列起動: tachikoma_database(#1) ∥ tachikoma_typescript(#2)
+- [2026-02-18 10:35] Wave 1 並列起動: tachikoma-database(#1) ∥ tachikoma-typescript(#2)
 - [2026-02-18 11:10] Wave 1 全完了
-- [2026-02-18 11:15] Wave 2 並列起動: tachikoma_fullstack_js(#3-4) ∥ tachikoma_nextjs(#5-6)
+- [2026-02-18 11:15] Wave 2 並列起動: tachikoma-fullstack-js(#3-4) ∥ tachikoma-nextjs(#5-6)
 - [2026-02-18 12:00] Wave 2 全完了
-- [2026-02-18 12:05] Wave 3 並列起動: tachikoma_test(#7) ∥ tachikoma_e2e_test(#8)
+- [2026-02-18 12:05] Wave 3 並列起動: tachikoma-test(#7) ∥ tachikoma-e2e-test(#8)
 - [2026-02-18 12:30] Wave 3 全完了 → 全タスク完了
 ```
 
@@ -305,9 +280,9 @@ Wave N 並列起動 → 全agent完了待ち → Wave N+1 並列起動
 📄 実装計画: docs/plan-{feature-name}.md
 
 【実行結果（Wave並列実行）】
-Wave 1: tachikoma_database(#1) ∥ tachikoma_typescript(#2) → 完了
-Wave 2: tachikoma_fullstack_js(#3-4) ∥ tachikoma_nextjs(#5-6) → 完了
-Wave 3: tachikoma_test(#7) ∥ tachikoma_e2e_test(#8) → 完了
+Wave 1: tachikoma-database(#1) ∥ tachikoma-typescript(#2) → 完了
+Wave 2: tachikoma-fullstack-js(#3-4) ∥ tachikoma-nextjs(#5-6) → 完了
+Wave 3: tachikoma-test(#7) ∥ tachikoma-e2e-test(#8) → 完了
 
 【作成・変更ファイル】
 - migrations/001_create_users.sql
@@ -326,17 +301,17 @@ Wave 3: tachikoma_test(#7) ∥ tachikoma_e2e_test(#8) → 完了
 ### パターン1: feature-dev（機能開発）
 
 ```
-tachikoma_architecture（計画策定・Wave分割）
+tachikoma-architecture（計画策定・Wave分割）
   → ユーザー確認
-  → Wave 1: tachikoma_database ∥ tachikoma_typescript（スキーマ＋型定義を並列）
-  → Wave 2: tachikoma_fullstack_js ∥ tachikoma_nextjs（API＋UIを並列）
-  → Wave 3: tachikoma_test ∥ tachikoma_e2e_test（テストを並列）
+  → Wave 1: tachikoma-database ∥ tachikoma-typescript（スキーマ＋型定義を並列）
+  → Wave 2: tachikoma-fullstack-js ∥ tachikoma-nextjs（API＋UIを並列）
+  → Wave 3: tachikoma-test ∥ tachikoma-e2e-test（テストを並列）
 ```
 
 ### パターン2: investigation（調査・デバッグ）
 
 ```
-tachikoma_architecture（調査計画策定）
+tachikoma-architecture（調査計画策定）
   → ユーザー確認
   → Wave 1: tachikoma-{frontend} ∥ tachikoma-{backend}（多視点調査を並列）
   → Codex本体が調査結果を統合してユーザーに報告
@@ -345,10 +320,10 @@ tachikoma_architecture（調査計画策定）
 ### パターン3: refactoring（リファクタリング）
 
 ```
-tachikoma_architecture（分析・移行計画策定・Wave分割）
+tachikoma-architecture（分析・移行計画策定・Wave分割）
   → ユーザー確認
   → Wave 1: tachikoma-{domain-A} ∥ tachikoma-{domain-B}（独立モジュールの変更を並列）
-  → Wave 2: tachikoma_test ∥ tachikoma_e2e_test（回帰テストを並列）
+  → Wave 2: tachikoma-test ∥ tachikoma-e2e-test（回帰テストを並列）
 ```
 
 ### パターン4: scale-out（同一agent複数並列起動）
@@ -356,11 +331,12 @@ tachikoma_architecture（分析・移行計画策定・Wave分割）
 **同一agentを異なるスコープで同一Wave内に同時起動:**
 
 ```
-tachikoma_architecture（計画策定・Wave分割）
+tachikoma-architecture（計画策定・Wave分割）
   → ユーザー確認
-  → Wave 1: tachikoma_nextjs(dashboard) ∥ tachikoma_nextjs(settings) ∥ tachikoma_nextjs(profile)
+  → Wave 1: tachikoma-nextjs(dashboard) ∥ tachikoma-nextjs(settings) ∥ tachikoma-nextjs(profile)
     所有権: src/app/dashboard/** ∥ src/app/settings/** ∥ src/app/profile/**
-  → Wave 2: tachikoma_e2e_test（全ページの統合E2Eテスト）
+    ※ max_threads >= 3 であること確認（config.toml）
+  → Wave 2: tachikoma-e2e-test（全ページの統合E2Eテスト）
 ```
 
 ### パターン5: maximum-parallelism（並列度最大化）
@@ -368,9 +344,10 @@ tachikoma_architecture（計画策定・Wave分割）
 **テストagentを実装agentと同一Waveに配置（ファイル所有権が排他的なため可能）:**
 
 ```
-tachikoma_architecture（計画策定）
+tachikoma-architecture（計画策定）
   → ユーザー確認
-  → Wave 1: tachikoma_typescript（共通型定義）
-  → Wave 2: tachikoma_fullstack_js(API) ∥ tachikoma_nextjs(UI) ∥ tachikoma_test(unitテスト)
+  → Wave 1: tachikoma-typescript（共通型定義）
+  → Wave 2: tachikoma-fullstack-js(API) ∥ tachikoma-nextjs(UI) ∥ tachikoma-test(unitテスト)
     ※ テストagentはtests/**のみ所有、実装agentとファイル競合なし
+    ※ max_threads >= 3 であること確認（config.toml）
 ```
