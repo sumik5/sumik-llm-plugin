@@ -8,7 +8,8 @@
 4. [ユーザー確認の原則](#4-ユーザー確認の原則askuserquestion)
 5. [詳細ガイドへのリンク](#5-詳細ガイド)
 6. [AI時代のPM実践](#6-ai時代のpm実践)
-7. [まとめ](#7-まとめ)
+7. [レジリエントPM実践（ケーススタディ駆動）](#7-レジリエントpm実践ケーススタディ駆動)
+8. [まとめ](#8-まとめ)
 
 ---
 
@@ -22,6 +23,11 @@
 - 収益モデルの選定・改善
 - AI成熟度評価・組織のAI readiness判断
 - AI導入によるPM役割の変化への対応
+- 不確実性下でのプロダクト意思決定
+- 測定フレームワークの設計
+- 優先順位付けワークショップの運営
+- クロスファンクショナル協働の設計
+- 根本原因分析
 
 ---
 
@@ -190,6 +196,13 @@ AskUserQuestion(
 | **[AI-PM-EVOLUTION.md](references/AI-PM-EVOLUTION.md)** | AI時代 | AI時代のPM役割進化・スキルシフト・組織変革 |
 | **[AI-MATURITY-ASSESSMENT.md](references/AI-MATURITY-ASSESSMENT.md)** | AI成熟度 | 5ピラー×12フォーカスエリア成熟度評価フレームワーク |
 | **[AI-CASE-STUDIES.md](references/AI-CASE-STUDIES.md)** | AIケース | 4つのAIプロダクト事例（CV・GenAI・動的価格・広告AI） |
+| **[MEASUREMENT-FRAMEWORKS.md](references/MEASUREMENT-FRAMEWORKS.md)** | メトリクス | HEART Framework、計測スキーマ、ダッシュボード設計 |
+| **[PRIORITIZATION-METHODS.md](references/PRIORITIZATION-METHODS.md)** | 優先順位付け | Feature Prioritization Matrix、Impact-Effort Scoring |
+| **[COLLABORATION-WORKSHOPS.md](references/COLLABORATION-WORKSHOPS.md)** | ワークショップ | ジャーニーマッピング、フィッシュボーン、協働リチュアル |
+| **[EXPERIMENTATION-DESIGN.md](references/EXPERIMENTATION-DESIGN.md)** | 実験設計 | A/Bテスト、信頼区間、サンプリング戦略 |
+| **[ROOT-CAUSE-ANALYSIS.md](references/ROOT-CAUSE-ANALYSIS.md)** | 根本原因分析 | ファネル分析、フィッシュボーン、データ収集 |
+| **[PROCESS-WORKFLOWS.md](references/PROCESS-WORKFLOWS.md)** | プロセス | Kanban、Sprint Zero、リリース計画 |
+| **[CASE-STUDY-PATTERNS.md](references/CASE-STUDY-PATTERNS.md)** | ケーススタディ | 7つの横断パターン（状況→課題→アプローチ→成果→教訓） |
 
 ---
 
@@ -197,21 +210,62 @@ AskUserQuestion(
 
 AI技術の普及により、PMの役割と求められるスキルが大きく変化している。
 
-### 7.1 PM役割の進化
+### 6.1 PM役割の進化
 
 AIツールの導入により、PMの業務はルーティンタスクの自動化から戦略的判断へシフトしている。詳細は [AI-PM-EVOLUTION.md](references/AI-PM-EVOLUTION.md) を参照。
 
-### 7.2 組織AI成熟度評価
+### 6.2 組織AI成熟度評価
 
 AI導入の成功は、組織の成熟度に大きく依存する。5ピラー×12フォーカスエリアの成熟度フレームワークで現状を評価し、段階的な導入計画を策定する。詳細は [AI-MATURITY-ASSESSMENT.md](references/AI-MATURITY-ASSESSMENT.md) を参照。
 
-### 7.3 AIプロダクトケーススタディ
+### 6.3 AIプロダクトケーススタディ
 
 実際のAIプロダクト事例（Computer Vision、GenAIチャットボット、動的価格設定、広告AI）から、PMの判断ポイントと教訓を学ぶ。詳細は [AI-CASE-STUDIES.md](references/AI-CASE-STUDIES.md) を参照。
 
 ---
 
-## 7. まとめ
+## 7. レジリエントPM実践（ケーススタディ駆動）
+
+不確実性・制約・プレッシャー下でのプロダクトマネジメント実践知識。7つのケーススタディから抽出した実践パターン。
+
+### 7.1 コアプリンシプル
+
+| 原則 | 説明 |
+|------|------|
+| メトリクス階層 | 北極星メトリクス → コアメトリクス → 先行/遅行指標の3層構造 |
+| 仮説駆動実験 | 仮説設計 → 計測スキーマ → A/Bテスト → 統計検証のサイクル |
+| 制約下の適応 | インフラ・リソース制約を前提とした意思決定フレームワーク |
+| ケーススタディ学習 | 実例の「状況→課題→アプローチ→成果→教訓」パターンで学ぶ |
+
+### 7.2 クイックリファレンス
+
+#### メトリクス選択判断テーブル
+
+| 場面 | 推奨フレームワーク | 参照 |
+|------|-------------------|------|
+| ユーザー体験の総合評価 | HEART Framework | MEASUREMENT-FRAMEWORKS.md |
+| エンゲージメント計測 | コアvs虚栄メトリクス判定 | MEASUREMENT-FRAMEWORKS.md |
+| 先行/遅行指標の設計 | リキャリブレーション手法 | MEASUREMENT-FRAMEWORKS.md |
+
+#### 優先順位付け手法選択ガイド
+
+| 状況 | 推奨手法 | 参照 |
+|------|---------|------|
+| 機能の優先順位付け | Feature Prioritization Matrix | PRIORITIZATION-METHODS.md |
+| リスク緩和の優先順位 | Impact-Effort Scoring | PRIORITIZATION-METHODS.md |
+| 制約下での取捨選択 | MoSCoW + 制約マッピング | PRIORITIZATION-METHODS.md |
+
+#### ワークショップ種別選択ガイド
+
+| 目的 | ワークショップ | 参照 |
+|------|-------------|------|
+| 顧客体験の理解 | ジャーニーマッピングWS | COLLABORATION-WORKSHOPS.md |
+| 問題の根本原因特定 | フィッシュボーンWS | COLLABORATION-WORKSHOPS.md |
+| チーム連携の強化 | 協働リチュアル設計 | COLLABORATION-WORKSHOPS.md |
+
+---
+
+## 8. まとめ
 
 **優先すべき3原則:**
 
