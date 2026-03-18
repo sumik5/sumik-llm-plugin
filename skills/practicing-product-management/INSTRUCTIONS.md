@@ -32,6 +32,11 @@
 - 既存プロダクトへのAI統合計画
 - AI PMキャリアの設計・成長計画
 - バーティカル別AIプロダクト戦略
+- Growth Product Management（GPM）の実践・PLG戦略の設計
+- カスタマーサクセス・オンボーディング戦略
+- リテンション施策の設計・チャーン分析
+- 拡張収益・ARPU最適化・価格戦略
+- バリュープロポジション設計・コミュニケーション
 
 ---
 
@@ -215,6 +220,13 @@ AskUserQuestion(
 | **[AIPM-MANAGING-AI-PRODUCT.md](references/AIPM-MANAGING-AI-PRODUCT.md)** | AI管理 | Head/Heart/Gutsフレームワーク・ビジョン・アラインメント |
 | **[AIPM-AI-INTEGRATION.md](references/AIPM-AI-INTEGRATION.md)** | AI統合 | 既存プロダクトへのAI統合・導入パターン・業界トレンド |
 | **[AIPM-CAREER-MASTERY.md](references/AIPM-CAREER-MASTERY.md)** | PMキャリア | AI PMキャリア開始〜成熟・24ロール・4レベルロードマップ |
+| **[GPM-FOUNDATIONS.md](references/GPM-FOUNDATIONS.md)** | GPM基礎 | GPMの定義・PLGモデル・4戦略・freemium比較 |
+| **[GPM-CUSTOMER-UNDERSTANDING.md](references/GPM-CUSTOMER-UNDERSTANDING.md)** | 顧客理解 | ユーザーリサーチ・B2B/B2Cペルソナ・ペインポイント分析 |
+| **[GPM-PLG-ENTERPRISE.md](references/GPM-PLG-ENTERPRISE.md)** | PLG企業 | PLG文化・バリュープロポジション設計・マーケティング連携 |
+| **[GPM-CUSTOMER-SUCCESS.md](references/GPM-CUSTOMER-SUCCESS.md)** | CS戦略 | カスタマーサクセス・オンボーディング・CS組織スケーリング |
+| **[GPM-RETENTION-STRATEGIES.md](references/GPM-RETENTION-STRATEGIES.md)** | リテンション | 9つのリテンション戦略・CRR/NPS/CLV |
+| **[GPM-EXPANSION-REVENUE.md](references/GPM-EXPANSION-REVENUE.md)** | 拡張収益 | ARPU/ARR/NRR・価格戦略・アップセル/クロスセル |
+| **[GPM-FUTURE-AND-ETHICS.md](references/GPM-FUTURE-AND-ETHICS.md)** | GPM未来 | GPMの未来・倫理・失敗ケーススタディ・キャリアパス |
 
 ---
 

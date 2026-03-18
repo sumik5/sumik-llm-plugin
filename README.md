@@ -98,7 +98,7 @@ sumik-claude-plugin/
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 | `securing-ai-development` | AI開発セキュリティ戦略（信頼フレームワーク、適応型ガードレール、AI-BOM、AI-SPM、ガバナンス、クロスファンクショナル所有権） |
 | `developing-with-ai` | AI支援開発メソドロジー（プロンプトエンジニアリング・コンテキストエンジニアリング・コード生成・QA・デバッグ・エージェント協調） |
-| `practicing-product-management` | プロダクトマネジメント実践ガイド（PM定義・アジャイルケイデンス・AARRR・PMF/GTM・収益モデル・ロードマップ・優先順位付け・PM-UX協働・AI時代PM進化・AI成熟度評価・AIケーススタディ・AI/ML基礎リテラシー・AI PM専門化ロール×3・AI機会評価/ROI算出・MLOps・責任あるAI） |
+| `practicing-product-management` | プロダクトマネジメント実践ガイド（PM定義・アジャイルケイデンス・AARRR・PMF/GTM・収益モデル・ロードマップ・優先順位付け・PM-UX協働・AI時代PM進化・AI成熟度評価・AIケーススタディ・AI/ML基礎リテラシー・AI PM専門化ロール×3・AI機会評価/ROI算出・MLOps・責任あるAI・GPM/PLG: PLGモデル4戦略・freemium比較・B2B/B2Cペルソナ・ペインポイント分析・PLG文化・バリュープロポジション・カスタマーサクセス・オンボーディング・CS組織スケーリング・9つのリテンション戦略・CRR/NPS/CLV・拡張収益・ARPU/ARR/NRR・価格戦略・GPMの未来と倫理・失敗ケーススタディ・キャリアパス・7リファレンスファイル） |
 | `applying-semantic-versioning` | SemVer 2.0.0仕様準拠バージョン判断ガイド（MAJOR/MINOR/PATCH判定・プレリリース・範囲指定・よくある誤り） |
 | `writing-conventional-commits` | Conventional Commits 1.0.0準拠コミットメッセージガイド（type/scope/BREAKING CHANGE判定・SemVer連携） |
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
