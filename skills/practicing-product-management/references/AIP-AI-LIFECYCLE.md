@@ -248,3 +248,127 @@ Model Health:
   □ ユーザーへのAI利用開示を準備したか
   □ データ収集・利用のプライバシーポリシーが整備されているか
 ```
+
+---
+
+## AIプロダクトチーム構成・テックスタック（追記）
+
+> 以下は追加コンテンツ。
+
+### AI/MLドリームチーム — 批判/非批判ロール詳細
+
+AI MVP立ち上げに必要なロールを**CRITICAL（必須）**と**NON-CRITICAL（状況次第）**に分類する。
+
+#### CRITICAL ロール（6つ）
+
+| ロール | 部門 | 主な責任 |
+|--------|------|---------|
+| **AI PM** | プロダクト管理 | プロダクトビジョン・要件・成功指標の定義。AIとビジネスゴールの整合 |
+| **Data Scientist** | データサイエンス | AI/MLモデルの設計・実験・データ分析とインサイト抽出 |
+| **ML Engineer** | エンジニアリング | データサイエンスと本番環境をつなぐ橋渡し。スケーラブルなモデルの実装 |
+| **Data Engineer** | エンジニアリング | データパイプライン構築・データフロー管理・訓練用クリーンデータの確保 |
+| **Full Stack Developer** | ソフトウェア開発 | AI出力をフロントエンド・バックエンドに統合し、シームレスなUI/UXを実現 |
+| **DevOps Engineer** | オペレーション | デプロイ・インフラ・CI/CDの管理。AIモデルの安定的な本番稼働を担保 |
+
+#### NON-CRITICAL ロール（状況依存）
+
+| ロール | 部門 | 活用タイミング |
+|--------|------|--------------|
+| **AI/ML Data Strategist/Architect** | データサイエンス | AI旅の初期段階（最初の6〜8ヶ月）。データ戦略・採用・ワークフロー設計のコンサルタント |
+| **Data Analyst** | データサイエンス | データ基盤の確立フェーズ。クエリ作成・探索的分析・ダッシュボード提供 |
+| **UX/UI Designer** | デザイン | AI出力のプレゼンテーション最適化。ユーザーとAI機能のインタラクション設計 |
+| **UX/UI Researcher** | デザイン | ユーザーリサーチ・行動・嗜好・ペインポイント調査。ユーザー中心設計への反映 |
+| **QA Engineer** | エンジニアリング | AI機能のテスト・信頼性・パフォーマンス検証。モデルドリフト・バイアス監視 |
+| **Cloud Architect** | エンジニアリング | AIインフラのスケール。クラウドリソース最適化・大規模デプロイ戦略 |
+| **Business Analyst** | アナリティクス | ビジネスニーズを技術要件に変換。ステークホルダーアラインメントの追加サポート |
+| **Ethics and Compliance Officer** | 法務/コンプライアンス | モデルの倫理的考慮・バイアス評価・規制コンプライアンス確認 |
+
+> **PMの判断基準**: 必ずしも全ロールが必要ではない。MVP段階ではCRITICAL 6ロールに集中し、スケールに応じてNON-CRITICALを追加する。
+
+### 役割の登場タイミング（フェーズ別）
+
+```
+Phase 1 - Ideation:
+  必須: AI PM, (AI/ML Strategist)
+
+Phase 2 - Data Management:
+  必須: Data Engineer, Data Analyst
+
+Phase 3 - R&D:
+  必須: Data Scientist, ML Engineer
+  追加: QA Engineer（パフォーマンス閾値検証）
+
+Phase 4 - Deployment:
+  必須: Full Stack Developer, DevOps Engineer
+  追加: UX/UI Designer, Cloud Architect
+
+Post-Launch:
+  必須: Customer Success Specialist
+  追加: Ethics & Compliance Officer（スケール時）
+```
+
+---
+
+### テックスタック投資判断
+
+AI/MLプロダクトのテックスタック選定において、PMが知るべき判断基準とツール体系。
+
+#### 投資判断の3原則
+
+```
+原則1: スケールに応じて追加投資する
+└ 「まず問題が発生してから」ツールに投資する。早期の過剰投資は避ける。
+
+原則2: チームのコラボレーション環境を確保する
+└ アナリスト・データサイエンティスト・MLエンジニア・開発チームが
+  同一プラットフォームで連携できる環境を優先する。
+
+原則3: 自動化できるものは自動化する
+└ 人材は高レベルな意思決定に集中させる。
+  データ更新・テスト・監視は自動化の対象とする。
+```
+
+#### ツール体系（目的別）
+
+| 目的 | ツール候補 |
+|------|----------|
+| **モデルバージョン管理** | MLflow, DVC (Data Version Control), Weights & Biases (W&B) |
+| **モデルパッケージング** | Docker, TensorFlow Serving, Seldon |
+| **モデルレジストリ** | MLflow Model Registry, Amazon SageMaker Model Registry |
+| **自動再訓練** | Kubeflow, Apache Airflow, Tecton |
+| **モデル監視** | Prometheus, Grafana, Evidently AI, Neptune.ai |
+| **ログ・デバッグ** | Prometheus, Grafana, ELK (Elasticsearch, Logstash, Kibana) |
+| **MLワークステーション** | SageMaker, Kubeflow, DataRobot, Dataiku, Domino |
+| **実験管理** | MLflow, Weights & Biases, Neptune.ai |
+| **コンテナ・オーケストレーション** | Docker, Kubernetes |
+
+#### プログラミング言語
+
+- **Python**: 圧倒的に最も広く使われる（pandas/NumPy/TensorFlow/PyTorch/scikit-learn/Keras）
+- **R**: 学術・統計分野での使用が主
+- **Java/C++**: 特定の高パフォーマンス要件時
+
+#### クラウドプラットフォームと選択基準
+
+| プラットフォーム | 主な特徴 |
+|---------------|---------|
+| **AWS (Amazon SageMaker 等)** | 最も成熟した MLOps エコシステム |
+| **Google Cloud Platform (Vertex AI 等)** | TensorFlow との深い統合 |
+| **Microsoft Azure (Azure ML 等)** | エンタープライズ・Microsoft製品との統合 |
+
+> **判断のポイント**: 既存組織のクラウド契約・チームの習熟度・予算制約が選択を左右する。クラウドプロバイダー選定後は、そのプラットフォーム固有のMLツールを優先的に評価する。
+
+#### Generative AIのテックスタックへの統合
+
+生成AIはMLテックスタック自体の効率化にも活用できる:
+
+```
+活用領域:
+  □ 合成データ生成（トレーニングデータ不足の補完・エッジケーステスト）
+  □ 探索的データ分析（生データから可視化・洞察・傾向を自動抽出）
+  □ 特徴量エンジニアリング（高寄与特徴量の自動選定）
+  □ コーディング支援（コード生成・デバッグ・リファクタリング）
+
+注意: 生成AIはツールであり、人材を置き換えるものではない。
+      AIを使いこなす人材が依然として必要。
+```

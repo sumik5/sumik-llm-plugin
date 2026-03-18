@@ -28,6 +28,10 @@
 - 優先順位付けワークショップの運営
 - クロスファンクショナル協働の設計
 - 根本原因分析
+- MLサービスのプロダクト化戦略の策定
+- 既存プロダクトへのAI統合計画
+- AI PMキャリアの設計・成長計画
+- バーティカル別AIプロダクト戦略
 
 ---
 
@@ -207,6 +211,10 @@ AskUserQuestion(
 | **[AI-PLAYBOOK-ROLES.md](references/AI-PLAYBOOK-ROLES.md)** | AI PMロール | AI-Experiences/AI-Builder/AI-Enhanced PM 3専門化、比較、キャリア選択 |
 | **[AI-PLAYBOOK-STRATEGY.md](references/AI-PLAYBOOK-STRATEGY.md)** | AI戦略 | AI機会評価、ケイパビリティマッチング、ROI算出9ステップ、AI A/Bテスト |
 | **[AI-PLAYBOOK-OPERATIONS.md](references/AI-PLAYBOOK-OPERATIONS.md)** | AI運用 | MLOps概要、バイアス緩和、責任あるAI、法的コンプライアンス |
+| **[AIPM-PRODUCTIZING-ML.md](references/AIPM-PRODUCTIZING-ML.md)** | MLプロダクト化 | MLサービスのプロダクト化・商業化戦略・バーティカル特化 |
+| **[AIPM-MANAGING-AI-PRODUCT.md](references/AIPM-MANAGING-AI-PRODUCT.md)** | AI管理 | Head/Heart/Gutsフレームワーク・ビジョン・アラインメント |
+| **[AIPM-AI-INTEGRATION.md](references/AIPM-AI-INTEGRATION.md)** | AI統合 | 既存プロダクトへのAI統合・導入パターン・業界トレンド |
+| **[AIPM-CAREER-MASTERY.md](references/AIPM-CAREER-MASTERY.md)** | PMキャリア | AI PMキャリア開始〜成熟・24ロール・4レベルロードマップ |
 
 ---
 
@@ -313,6 +321,10 @@ Problem Definition → Data Collection → Preprocessing → Feature Engineering
 - 責任あるAI・倫理チェックリスト → **[AIP-RESPONSIBLE-AI.md](references/AIP-RESPONSIBLE-AI.md)**
 - プロダクト設計・HEART詳細 → **[AIP-PRODUCT-DESIGN.md](references/AIP-PRODUCT-DESIGN.md)**
 - 3専門化比較・キャリアパス → **[AIP-TEAM-CAREER.md](references/AIP-TEAM-CAREER.md)**
+- MLプロダクト化・商業化戦略・バーティカル特化 → **[AIPM-PRODUCTIZING-ML.md](references/AIPM-PRODUCTIZING-ML.md)**
+- Head/Heart/Gutsフレームワーク・AI管理 → **[AIPM-MANAGING-AI-PRODUCT.md](references/AIPM-MANAGING-AI-PRODUCT.md)**
+- 既存プロダクトへのAI統合・業界トレンド → **[AIPM-AI-INTEGRATION.md](references/AIPM-AI-INTEGRATION.md)**
+- AI PMキャリア・24ロール・4レベルロードマップ → **[AIPM-CAREER-MASTERY.md](references/AIPM-CAREER-MASTERY.md)**
 
 ---
 
