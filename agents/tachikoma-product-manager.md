@@ -156,7 +156,9 @@ UXデザインとユーザーリサーチに関する以下の知識を持ちま
    codex が見つからない → **スキップして完了報告へ進む**（ブロックしない）
 
 2. **初回レビュー実行**
-   `orchestrating-codex` スキルを使って `{plan_file_fullpath}` を初回レビューする。
+   ```bash
+   bash scripts/codex-plan-review.sh "{plan_file_fullpath}"
+   ```
    実行エラー → **スキップして完了報告へ進む**
 
 3. **レビュー結果の判断と対応**
@@ -168,7 +170,10 @@ UXデザインとユーザーリサーチに関する以下の知識を持ちま
    | 指摘なし | 完了報告へ |
 
 4. **プラン修正 → 再レビュー（ループ）**
-   プランを修正した後、`orchestrating-codex` スキルの `--resume` モードで再レビューする。
+   プランを修正した後、以下のコマンドで再レビューする:
+   ```bash
+   bash scripts/codex-plan-review.sh "{plan_file_fullpath}" --resume
+   ```
    **致命的な指摘がなくなるまでステップ3-4を繰り返す。**
 
 ### 判断基準
