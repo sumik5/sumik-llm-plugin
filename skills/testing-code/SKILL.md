@@ -7,6 +7,10 @@ description: >-
   For React Testing Library (RTL) patterns and React-specific TDD, use developing-react instead.
   For Web API testing strategy (contract testing, performance, security), use developing-web-apis instead.
   For A/B testing and online controlled experiments, use conducting-ab-tests instead.
+  For engineering-level testing practices (TDD mindset, ATDD, BDD, testing in production, flaky test elimination), see TESTING-PRACTICES.md subfile.
+  For project foundations, team organization, and developer habits, use practicing-software-engineering instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
+
+テスト方法論・マインドセット・戦略（TDD/ATDD/BDD/Testing in Production/フレーキーテスト排除/パフォーマンステスト）は `TESTING-PRACTICES.md` を参照してください。
