@@ -15,7 +15,7 @@ Claude Code Plugin（Agent・Skill・Command）の作成・最適化を体系的
 PDFが引数として渡された場合のフロー:
 1. **絶対にReadツールでPDFを開かない**（ページ数確認も不可）
 2. Phase 0で入力がPDFであることを判定
-3. Phase AのPlannerタチコマに変換を委譲（`pdf-to-markdown.mjs` スクリプト使用）
+3. Phase AのPlannerタチコマに変換を委譲（`pdf-to-markdown` スクリプト使用）
 4. 変換後のMarkdownファイルのみを読み込む
 
 ---
