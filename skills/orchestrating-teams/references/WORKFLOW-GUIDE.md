@@ -49,7 +49,7 @@ planner タチコマの起動:
 {
   "description": "計画策定",
   "prompt": "## タスク: 実装計画の策定\n\n**ユーザー要求:** {ユーザーの要求をそのまま記載}\n\n以下を実行してください:\n1. コードベースを分析し、変更対象ファイル・影響範囲を特定\n2. TEAM-PATTERNS.md を参照し、最適なチーム編成パターンを選択\n3. タスク分解（1メンバーあたり5-6タスク目標）\n4. ファイル所有権パターンを定義（同一ファイル同時書込禁止）\n5. docs/plan-{feature-name}.md を PLAN-TEMPLATE.md の形式で作成\n6. 各タスクに最適な専門タチコマのsubagent_typeを推奨\n（参照: rules/skill-triggers.md のルーティング表）\n7. 🔴 Codex プランレビューループ: 計画書作成後、完了報告前に必ず実行\n   a. `which codex` で存在確認（見つからない or エラー → スキップしてOK）\n   b. `using-codex` スキルを使って `{plan_file_fullpath}` を初回レビューする\n   c. 致命的な指摘があればプランを修正し、同スキルの `--resume` モードで再レビューする\n   d. 致命的な指摘がなくなるまで修正→再レビューを繰り返す\n   e. 本質的でないコメントは無視してOK\n\n参照スキル: orchestrating-teams（references/TEAM-PATTERNS.md, references/PLAN-TEMPLATE.md）, using-codex\n\n禁止事項:\n- 実装コードの変更（計画策定のみ）\n- git書込操作",
-  "subagent_type": "sumik:タチコマ（アーキテクチャ）",
+  "subagent_type": "sumik:タチコマ（プロダクトマネジメント）",
   "model": "opus",
   "team_name": "user-management",
   "name": "planner",

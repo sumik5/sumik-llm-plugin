@@ -204,7 +204,7 @@ TeamCreate → Task tool × 3（1メッセージで同時発行）:
 
 | 役割 | 推奨 subagent_type | 用途 |
 |------|-------------------|------|
-| planner | `sumik:タチコマ（アーキテクチャ）` | 設計・計画策定（model: opus） |
+| planner | `sumik:タチコマ（プロダクトマネジメント）` | 要件分析・計画策定（model: opus） |
 | frontend | `sumik:タチコマ（Next.js）` / `sumik:タチコマ（フロントエンド）` | React/UI実装 |
 | backend | `sumik:タチコマ（フルスタックJS）` / `sumik:タチコマ（Python）` / `sumik:タチコマ（Go）` | API/ビジネスロジック |
 | tester | `sumik:タチコマ（テスト）` / `sumik:タチコマ（E2Eテスト）` | テスト作成 |

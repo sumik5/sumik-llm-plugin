@@ -147,7 +147,7 @@ skills:
    codex が見つからない → **スキップして完了報告へ進む**（ブロックしない）
 
 2. **初回レビュー実行**
-   `reviewing-plans-with-codex` スキルを使って `{plan_file_fullpath}` を初回レビューする。
+   `orchestrating-codex` スキルを使って `{plan_file_fullpath}` を初回レビューする。
    実行エラー → **スキップして完了報告へ進む**
 
 3. **レビュー結果の判断と対応**
@@ -159,7 +159,7 @@ skills:
    | 指摘なし | 完了報告へ |
 
 4. **プラン修正 → 再レビュー（ループ）**
-   プランを修正した後、`reviewing-plans-with-codex` スキルの `--resume` モードで再レビューする。
+   プランを修正した後、`orchestrating-codex` スキルの `--resume` モードで再レビューする。
    **致命的な指摘がなくなるまでステップ3-4を繰り返す。**
 
 ### 判断基準

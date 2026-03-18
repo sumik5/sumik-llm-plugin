@@ -26,7 +26,7 @@ sumik-claude-plugin/
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
-├── agents/             # Agent定義 (25体)
+├── agents/             # Agent定義 (26体)
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
@@ -37,7 +37,7 @@ sumik-claude-plugin/
 
 ## コンポーネント一覧
 
-### Agents (25体)
+### Agents (26体)
 
 | Agent | モデル | 説明 |
 |-------|--------|------|
@@ -66,6 +66,7 @@ sumik-claude-plugin/
 | **タチコマ（テスト）** (tachikoma-test) | Sonnet | ユニット/インテグレーションテスト専門。TDD・Vitest/Jest・React Testing Library・モック戦略 |
 | **タチコマ（E2Eテスト）** (tachikoma-e2e-test) | Sonnet | E2Eテスト・ブラウザ自動化専門。Playwright Test・POM・ビジュアルテスト・アクセシビリティ・CI/CD統合 |
 | **タチコマ（研修・プレゼン）** (tachikoma-training-presenter) | Sonnet | 研修設計・プレゼンテーション改善専門（自己進化型）。研修ニーズ分析・カリキュラム設計・プレゼン構成改善・デリバリー技法・文章品質向上 |
+| **タチコマ（プロダクトマネジメント）** (tachikoma-product-manager) | Opus | プロダクトマネジメント専門（読み取り専用）。PRD作成・ロードマップ策定・優先順位付け・A/Bテスト設計・成長メトリクス分析・AIプロダクト成熟度評価・技術トレードオフ分析。ドキュメント作成のみ |
 
 ### Commands (11個)
 
