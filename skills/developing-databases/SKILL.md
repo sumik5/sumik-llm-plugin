@@ -3,9 +3,12 @@ name: developing-databases
 description: >-
   Comprehensive database development guide covering relational design (ER modeling, normalization,
   PostgreSQL implementation), SQL antipatterns (25 patterns with detection signals and solutions),
-  and database internals (storage engines B-tree/LSM, distributed systems, consensus algorithms).
+  database internals (storage engines B-tree/LSM, distributed systems, consensus algorithms),
+  and PostgreSQL operations (server config, extensions, query tuning, MVCC/VACUUM, backup/PITR,
+  replication/HA, monitoring).
   Use when designing database schemas, writing SQL queries, reviewing data models, choosing storage
-  engines, understanding consistency guarantees, or debugging distributed system behavior.
+  engines, tuning PostgreSQL performance, managing backup/replication, or debugging distributed
+  system behavior.
   Replaces: designing-relational-databases, avoiding-sql-antipatterns, understanding-database-internals.
   For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
 disable-model-invocation: false

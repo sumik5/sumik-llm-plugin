@@ -424,3 +424,290 @@ PostgreSQLのAAAフレームワークは以下の原則で実装します:
 - 認証は外部システムに委譲
 
 このフレームワークにより、スケーラブルで管理しやすいセキュリティモデルを実現できます。
+
+---
+
+## 6. ロール属性の詳細リファレンス（Ch6補足）
+
+ロール属性はクラスターレベルの権限設定であり、`CREATE ROLE` 時または `ALTER ROLE` で設定する。
+
+### 6.1 ロール属性一覧
+
+| 属性 | 反対属性 | デフォルト | 説明 |
+|------|---------|-----------|------|
+| `LOGIN` | **`NOLOGIN`** | NOLOGIN | クラスターへのログイン可否。LOGINはユーザー、NOLOGINはグループ |
+| `SUPERUSER` | **`NOSUPERUSER`** | NOSUPERUSER | すべてのセキュリティチェックをバイパス |
+| `CREATEROLE` | **`NOCREATEROLE`** | NOCREATEROLE | 他ロールの作成・変更・削除が可能 |
+| `CREATEDB` | **`NOCREATEDB`** | NOCREATEDB | 新規データベースの作成が可能 |
+| `REPLICATION` | **`NOREPLICATION`** | NOREPLICATION | レプリケーション接続・スロット管理 |
+| `BYPASSRLS` | **`NOBYPASSRLS`** | NOBYPASSRLS | Row Level Security ポリシーのバイパス |
+| **`INHERIT`** | `NOINHERIT` | INHERIT | メンバーであるロールの権限を自動継承 |
+| `PASSWORD` | - | - | パスワードを設定（パスワード認証使用時） |
+| `CONNECTION LIMIT` | - | -1（無制限） | 同時接続数の上限 |
+
+```sql
+-- スーパーユーザーに近いがSUPERUSERではない管理ロール（推奨パターン）
+CREATE ROLE cluster_admin WITH LOGIN CREATEROLE CREATEDB
+  PASSWORD 'secure_password'
+  CONNECTION LIMIT 5;
+
+-- レポートユーザー（接続数制限あり）
+CREATE ROLE reporting_user WITH LOGIN
+  PASSWORD 'report_pass'
+  CONNECTION LIMIT 10;
+
+-- ロール設定でパラメータを固定（接続時に自動適用）
+ALTER ROLE reporting_user SET work_mem = '128MB';
+ALTER ROLE reporting_user SET jit TO off;
+
+-- 設定をリセット
+ALTER ROLE reporting_user RESET jit;
+```
+
+### 6.2 スーパーユーザーの安全な運用
+
+スーパーユーザーはすべてのセキュリティチェックをバイパスする危険な権限。推奨パターン:
+
+```sql
+-- 1. superuser-like ロールを作成（CREATEROLE + CREATEDBのみ）
+CREATE ROLE cluster_admin WITH LOGIN CREATEROLE CREATEDB
+  PASSWORD 'admin_password';
+
+-- 2. cluster_admin を superuser ロールのメンバーにする
+GRANT postgres TO cluster_admin;
+
+-- 3. postgres（superuser）にNOLOGINを設定（直接ログイン禁止）
+ALTER ROLE postgres WITH NOLOGIN;
+
+-- 4. superuser権限が必要な作業時はSET ROLEで一時的に昇格
+SET ROLE postgres;  -- 作業実行
+RESET ROLE;         -- 通常ロールに戻る
+```
+
+> ⚠️ クラウド管理型PostgreSQL（RDS、Cloud SQL等）ではSUPERUSERロールへのアクセスは提供されない。代わりにsuperuser-likeな管理ロールが提供される。
+
+---
+
+## 7. GRANT / REVOKE 粒度別ガイド（Ch6補足）
+
+### 7.1 Database 権限
+
+```sql
+-- 構文
+GRANT { CREATE | CONNECT | TEMPORARY | TEMP } [, ...]
+  ON DATABASE database_name
+  TO role_name;
+
+-- 実例
+-- 全ロールに接続とTEMP テーブル作成を許可
+GRANT CONNECT, TEMP ON DATABASE app_db TO app_users;
+
+-- 管理者ロールにスキーマ作成権限
+GRANT CREATE ON DATABASE app_db TO app_admins;
+```
+
+| 権限 | 説明 |
+|------|------|
+| `CONNECT` | データベースへの接続（hba.confの次のチェック） |
+| `CREATE` | データベース内にスキーマを作成 |
+| `TEMPORARY` / `TEMP` | テンポラリテーブルの作成 |
+
+### 7.2 Schema 権限
+
+```sql
+-- 構文
+GRANT { CREATE | USAGE } [, ...]
+  ON SCHEMA schema_name
+  TO role_name;
+
+-- 実例
+-- USAGEなしではテーブル名が見えても実際にはアクセスできない
+GRANT USAGE ON SCHEMA app_schema TO app_users;
+GRANT CREATE ON SCHEMA app_schema TO app_admins;
+```
+
+| 権限 | 説明 |
+|------|------|
+| `USAGE` | スキーマ内のオブジェクトへのアクセスを許可（これがないとSELECTも不可）|
+| `CREATE` | スキーマ内にオブジェクト（テーブル、ビュー等）を作成 |
+
+### 7.3 Table 権限
+
+```sql
+-- 構文
+GRANT { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER } [, ...]
+  ON { TABLE table_name | ALL TABLES IN SCHEMA schema_name }
+  TO role_name;
+
+-- 実例（グループロール階層に対して付与）
+GRANT SELECT ON ALL TABLES IN SCHEMA app_schema TO app_users;
+GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA app_schema TO app_developers;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA app_schema TO app_admins;
+```
+
+| 権限 | 説明 |
+|------|------|
+| `SELECT` | データの読み取り。COPY TOにも必要 |
+| `INSERT` | 行の挿入。COPY FROMにも必要 |
+| `UPDATE` | 行の更新（SELECTも必要） |
+| `DELETE` | 行の削除（SELECTも必要） |
+| `TRUNCATE` | テーブルの全削除 |
+| `REFERENCES` | 外部キー制約の作成 |
+| `TRIGGER` | トリガーの作成 |
+
+### 7.4 グループロールへのメンバーシップ付与
+
+```sql
+-- 構文
+GRANT role_name TO user_or_group_role;
+
+-- 実例：グループロール階層
+-- グループロール（NOLOGIN）
+CREATE ROLE app_users WITH NOLOGIN;
+CREATE ROLE app_developers WITH NOLOGIN;
+CREATE ROLE app_admins WITH NOLOGIN;
+
+-- ユーザーロール（LOGIN）
+CREATE ROLE app_read_only WITH LOGIN PASSWORD '...';
+CREATE ROLE app_dev_jr WITH LOGIN PASSWORD '...';
+CREATE ROLE app_dev_sr WITH LOGIN PASSWORD '...';
+
+-- メンバーシップ付与（権限の継承）
+GRANT app_users TO app_read_only, app_dev_jr, app_dev_sr;
+GRANT app_developers TO app_dev_jr, app_dev_sr;
+GRANT app_admins TO app_dev_sr;
+```
+
+**グループロールの特徴**:
+- ロールへのGRANTはオブジェクトではなくメンバー全体に影響する（後から追加したメンバーにも適用）
+- グループロールに権限変更すると、すべてのメンバーロールに即時反映
+
+---
+
+## 8. デフォルト権限（ALTER DEFAULT PRIVILEGES）
+
+### 8.1 問題：新規オブジェクトは権限なし
+
+```sql
+-- ❌ 既存テーブルにGRANTしても新しく作るテーブルには権限がない
+GRANT SELECT ON ALL TABLES IN SCHEMA app_schema TO app_users;
+-- この後で CREATE TABLE すると → app_users は選択できない
+```
+
+### 8.2 DEFAULT PRIVILEGES で解決
+
+```sql
+-- 接続ロールが今後作成するオブジェクトに自動でGRANTを設定
+ALTER DEFAULT PRIVILEGES IN SCHEMA app_schema
+  GRANT SELECT ON TABLES TO app_users;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA app_schema
+  GRANT INSERT, UPDATE, DELETE ON TABLES TO app_developers;
+
+-- これ以降に CREATE TABLE すると自動的に権限が付与される
+CREATE TABLE app_schema.new_table (id SERIAL PRIMARY KEY, name TEXT);
+-- → app_users は SELECT 可能、app_developers は DML 可能（追加のGRANT不要）
+```
+
+### 8.3 持続可能なアプローチ（一元管理ロール）
+
+大規模アプリケーションで複数の開発者がオブジェクトを作成する場合、各自がデフォルト権限を設定すると管理が煩雑になる。**1つのグループロールにオブジェクト作成を集約**する。
+
+```sql
+-- 1. DDL専用グループロール（NOLOGIN）を作成
+CREATE ROLE app_ddl_admin WITH NOLOGIN;
+
+-- 2. 必要な権限を付与
+GRANT USAGE, CREATE ON SCHEMA app_schema TO app_ddl_admin;
+
+-- 3. 管理者ロールをメンバーにする
+GRANT app_ddl_admin TO app_admins;
+
+-- 4. app_ddl_adminとしてデフォルト権限を設定（一度だけ）
+SET ROLE app_ddl_admin;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA app_schema
+  GRANT SELECT ON TABLES TO app_users;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA app_schema
+  GRANT INSERT, UPDATE, DELETE ON TABLES TO app_developers;
+
+-- 5. このロールでテーブルを作成すると自動で権限が付与される
+CREATE TABLE app_schema.orders (
+  order_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id  BIGINT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+
+-- 6. 通常ロールに戻る
+SET ROLE NONE;
+```
+
+```sql
+-- デフォルト権限の削除も可能
+ALTER DEFAULT PRIVILEGES IN SCHEMA app_schema
+  REVOKE DELETE ON TABLES FROM app_developers;
+
+-- PUBLIC ロールへの関数実行権限を削除
+ALTER DEFAULT PRIVILEGES FOR ROLE app_ddl_admin
+  REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+```
+
+---
+
+## 9. 定義済みロール（Predefined Roles）
+
+PostgreSQL 14以降に追加された、よく使われる権限のプリセット。
+
+| 定義済みロール | 付与される権限 | 注意点 |
+|-------------|-------------|--------|
+| `pg_read_all_data` | クラスター全テーブル・ビュー・シーケンスへのSELECT | クラスターレベル（全DB） |
+| `pg_write_all_data` | クラスター全テーブル・ビュー・シーケンスへのINSERT/UPDATE/DELETE | クラスターレベル（全DB）|
+| `pg_monitor` | 各種監視ビュー（`pg_stat_*`等）へのアクセス | 運用チーム向け |
+| `pg_read_all_settings` | すべての設定値の参照 | - |
+| `pg_read_all_stats` | 統計情報ビューへのアクセス | - |
+| `pg_signal_backend` | バックエンドへのシグナル送信（pg_cancel_backend等） | - |
+
+```sql
+-- 読み取り専用アプリユーザーに付与
+GRANT pg_read_all_data TO app_read_only;
+
+-- 書き込みアプリユーザーに付与
+GRANT pg_write_all_data TO app_write_user;
+
+-- 監視ツール用ユーザーに付与
+GRANT pg_monitor TO monitoring_user;
+```
+
+> ⚠️ `pg_read_all_data` と `pg_write_all_data` は**既存のGRANT/REVOKE設定を無視**する。細かなアクセス制御が必要な場合は使用を避ける。
+
+---
+
+## 10. PUBLIC ロールの注意点
+
+`PUBLIC` ロールはすべてのロールが自動的にメンバーになる特殊なロール。
+
+### デフォルトで付与されている権限（PostgreSQL 15以降）
+
+| 権限 | 対象 | 説明 |
+|------|------|------|
+| `CONNECT` | すべてのDB | デフォルトで全ロールがDBに接続可能 |
+| `USAGE` | publicスキーマ | publicスキーマの使用 |
+| `TEMPORARY` | すべてのDB | テンポラリテーブルの作成 |
+| `EXECUTE` | 関数・プロシージャ | デフォルトで全関数が実行可能 |
+
+> ⚠️ PostgreSQL 14以前では `public` スキーマへの `CREATE` 権限もPUBLICに付与されていた。15以降は削除されたが、旧バージョンからの移行時は注意が必要。
+
+### セキュリティ強化のためのREVOKE（推奨）
+
+```sql
+-- PUBLICからすべての権限を剥奪してから必要なロールにのみ付与
+REVOKE ALL ON DATABASE myapp FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+
+-- その後、明示的に必要なロールに付与
+GRANT CONNECT ON DATABASE myapp TO app_users;
+GRANT USAGE ON SCHEMA public TO app_users;
+```
+
+これにより、意図しないアクセスを防ぎ、**デフォルト拒否（Default Deny）** の原則を実現できる。

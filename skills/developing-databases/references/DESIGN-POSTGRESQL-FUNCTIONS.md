@@ -350,13 +350,75 @@ BEGIN
 END $$;
 ```
 
-#### 4.2.4 カスタム例外（RAISE EXCEPTION）
+#### 4.2.4 RAISEレベルと詳細オプション
 
+RAISEは6つのレベルをサポート。デフォルトレベルは `EXCEPTION`。
+
+| レベル | 用途 | クライアント通知 |
+|-------|------|---------------|
+| `DEBUG` | デバッグ情報 | client_min_messages設定次第 |
+| `LOG` | サーバーログ | クライアントには非表示 |
+| `INFO` | 情報メッセージ | ✅ |
+| `NOTICE` | 注意メッセージ | ✅ |
+| `WARNING` | 警告 | ✅ |
+| `EXCEPTION` | エラー（トランザクションをロールバック） | ✅ |
+
+**基本構文:**
 ```sql
 DO $$
 BEGIN
-    UPDATE product_variant_price SET price = 0.01 WHERE id = 1;
-    RAISE check_violation USING MESSAGE = 'Price too low';
+  RAISE NOTICE 'Processing row: %', 42;        -- %で変数展開
+  RAISE WARNING 'Deprecated usage detected';
+  RAISE EXCEPTION 'Validation failed: %', 'price cannot be negative';
+END $$;
+```
+
+**USING句による詳細情報の付加:**
+```sql
+DO $$
+BEGIN
+  RAISE EXCEPTION 'Invalid date format'
+    USING
+      errcode = '22007',          -- SQLSTATEコード（名前または数値）
+      message  = 'Date must be in YYYY-MM-DD format',
+      hint     = 'Check the date column in your input',
+      detail   = 'Received value: 2024/13/01';
+END $$;
+```
+
+**SQLSTATEによる例外の捕捉:**
+```sql
+DO $$
+BEGIN
+  INSERT INTO orders (customer_id) VALUES (NULL);
+EXCEPTION
+  WHEN not_null_violation THEN               -- エラー名で捕捉
+    RAISE NOTICE 'Caught not_null_violation';
+  WHEN sqlstate '23505' THEN                 -- SQLSTATEコードで捕捉
+    RAISE NOTICE 'Caught unique violation';
+  WHEN OTHERS THEN                           -- 残りすべてを捕捉
+    RAISE NOTICE 'Unexpected error: %', SQLERRM;
+END $$;
+```
+
+**よく使うSQLSTATEコード:**
+
+| エラー名 | SQLSTATEコード | 説明 |
+|---------|--------------|------|
+| `unique_violation` | `23505` | UNIQUE制約違反 |
+| `foreign_key_violation` | `23503` | 外部キー制約違反 |
+| `not_null_violation` | `23502` | NOT NULL制約違反 |
+| `check_violation` | `23514` | CHECK制約違反 |
+| `invalid_datetime_format` | `22007` | 日付フォーマット不正 |
+| `division_by_zero` | `22012` | ゼロ除算 |
+| `undefined_table` | `42P01` | テーブルが存在しない |
+
+**既存エラーコードの再発生:**
+```sql
+DO $$
+BEGIN
+  UPDATE product_variant_price SET price = 0.01 WHERE id = 1;
+  RAISE check_violation USING MESSAGE = 'Price too low';
 END $$;
 ```
 
@@ -512,7 +574,111 @@ BEGIN
 END $$ LANGUAGE PLPGSQL;
 ```
 
-### 4.6 plpgsql_check リンター
+### 4.6 カーソル（Cursor）
+
+カーソルは主に**メモリ管理**のために使用する。大規模データセットを一括取得せず、バッチ処理でメモリボトルネックを回避できる。行ごとの処理はSQLのセット操作より非効率なため、メモリ管理目的以外では避けること。
+
+#### 4.6.1 明示的カーソル（DECLARE → OPEN → FETCH → CLOSE）
+
+```sql
+DO $$
+DECLARE
+  -- カーソルをクエリにバインドして宣言
+  filmcrew CURSOR FOR
+    SELECT person_id, job
+    FROM film_crew
+    WHERE department = 'Sound';
+  rec    record;
+  counter int := 0;
+BEGIN
+  OPEN filmcrew;     -- カーソルを開く
+
+  WHILE counter < 5 LOOP
+    FETCH NEXT FROM filmcrew INTO rec;   -- 次の1行を取得
+    EXIT WHEN NOT FOUND;                 -- データがなければ終了
+    RAISE NOTICE 'Job: %', rec.job;
+    counter := counter + 1;
+  END LOOP;
+
+  CLOSE filmcrew;    -- カーソルを閉じる
+END $$;
+```
+
+**FETCH方向の指定:**
+```sql
+FETCH NEXT     FROM cursor_name INTO rec;  -- 次の行（デフォルト）
+FETCH PRIOR    FROM cursor_name INTO rec;  -- 前の行（後退）
+FETCH FIRST    FROM cursor_name INTO rec;  -- 最初の行
+FETCH LAST     FROM cursor_name INTO rec;  -- 最後の行
+FETCH FORWARD  10 FROM cursor_name INTO rec;  -- 前方10行
+FETCH BACKWARD 5  FROM cursor_name INTO rec;  -- 後方5行
+FETCH ABSOLUTE 3  FROM cursor_name INTO rec;  -- 絶対位置3行目
+FETCH RELATIVE 2  FROM cursor_name INTO rec;  -- 現在位置から相対2行
+```
+
+#### 4.6.2 FOR ... IN カーソルパターン
+
+明示的なOPEN/FETCH/CLOSEを書かずにカーソルをループできる（推奨パターン）。
+
+```sql
+DO $$
+DECLARE
+  rec record;
+BEGIN
+  FOR rec IN
+    SELECT person_id, job, department
+    FROM film_crew
+    WHERE department = 'Sound'
+    ORDER BY job
+  LOOP
+    RAISE NOTICE 'Job: %, Person: %', rec.job, rec.person_id;
+  END LOOP;
+  -- ← CLOSE不要（ループ終了時に自動クローズ）
+END $$;
+```
+
+#### 4.6.3 関数との組み合わせ（大規模結果セットのバッチ処理）
+
+```sql
+-- 大規模データを返す関数
+CREATE OR REPLACE FUNCTION film_crew_info()
+RETURNS TABLE (personname TEXT, title TEXT, department TEXT, job TEXT)
+AS $$
+BEGIN
+  RETURN QUERY
+    SELECT
+      p.name,
+      f.title,
+      fc.department,
+      fc.job
+    FROM film_crew fc
+    JOIN person p ON fc.person_id = p.person_id
+    JOIN film   f ON fc.film_id   = f.film_id;
+END
+$$ LANGUAGE PLPGSQL;
+
+-- カーソルで15行ずつバッチ取得（トランザクション内で使用）
+BEGIN;
+DECLARE filmcrew CURSOR FOR
+  SELECT * FROM film_crew_info();
+
+FETCH 15 FROM filmcrew;   -- 15行を一括取得
+-- 処理 ...
+FETCH 15 FROM filmcrew;   -- 次の15行
+COMMIT;
+```
+
+**カーソルの特徴と注意点:**
+
+| 特徴 | 説明 |
+|------|------|
+| **メモリ効率** | 全データをメモリに展開せずバッチ処理可能 |
+| **双方向移動** | FORWARD / BACKWARD どちらも移動可能 |
+| **関数間の受け渡し** | カーソルをIN/OUTパラメータとして関数間で受け渡せる |
+| **トランザクション依存** | カーソルはトランザクションの範囲内で生存（COMMIT で破棄） |
+| **性能注意** | 行ごとのビジネスロジック処理はN+1問題を引き起こす可能性あり |
+
+### 4.7 plpgsql_check リンター
 
 **用途:** PL/pgSQL コードの静的解析（未使用変数、構文エラー検出）。
 
@@ -694,6 +860,13 @@ $$ LANGUAGE plpython3u;
 
 - **関数 vs プロシージャ**: 戻り値、トランザクション制御、SQL内呼出しの可否で使い分け
 - **Volatility**: 正しい分類（IMMUTABLE/STABLE/VOLATILE）でパフォーマンス最適化
+- **PL/pgSQL制御フロー**: IF/ELSIF/ELSE、Simple/Searched CASE、LOOP/FOR/WHILE の使い分け
+- **カーソル**: メモリ管理目的（大規模データのバッチ処理）に使用。FOR...INパターンが推奨
+- **RAISE**: 6レベル（DEBUG/LOG/INFO/NOTICE/WARNING/EXCEPTION）+ USING句で詳細情報付加
+- **EXCEPTION WHEN**: エラー名またはSQLSTATEコードで例外を捕捉
+- **サブトランザクション**: プロシージャ内でCOMMIT/ROLLBACKを使い、部分的な成功を許容
 - **PL/pgSQL**: SQL中心、トランザクション制御、トリガー、pg_background拡張で自律トランザクション
 - **PL/Python3u**: 外部ライブラリ、ML/AI、計算集約型処理に最適（Untrusted言語）
 - **plpgsql_check**: 静的解析で早期バグ検出
+
+> 📌 関連リファレンス: スキーマ・テーブル・インデックス等のオブジェクト設計 → [POSTGRESQL-CORE-OBJECTS.md](./POSTGRESQL-CORE-OBJECTS.md)
