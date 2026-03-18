@@ -80,6 +80,8 @@ Phase D: 品質チェック（Claude Code本体）- 最終検証 → TeamDelete
 | URL | `http://` or `https://` で始まる | Plannerが変換 |
 | フォルダ | ディレクトリパス | Plannerがファイル列挙・変換 |
 
+> **🔴 PDF入力時の注意**: PDFファイルをReadツールで読み込んではならない（コンテキスト圧迫によるcompaction発生）。内容確認が必要な場合もMarkdown変換後に行うこと。Phase AのPlannerタチコマが `pdf-to-markdown.mjs` で変換する。
+
 #### 0.2 作業ディレクトリ作成・TeamCreate
 
 入力ファイル名（または複数ファイルの場合は代表名）から `{skill-provisional-name}` を決定し、作業ディレクトリとチームを作成する:
