@@ -1,7 +1,7 @@
 {
     "name": "sumik",
     "description": "sumik Claude Code Plugin",
-    "version": "9.4.0",
+    "version": "9.5.0",
     "hooks": {
         "SessionStart": [
             {

@@ -594,3 +594,26 @@ UXデザインの全工程をカバーする100の実践原則。
 - **設計段階**: Design（64–87）で具体的なUI設計の判断基準にする
 - **テスト・リリース段階**: Validate（88–100）で品質検証と改善計画を立てる
 - **特定の問いに答えたいとき**: If/Then 形式で該当する状況の原則を検索する
+
+---
+
+## Webビジュアルデザイン実践
+
+Webサイト制作に特化したビジュアルデザインの実践知識。上記の理論セクション（GRAPHICS-*、PHILOSOPHY-*）が「なぜ」を扱うのに対し、本セクションは「Webではどう適用するか」を扱う。
+
+### When to Use
+
+以下の場面で参照:
+- Webページのレイアウト設計時
+- Webサイトの配色・カラースキーム選定時
+- UIコンポーネント（ヘッダー・ナビ・ボタン・フォーム等）のデザイン時
+- Webサイトへのモーション・アニメーション追加時
+
+### Structure
+
+| ファイル | 領域 | 理論との対応 |
+|---------|------|------------|
+| [WEB-LAYOUT.md](references/WEB-LAYOUT.md) | Webレイアウト実践（サイト種類別方針・レスポンシブ・レイアウト4原則） | GRAPHICS-LAYOUT-AND-COMPOSITION.md の Web応用 |
+| [WEB-COLOR.md](references/WEB-COLOR.md) | Web配色実践（カラーシステム・ブランドカラー・イメージ別配色） | GRAPHICS-COLOR-THEORY.md の Web応用 |
+| [WEB-UI-COMPONENTS.md](references/WEB-UI-COMPONENTS.md) | UIコンポーネント設計（ナビ・ボタン・フォーム・タイポグラフィ・ガイドライン） | GUIDELINES-*.md + GRAPHICS-TYPOGRAPHY の Web実践 |
+| [WEB-MOTION.md](references/WEB-MOTION.md) | Webモーション実践（遷移・マイクロインタラクション・スクロール・動画） | PHILOSOPHY-MOTION-THEORY.md の Web応用 |
