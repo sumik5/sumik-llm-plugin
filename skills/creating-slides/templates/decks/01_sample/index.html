@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>サンプルデッキ — Slide Starter</title>
+  <link rel="stylesheet" href="../../engine/slide.css">
+  <link rel="stylesheet" href="../../theme/sample.css">
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- ===== タイトルスライド ===== -->
+  <section class="slide slide-title">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <p class="label mono">2026.03 &nbsp;/&nbsp; あなたの名前</p>
+    <h1>ここにメインタイトルを<br>入れてください</h1>
+    <p class="sub">サブタイトル・発表の概要を1〜2行で</p>
+  </section>
+
+  <!-- ===== コンテンツ（シンプル） ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="body">
+      <h2>セクションタイトル</h2>
+      <p>本文テキスト。1スライドに1メッセージ。<br>
+         余白を活かして、情報を詰め込みすぎない。</p>
+    </div>
+  </section>
+
+  <!-- ===== コンテンツ（箇条書き） ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="body">
+      <h2>3つのポイント</h2>
+      <ul class="list">
+        <li>最初のポイント。<span class="accent bold">強調したい語句</span>はこう書く。</li>
+        <li>2番目のポイント。簡潔に、1行〜2行で収める。</li>
+        <li>3番目のポイント。箇条書きは最大5項目まで。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== コンテンツ（2カラム比較） ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="body">
+      <h2>比較・対比</h2>
+      <div class="cols-2">
+        <div>
+          <h3 class="muted" style="margin-bottom:.75rem;">Before</h3>
+          <p>従来のやり方について説明。<br>問題点や課題をここに書く。</p>
+        </div>
+        <div style="border-left: var(--border); padding-left: var(--sp-lg);">
+          <h3 class="accent" style="margin-bottom:.75rem;">After</h3>
+          <p>新しいアプローチについて説明。<br>改善点やメリットをここに書く。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 図解：フローチャート ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="body">
+      <h2>プロセスの流れ</h2>
+      <div class="flow">
+        <div class="flow-step">
+          <h3>収集</h3>
+          <p>データを集める</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <h3>分析</h3>
+          <p>パターンを見つける</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <h3>実行</h3>
+          <p>施策に落とす</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <h3>検証</h3>
+          <p>効果を測定する</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 図解：3カラムカード ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="body">
+      <h2>3つの柱</h2>
+      <div class="cols-3">
+        <div class="card">
+          <span class="tag">01</span>
+          <h3>戦略設計</h3>
+          <p>ゴールから逆算して<br>打ち手を構造化する。</p>
+        </div>
+        <div class="card">
+          <span class="tag">02</span>
+          <h3>高速実装</h3>
+          <p>仮説を最速で形にし<br>市場からFBを得る。</p>
+        </div>
+        <div class="card">
+          <span class="tag">03</span>
+          <h3>継続改善</h3>
+          <p>データに基づいて<br>サイクルを回し続ける。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 図解：KPI / 数字ハイライト ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="body">
+      <h2>主要指標</h2>
+      <div class="cols-3" style="align-items: center;">
+        <div class="stat">
+          <span class="number">3.2x</span>
+          <span class="label">生産性向上</span>
+        </div>
+        <div class="stat">
+          <span class="number">47%</span>
+          <span class="label">コスト削減</span>
+        </div>
+        <div class="stat">
+          <span class="number">120+</span>
+          <span class="label">導入企業数</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== テキスト+画像（横並び） ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="body">
+      <h2>テキストと画像の組み合わせ</h2>
+      <div class="text-img">
+        <div class="text">
+          <p>左にテキスト、右に画像を配置する<br>レイアウト。</p>
+          <p>プロダクトのスクリーンショットや<br>概念図を添えるのに最適。</p>
+        </div>
+        <div class="img-box">
+          <img src="assets/image-box.png" alt="サンプル画像">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 全幅画像スライド ===== -->
+  <section class="slide slide-content" style="padding: 0;">
+    <div class="img-box" style="border-radius: 0;">
+      <img src="assets/image-box.png" alt="全幅画像">
+    </div>
+  </section>
+
+  <!-- ===== セクション区切り ===== -->
+  <section class="slide slide-section">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <h2><span class="accent">Part 2</span></h2>
+    <p>セクションの区切りに使う。<br>章立てのあるプレゼンに最適。</p>
+  </section>
+
+  <!-- ===== ランディングステートメント ===== -->
+  <section class="slide slide-landing">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <h2>ここに最も伝えたい<br>
+      <span class="accent">核心の一文</span>を置く。<br>
+      印象的な問い・比喩・結論に使う。</h2>
+  </section>
+
+  <!-- ===== エンディングスライド ===== -->
+  <section class="slide slide-end">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <h2>ありがとうございました</h2>
+    <p class="muted">お名前 &nbsp;/&nbsp; 肩書き・所属</p>
+  </section>
+
+</div><!-- /.deck -->
+
+<!-- ── ナビUI ── -->
+<div class="slide-ui">
+  <div class="slide-counter">01 / 12</div>
+  <div class="slide-nav">
+    <button id="btn-prev">← Prev</button>
+    <button id="btn-next">Next →</button>
+    <button id="btn-pdf" title="PDF書き出し">PDF</button>
+    <button id="btn-fs" title="フルスクリーン (F)">⛶</button>
+  </div>
+</div>
+
+<script src="../../engine/slide.js"></script>
+</body>
+</html>

@@ -26,18 +26,18 @@ sumik-claude-plugin/
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
 ├── .mcp.json           # MCPサーバー設定
-├── agents/             # Agent定義 (26体)
+├── agents/             # Agent定義 (27体)
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (61個)
+└── skills/             # ナレッジスキル (62個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Agents (26体)
+### Agents (27体)
 
 | Agent | モデル | 説明 |
 |-------|--------|------|
@@ -66,6 +66,7 @@ sumik-claude-plugin/
 | **タチコマ（テスト）** (tachikoma-test) | Sonnet | ユニット/インテグレーションテスト専門。TDD・Vitest/Jest・React Testing Library・モック戦略 |
 | **タチコマ（E2Eテスト）** (tachikoma-e2e-test) | Sonnet | E2Eテスト・ブラウザ自動化専門。Playwright Test・POM・ビジュアルテスト・アクセシビリティ・CI/CD統合 |
 | **タチコマ（研修・プレゼン）** (tachikoma-training-presenter) | Sonnet | 研修設計・プレゼンテーション改善専門（自己進化型）。研修ニーズ分析・カリキュラム設計・プレゼン構成改善・デリバリー技法・文章品質向上 |
+| **タチコマ（スライド）** (tachikoma-slide) | Sonnet | HTMLスライド作成専門。slides repo 3層分離モデル（Engine/Theme/Content）・ソース素材変換3ルール・テーマカスタマイズ・プロジェクト初期化 |
 | **タチコマ（プロダクトマネジメント）** (tachikoma-product-manager) | Opus | プロダクトマネジメント専門（読み取り専用）。PRD作成・ロードマップ策定・優先順位付け・A/Bテスト設計・成長メトリクス分析・AIプロダクト成熟度評価・技術トレードオフ分析。ドキュメント作成のみ |
 
 ### Commands (11個)
@@ -84,7 +85,7 @@ sumik-claude-plugin/
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (61個)
+### Skills (62個)
 
 #### コア開発
 
@@ -179,7 +180,8 @@ sumik-claude-plugin/
 | `designing-training` | 研修設計・ファシリテーション方法論（ニーズ分析・カリキュラム設計・90/20/8法則・EATフレームワーク・参加者主体技法・オンライン/ハイブリッド・スキルマップ・研修資料作成・12リファレンスファイル） |
 | `writing-effective-prose` | 統合文章術スキル（論理構成・AI臭除去・技術文書7Cs・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）・技術ブログ・README作成・Zenn記事作成・投稿ワークフロー） |
 | `creating-diagrams` | ダイアグラム作成ガイド（Mermaid: 24種類・C4モデル/ER図/シーケンス図/フローチャート ＋ draw.io MCP統合） |
-| `creating-content` | コンテンツ制作統合スキル（AIコピーライティング: 15テクニック・心理的トリガー ＋ AIデザインクリエイティブ: バナー/SNS/ポスター ＋ プレゼンテーション作成: HTMLスライド・Google Slides） |
+| `creating-content` | コンテンツ制作統合スキル（AIコピーライティング: 15テクニック・心理的トリガー ＋ AIデザインクリエイティブ: バナー/SNS/ポスター） |
+| `creating-slides` | HTMLスライド作成（slides repo 3層分離モデル: Engine/Theme/Content、16:9デッキ、テーマカスタマイズ、ソース素材変換ルール） |
 
 ### Scripts (1個)
 

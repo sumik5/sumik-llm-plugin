@@ -1,6 +1,6 @@
 # コンテンツ制作ガイド
 
-このスキルは3つのコンテンツ制作ニーズを一元的にカバーする統合スキルです。
+このスキルは2つのコンテンツ制作ニーズを一元的にカバーする統合スキルです。
 
 ## コンテンツ種別選択ガイド
 
@@ -8,14 +8,11 @@
 |------|--------------|
 | マーケティングコピー・ブログタイトル・広告見出し・SNS投稿を生成 | [AIコピーライティング](#aiコピーライティング) |
 | バナー広告・SNS画像・ポスター・Webビジュアルを生成 | [AIデザインクリエイティブ](#aiデザインクリエイティブ) |
-| プレゼンのコンテンツ・構成・デリバリーを改善 | [プレゼン品質改善](#プレゼン品質改善) |
-| HTMLスライドデッキを生成（1スライド=1HTMLファイル） | [HTMLスライド作成](#htmlスライド作成) |
-| PDFプレゼンをHTMLテンプレートに変換 | [PDFテンプレート変換](#pdfテンプレート変換) |
-| 議事録・企画書からGoogle Slidesを生成 | [Google Slides生成](#google-slides生成) |
 
 **隣接スキル**:
 - `writing-effective-prose` — AI臭除去・スクリプト推敲
 - `designing-ux` — UI/UX哲学・グラフィックデザイン原則
+- `creating-slides` — HTMLスライド作成
 - `writing-latex` — LaTeX文書作成
 
 ---
@@ -165,143 +162,3 @@ AI画像生成ツールを使って広告・マーケティングクリエイテ
 
 → 詳細は [`DESIGN-FUNDAMENTALS.md`](references/DESIGN-FUNDAMENTALS.md)（デザイン4原則・視線誘導・色彩・フォント）
 
----
-
-## プレゼン品質改善
-
-プレゼンのコンテンツ・構成・デリバリーの質を高める。HTMLスライド生成が目的なら「HTMLスライド作成」セクションへ。
-
-### 5つの改善領域
-
-| 領域 | 核心原則 | 詳細参照 |
-|------|---------|---------|
-| **1. マインドセット・準備** | 情熱と目的の明確化（3ゴール・核メッセージ・聴衆分析） | — |
-| **2. ストーリー・構成** | ストーリーが記憶を作る（ピラミッド・1:2:1三幕・AIDMA・空雨傘） | [QUALITY-LOGICAL-STRUCTURE.md](references/QUALITY-LOGICAL-STRUCTURE.md) |
-| **3. スライド・資料デザイン** | スライドは話の補助（KISS原則・1スライド1メッセージ・3秒ルール） | [QUALITY-SLIDE-DESIGN.md](references/QUALITY-SLIDE-DESIGN.md) |
-| **4. デリバリー・話し方** | 「どう話すか」が印象の60〜90%を決める（3T原則・18分ルール・緊張管理） | [QUALITY-DELIVERY-TECHNIQUES.md](references/QUALITY-DELIVERY-TECHNIQUES.md) |
-| **5. 聴衆エンゲージメント** | 能動的参加で記憶が定着（PUNCH原則・問いかけ・双方向性） | [QUALITY-ENGAGEMENT-STRATEGIES.md](references/QUALITY-ENGAGEMENT-STRATEGIES.md) |
-
-### プレゼン種類別の重点領域
-
-| 種類 | 推奨構成 | 重点参照 |
-|------|---------|---------|
-| 提案型 | SCQ + ピラミッド（結論→根拠3つ→実行計画→感情訴求） | [QUALITY-LOGICAL-STRUCTURE.md](references/QUALITY-LOGICAL-STRUCTURE.md) |
-| 報告型 | 結論先行→現状→データ→次アクション | [QUALITY-SLIDE-DESIGN.md](references/QUALITY-SLIDE-DESIGN.md) |
-| 啓発型 | TED型（フック→核心アイデア→ストーリー→実践示唆→締め） | [QUALITY-STORYTELLING.md](references/QUALITY-STORYTELLING.md) |
-| ピッチ型 | 問題→ソリューション→差別化→実績→Ask | [QUALITY-DELIVERY-TECHNIQUES.md](references/QUALITY-DELIVERY-TECHNIQUES.md) |
-| 社内型 | 結論→現状・課題→提案QCD→リスク→次アクション | [QUALITY-LOGICAL-STRUCTURE.md](references/QUALITY-LOGICAL-STRUCTURE.md) |
-
-### AskUserQuestion が必要な場面
-
-| 場面 | 確認内容 |
-|------|---------|
-| プレゼン種類が不明 | 提案型 / 報告型 / 啓発型 / ピッチ型 |
-| 聴衆が特定できない | 意思決定者 / 現場実行者 / 一般 / 投資家 |
-| 重点改善領域 | 5領域のどこに注力するか |
-| 持ち時間 | 18分ルール適用と構成密度に影響 |
-
----
-
-## HTMLスライド作成
-
-1スライド = 1 HTMLファイル（1280×720px）のプレゼンデッキを生成する。**ユーザーへの全連絡は日本語で行う。**
-
-### ワークフロー概要
-
-| Phase | 内容 | 成果物 |
-|-------|------|--------|
-| 1 | ヒアリング | 出力先・スタイル・テーマ・内容・枚数を確定 |
-| 2 | カスタムテンプレート読み込み | `references/templates/` のHTML解析（なければスキップ） |
-| 3 | デザイン決定 | カラーパレット・フォント・アイコン（ユーザー確認必須） |
-| 4 | スライド構成設計 | スライドマップ（全スライドの型・レイアウト） |
-| 5 | HTML生成 | `001.html`〜`NNN.html` |
-| 6 | print.html 生成 | 全スライドを iframe で並べた一覧ページ |
-| 7 | チェックリスト確認 | 制約適合確認・修正 → [SLIDEKIT-CHECKLIST.md](references/SLIDEKIT-CHECKLIST.md) |
-| 8 | PPTX変換（任意） | `/pptx` スキルへ橋渡し |
-
-### 必須制約
-
-| ルール | 値 |
-|--------|-----|
-| スライドサイズ | `width: 1280px; height: 720px` |
-| CSS フレームワーク | Tailwind CSS 2.2.19 via CDN |
-| アイコン | Font Awesome 6.4.0 via CDN |
-| フォント | Google Fonts（JP 1本 + Latin 1本） |
-| JavaScript | **完全禁止**（Chart.js 等も不可） |
-| 外部画像 | デフォルト禁止（明示的ユーザー承認が必要） |
-| ルート DOM | `<body>` → single wrapper `<div>` |
-
-### 15レイアウトパターン概要
-
-DOM構造・コンポーネントスニペット → [`SLIDEKIT-PATTERNS.md`](references/SLIDEKIT-PATTERNS.md)
-
-| # | パターン | 用途 |
-|---|---------|------|
-| 1 | Center | 表紙・締め |
-| 2 | Left-Right Split | 章区切り・概念+詳細 |
-| 3 | Header-Body-Footer (HBF) | コンテンツスライド（デフォルト） |
-| 4〜7 | HBF + 2/3/N-Column | 比較・プロセスフロー |
-| 8〜15 | HBF + 特殊レイアウト | タイムライン・KPI・ファネル等 |
-
-**ルール**: 同一パターンを3枚以上連続させない。
-
----
-
-## PDFテンプレート変換
-
-PDF → スライドスクリーンショット → Claude が HTML を記述する視覚的再現パイプライン。
-
-### パイプライン
-
-```
-PDF → (pdftoppm) → スライド画像 → Claude が各画像を読み込み → HTML記述
-```
-
-```bash
-# 依存関係
-brew install poppler
-
-# 画像生成
-python {skills_dir}/creating-content/scripts/pdf_to_images.py input.pdf output_dir
-```
-
-詳細手順 → [`PRESENTATION-GUIDE.md`](references/PRESENTATION-GUIDE.md)
-
----
-
-## Google Slides生成
-
-非構造化テキスト（議事録・企画書・提案書・メモ等）から Google Apps Script（GAS）用の `slideData` 配列を生成する。
-
-### スライドタイプ選定ガイド
-
-| 内容の性質 | 推奨タイプ |
-|-----------|----------|
-| 2つの対象を比較 | `compare` |
-| 時系列・プロセス | `process` または `timeline` |
-| フロー・泳道図 | `diagram` |
-| カード状の複数項目 | `cards` |
-| 表形式データ | `table` |
-| 進捗・達成率 | `progress` |
-| 一般的な箇条書き | `content` |
-
-### テキスト制限（厳守）
-
-| 対象 | 制限 |
-|------|------|
-| `title.title` | 全角35文字以内 |
-| `section.title` | 全角30文字以内 |
-| 各パターンの `title` | 全角40文字以内 |
-| 箇条書き要素 | 各90文字以内・改行禁止 |
-
-**禁止**: `■` `→` / 箇条書き文末の句点「。」 / 改行文字（`\n`）
-
-### references/ナビゲーション（Google Slides）
-
-| ファイル | 内容 |
-|---------|------|
-| [`PRESENTATION-GUIDE.md`](references/PRESENTATION-GUIDE.md) | 完全ガイド（詳細手順） |
-| [`GSLIDES-REFERENCE.md`](references/GSLIDES-REFERENCE.md) | スキーマ全定義・エラー回避ガイドライン |
-| [`GSLIDES-BLUEPRINT.md`](references/GSLIDES-BLUEPRINT.md) | GASテンプレート全文（slideData置換用） |
-| [`QUALITY-STORYTELLING.md`](references/QUALITY-STORYTELLING.md) | ストーリーテリング詳細 |
-| [`SLIDEKIT-CHECKLIST.md`](references/SLIDEKIT-CHECKLIST.md) | HTMLスライド制約適合確認チェックリスト |
