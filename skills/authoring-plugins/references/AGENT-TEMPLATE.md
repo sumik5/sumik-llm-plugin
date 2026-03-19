@@ -10,7 +10,7 @@
 ---
 name: タチコマ（{ドメイン名}）
 description: "{ドメイン英語} specialized Tachikoma execution agent. Handles {具体的タスク列挙}. Use proactively when {トリガー条件}. Detects: {ファイルパターン}."
-model: {sonnet|opus}
+model: {sonnet|opus[1m]}
 color: {色名}
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:

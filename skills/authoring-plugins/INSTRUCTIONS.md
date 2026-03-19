@@ -90,7 +90,7 @@ Agent定義ファイルの詳細は [AGENT-GUIDE.md](references/AGENT-GUIDE.md) 
 ---
 name: タチコマ（role）           # 必須: 表示名
 description: "..."                # 必須: トリガー検出用（英語推奨）
-model: sonnet                      # sonnet / opus / haiku / inherit
+model: sonnet                      # sonnet / opus[1m] / haiku / inherit
 color: cyan                        # ターミナル表示色
 tools: Read, Grep, Glob, Edit, Write, Bash  # 省略=全ツール（🔴 非推奨）
 disallowedTools: Write, Edit       # 拒否ツール

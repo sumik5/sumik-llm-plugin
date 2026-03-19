@@ -36,7 +36,7 @@
 ---
 name: タチコマ（role）                    # 必須: 表示名
 description: "Domain description..."      # 必須: トリガー検出用（英語推奨）
-model: sonnet                             # 任意: sonnet / opus / haiku / inherit
+model: sonnet                             # 任意: sonnet / opus[1m] / haiku / inherit
 color: cyan                               # 任意: ターミナル表示色
 tools: Read, Grep, Glob, Edit, Write, Bash  # 任意: 許可ツール（省略=全ツール）
 disallowedTools: Write, Edit              # 任意: 拒否ツール

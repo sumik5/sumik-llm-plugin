@@ -11,7 +11,7 @@ description: >-
   product readiness, or making product-technical trade-off decisions. Does NOT
   write implementation code - produces product documents and recommendations
   only.
-model: opus
+model: opus[1m]
 color: yellow
 tools:
   - Read
