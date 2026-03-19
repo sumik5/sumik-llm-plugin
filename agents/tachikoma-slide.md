@@ -65,8 +65,8 @@ HTMLスライド作成の中核知識を持ちます:
 
 ### Phase 0: プロジェクト確認
 1. Claude Code本体からタスクの指示を受信
-2. 現在のディレクトリにスライドプロジェクト構造が存在するか確認（`engine/slide.css`, `theme/`, `decks/` の有無）
-3. **構造がない場合**: `creating-slides` スキルの `templates/` から初期化
+2. **現在の作業ディレクトリ（カレントディレクトリ）** にスライドプロジェクト構造が存在するか確認（`engine/slide.css`, `theme/`, `decks/` の有無）
+3. **構造がない場合**: カレントディレクトリに `creating-slides` スキルの `templates/` から初期化（`/tmp` や他の場所には作成しない）
 4. **ロゴがない場合**: AskUserQuestion でロゴファイルのパスを確認（不要ならスキップ）
 
 ### Phase 1: ソース素材の分析
