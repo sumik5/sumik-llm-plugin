@@ -253,6 +253,36 @@ slide-starter/
 - **本文**: Helvetica Neue → Hiragino Sans → Yu Gothic → Noto Sans JP
 - **コード・数字**: SF Mono → Fira Code → Consolas
 
+#### カスタムフォントの使い方
+
+**外部フォント（Google Fonts等）を使う場合、CDN URLを直接埋め込まず、必ずローカルにダウンロードして使用する。**
+
+手順:
+1. フォントファイル（`.woff2` 推奨）を `shared/fonts/` にダウンロード
+2. `theme/sample.css`（またはカスタムテーマCSS）に `@font-face` を定義
+3. `--font-sans` 等のCSS変数でフォントファミリーを指定
+
+```css
+/* theme/sample.css に追記 */
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url('../../shared/fonts/NotoSansJP-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url('../../shared/fonts/NotoSansJP-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+:root {
+  --font-sans: 'Noto Sans JP', Helvetica Neue, sans-serif;
+}
+```
+
+> **禁止**: `<link href="https://fonts.googleapis.com/...">` のようなCDN参照。オフライン環境・社内ネットワークで表示が崩れる原因になる。
+
 #### サイズスケール
 | トークン | サイズ | 用途 |
 |----------|--------|------|
