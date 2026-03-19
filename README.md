@@ -181,7 +181,7 @@ sumik-claude-plugin/
 | `writing-effective-prose` | 統合文章術スキル（論理構成・AI臭除去・技術文書7Cs・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）・技術ブログ・README作成・Zenn記事作成・投稿ワークフロー） |
 | `creating-diagrams` | ダイアグラム作成ガイド（Mermaid: 24種類・C4モデル/ER図/シーケンス図/フローチャート ＋ draw.io MCP統合） |
 | `creating-content` | コンテンツ制作統合スキル（AIコピーライティング: 15テクニック・心理的トリガー ＋ AIデザインクリエイティブ: バナー/SNS/ポスター） |
-| `creating-slides` | HTMLスライド作成（slides repo 3層分離モデル: Engine/Theme/Content、16:9デッキ、テーマカスタマイズ、ソース素材変換ルール） |
+| `creating-slides` | HTMLスライド作成（slides repo 3層分離モデル: Engine/Theme/Content、16:9デッキ、テーマカスタマイズ・ソース素材変換をガイド。認知科学・ロジック構築・ストーリーテリング・聴衆分析・スライドデザイン・デリバリー・準備プロセスの7リファレンスで品質担保） |
 
 ### Scripts (1個)
 

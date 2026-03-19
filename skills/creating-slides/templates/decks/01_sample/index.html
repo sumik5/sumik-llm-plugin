@@ -175,6 +175,66 @@
       印象的な問い・比喩・結論に使う。</h2>
   </section>
 
+  <!-- ===== もくじスライド（slide-toc） ===== -->
+  <section class="slide slide-toc">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <h2 class="toc-title">目次</h2>
+    <ol class="toc-list">
+      <li class="toc-done">1. 現状分析</li>
+      <li class="toc-current">2. 課題の特定</li>
+      <li>3. 解決策の提案</li>
+      <li>4. アクションプラン</li>
+    </ol>
+  </section>
+
+  <!-- ===== 呼吸スライド（slide-breath） ===== -->
+  <section class="slide slide-breath">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <p class="breath-message">つまり、<span class="accent">コスト削減</span>が鍵だ。</p>
+  </section>
+
+  <!-- ===== 3層写真スライド（slide-photo-overlay） ===== -->
+  <section class="slide slide-photo-overlay"
+           style="background-image: url('assets/image-box.png')">
+    <div class="overlay" style="background: rgba(0, 82, 204, 0.5);"></div>
+    <div class="message">
+      <p class="photo-headline">成長の鍵は、<br>たった1つの選択にある</p>
+    </div>
+  </section>
+
+  <!-- ===== 接続ブリッジ（bridge-ref）の使用例 ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="bridge-ref">
+      <img src="assets/image-box.png" alt="前スライドの概念図">
+      <span class="bridge-label">前スライドより</span>
+    </div>
+    <div class="body">
+      <h2>戦略Xの要素①：コスト削減</h2>
+      <p>前スライドの全体像を右上に縮小配置し、<br>
+         現在の説明箇所との因果関係を視覚的に示す。</p>
+    </div>
+  </section>
+
+  <!-- ===== 全体位置インジケータ（progress-indicator）の使用例 ===== -->
+  <section class="slide slide-content">
+    <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
+    <div class="progress-indicator">
+      <span class="step">①</span>
+      <span class="step-arrow">→</span>
+      <span class="step active">②</span>
+      <span class="step-arrow">→</span>
+      <span class="step">③</span>
+      <span class="step-arrow">→</span>
+      <span class="step">④</span>
+    </div>
+    <div class="body">
+      <h2>ステップ②：分析フェーズ</h2>
+      <p>右上のインジケータで全体の中の現在位置を示す。<br>
+         横並びロジック単位の説明に最適。</p>
+    </div>
+  </section>
+
   <!-- ===== エンディングスライド ===== -->
   <section class="slide slide-end">
     <img class="slide-logo" src="../../shared/logo/logo.png" alt="Logo">
@@ -186,7 +246,7 @@
 
 <!-- ── ナビUI ── -->
 <div class="slide-ui">
-  <div class="slide-counter">01 / 12</div>
+  <div class="slide-counter">01 / 17</div>
   <div class="slide-nav">
     <button id="btn-prev">← Prev</button>
     <button id="btn-next">Next →</button>
