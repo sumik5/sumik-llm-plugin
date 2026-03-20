@@ -1405,6 +1405,147 @@ gcloud recommender recommendations list \
 
 ---
 
+## エンタープライズパターン
+
+### 組織ポリシー詳細パターン
+
+組織ポリシー（`constraints/` プレフィックス）は、IAMポリシーとは独立した**制約レイヤー**。最上位組織に設定することで全プロジェクトに強制適用できる。
+
+#### 制約タイプとオーバーライド動作
+
+| 制約タイプ | 種別 | 子階層でのオーバーライド |
+|-----------|------|----------------------|
+| **ブール型** (`enforce: true/false`) | 有効/無効のみ | 子が親の設定を上書き可能 |
+| **リスト型（許可リスト）** (`allow: [...]`) | 許可対象を列挙 | 子で追加可能、拒否リストが優先 |
+| **リスト型（拒否リスト）** (`deny: [...]`) | 拒否対象を列挙 | 競合時は**拒否が優先** |
+
+> ⚠️ 許可リストと拒否リストが混在すると動作が複雑になるため、エンタープライズでは「拒否リストのみ」か「許可リストのみ」に統一することを推奨。
+
+#### 主要な組織ポリシー制約の実例
+
+```yaml
+# 外部IPアドレスの割り当て禁止（本番環境）
+name: projects/PROJECT_ID/policies/constraints/compute.vmExternalIpAccess
+spec:
+  rules:
+  - enforce: true
+
+# 自動モードVPC作成の禁止
+# constraints/compute.skipDefaultNetworkCreation
+spec:
+  rules:
+  - enforce: true
+
+# シリアルポートアクセスの禁止
+# constraints/compute.disableSerialPortAccess
+spec:
+  rules:
+  - enforce: true
+
+# デフォルトサービスアカウントへの自動ロール付与禁止
+# constraints/iam.automaticIamGrantsForDefaultServiceAccounts
+spec:
+  rules:
+  - enforce: true
+
+# 許可ドメインのみにIAMポリシー付与を制限（外部ユーザーのアクセス禁止）
+name: projects/PROJECT_ID/policies/constraints/iam.allowedPolicyMemberDomains
+spec:
+  rules:
+  - values:
+      allowedValues:
+      - "C0xxxxxxxx"  # 組織のCustomer ID
+```
+
+#### 組織ポリシー設定コマンド
+
+```bash
+# 組織ポリシーの適用（gcloud CLI）
+gcloud resource-manager org-policies enable-enforce \
+  constraints/compute.vmExternalIpAccess \
+  --project=PROJECT_ID
+
+# ドメイン制限ポリシーの設定
+gcloud resource-manager org-policies set-policy policy.yaml \
+  --organization=ORG_ID
+
+# 現在の組織ポリシー確認
+gcloud resource-manager org-policies list \
+  --organization=ORG_ID
+
+# 特定制約の詳細確認
+gcloud resource-manager org-policies describe \
+  constraints/compute.vmExternalIpAccess \
+  --organization=ORG_ID
+```
+
+#### エンタープライズ推奨ポリシーセット
+
+| カテゴリ | 制約名 | 推奨設定 | 理由 |
+|---------|--------|---------|------|
+| ネットワーク | `compute.vmExternalIpAccess` | enforce: true | インターネット露出防止 |
+| ネットワーク | `compute.skipDefaultNetworkCreation` | enforce: true | デフォルトVPC作成防止 |
+| ネットワーク | `compute.restrictCloudNATUsage` | 許可リスト | NAT利用プロジェクト制限 |
+| セキュリティ | `compute.disableSerialPortAccess` | enforce: true | 不正アクセス経路閉鎖 |
+| IAM | `iam.automaticIamGrantsForDefaultServiceAccounts` | enforce: true | 過剰権限防止 |
+| IAM | `iam.allowedPolicyMemberDomains` | 組織ドメインのみ許可 | 外部ユーザーアクセス遮断 |
+| IAM | `iam.disableServiceAccountKeyCreation` | enforce: true（本番環境） | サービスアカウントキー廃止 |
+| ストレージ | `storage.uniformBucketLevelAccess` | enforce: true | 細かいACL管理廃止 |
+| リソース | `gcp.resourceLocations` | 許可リスト（特定リージョン） | データ主権・コンプライアンス |
+
+---
+
+### サービスアカウントキー管理のベストプラクティス
+
+サービスアカウントキー（特にユーザー管理キー）は漏洩リスクが高く、**極力利用を避ける**設計が推奨される。
+
+#### キー利用の優先順位（最高→最低）
+
+| 優先度 | 方式 | 適用場面 |
+|--------|------|---------|
+| **1（最推奨）** | Workload Identity Federation | GKE / Cloud Run / CI/CD（GitHub Actions等） |
+| **2** | Attached Service Account | GCE VM上のアプリケーション |
+| **3** | Application Default Credentials | Cloud Build / Cloud Run での一時認証 |
+| **4（最終手段）** | ユーザー管理キー（JSON） | オンプレミスからのGCPアクセス（代替手段がない場合のみ） |
+
+#### ユーザー管理キーを使用する場合のセキュリティ要件
+
+```bash
+# キーの作成は限定的な権限を持つ管理者のみに制限
+# roles/iam.serviceAccountKeyAdmin を最小限のユーザーにのみ付与
+
+# キー作成（必要最小限の期間のみ）
+gcloud iam service-accounts keys create key.json \
+  --iam-account=SA_EMAIL \
+  --key-file-type=json
+
+# 有効なキーの一覧確認（定期的にレビュー）
+gcloud iam service-accounts keys list \
+  --iam-account=SA_EMAIL \
+  --filter="keyType=USER_MANAGED"
+
+# 不要なキーの即時削除
+gcloud iam service-accounts keys delete KEY_ID \
+  --iam-account=SA_EMAIL
+
+# キーのローテーション手順
+# 1. 新キー作成 → 2. アプリケーション更新 → 3. 旧キー削除
+```
+
+#### キー管理チェックリスト
+
+| 項目 | 対策 |
+|------|------|
+| **組織ポリシーでキー作成禁止** | `constraints/iam.disableServiceAccountKeyCreation` を本番で enforce |
+| **90日ローテーション** | Cloud Scheduler + Cloud Functions で自動化 |
+| **Secret Managerで秘密鍵管理** | 環境変数・コードへの直接埋め込み禁止 |
+| **作成者制限** | `serviceAccountKeyAdmin` ロールを最小限のグループに付与 |
+| **監査ログ必須** | Cloud Audit Logs の `iam.googleapis.com/SetIAMPolicy` を必ず有効化 |
+| **アラート設定** | Security Command Center でキー作成イベントをアラート |
+| **CI/CDでのキー廃止** | GitHub Actions → Workload Identity Federation へ移行 |
+
+---
+
 **関連スキル:** `developing-google-cloud`, `securing-code`, `implementing-dynamic-authorization`
 **公式ドキュメント:** https://cloud.google.com/iam/docs
 **Best Practices:** https://cloud.google.com/iam/docs/best-practices

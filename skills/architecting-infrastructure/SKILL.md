@@ -12,6 +12,7 @@ description: >-
   For DDD domain modeling, use applying-domain-driven-design.
   For Clean Architecture principles, use applying-clean-architecture.
   For observability and monitoring patterns, use implementing-observability instead.
+  For GCP enterprise architecture (account design, organization hierarchy, migration), use developing-google-cloud instead.
 ---
 
 詳細な手順・ガイドラインは [INSTRUCTIONS.md](INSTRUCTIONS.md) を参照してください。

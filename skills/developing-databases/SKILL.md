@@ -11,6 +11,7 @@ description: >-
   system behavior.
   Replaces: designing-relational-databases, avoiding-sql-antipatterns, understanding-database-internals.
   For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
+  For GCP managed databases (Cloud SQL, Spanner, Firestore, Bigtable) and BigQuery analytics, use developing-google-cloud instead.
 disable-model-invocation: false
 ---
 

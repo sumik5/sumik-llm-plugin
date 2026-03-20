@@ -890,3 +890,133 @@ output {
 | MTTD/MTTR追跡 | BigQueryにFindingsをエクスポート → Data Studioでメトリクス可視化 |
 | エスカレーションパス明確化 | Pub/Sub → Cloud Functions → Slack/PagerDuty/ServiceNow |
 | コンプライアンスレポート自動化 | SCC Compliance Dashboard + 定期BigQueryクエリ |
+
+---
+
+## エンタープライズ監視設計パターン
+
+### SLO/SLI定義フロー（CUJベース）
+
+エンタープライズの監視設計はビジネス価値から逆算する。**「技術指標を監視する」ではなく「ユーザー体験を守る」**という思想が基本。
+
+#### Step 1: クリティカルユーザージャーニー（CUJ）の特定
+
+```
+例: ECサイトのCUJとビジネスインパクト優先順位
+
+1位: チェックアウト処理（最も収益に直結）
+2位: カートへの商品追加
+3位: 商品検索（重要だが検索失敗 ≠ 直接の収益損失）
+```
+
+> ポイント: CUJは「ユーザーが目的を達成する行動経路」。ビジネスインパクト順に並べ替え、**上位3〜5つに絞ってSLOを定義**する（すべてに定義すると管理不能になる）。
+
+#### Step 2: SLI（サービスレベル指標）の定義
+
+SLI = `（Good Events / Valid Events） × 100`
+
+| SLIタイプ | 計測対象 | GCPでの実装 |
+|----------|---------|------------|
+| **可用性** | 5xx以外のHTTPレスポンス割合 | Cloud Monitoring（L7 LBメトリクス） |
+| **レイテンシ** | 閾値（例: 500ms）以内のレスポンス割合 | Cloud Trace + Cloud Monitoring |
+| **スループット** | 単位時間あたりの処理件数 | Cloud Monitoring カスタムメトリクス |
+| **正確性** | 正しい結果を返したリクエストの割合 | カスタムメトリクス + Cloud Logging |
+
+**SLI設計例（チェックアウトAPIの可用性）:**
+```
+測定メトリクス: URI /checkout/response_counts への
+                HTTP GETリクエストのうち5XX以外の割合
+                （3XX・4XXは除外 ← クライアント起因エラーのため）
+測定場所: 内部L7ロードバランサ（サービス障害のみを計測）
+```
+
+#### Step 3: SLO目標値と計測期間の設定
+
+```
+月間SLO設定例:
+- 可用性SLO: 99.9%（月間ダウンタイム許容: 43.8分）
+- レイテンシSLO: P99で500ms以内 = 99%
+
+エラーバジェット = 1 - SLO = 0.1%（月間リクエストの0.1%が失敗してよい）
+```
+
+> **エラーバジェットの活用**: エラーバジェットが豊富 → 積極的なリリースOK。残り少ない → リリース凍結・品質改善優先。
+
+---
+
+### アラート設計の階層構造
+
+過剰アラートはアラート疲れ（Alert Fatigue）を生む。エンタープライズでは**3層構造**でアラートを設計する。
+
+#### アラート優先度マトリクス
+
+| 優先度 | 条件 | 対応 | 例 |
+|--------|------|------|-----|
+| **P0（即時対応）** | SLOを既に違反 or 数分以内に違反確実 | 24/7 On-call即時対応 | エラー率が99%超 |
+| **P1（1時間以内）** | エラーバジェットの消費速度が高い | 営業時間中の担当者対応 | 可用性が99.95%に低下 |
+| **P2（翌営業日）** | バジェット消費は緩やか・傾向的な劣化 | チケット登録・次スプリントで対応 | レイテンシP95が徐々に増加 |
+
+#### バーンレートアラート（エラーバジェット消費速度）
+
+SLOを下回る「前」に検知するためのバーンレートアラートが推奨される:
+
+```
+例: 月間SLO 99.9%（エラーバジェット = 0.1%）
+
+高速バーンレートアラート（P0）:
+  - バーンレート > 14.4 （1時間でバジェットの2%消費）
+  - 判断: 残バジェットが3日で枯渇するペース
+
+低速バーンレートアラート（P1）:
+  - バーンレート > 1 かつ 6時間の短期バーンレート > 5
+  - 判断: 月内でバジェット超過の可能性
+```
+
+#### Cloud Monitoringでのアラート設定
+
+```yaml
+# SLO違反前通知アラートポリシー（YAML形式）
+displayName: "Checkout API - Error Budget Burn Rate Alert"
+conditions:
+- displayName: "High burn rate detected"
+  conditionThreshold:
+    filter: >
+      resource.type="http_load_balancer"
+      metric.type="loadbalancing.googleapis.com/https/request_count"
+    aggregations:
+    - alignmentPeriod: 3600s  # 1時間
+      crossSeriesReducer: REDUCE_SUM
+      perSeriesAligner: ALIGN_RATE
+    comparison: COMPARISON_GT
+    thresholdValue: 14.4  # バーンレート閾値
+    duration: 300s  # 5分間継続したらアラート
+notificationChannels:
+- projects/PROJECT_ID/notificationChannels/CHANNEL_ID
+alertStrategy:
+  autoClose: 1800s  # 30分で自動クローズ
+```
+
+#### SLO/SLI監視に利用するGCPプロダクトのマッピング
+
+| MTTD/MTTR改善要素 | 利用プロダクト | 効果 |
+|------------------|--------------|------|
+| **MTTD短縮** | Cloud Monitoring アラート | 障害検知時間を削減 |
+| **MTTD短縮** | Error Reporting | エラースパイクの即時通知 |
+| **MTTM短縮** | Cloud Trace | ボトルネック特定を高速化 |
+| **MTTM短縮** | Cloud Profiler | CPU/メモリ問題の根本原因特定 |
+| **MTBF改善** | Cloud Logging（障害分析） | ポストモーテム分析の精度向上 |
+| **Impact削減** | カナリアリリース + Cloud Trace比較 | リリース起因障害の影響範囲を最小化 |
+
+#### 可用性計算式
+
+```
+可用性 = 1 - ((MTTD + MTTM) / MTBF × Impact)
+
+例: 月1回障害発生（MTBF = 43,200分）
+    MTTD = 45分、MTTM = 135分、Impact = 50%
+
+可用性 = 1 - ((45 + 135) / 43,200 × 0.5)
+       = 1 - (180 / 43,200 × 0.5)
+       = 1 - 0.00208
+       ≈ 99.79%
+```

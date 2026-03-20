@@ -873,3 +873,147 @@ gcloud compute instances describe vm1 \
 - [ ] Pod CIDR サイジング
 - [ ] Service CIDR サイジング
 - [ ] Private クラスタ判断
+
+---
+
+## エンタープライズパターン
+
+### 共有VPC実践パターン（エンタープライズ）
+
+共有VPCはネットワーク管理の集中化とアプリケーション開発の独立性を両立するGCPのコアパターン。
+
+#### アーキテクチャ構成
+
+```
+組織（Organization）
+├── ホストプロジェクト（ネットワーク管理チームが管理）
+│   ├── 共有VPC（サブネット・ファイアウォール・経路を一元管理）
+│   ├── Cloud Router / Cloud VPN / Cloud Interconnect
+│   └── Cloud NAT
+├── サービスプロジェクトA（開発チームAが管理）
+│   └── Compute Engine / GKE / Cloud Run（共有VPCのサブネットを利用）
+├── サービスプロジェクトB（開発チームBが管理）
+│   └── Compute Engine / GKE（共有VPCのサブネットを利用）
+└── サービスプロジェクトC（本番環境）
+    └── Cloud SQL / GKE（共有VPCのサブネットを利用）
+```
+
+#### 役割分担の明確化
+
+| 責任 | ホストプロジェクト管理者 | サービスプロジェクト管理者 |
+|-----|----------------------|--------------------------|
+| **VPCの作成・変更** | ✅ | ❌ |
+| **サブネットの定義** | ✅ | ❌ |
+| **ファイアウォールルール** | ✅（共有VPC全体） | ✅（サービスプロジェクト内の追加ルール） |
+| **Cloud Router / VPN** | ✅ | ❌ |
+| **VMインスタンス作成** | ❌ | ✅（共有VPCのサブネットを指定） |
+| **GKEクラスタ作成** | ❌ | ✅ |
+| **Cloud SQL** | ❌ | ✅（VPCピアリング経由） |
+
+#### 共有VPC設定手順
+
+```bash
+# 1. ホストプロジェクトの有効化
+gcloud compute shared-vpc enable HOST_PROJECT_ID
+
+# 2. サービスプロジェクトの関連付け
+gcloud compute shared-vpc associated-projects add SERVICE_PROJECT_ID \
+  --host-project=HOST_PROJECT_ID
+
+# 3. サービスプロジェクトへのサブネット利用権限付与
+# roles/compute.networkUser を開発チームのサービスアカウントに付与
+gcloud projects add-iam-policy-binding HOST_PROJECT_ID \
+  --member="serviceAccount:SERVICE_PROJECT_SA@SERVICE_PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/compute.networkUser" \
+  --condition="expression=resource.name.startsWith('projects/HOST_PROJECT_ID/regions/asia-northeast1/subnetworks/'),title=subnet-access"
+
+# 4. 共有VPCの状態確認
+gcloud compute shared-vpc get-host-project SERVICE_PROJECT_ID
+gcloud compute shared-vpc list-associated-resources HOST_PROJECT_ID
+```
+
+#### 共有VPCの制約と対策
+
+| 制約 | 内容 | 対策 |
+|------|------|------|
+| **同時にホスト/サービスになれない** | 1プロジェクトは片方のみ | 環境ごとに独立したホストプロジェクトを用意 |
+| **1サービスプロジェクト = 1ホストプロジェクト** | 複数ホストへの接続不可 | 環境別（dev/stg/prod）にホストを分ける |
+| **Cloud SQLは共有VPC直接未対応** | VPCピアリング経由で接続 | Private Service Access（PSA）を利用 |
+| **Serverless VPC Access** | Cloud Run等はVPC Connectorが必要 | Serverless VPC Access Connectorをホストプロジェクトに作成 |
+
+---
+
+### VPC分割戦略の判断基準
+
+GCPのVPC設計ではオンプレミスと異なり、**ブロードキャストドメイン分割の概念がない**。分割の目的を明確にして最小限のVPC数に抑えることが推奨される。
+
+#### VPC分割パターンの比較
+
+| パターン | 特徴 | 適合ユースケース | 注意点 |
+|---------|------|----------------|--------|
+| **プロジェクト単体VPC** | 各プロジェクトが独自VPCを持つ | 小規模・独立性重視 | オンプレ接続が複数になる |
+| **共有VPC（中央集権）** | ホストプロジェクトで一元管理 | ネットワーク管理チームが存在 | 役割分担の設計が必要 |
+| **環境別VPC** | dev/stg/prod で VPC を分割 | 環境間のネットワーク分離必須 | 各環境にハイブリッド接続が必要 |
+| **プロジェクト内複数VPC** | 1プロジェクトに複数VPC | DMZ構成・マイクロセグメンテーション | VPCピアリング上限（25）に注意 |
+
+#### VPC分割の判断フロー
+
+```
+Q1: ネットワーク管理を中央集権で行いたいか？
+  → YES: 共有VPC（Shared VPC）を選択
+  → NO: プロジェクト単体VPCを選択
+
+Q2（共有VPC選択時）: 環境（dev/stg/prod）ごとにネットワーク分離が必要か？
+  → YES: 環境ごとにホストプロジェクトを作成
+  → NO: 1つのホストプロジェクトでサブネットを環境別に分ける
+
+Q3: 異なるチーム/組織間でのVPC接続が必要か？
+  → 同一組織: VPCピアリング（フルメッシュは避ける）
+  → 異なる組織: VPCピアリングまたはPrivate Service Connect
+
+Q4: VPCの数が増えてきた場合（3台以上のVPCを相互接続）？
+  → Hub-and-Spoke構成（Cloud VPNまたはCloud Interconnect経由）を検討
+  → NCC（Network Connectivity Center）でハブVPC経由の接続を集約
+```
+
+#### サブネット設計の原則（オンプレミスとの違い）
+
+| 観点 | オンプレミス | GCP VPC |
+|------|------------|---------|
+| **分割目的** | ブロードキャスト抑制・障害範囲限定 | **アクセス制御のみ**（ブロードキャスト概念なし） |
+| **推奨粒度** | 用途別に細かく分割 | **最小限のサブネット数**（管理コスト削減） |
+| **アクセス制御** | サブネット境界でのルーティング制御 | **ネットワークタグ/サービスアカウント**でグループ化 |
+| **IP変更** | CIDR変更は比較的容易 | **リソースデプロイ後の変更は困難**（事前設計が重要） |
+
+#### エンタープライズ移行時のVPC設計ベストプラクティス
+
+```bash
+# 命名規則例: {会社}-{環境}-{システム}-{リージョン}
+# vpc-prod-ecsys-tokyo, vpc-stg-ecsys-tokyo
+
+# カスタムモードVPC作成（自動モード禁止）
+gcloud compute networks create vpc-prod-ecsys-tokyo \
+  --subnet-mode=custom \
+  --bgp-routing-mode=regional
+
+# サブネット作成（用途別・リージョン別）
+gcloud compute networks subnets create subnet-frontend-tokyo \
+  --network=vpc-prod-ecsys-tokyo \
+  --region=asia-northeast1 \
+  --range=10.0.1.0/24 \
+  --enable-private-ip-google-access
+
+gcloud compute networks subnets create subnet-backend-tokyo \
+  --network=vpc-prod-ecsys-tokyo \
+  --region=asia-northeast1 \
+  --range=10.0.2.0/24 \
+  --enable-private-ip-google-access
+
+# 内部ロードバランサ用プロキシ専用サブネット（/23 推奨）
+gcloud compute networks subnets create subnet-proxy-tokyo \
+  --network=vpc-prod-ecsys-tokyo \
+  --region=asia-northeast1 \
+  --range=10.0.4.0/23 \
+  --purpose=REGIONAL_MANAGED_PROXY \
+  --role=ACTIVE
+```
