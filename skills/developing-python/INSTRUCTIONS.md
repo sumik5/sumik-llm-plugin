@@ -267,6 +267,34 @@ class Team:
 10. **API・デプロイ**: [CI/CD・API・デプロイ](./references/SE-API-DEPLOYMENT.md)で本番環境構築
 11. **実践パターン**: [PW-PRACTICAL-IO.md](./references/PW-PRACTICAL-IO.md)からファイルI/Oパターンを確認
 
+## Architecture Patterns（アーキテクチャパターン）
+
+Clean Architecture実践、DDD戦術パターン、イベント駆動アーキテクチャ、DIブートストラップ。
+
+| ファイル | 内容 |
+|---------|------|
+| [CA-PYTHON.md](./references/CA-PYTHON.md) | Python × Clean Architecture（4レイヤー実装・テスト戦略・オブザーバビリティ・レガシー移行） |
+| [AP-DOMAIN-SERVICE.md](./references/AP-DOMAIN-SERVICE.md) | ドメインモデリング・Repository Pattern・Service Layer・FakeRepository |
+| [AP-UOW-AGGREGATES.md](./references/AP-UOW-AGGREGATES.md) | Unit of Work・Aggregates設計・TDD High/Low Gear |
+| [AP-EVENTS-CQRS.md](./references/AP-EVENTS-CQRS.md) | Domain Events・Message Bus・Commands・CQRS読み取りモデル |
+| [AP-DI-BOOTSTRAP.md](./references/AP-DI-BOOTSTRAP.md) | フレームワーク非依存のDI・Composition Root・Bootstrap関数 |
+| [CB-DDD-TACTICAL.md](./references/CB-DDD-TACTICAL.md) | DDD Tactical Patterns（Value Object/Entity/Aggregate Root）・Result Pattern |
+| [CB-TESTING-CA.md](./references/CB-TESTING-CA.md) | CAレイヤー別テストパターン（Unit/Integration/E2E）・テストピラミッド実践 |
+
+### ナビゲーションガイド
+
+| 目的 | 参照ファイル |
+|------|------------|
+| CAのレイヤー実装を知りたい | `CA-PYTHON.md` |
+| Repositoryパターンを実装したい | `AP-DOMAIN-SERVICE.md` |
+| トランザクション境界を管理したい | `AP-UOW-AGGREGATES.md` |
+| イベント駆動・CQRSを導入したい | `AP-EVENTS-CQRS.md` |
+| DIコンテナなしで依存を管理したい | `AP-DI-BOOTSTRAP.md` |
+| Value Object / Entityを設計したい | `CB-DDD-TACTICAL.md` |
+| CAのテスト戦略を体系化したい | `CB-TESTING-CA.md` |
+
+---
+
 ## Software Engineering Process（ソフトウェアエンジニアリングプロセス）
 
 開発ライフサイクル、方法論、システム設計、プロジェクト実装パターン。

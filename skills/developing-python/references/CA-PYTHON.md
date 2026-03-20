@@ -559,6 +559,43 @@ class CreateTaskUseCase:
 
 **原則:** 各レイヤーは自分が責任を持つ関心事だけをログに記録する。ビジネスイベントはユースケース層、技術的メトリクスはインフラ層。
 
+### ロガーポートによるCA統合
+
+ロギングをCA原則に完全準拠させるには、ロガーを「ポート」として抽象化する手法が有効。
+
+```python
+# domain/ports/logger_port.py
+from abc import ABC, abstractmethod
+from typing import Any
+
+class LoggerPort(ABC):
+    """ドメイン層が使用できるロギング抽象。フレームワーク非依存。"""
+
+    @abstractmethod
+    def info(self, message: str, **kwargs: Any) -> None: ...
+
+    @abstractmethod
+    def error(self, message: str, **kwargs: Any) -> None: ...
+
+
+# infrastructure/logging/structlog_adapter.py
+import structlog
+
+class StructlogAdapter(LoggerPort):
+    """structlogへのアダプター（フレームワーク層のみが知る）。"""
+
+    def __init__(self, name: str) -> None:
+        self._logger = structlog.get_logger(name)
+
+    def info(self, message: str, **kwargs: Any) -> None:
+        self._logger.info(message, **kwargs)
+
+    def error(self, message: str, **kwargs: Any) -> None:
+        self._logger.error(message, **kwargs)
+```
+
+**利点:** テスト時はモックの `LoggerPort` を注入でき、structlogへの依存がドメイン層に浸透しない。
+
 ---
 
 ## レガシーリファクタリング
@@ -619,6 +656,55 @@ class LegacyTaskRepository(TaskRepository):
 **Step 3: ユースケースの実装 → 既存コードからの呼び出し**
 
 段階的に既存のViewやControllerからユースケースを呼び出すように変更する。完全移行までレガシーコードとCAコードが共存する期間を許容する。
+
+### Anti-Corruption Layer（ACL）の設計
+
+ACLはレガシーシステムのデータモデル・語彙をドメインモデルに変換するレイヤー。レガシーの設計上の問題が新しいドメインに侵入するのを防ぐ。
+
+```python
+# 例: レガシーシステムは "user_type=1/2/3" で区別していたとする
+# ACLでドメイン語彙（UserRole）に変換する
+from domain.entities.user import User, UserRole
+import uuid
+
+class LegacyUserAntiCorruptionLayer:
+    """レガシーDBモデルをドメインモデルに変換するACL。"""
+
+    _ROLE_MAP = {1: UserRole.ADMIN, 2: UserRole.EDITOR, 3: UserRole.VIEWER}
+
+    def to_domain(self, legacy_row: dict) -> User:
+        """レガシーのdict表現をドメインのUserエンティティに変換。"""
+        role = self._ROLE_MAP.get(legacy_row["user_type"], UserRole.VIEWER)
+        return User(
+            code=uuid.UUID(legacy_row["guid"]),
+            name=legacy_row["full_name"],
+            role=role,
+        )
+
+    def to_legacy(self, user: User) -> dict:
+        """ドメインエンティティをレガシーの書き込み形式に変換。"""
+        reverse_map = {v: k for k, v in self._ROLE_MAP.items()}
+        return {
+            "guid": str(user.code),
+            "full_name": user.name,
+            "user_type": reverse_map[user.role],
+        }
+```
+
+**適用タイミング:**
+- レガシーシステムのモデルとドメインモデルの語彙が大きく異なる場合
+- レガシーのnull値・マジックナンバー・フラグ値をドメイン型に変換したい場合
+- 段階的移行中、一時的に新旧システムが共存する場合
+
+### 段階的移行の具体的な手順
+
+1. **特性テスト（Characterization Tests）の作成**: レガシーコードの現在の動作をテストで固定する
+2. **ドメインモデルの抽出**: ビジネスルールを含むエンティティをまず定義する
+3. **ACLの実装**: レガシーとドメイン間の変換ロジックをACLに集約する
+4. **Repositoryインターフェースの定義**: ドメイン側ABCで操作を宣言する
+5. **LegacyRepositoryの実装**: ACLを使ってレガシーDBへのアクセスをラップする
+6. **ユースケースをLegacyRepositoryで動かす**: 新しいユースケース層がレガシーDBを使って動作することを確認する
+7. **新Repositoryへの切り替え**: LegacyRepositoryを新実装に差し替える（ユースケースは変更不要）
 
 ### 移行時の注意事項
 
@@ -700,6 +786,17 @@ tests/
 
 ## 相互参照
 
+### Clean Architecture 関連
 - **[applying-clean-architecture](../../applying-clean-architecture/SKILL.md)**: Clean Architecture一般原則（依存性ルール・同心円モデル・コンポーネント原則）
 - **[writing-clean-code](../../writing-clean-code/SKILL.md)**: コードレベルSOLID原則・コードスメル・リファクタリング手法
 - **[applying-domain-driven-design](../../applying-domain-driven-design/SKILL.md)**: DDD戦術パターン（Entity/Value Object/Aggregate/Repositoryの詳細設計）
+
+### Architecture Patterns（Cosmic Python 系）
+- **[AP-DOMAIN-SERVICE.md](./AP-DOMAIN-SERVICE.md)**: ドメインモデリング・Repository Pattern・Service Layer（FakeRepository高速テスト含む）
+- **[AP-UOW-AGGREGATES.md](./AP-UOW-AGGREGATES.md)**: Unit of Work パターン・Aggregates設計・TDD High/Low Gear
+- **[AP-EVENTS-CQRS.md](./AP-EVENTS-CQRS.md)**: Domain Events・Message Bus・Commands・CQRS読み取りモデル
+- **[AP-DI-BOOTSTRAP.md](./AP-DI-BOOTSTRAP.md)**: フレームワーク非依存のDI・Composition Root・Bootstrap関数
+
+### Clean Architecture 実践（Cosmic Python / Giordani 系）
+- **[CB-DDD-TACTICAL.md](./CB-DDD-TACTICAL.md)**: DDD Tactical Patterns（Value Object/Entity/Aggregate Root）・Result Pattern
+- **[CB-TESTING-CA.md](./CB-TESTING-CA.md)**: CAレイヤー別テストパターン（Unit/Integration/E2E）・テストピラミッド実践

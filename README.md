@@ -130,7 +130,7 @@ sumik-claude-plugin/
 | `developing-react` | React 19.x 開発ガイド（Internals・パフォーマンスルール47+・アニメーション・RTLテスト） |
 | `developing-nextjs` | Next.js 16.x開発ガイド（App Router・Server Components・Cache Components・Turbopack・実践パターン集）。Route Segment・Parallel/Intercepting Routes・Prisma・NextAuth.js・Server Actions・4種キャッシュ戦略を含む10リファレンスファイル。React固有は`developing-react`参照 |
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
-| `developing-python` | Python 3.13開発（Effective Python 125項目・実践パターン50問・SEプロセス: SDLC/方法論/システムモデリング/プロジェクト実装パターン/API設計・デプロイ含む） |
+| `developing-python` | Python 3.13開発（Effective Python 125項目・実践パターン50問・SEプロセス・Clean Architecture実践・Architecture Patterns: Repository/UoW/Aggregates/Domain Events/CQRS・DDD Tactical Patterns: Entity/Value Object/Aggregate Root） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
 | `developing-fullstack-javascript` | フルスタックJS |
 | `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド + Total TypeScript: satisfies・余剰プロパティ・コンパイラ振る舞い） |

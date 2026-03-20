@@ -1,6 +1,6 @@
 ---
 name: タチコマ（Python）
-description: "Python specialized Tachikoma execution agent. Handles modern Python development with uv/ruff/mypy tooling, FastAPI, Google ADK agent building, and Pythonic patterns. Use proactively when working on Python projects, building FastAPI services, or creating Google ADK AI agents. Detects: pyproject.toml or requirements.txt."
+description: "Python specialized Tachikoma execution agent. Handles modern Python development with uv/ruff/mypy tooling, FastAPI, Google ADK agent building, Pythonic patterns, DDD Tactical Patterns (Entity/Value Object/Aggregate Root), Event-Driven Architecture (Domain Events, CQRS, Message Bus), Unit of Work, and Architectural Testing. Use proactively when working on Python projects, building FastAPI services, creating Google ADK AI agents, or implementing domain models with Clean Architecture. Detects: pyproject.toml or requirements.txt."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
@@ -72,6 +72,29 @@ skills:
 - **parametrize**: `@pytest.mark.parametrize` でテストケースをデータ駆動
 - **モック**: `unittest.mock.patch` / `pytest-mock` の `mocker.patch` でDIなしコードのモック化
 - **FastAPI DI override**: `app.dependency_overrides` でテスト用依存に差し替え
+
+### DDD Tactical Patterns
+- **Entity**: 同一性で区別されるオブジェクト（UUID等で識別）。ライフサイクルを持ち、状態遷移メソッドを提供する
+- **Value Object**: 属性値で等価判定されるオブジェクト（`@dataclass(frozen=True)`）。不変性を保証
+- **Aggregate Root**: 整合性境界を管理するエンティティ。外部からは必ずAggregate Root経由でアクセスする
+- **Repository**: Aggregate RootのコレクションをABCで抽象化。永続化の詳細をドメインから隠蔽する
+- **Service**: Entityに属さないドメインロジックをService関数として分離
+
+### Event-Driven Architecture
+- **Domain Events**: ドメインで起きた事実をイミュータブルなdataclassで表現（`OrderPlaced`, `InventoryDecremented`等）
+- **Message Bus**: EventとCommandを適切なハンドラにルーティングする中央バス
+- **Commands**: ユーザーの意図を表すメッセージ。EventとCommandは目的が異なる（命令 vs 通知）
+- **CQRS**: 読み取り（Query）と書き込み（Command）を分離。読み取りは薄い非正規化ビューを返す
+
+### Unit of Work
+- **Pythonコンテキストマネージャ**: `with uow:` でトランザクション境界をスコープとして定義
+- **アトミック操作**: UoW内の複数Repository操作をまとめてコミット or ロールバック
+- **FakeUoW**: テスト用の`FakeUnitOfWork`でDB不要の高速サービス層テストを実現
+
+### Architectural Testing
+- **テストピラミッド**: ユニット（エンティティ・値オブジェクト）→ 統合（Repository実装）→ E2E（APIエンドポイント）
+- **レイヤー別テスト戦略**: 各レイヤーに適したテスト粒度と依存の管理
+- **TDD High/Low Gear**: 初期実装はFakeRepositoryで高速に（Low Gear）、安定したらDB統合テスト（High Gear）に切り替える
 
 ## ワークフロー
 
