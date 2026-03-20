@@ -171,6 +171,18 @@ Reference the specific documents (GUIDELINES-UI-DESIGN.md or GUIDELINES-UX-DESIG
 
 → 詳細: [references/GRAPHICS-LAYOUT-AND-COMPOSITION.md](references/GRAPHICS-LAYOUT-AND-COMPOSITION.md)
 
+#### レイアウトフレーズパターン（実践）
+
+レイアウトの実践パターン集。理論（GRAPHICS-LAYOUT-AND-COMPOSITION.md）を「すぐ使える判断パターン」として再構成。画面分割・図形アクセント・テクスチャ・文字処理・写真配置・装飾の6分類でデザイン判断を高速化する。
+
+→ 詳細: [references/GRAPHICS-LAYOUT-PHRASE-PATTERNS.md](references/GRAPHICS-LAYOUT-PHRASE-PATTERNS.md)
+
+#### イメージワードシステム
+
+イメージワードによるデザイン方向性の言語化・共有手法。デザイナーとクライアント間のイメージ共有を効率化する。印象軸ごとに配色・タイポグラフィ・写真・レイアウトの指針を提供。
+
+→ 詳細: [references/GRAPHICS-IMAGE-WORD-SYSTEM.md](references/GRAPHICS-IMAGE-WORD-SYSTEM.md)
+
 ### クイックリファレンス
 
 | 目的 | 使用する要素 | 参照先 |
@@ -181,6 +193,8 @@ Reference the specific documents (GUIDELINES-UI-DESIGN.md or GUIDELINES-UX-DESIG
 | メリハリのある配色にしたい | コンプリメンタリー（補色）配色 | GRAPHICS-COLOR-THEORY.md |
 | 可読性重視の本文テキスト | ゴシック体 / サンセリフ体 | GRAPHICS-TYPOGRAPHY-AND-TYPESETTING.md |
 | 視線を効果的に誘導したい | Z型・N型レイアウト、アイキャッチャー | GRAPHICS-LAYOUT-AND-COMPOSITION.md |
+| レイアウトを素早く決めたい | フレーズパターン | GRAPHICS-LAYOUT-PHRASE-PATTERNS.md |
+| デザインの方向性をクライアントと共有したい | イメージワード体系 | GRAPHICS-IMAGE-WORD-SYSTEM.md |
 
 ### ユーザー確認の原則（AskUserQuestion）
 
@@ -477,6 +491,7 @@ UXデザインプロセスはマラソンである。短距離走のアプロー
 | [DT-DATA-DRIVEN-IMPROVEMENT.md](references/DT-DATA-DRIVEN-IMPROVEMENT.md) | データドリブン改善: 定量/定性データ・KGI/KPI・プロトタイプ活用 |
 | [DT-TEAM-USER-RESEARCH.md](references/DT-TEAM-USER-RESEARCH.md) | チーム参加型リサーチ: インタビュー実践・軽量UT・ゲリラインタビュー |
 | [DT-TEAM-PROTOTYPING.md](references/DT-TEAM-PROTOTYPING.md) | チーム協業プロトタイピング: パラレルトラック・軽量UT設計 |
+| [DT-CREATIVE-PROCESS-PATTERNS.md](references/DT-CREATIVE-PROCESS-PATTERNS.md) | クリエイティブプロセスパターン: プロの制作プロセス5ステップ・発想法カタログ・試作サイクル・身体感覚とデザイン |
 
 ---
 
