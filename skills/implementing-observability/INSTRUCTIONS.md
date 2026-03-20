@@ -198,6 +198,96 @@ How   （どのように）: 処理結果・レスポンスコード・実行時
 
 ---
 
+## オブザーバビリティ実践
+
+### コア分析ループ
+
+オブザーバビリティの本質はデータを収集することではなく、**問いに答える能力**を持つことにある。
+
+| アプローチ | 説明 | 適用場面 |
+|-----------|------|---------|
+| **既知の状態からのデバッグ** | 過去の類似インシデントや既知パターンと照合 | ランブック化された障害、繰り返し発生する問題 |
+| **第一原理デバッグ** | 前提なしにシステムの動作を観察・仮説・検証 | 新種の障害、予期しない挙動 |
+
+**コア分析ループ（4ステップ）**:
+```
+1. 問いを立てる（What question am I asking?）
+2. データを探す（Where is the evidence?）
+3. 仮説を絞る（What does this data suggest?）
+4. 行動・検証する（Test and iterate）
+```
+
+> AIOpsによる「自動根本原因分析」はコア分析ループを代替できない。人間の判断と機械の探索能力を組み合わせた**人間＋機械融合アプローチ**が現実的。
+
+**詳細**: [OBSERVABILITY-DEBUGGING.md](./references/OBSERVABILITY-DEBUGGING.md)
+
+---
+
+### ODD（オブザーバビリティ駆動開発）
+
+ODD（Observability-Driven Development）は、機能開発フローにオブザーバビリティを組み込む手法。
+
+```
+[機能設計] → [計装要件定義] → [実装] → [計装実装] → [本番デプロイ] → [観測・反復]
+                   ↑                                         |
+                   └─────── フィードバックループ ─────────────┘
+```
+
+**ODDの実践ポイント**:
+- **計装ファースト**: 機能コードと同時に計装コードを書く（後付けしない）
+- **問いから設計**: 「将来どんな問いに答えたいか」から必要なシグナルを逆算
+- **計装イテレーション**: 本番観測データを使って計装を継続的に改善
+
+**詳細**: [MONITORING-OBSERVABILITY-PRACTICES.md](./references/MONITORING-OBSERVABILITY-PRACTICES.md)
+
+---
+
+### Build vs Buy ROI分析
+
+オブザーバビリティ基盤の自社構築 vs SaaS購入は、コスト・専門性・スケールで判断する。
+
+**判断フロー**:
+```
+データ量・カーディナリティが極端に高い？ → Yes: Build（コスト管理が困難なため）
+                                          ↓ No
+専任SRE/インフラチームがいる？ → No: Buy（運用コストが見えにくい）
+                                 ↓ Yes
+コンプライアンス・データ主権の制約？ → Yes: Build or Hybrid
+                                      ↓ No
+                                → Buy優先（TCOがほぼ常に有利）
+```
+
+| 比較軸 | Build | Buy (SaaS) |
+|--------|-------|-----------|
+| **初期コスト** | 低 | 低〜中 |
+| **スケールコスト** | 急増リスク | 予測可能 |
+| **専門人件費** | 高（SRE必須） | 低 |
+| **カスタマイズ** | 自由 | 制限あり |
+| **Parse社事例** | 自社構築が機能限界を招く | — |
+
+**詳細**: [OBSERVABILITY-ROI-ANALYSIS.md](./references/OBSERVABILITY-ROI-ANALYSIS.md)
+
+---
+
+### CI/CDパイプラインオブザーバビリティ
+
+オブザーバビリティはプロダクションだけでなく、**ソフトウェアデリバリーパイプライン自体**にも適用できる。
+
+**適用対象**:
+- ビルド・テスト・デプロイの各ステージの実行時間・失敗率
+- フィーチャーフラグの切り替え履歴
+- デプロイの影響追跡（カナリアリリース時のメトリクス変化）
+
+**Slack社の実践**:
+- CI/CDパイプラインをOTelで計装し、ビルド失敗の根本原因を可視化
+- デプロイイベントとプロダクションメトリクスを相関付け、リグレッション検出を自動化
+
+**サプライチェーンへの拡張**: SBOM（Software Bill of Materials）生成・署名検証・依存脆弱性スキャンをパイプラインに組み込み、オブザーバビリティデータとして追跡する。
+
+**詳細**: [OBSERVABILITY-SUPPLY-CHAIN.md](./references/OBSERVABILITY-SUPPLY-CHAIN.md)
+
+---
+
 ## 詳細ガイド
 
 ### 監視設計 references/
@@ -235,3 +325,12 @@ How   （どのように）: 処理結果・レスポンスコード・実行時
 | [LOGGING-ANALYSIS.md](./references/LOGGING-ANALYSIS.md) | ELK Stack/Grafana/Splunk/grep の詳細と可視化手法 |
 | [LOGGING-SECURITY-COMPLIANCE.md](./references/LOGGING-SECURITY-COMPLIANCE.md) | 攻撃検知・Tripwire・コンプライアンス詳細 |
 | [LOGGING-AI-ANALYSIS.md](./references/LOGGING-AI-ANALYSIS.md) | ML異常検知（RandomForest/LSTM/BERT/Isolation Forest）|
+
+### オブザーバビリティ実践 references/
+
+| ファイル | 内容 |
+|---------|------|
+| [OBSERVABILITY-DEBUGGING.md](./references/OBSERVABILITY-DEBUGGING.md) | コア分析ループ、第一原理デバッグ、AIOps批判、人間+機械融合 |
+| [OBSERVABILITY-SUPPLY-CHAIN.md](./references/OBSERVABILITY-SUPPLY-CHAIN.md) | CI/CDパイプラインオブザーバビリティ、Slack事例 |
+| [OBSERVABILITY-ROI-ANALYSIS.md](./references/OBSERVABILITY-ROI-ANALYSIS.md) | Build vs Buy ROI分析、非エンジニア展開、Parse事例 |
+| [OBSERVABILITY-DATA-STORE.md](./references/OBSERVABILITY-DATA-STORE.md) | 列指向ストレージ設計、高カーディナリティ対応、階層化ストレージ |

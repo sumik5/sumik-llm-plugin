@@ -6,6 +6,7 @@ description: |
   Docker/Podman、マルチステージビルド、Compose、セキュリティ強化を含む。
   For continuous delivery philosophy, CD maturity assessment, and deployment pipeline design principles, see CONTINUOUS-DELIVERY.md subfile.
   For project foundations, team organization, and developer habits, use practicing-software-engineering instead.
+  For monitoring and observability design, use implementing-observability instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

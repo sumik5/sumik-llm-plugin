@@ -160,7 +160,7 @@ sumik-claude-plugin/
 
 | スキル | 説明 |
 |--------|------|
-| `implementing-observability` | オブザーバビリティ統合ガイド（監視設計: アンチパターン・6層戦略・SLO・テレメトリーパイプライン・成熟度モデル ＋ OpenTelemetry実装: トレース/メトリクス/ログAPI・Collector・セマンティック規則 ＋ ログ設計: 構造化ログ・収集パイプライン・AI/ML分析・セキュリティ） |
+| `implementing-observability` | オブザーバビリティ統合ガイド（監視設計: アンチパターン・6層戦略・SLO・テレメトリーパイプライン・成熟度モデル ＋ OpenTelemetry実装: トレース/メトリクス/ログAPI・Collector・セマンティック規則 ＋ ログ設計: 構造化ログ・収集パイプライン・AI/ML分析・セキュリティ ＋ オブザーバビリティエンジニアリング実践: コア分析ループ・ファーストプリンシプルデバッグ・ROI分析・CI/CDパイプライン計装・高カーディナリティデータストア設計・サンプリング実装パターン） |
 | `developing-aws` | AWS開発包括ガイド（システム設計・CDP57パターン・VPCアーキテクチャ・エンタープライズ基盤・14業務システム・移行戦略・サーバーレス・CDK・EKS・SRE運用・FinOps/CCoE・セキュリティ・Bedrock GenAI・32リファレンスファイル） |
 | `developing-google-cloud` | Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク・キャッシング包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ深掘り: IAM・VPC・KMS・DLP・SCC・DevSecOps CI/CD・Zero Trust/BeyondCorp・Anthos・Incident Response + データエンジニアリング + ネットワークエンジニアリング: VPC設計・ハイブリッド接続・LB/CDN・ネットワーク監視・Traffic Director/Service Mesh + Memorystore: マネージドRedis/Memcachedキャッシング・パフォーマンスエンジニアリング・レジリエンス・32リファレンスファイル） |
 | `using-next-devtools` | Next.js DevTools |

@@ -334,6 +334,244 @@ for key, count := range counts {
 
 ---
 
+## サンプリング実装パターン
+
+> **出典**: オブザーバビリティ・エンジニアリング Ch.17「サンプリング戦略をコードに置き換える」の知見を再構成
+
+### 概要
+
+前節の概念を実際のコードに落とし込む方法を示す。実装言語はGoを参考にしているが、連想配列・疑似乱数生成・並行処理をサポートする言語であれば移植可能。
+
+---
+
+### パターン1: 固定割合サンプリングの実装
+
+**最も基本的な形**:
+
+```
+sampleRate = 1000  // 設定ファイルから読み込む
+
+function handler(request):
+    r = randomFloat(0.0, 1.0)
+    if r < 1.0 / sampleRate:
+        recordEvent(request)
+```
+
+**問題点**: 受信側がサンプリング割合を「知らない」ため、イベント数を誤ってレポートする。
+
+---
+
+### パターン2: SampleRateフィールドの記録
+
+**改善**: イベント送信時にサンプル割合を含める
+
+```
+sampleRate = 1000
+
+function handler(request):
+    r = randomFloat(0.0, 1.0)
+    if r < 1.0 / sampleRate:
+        recordEvent(request, sampleRate=sampleRate)  // 割合を含めて送信
+```
+
+**受信側での再構築**:
+- イベント総数 = 各イベント数 × そのイベントの `sampleRate` の合計
+- レイテンシー合計 = 各イベントの値 × `sampleRate` の合計
+- パーセンタイル = 各イベントを `sampleRate` 倍に展開してから計算
+
+**ポイント**: サンプル割合が途中で変更された場合でも、各イベントに記録された割合を使えば正確に再構築できる。
+
+---
+
+### パターン3: 一貫したサンプリング（Sampling-ID伝搬）
+
+**目的**: 分散トレースで親スパンと子スパンの判定を統一する
+
+```
+function handler(request):
+    // 上流からSampling-IDがあれば使用（ルートスパンが生成した値）
+    if request.header["Sampling-ID"] exists:
+        r = hexToFloat(request.header["Sampling-ID"])
+    else:
+        r = randomFloat(0.0, 1.0)  // このハンドラーがルートスパン
+
+    // 下流サービスへSampling-IDを伝搬
+    downstreamRequest.header["Sampling-ID"] = r
+
+    result = callDownstreamService(downstreamRequest)
+
+    if r < 1.0 / sampleRate:
+        recordEvent(request, sampleRate=sampleRate)
+```
+
+**効果**:
+- 同一の `r` 値をトレース全体で共有 → 全スパンが同じ判定結果に
+- 親スパンが破棄 → 子スパンも破棄（孤立スパン防止）
+- 親スパンが保持 → 子スパンも保持（完全なトレース保証）
+
+---
+
+### パターン4: 目標割合サンプリング（自動レート調整）
+
+**目的**: 手動でサンプル割合を調整せず、目標スループットを自動維持する
+
+```
+targetEventsPerSec = 5     // 1秒あたり送信したいイベント数
+sampleRate = 1.0           // 初期値（全イベント送信）
+requestsInPastMinute = 0   // 前の1分間のリクエスト数
+
+// バックグラウンドで毎分実行
+background every 60 seconds:
+    newRate = requestsInPastMinute / (60 * targetEventsPerSec)
+    sampleRate = max(1.0, newRate)
+    requestsInPastMinute = 0  // カウンターリセット
+
+function handler(request):
+    r = hexToFloat(request.header["Sampling-ID"]) or randomFloat(0.0, 1.0)
+    requestsInPastMinute++
+
+    if r < 1.0 / sampleRate:
+        recordEvent(request, sampleRate=sampleRate)
+```
+
+**注意**: カウンターのインクリメントとリセットの並行アクセスによるレースコンディションに注意。本番環境では atomic 操作やロック機構を使用すること。
+
+---
+
+### パターン5: キー+目標割合の組み合わせ
+
+**目的**: 通常リクエストと異常リクエストで独立した目標割合を設定する
+
+```
+targetEventsPerSec = 4     // 通常リクエストの目標
+outlierEventsPerSec = 1    // 異常リクエストの目標（エラー/高レイテンシー）
+
+sampleRate = 1.0
+outlierSampleRate = 1.0
+requestsInPastMinute = 0
+outliersInPastMinute = 0
+
+background every 60 seconds:
+    sampleRate = max(1.0, requestsInPastMinute / (60 * targetEventsPerSec))
+    outlierSampleRate = max(1.0, outliersInPastMinute / (60 * outlierEventsPerSec))
+    requestsInPastMinute = 0
+    outliersInPastMinute = 0
+
+function handler(request):
+    r = hexToFloat(request.header["Sampling-ID"]) or randomFloat(0.0, 1.0)
+    result = callDownstreamService(r)
+
+    if result.error != nil or result.latency > 500ms:
+        outliersInPastMinute++
+        if r < 1.0 / outlierSampleRate:
+            recordEvent(request, sampleRate=outlierSampleRate)
+    else:
+        requestsInPastMinute++
+        if r < 1.0 / sampleRate:
+            recordEvent(request, sampleRate=sampleRate)
+```
+
+---
+
+### パターン6: 任意キー数への対応（マップベース動的サンプリング）
+
+**目的**: 固定カテゴリではなく、任意のキー組み合わせに対して動的に割合を管理する
+
+```
+// データ構造
+counts = {}       // SampleKey → 発生回数
+sampleRates = {}  // SampleKey → 現在のサンプル割合
+targetRates = {}  // SampleKey → 目標割合（設定値）
+
+SampleKey = {
+    errorMessage: string,    // エラーメッセージ（正常時は空文字）
+    backendShard: int,       // バックエンドシャードID
+    latencyBucket: int       // レイテンシーを100ms単位に丸めた値
+}
+
+background every interval:
+    for each key in counts:
+        newRate = counts[key] / (interval * targetRates[key])
+        sampleRates[key] = max(1.0, newRate)
+    counts = {}  // リセット
+
+function checkSampleRate(request, result):
+    key = SampleKey {
+        errorMessage: result.error?.message or "",
+        backendShard: result.header["Backend-Shard"],
+        latencyBucket: roundTo100ms(result.latency)
+    }
+
+    if shouldNeverSample(key):  // ヘルスチェック等を除外
+        return -1.0
+
+    counts[key]++
+    return sampleRates[key] or 1.0  // 未知のキーは全件サンプリング
+
+function handler(request):
+    r = hexToFloat(request.header["Sampling-ID"]) or randomFloat(0.0, 1.0)
+    result = callDownstreamService(r)
+
+    rate = checkSampleRate(request, result)
+    if rate > 0 and r < 1.0 / rate:
+        recordEvent(request, sampleRate=rate)
+```
+
+**ライブラリ活用**: Goでは `dynsampler-go`（Honeycomb製）がこのパターンを実装済み。新規キーへの公平な領域割り当てや、目標割合自動計算も備える。
+
+---
+
+### パターン7: ヘッド+テール統合サンプリング
+
+**目的**: ヘッドサンプリングの効率性とテールサンプリングの精度を両立する
+
+```
+// headSampleRates, tailSampleRates, headCounts, tailCounts は
+// パターン6と同様のマップ構造
+
+function handler(request):
+    r = hexToFloat(request.header["Sampling-ID"]) or randomFloat(0.0, 1.0)
+
+    // 上流からヘッドサンプリング済みか確認
+    upstreamRate = request.header["Upstream-Sample-Rate"]
+
+    if upstreamRate > 0:
+        // 上流の決定に従う（下流サービスもこのリクエストを保持）
+        headSampleRate = upstreamRate
+    else:
+        // このスパンでヘッドサンプリング判定
+        headSampleRate = checkHeadSampleRate(request, headSampleRates, headCounts)
+        if headSampleRate > 0 and r < 1.0 / headSampleRate:
+            // ヘッドサンプリング成功 → 決定を下流に伝搬
+            downstreamRequest.header["Upstream-Sample-Rate"] = headSampleRate
+        else:
+            headSampleRate = -1.0  // ヘッドサンプリング対象外
+
+    result = callDownstreamService(r, headSampleRate)
+
+    if headSampleRate > 0:
+        // ヘッドサンプリングで採択 → 記録
+        recordEvent(request, sampleRate=headSampleRate)
+    else:
+        // ヘッドでは除外 → テールサンプリングで救済判定（下流伝搬はしない）
+        tailRate = checkTailSampleRate(result, tailSampleRates, tailCounts)
+        if tailRate > 0 and r < 1.0 / tailRate:
+            recordEvent(request, sampleRate=tailRate)
+```
+
+**フロー整理**:
+
+| ケース | 処理 |
+|-------|------|
+| 上流がヘッドサンプリング済み | 上流の割合をそのまま使用して記録 |
+| 自スパンでヘッドサンプリング成功 | 下流に `Upstream-Sample-Rate` を伝搬して記録 |
+| ヘッドで除外 → テールで採択 | 下流に伝搬せず、このスパンのみ記録 |
+| 両方で除外 | 破棄 |
+
+**さらなる発展**: コレクター側でバッファー付きサンプリングを組み合わせると、トレース全体が揃ってからサンプリング判定でき、ヘッドの効率とテールの精度を最大化できる。
+
+---
+
 ## 統合アプローチ
 
 ### キー、目標割合、ヘッドとテイルを全部使う

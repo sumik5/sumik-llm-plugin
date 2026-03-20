@@ -10,6 +10,7 @@ description: >-
   For SOLID/code smells/refactoring, use writing-clean-code instead.
   For CI/CD pipeline configuration, use practicing-devops instead.
   For DDD/Clean Architecture patterns, use applying-clean-architecture instead.
+  For observability-driven development (ODD) and production debugging, use implementing-observability instead.
 ---
 
 # ソフトウェアエンジニアリングプラクティス
