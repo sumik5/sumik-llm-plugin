@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# codex CLI (Rust/rustls) が macOS のネイティブCA証明書を自動検出できない問題の回避策
+if [[ -z "${SSL_CERT_FILE:-}" ]] && [[ -f /etc/ssl/cert.pem ]]; then
+  export SSL_CERT_FILE=/etc/ssl/cert.pem
+fi
+
 readonly MODEL="gpt-5.4"
 readonly INITIAL_PROMPT_PREFIX="このプランをレビューしてください。瑣末な点へのクソリプはしないでください。致命的な点のみを指摘してください: "
 readonly RESUME_PROMPT_PREFIX="プランを更新したのでレビューを再度してください。瑣末なクソリプはせず、致命的な点だけ指摘してください: "
