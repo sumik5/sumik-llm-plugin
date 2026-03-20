@@ -9,11 +9,9 @@ description: >-
   Use when designing application layer structure, enforcing dependency rules, separating business
   logic from frameworks/UI/databases, modeling complex domains with DDD patterns, or mapping
   Bounded Contexts to Clean Architecture layers.
-  For code-level clean practices (SOLID details, code smells, refactoring), use writing-clean-code.
-  For microservices distributed patterns and infrastructure, use architecting-infrastructure.
-  For language-specific Clean Architecture implementations, see developing-react or developing-python.
-  For evolutionary architecture practices and introductory microservices guidance, see ARCHITECTURE-EVOLUTION.md subfile.
-  For project foundations, team organization, and developer habits, use practicing-software-engineering instead.
+  For code-level clean practices, use writing-clean-code. For distributed/infrastructure patterns,
+  use architecting-infrastructure. For evolutionary architecture and microservices intro, see
+  ARCHITECTURE-EVOLUTION.md. For project foundations and team practices, use practicing-software-engineering.
 ---
 
 詳細な手順・ガイドラインは [INSTRUCTIONS.md](INSTRUCTIONS.md) を参照してください。
