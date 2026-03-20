@@ -55,11 +55,20 @@ TESTING
 - [ ] Tested with real usage scenarios
 - [ ] Team feedback incorporated (if applicable)
 
-ASKUSERQUESTION (if skill has decision points)
+ASKUSERQUESTION EMBEDDING (if skill/agent has decision points)
 - [ ] AskUserQuestion section included for ambiguous decisions
 - [ ] "確認すべき場面" (when to ask) documented
 - [ ] "確認不要な場面" (when NOT to ask) documented
 - [ ] AskUserQuestion code example included
+- [ ] 「プロセス中の確認」と「コンテンツへの埋め込み」の区別が明確になっている
+- [ ] エージェント定義の場合: `background: true` 時の制約（AskUserQuestion失敗）を考慮済み
+
+SKILL↔AGENT IMPACT (if skill is referenced by agents, or new skill was created)
+- [ ] `grep -rl "skill-name" agents/*.md` で参照エージェントを確認済み
+- [ ] 新規スキル: 関連エージェントへのプリロード要否を検討済み
+- [ ] スキル名変更: 全参照エージェントの `skills:` フィールドを更新済み
+- [ ] 内容大幅変更: エージェントの「専門領域」セクション更新要否を確認済み
+- [ ] 削除: 全参照エージェントから当該スキルを除去済み
 
 SOURCE ATTRIBUTION (if skill is based on external material)
 - [ ] No book titles, author names, or publisher names
