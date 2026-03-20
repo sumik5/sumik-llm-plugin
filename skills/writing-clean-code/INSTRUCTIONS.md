@@ -34,6 +34,12 @@
 
 ---
 
+### 統合された書籍知見
+
+本スキルは、Robert C. Martin の "Clean Code" および "Clean Craftsmanship"、Pete Goodliffe の "ベタープログラマ" の知見も統合しています。Uncle Bob の 66 のヒューリスティクス、Kent Beck の 4 Rules of Simple Design、および実践的なフォーマット・境界管理パターンをリファレンスとして提供します。
+
+---
+
 ## 使用タイミング
 
 ### コードレビュー時
@@ -87,6 +93,8 @@
 | 23 | メタプログラミング乱用 | 過度なリフレクション、eval多用 | 明示的コード優先、最小限の使用 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
 | 24 | 型の誤用 | any/Any乱用、型安全性の欠如 | 厳密な型定義、ジェネリクス活用 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
 | 25 | セキュリティ脆弱性 | 入力検証不足、SQLインジェクション | セキュリティファースト設計 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
+| 26 | フォーマット不統一 | 視覚的構造が不明確、スタイルがバラバラ | 新聞記事メタファ、垂直/水平フォーマット適用 | [FORMATTING.md](./references/FORMATTING.md) |
+| 27 | 境界管理の欠如 | サードパーティへの直接依存、テスト困難 | 学習テスト、ラッパー/アダプターパターン | [BOUNDARIES.md](./references/BOUNDARIES.md) |
 
 ---
 

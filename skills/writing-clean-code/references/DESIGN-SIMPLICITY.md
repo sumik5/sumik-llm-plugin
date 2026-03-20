@@ -228,3 +228,155 @@ Em（管理コスト）と Vf（将来の価値）の推移パターンで、実
 - **管理にかかる作業量はシステムの複雑性に比例する。**
 
 この2つの文と、ソフトウェアの目的の理解、そしてシステムの複雑性は個々の部分の複雑性に由来することを承知していれば、すべてのデザイン判断を導き出せる。
+
+---
+
+## Kent Beck の 4 Rules of Simple Design
+
+> **"Uncle Bob wrote thousands of pages on clean code. Kent Beck wrote four lines."**
+> — Chet Hendrickson（AATC2017 にて）
+
+Kent Beck が提唱した「シンプルデザインの4つのルール」は、あらゆるデザイン原則の出発点となる根本的な指針である。
+
+### 4 ルールの進化（1999→2015）
+
+ルールの表現は20年かけて洗練されてきた。
+
+| 年 | 出典 | 4つのルール |
+|----|------|------------|
+| 1999 | *XP Explained* 初版（Kent Beck） | コードとテストが伝えるべきことをすべて伝える / 重複がない / クラスが最小 / メソッドが最小 |
+| 2011 | Beck 再解釈 | Tests pass / Reveal intent / No duplication / Small |
+| 2014 | Corey Haines『Understanding the Four Rules』 | 4ルールの体系的解説書 |
+| 2015 | Martin Fowler ブログ「BeckDesignRules」 | Passes the tests / Reveals intention / No duplication / Fewest elements |
+| 現在 | *Clean Craftsmanship* (Uncle Bob) | **Covered by tests** / Maximize Expression / Minimize Duplication / Minimize Size |
+
+**注目**: 第1ルールの「コード**と**テスト」が「テストカバレッジ」に変化した歴史的意味は大きい。テストは「通ればいい」から「網羅的に存在すべきもの」へと重要性が増した。
+
+---
+
+### Rule 1: Covered by Tests（テストが通る）
+
+> **Testable code is decoupled code.**
+
+テストが通ることが第1ルールである理由は、残りの3ルールがすべてリファクタリングを通じて適用されるからだ。テストなしでのリファクタリングは事実上不可能であり、第1ルールなしに他のルールは機能しない。
+
+**テストと設計の相互関係**:
+
+| テストの効果 | 設計への影響 |
+|------------|------------|
+| 各部分を独立して呼び出す必要がある | 自然にデカップルされたコードになる |
+| DIP・インターフェース・DIの活用が必要 | 疎結合・高凝集を達成できる |
+| テストが壊れやすい → 設計の問題を示す | モジュール全体の脆さも修正される |
+
+**テストカバレッジ100%は漸近的目標**:
+
+> カバレッジ80%は、コードの20%が動くかどうかわからないことを意味する。どうしてそれで満足できるのか？ — *Clean Craftsmanship*
+
+100%カバレッジは「到達すべき絶対値」ではなく「常に近づいていく漸近的目標（asymptotic goal）」である。この考え方は1963年のMiller & Maloney論文に起源を持つ。
+
+```
+カバレッジ 100% という目標は:
+  ✅ コミットのたびに近づこうとすることが重要
+  ✅ 「今は無理」は改善を諦める理由にならない
+  ❌ 「どうせ100%は無理」を言い訳にしない
+```
+
+---
+
+### Rule 2: Reveal Intent（意図を表す）
+
+> *"Any fool can write code that a computer can understand. Good programmers write code that humans can understand."* — Martin Fowler
+
+意図を表すことは「変数に良い名前をつける」だけではない。本質は **高レベルポリシーと低レベル詳細の分離** である。
+
+```java
+// ❌ 低レベル詳細が高レベルポリシーと混在（意図が見えない）
+// 数百行のswitch/if/else チェーン...
+
+// ✅ 高レベルポリシーのみを表現（意図が一目瞭然）
+public List<Paycheck> run(Database db) {
+  for (Employee e : db.getAllEmployees()) {
+    if (e.isPayDay(now)) paychecks.add(e.calculatePay());
+  }
+}
+```
+
+**意図表現の3つの手段**:
+1. **良い名前**: クラス・関数の名前を見て動作を正確に予想できる
+2. **小さな関数**: 小さいほど、正確な名前をつけやすい
+3. **テスト**: テストはコードの使用例として機能し、production code が伝えられないコンテキストを補完する
+
+> *Taken together, the code and the tests are an expression of what each element of the system does and how each element should be used.* — *Clean Craftsmanship*
+
+---
+
+### Rule 3: No Duplication（重複がない）
+
+DRY原則の実践的適用。重要なのは「**偶発的重複**と**本質的重複**を区別する」こと。
+
+| 種類 | 定義 | 対処 |
+|------|------|------|
+| **本質的重複** | 同じ理由で一緒に変化する重複 | 抽象化して一元化（Extract Method、Template Method） |
+| **偶発的重複** | たまたま似ているが、異なる理由で変化する | **除去してはならない** — 将来自然に分岐する |
+
+**判断方法**: 意図（Intent）が収束しているか発散しているか。収束→本質的重複。発散→偶発的重複。
+
+```java
+// 偶発的重複の例（同じに見えるが、それぞれ変化の理由が違う）
+// US の最低賃金計算 と EU の最低賃金計算 → 別々に保持する
+
+// 本質的重複の例 → Template Method で一元化
+abstract class VacationPolicy {
+  public void accrueVacation() {
+    calculateBaseVacationHours();  // 共通
+    alterForLegalMinimums();       // サブクラスで実装
+    applyToPayroll();              // 共通
+  }
+  abstract protected void alterForLegalMinimums();
+}
+```
+
+---
+
+### Rule 4: Small（小さい）
+
+> テストをすべて通し、可能な限り意図を表現し、重複を最小化した **後に**、各関数内のコードサイズを小さくする。
+
+「小さい」は **extract 'til you drop** によって達成する。これにより:
+- 関数名が長くなる（より専門的・具体的）
+- コードが well-written prose として読める
+- 抽象化レベルの境界が明確になる
+
+---
+
+### YAGNI の歴史的文脈（1999年）
+
+> In 1999, I was teaching an Extreme Programming course... Someone wrote YAGNI on the whiteboard. Beck interrupted and said something to the effect: *"maybe you are gonna need it, but you should ask yourself, 'What if you aren't?'"* — Uncle Bob, *Clean Craftsmanship*
+
+1999年以前、ソフトウェアは変更が難しかった（ビルドに1時間、テストはすべて手動）。「フックを仕込む」のが当時のベストプラクティスだった。
+
+しかし **マシンの指数的進化** がその前提を破壊した:
+- ビルド時間: 1時間 → 秒単位
+- テスト: 手動 → 自動化・高速実行
+- 結果: 「フックを仕込まなくても、要件変化時にリファクタリングできる」
+
+> *YAGNI is the unintended consequence of the virtually limitless computer power now at our disposal.*
+
+---
+
+### Simple Design とリファクタリングの関係
+
+4ルールは **リファクタリング実践の中で適用される** もの。Rule 1（テスト）なしにRule 2-4は機能しない。
+
+```
+Simple Design の実践サイクル:
+
+1. RED   → テストを書く（Rule 1: Covered by tests）
+2. GREEN → テストを通す（最短コードで）
+3. REFACTOR → Rule 2-4 を適用
+     - 意図を表す名前に改名
+     - 重複を除去（本質的重複のみ）
+     - 関数を最小化（Extract 'til you drop）
+```
+
+> *"If you followed these four things as diligently as possible, all other design principles would be satisfied."* — Kent Beck（Uncle Bob との対話より）

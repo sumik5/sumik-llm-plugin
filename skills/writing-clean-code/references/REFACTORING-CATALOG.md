@@ -1320,6 +1320,149 @@ function unlockPremiumFeature(user: User) { /* ... */ }
 
 ---
 
+## リファクタリングの規律
+
+体系的リファクタリングを「いつ・どのように行うか」という規律について、書籍の知見をまとめる。
+
+---
+
+### Extract 'til you drop（抽出できなくなるまで抽出する）
+
+> *A function does one thing when no other function can be extracted from it.* — *Clean Craftsmanship*
+
+**「一つのことをする」の定義は「これ以上抽出できない」こと**。感覚で判断するのではなく、「まだ抽出できるか？」という問いを繰り返す。
+
+```java
+// Before: 意図が読みにくい長い関数
+if (employeeAge > 60 && employeeSalary > 150000)
+  scheduleForEarlyRetirement(employee);
+
+// After: extract 'til you drop の結果
+if (employeeShouldHaveFullBenefits())
+  addFullBenefitsToEmployee();
+// → コードが well-written prose として読める
+```
+
+**結果として生まれるもの**:
+- 関数の数が増える → 怖くない。抽象化レベルが明確になる
+- 関数名が長くなる → 正しい。目的が具体的になるほど名前は長くなる
+- 名前の長さと公開スコープは**反比例**: public関数は短い名前、private関数は長い名前
+
+---
+
+### Stepdown Rule（ステップダウンルール）
+
+> *We want the code to read like a top-down narrative. We want every function to be followed by those at the next level of abstraction.* — *Clean Code*
+
+**ルールの本質**: 関数内の各行は **その関数名より1レベル下の抽象レベル** に保つ。
+
+```
+TO include the setups and teardowns,
+  we include setups, then test page content, then teardowns.
+
+  TO include the setups,
+    we include the suite setup if suite, then the regular setup.
+
+    TO include the suite setup,
+      we search the parent hierarchy for "SuiteSetUp" page...
+```
+
+コードを「TO〜」という英語文章として音読できるかどうかが、単一抽象レベルの判断基準になる。
+
+**違反の検出方法**:
+- `getHtml()` と `.append("\n")` が同じ関数内にある → 抽象レベルが混在している
+- 関数にセクション（declarations / initializations / sieve など）が存在する → 複数のことをしている
+
+---
+
+### リファクタリングは継続的活動
+
+> *The purpose of refactoring is to clean the code. The process is the red → green → refactor cycle. Refactoring is a constant activity, not a scheduled and planned activity.* — *Clean Craftsmanship*
+
+**スケジュールしない、計画しない** — リファクタリングは機能追加・バグ修正と並走する日常作業だ。
+
+```
+red → green → refactor サイクルの中で:
+  1. テストを書く（RED）
+  2. 最小限のコードで通す（GREEN）
+  3. コードをクリーンにする（REFACTOR） ← ここが継続的リファクタリング
+     → 名前を改善する
+     → 重複を除去する
+     → 関数を分割する
+```
+
+**大きなリファクタリングも同じサイクルで**: システム全体の設計変更が必要になっても、「リファクタリング専用スプリント」は設けない。代わりにサイクルごとに少しずつ大きな変更を積み重ねて段階的に実施し、その間もビジネスバリューを継続して届け続ける。
+
+---
+
+### 小さいステップの重要性
+
+> *Each individual refactoring is small. How small? Small enough that I won't have to debug.* — *Clean Craftsmanship*
+
+デバッガに頼らなければならないほど大きなステップは、ステップを分割すべきシグナルだ。
+
+| ステップのサイズ | 結果 |
+|---------------|------|
+| 小さすぎるほど小さい | テストが通り続ける / デバッガ不要 / 自信を持って進める |
+| 大きすぎる | 失敗時の原因特定が困難 / デバッガに頼ることになる |
+
+> Rule 15 (Clean Craftsmanship): **Avoid using debuggers.**
+
+デバッガを使う状況 = ステップが大きすぎた証拠。ステップを小さくすることで、そもそもデバッグが不要になる。
+
+---
+
+### One Thing Rule（一つのことをする）
+
+> ***FUNCTIONS SHOULD DO ONE THING. THEY SHOULD DO IT WELL. THEY SHOULD DO IT ONLY.*** — *Clean Code*
+
+30年以上語り継がれてきた原則。「一つのこと」の判断基準:
+
+```
+✅ 一つのことをしている:
+  → 関数名より1レベル下の操作のみを行っている
+  → これ以上意味のある関数を抽出できない
+
+❌ 複数のことをしている:
+  → 「何かを別の名前で言い換えるだけでない新しい関数」を抽出できる
+  → 関数内にセクション（declarations / initializations / ...）がある
+  → 抽象化レベルが混在している（高レベル呼び出しと低レベル操作が同居）
+```
+
+**実践的な確認**: 関数から別の関数を抽出しようとしたとき、その関数名が「元の実装の言い換え」になるだけなら、元の関数はすでに一つのことをしている。
+
+---
+
+### 引数の数は少なくする
+
+> *The ideal number of arguments for a function is zero (niladic). Next comes one (monadic), followed closely by two (dyadic). Three (triadic) should be avoided where possible. More than three (polyadic) requires very special justification—and then shouldn't be used anyway.* — *Clean Code*
+
+| 引数の数 | 名称 | 評価 |
+|---------|------|------|
+| 0 | niladic | 理想 |
+| 1 | monadic | 次善 |
+| 2 | dyadic | 許容（コストあり） |
+| 3 | triadic | 避ける |
+| 4以上 | polyadic | 特別な正当化が必要、かつ使うべきでない |
+
+**引数が多い問題**:
+- テストの組み合わせ爆発（2引数でも困難、3以上は苦痛）
+- 読者の認知負荷が増大する
+- output引数（副作用）は特に理解しにくい
+
+**フラグ引数（boolean）は警告サイン**:
+
+```java
+// ❌ フラグ引数 → 関数が2つのことをしている証拠
+render(true)   // true とは何か？読者にはわからない
+
+// ✅ 関数を分割する
+renderForSuite()
+renderForSingleTest()
+```
+
+---
+
 ## 関連ドキュメント
 
 - [クリーンコード基礎](./CLEAN-CODE-BASICS.md) — 命名・関数設計の基本

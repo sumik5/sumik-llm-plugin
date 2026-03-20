@@ -1162,6 +1162,57 @@ int multiply(int firstMultiplier, int secondMultiplier) {
 
 ---
 
+### 関数名の長さとスコープの関係
+
+**出典**: Robert C. Martin「Clean Craftsmanship」第5章 Refactoring — Extract Method
+
+関数名の長さはスコープ（可視性）に**反比例**すべきである。
+
+> "The length of a function's name should be inversely proportional to the scope that contains it."
+> — Robert C. Martin, Clean Craftsmanship
+
+| スコープ | 名前の長さ | 理由 |
+|---------|----------|------|
+| `public` | **短い** | 多くの呼び出し元があり、目的が広い |
+| `private` | **長い** | 呼び出し元が限定され、目的が具体的 |
+
+```java
+// ✅ 良い例
+public void run() {                            // public: 短い名前
+    // ...
+}
+
+private void extractAndValidateUserInputForm() { // private: 長い説明的な名前
+    // ...
+}
+
+// Extract 'til you drop で抽出した関数の命名
+if (employeeShouldHaveFullBenefits())
+    addFullBenefitsToEmployee();               // 完全な節・文になることもある
+```
+
+**変数名はスコープに比例**（関数名とは逆）:
+
+| スコープ | 変数名 | 例 |
+|---------|--------|-----|
+| ループ内（短いスコープ） | 短い | `i`, `j`, `k` |
+| 関数内（中程度） | 中程度 | `count`, `result` |
+| クラス/モジュール全体（長いスコープ） | 長い | `customerOrderTotalWithDiscount` |
+
+抽出した関数は**呼び出し元が1箇所だけ**のことが多い。その場合、目的は極めて限定的になるため、名前は非常に具体的・長くなることが自然である。このような関数名は完全な文章（clause）になることも珍しくない。
+
+```python
+# ✅ 良い例: 抽出関数は具体的な長い名前
+def should_add_full_benefits_for_employee_with_over_five_years_service(employee):
+    return employee.years_of_service >= 5 and employee.is_full_time
+
+# 呼び出し側がより読みやすくなる
+if should_add_full_benefits_for_employee_with_over_five_years_service(employee):
+    add_full_benefits_to_employee(employee)
+```
+
+---
+
 ## 相互参照
 
 - 6.1 → 10.1, 10.7, 11.1, 11.3

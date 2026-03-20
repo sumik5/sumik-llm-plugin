@@ -406,3 +406,116 @@ Optional<Double> getAccountBalance(int customerId) {
     return Optional.of(result.getAccount().getBalance());
 }
 ```
+
+---
+
+## 実践的エラー処理の原則（Clean Code Ch.7 / ベタープログラマ Ch.8）
+
+### エラーコードより例外を使う
+
+リターンコードによるエラー処理は、呼び出し側がチェックを忘れやすく、ビジネスロジックとエラー処理が混在する問題がある。
+
+```java
+// Bad: エラーコード方式（ロジックとエラー処理が絡み合う）
+public void sendShutDown() {
+    DeviceHandle handle = getHandle(DEV1);
+    if (handle != DeviceHandle.INVALID) {
+        retrieveDeviceRecord(handle);
+        if (record.getStatus() != DEVICE_SUSPENDED) {
+            pauseDevice(handle);
+            clearDeviceWorkQueue(handle);
+            closeDevice(handle);
+        } else {
+            logger.log("Device suspended. Unable to shut down");
+        }
+    } else {
+        logger.log("Invalid handle for: " + DEV1.toString());
+    }
+}
+
+// Good: 例外方式（アルゴリズムとエラー処理を分離できる）
+public void sendShutDown() {
+    try {
+        tryToShutDown();
+    } catch (DeviceShutDownError e) {
+        logger.log(e);
+    }
+}
+
+private void tryToShutDown() throws DeviceShutDownError {
+    DeviceHandle handle = getHandle(DEV1);  // 失敗したら例外
+    DeviceRecord record = retrieveDeviceRecord(handle);
+    pauseDevice(handle);
+    clearDeviceWorkQueue(handle);
+    closeDevice(handle);
+}
+```
+
+**重要**: エラー処理は「1つのこと」。エラー処理を含む関数は、エラー処理"だけ"をすべき。
+
+### try/catch ブロックを先に書く
+
+`try` ブロックはトランザクションのようなもの。`catch` は `try` の中で何が起きても一貫した状態を保証しなければならない。
+
+**TDDとの組み合わせ**:
+1. 例外が発生するテストを先に書く
+2. try-catch の骨格を先に実装してテストを通す
+3. その後でtryブロック内のロジックを詳細化する
+
+これにより `try` ブロックのトランザクション的スコープを先に確定させ、その中では「うまくいく前提」でロジックを書ける。
+
+### null を返すな、null を渡すな
+
+```java
+// Bad: null を返す → 呼び出し側にnullチェックを強制する
+public void registerItem(Item item) {
+    if (item != null) {
+        ItemRegistry registry = peristentStore.getItemRegistry();
+        if (registry != null) {  // nullチェックのネストが深くなる
+            Item existing = registry.getItem(item.getID());
+            if (existing.getBillingPeriod().hasRetailOwner()) {
+                existing.register(item);
+            }
+        }
+    }
+}
+
+// Bad: null を返すリストを使う
+List<Employee> employees = getEmployees();
+if (employees != null) {  // このチェックが本当に必要か？
+    for (Employee e : employees) {
+        totalPay += e.getPay();
+    }
+}
+
+// Good: 空リストを返す（nullチェック不要）
+public List<Employee> getEmployees() {
+    if (/* 従業員がいない */)
+        return Collections.emptyList();  // nullではなく空コレクション
+}
+// 呼び出し側はnullチェックなしで安全に使える
+for (Employee e : getEmployees()) {
+    totalPay += e.getPay();
+}
+```
+
+**null を渡すな**: メソッドにnullを引数として渡すのは、返すよりも悪い。ほとんどのプログラミング言語には、誤ってnullを渡した呼び出し元をうまく扱う方法がない。デフォルトとしてnullを渡すことを禁止すれば、nullが引数リストにあることが問題の兆候になる。
+
+### エラーを無視しない文化の構築（ベタープログラマ Ch.8）
+
+エラーを無視すると発生する問題:
+- **壊れやすいコード**: 見つけにくいクラッシュの原因が潜伏する
+- **安全でないコード**: ハッカーは貧弱なエラー処理を利用してシステムに侵入する
+- **ひどい構造**: エラー処理が厄介ならインターフェース設計が問題のサイン
+
+よくある言い訳とその反論:
+
+| 言い訳 | 反論 |
+|--------|------|
+| 「エラー処理はコードを複雑にする」 | 例外による分離でむしろロジックがクリーンになる |
+| 「この関数はエラーを返さない」 | `printf` の戻り値を検査しているか？`malloc` は失敗しうる |
+| 「後で対処する」 | 「後で」は来ない。エラー処理を先送りにしないこと |
+| 「catchブロックを空にするだけ」 | `catch (...) {}` は問題を未来へ先送りする最悪のパターン |
+
+> "可能性のあるエラーをコード内で無視しないでください。エラー処理を『後で』と先延ばしにしないでください。"
+> ― ベタープログラマ Ch.8
