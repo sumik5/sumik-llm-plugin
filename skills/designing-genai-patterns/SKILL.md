@@ -5,13 +5,13 @@ description: >-
   RAG architecture, model capabilities (Chain of Thought, Adapter Tuning),
   reliability (LLM-as-Judge, Reflection, Prompt Optimization), agentic systems (Tool Calling, Multiagent Collaboration),
   deployment optimization (SLM, Prompt Caching, Inference Optimization), safety guardrails (Self-Check, Guardrails),
-  RAG system implementation (data loading from 11 source types, chunking strategies, vector stores),
-  and LLMOps/AgentOps operations (maturity model Level 0–2, Tool Registry, Agent Registry,
-  Memory & Data Governance, LLM evaluation metrics, LLMSecOps).
+  RAG system implementation (11 source types, chunking strategies, vector stores),
+  and LLMOps/AgentOps (maturity model L0–2, Tool Registry, Agent Registry, Memory & Data Governance, LLM metrics, LLMSecOps).
+  Also covers AI performance (GPU/CUDA, LLM inference) via PERF- references.
   Use when designing GenAI applications, choosing RAG strategies, implementing agent architectures,
-  optimizing LLM reliability and deployment, or operating LLM/Agent systems in production.
-  For web app AI integration (Vercel AI SDK, LangChain.js), use integrating-ai-web-apps.
-  For LangChain/LangGraph RAG pipelines, use building-langchain-agents.
+  optimizing LLM reliability and deployment, or operating/tuning AI systems in production.
+  For web AI (Vercel AI SDK, LangChain.js), use integrating-ai-web-apps.
+  For LangChain RAG pipelines, use building-langchain-agents.
 disable-model-invocation: false
 ---
 

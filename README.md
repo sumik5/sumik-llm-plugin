@@ -121,7 +121,7 @@ sumik-claude-plugin/
 | `architecting-infrastructure` | インフラデザインパターン127種 + アーキテクチャモダナイゼーション（トレードオフ分析） + マイクロサービスパターン（CQRS・Saga・粒度決定・データ所有権）。ベンダー非依存の設計方式選定・非機能要求分析 |
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
 | `evaluating-with-promptfoo` | promptfooによるLLM評価・レッドチーミング（promptfooconfig.yaml設定・40+アサーション・プロバイダー・134+レッドチームプラグイン・CI/CD統合） |
-| `designing-genai-patterns` | 32のGenAIデザインパターン（コンテンツ制御・RAG・モデル能力拡張・信頼性・エージェント・デプロイ最適化・安全ガードレール）＋RAGシステム実装（11種データソース・5種チャンキング戦略・パイプライン） |
+| `designing-genai-patterns` | 32のGenAIデザインパターン（コンテンツ制御・RAG・モデル能力拡張・信頼性・エージェント・デプロイ最適化・安全ガードレール）＋RAGシステム実装（11種データソース・5種チャンキング戦略）＋AIシステム性能最適化（GPU/CUDA・分散訓練・LLM推論、175+項目チェックリスト） |
 
 #### フレームワーク
 

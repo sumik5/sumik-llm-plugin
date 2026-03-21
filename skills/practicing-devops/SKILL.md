@@ -8,6 +8,7 @@ description: |
   For project foundations, team organization, and developer habits, use practicing-software-engineering instead.
   For monitoring and observability design, use implementing-observability instead.
   For GCP CI/CD and GKE container orchestration, use developing-google-cloud instead.
+  For GPU-optimized Docker/Kubernetes environment tuning (NVIDIA Container Toolkit, MPS, MIG), use designing-genai-patterns instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

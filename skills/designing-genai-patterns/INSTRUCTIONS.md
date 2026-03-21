@@ -440,3 +440,48 @@ GenAIOps（非決定論的GenAIアプリケーション本番化）
 | `references/OPS-SECURITY-GOVERNANCE.md` | LLMSecOps、プライバシー、ガバナンス、監査フレームワーク |
 | `references/OPS-SCALING-INFRASTRUCTURE.md` | ハードウェア選定、リソース管理、分散訓練、監視 |
 | `references/OPS-AGENTOPS.md` | AgentOps詳細（ロール・FM選定・Prompt Catalog・Tool Registry） |
+
+---
+
+## AIシステム性能最適化リファレンス
+
+AIシステムのハードウェア・CUDA・分散訓練・推論最適化に関する参照ガイド。
+`PERF-` プレフィックスが付いたファイルで既存の GenAI パターンと区別する。
+
+### ボトルネック判断フロー
+
+```
+性能問題の種類は？
+│
+├─ GPU 利用率が低い / Occupancy 問題 ──────────────→ PERF-CUDA-FUNDAMENTALS.md
+├─ メモリ帯域幅不足 / L2キャッシュ / HBM ─────────→ PERF-GPU-HARDWARE.md
+├─ 分散通信がボトルネック / NCCL / ネットワーク ──→ PERF-SYSTEM-TUNING.md
+├─ 推論レイテンシ高 / vLLM / KV キャッシュ ────────→ PERF-INFERENCE-OPTIMIZATION.md
+├─ PyTorch プロファイリング / torch.compile ────────→ PERF-PYTORCH-TUNING.md
+├─ CUDA カーネル / Warp / パイプライン ────────────→ PERF-CUDA-ADVANCED.md
+├─ 大規模クラスタのスケーリング / AI 支援最適化 ──→ PERF-SCALING-FUTURE.md
+└─ 包括的チェックリスト（175+項目）──────────────→ PERF-CHECKLIST.md
+```
+
+### サブファイル一覧
+
+| ファイル | 対象章 | 主な内容 |
+|---------|--------|---------|
+| `references/PERF-GPU-HARDWARE.md` | Ch 1-2 | NVIDIA Blackwell/Grace アーキテクチャ、HBM3e、NVLink/NVSwitch、メモリ帯域幅 |
+| `references/PERF-SYSTEM-TUNING.md` | Ch 3-5 | OS/Docker/Kubernetes チューニング、NUMA、ネットワーク（InfiniBand/RoCE）、ストレージ |
+| `references/PERF-CUDA-FUNDAMENTALS.md` | Ch 6-9 | GPU/CUDA 基礎、メモリ階層、Occupancy、コアレスアクセス |
+| `references/PERF-CUDA-ADVANCED.md` | Ch 10-12 | パイプライン化、スケジューリング、CUDA Graphs、ワープ最適化 |
+| `references/PERF-PYTORCH-TUNING.md` | Ch 13-14 | PyTorch プロファイリング、`torch.compile`、Triton、Nsight |
+| `references/PERF-INFERENCE-OPTIMIZATION.md` | Ch 15-19 | vLLM、disaggregated prefill/decode、PagedAttention、KV キャッシュ、量子化 |
+| `references/PERF-SCALING-FUTURE.md` | Ch 20 | 大規模クラスタスケーリング、AI 支援最適化（AlphaTensor・DeepSeek-R1） |
+| `references/PERF-CHECKLIST.md` | Appendix | 175+ 項目・18 カテゴリの性能チェックリスト |
+
+### 使用タイミング
+
+このセクションを参照すべき場面:
+
+- **GPU クラスタで AI/ML ワークロードを最適化する時**: GPU 利用率・SM 効率・メモリ帯域幅を改善する際
+- **CUDA カーネルをプロファイリング・チューニングする時**: Nsight、PyTorch Profiler でボトルネック特定する際
+- **分散訓練をスケールアップする時**: NCCL、ZeRO、テンソル/パイプライン並列化を調整する際
+- **LLM 推論サービングを最適化する時**: vLLM・TensorRT-LLM・KV キャッシュ・バッチング戦略を調整する際
+- **体系的な性能チェックを行う時**: `PERF-CHECKLIST.md` を使ってカテゴリ別に確認する際
