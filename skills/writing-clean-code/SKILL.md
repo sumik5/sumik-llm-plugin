@@ -9,7 +9,7 @@ description: >-
   For trade-off analysis on code duplication, error handling, and flexibility, use architecting-infrastructure.
   For architecture-level clean design with dependency rules and component principles, use applying-clean-architecture.
   For legacy code refactoring strategies, see CHANGEABLE-CODE.md subfile.
-  For engineering practices beyond code quality, use practicing-software-engineering instead.
+  For IC effectiveness mindset and career-stage skill development beyond code quality, use practicing-software-engineering instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
