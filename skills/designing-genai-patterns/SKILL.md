@@ -12,6 +12,7 @@ description: >-
   optimizing LLM reliability and deployment, or operating/tuning AI systems in production.
   For web AI (Vercel AI SDK, LangChain.js), use integrating-ai-web-apps.
   For LangChain RAG pipelines, use building-langchain-agents.
+  For BigQuery ML, Vertex AI managed ML, and GCP-specific ML services, use developing-google-cloud instead.
 disable-model-invocation: false
 ---
 

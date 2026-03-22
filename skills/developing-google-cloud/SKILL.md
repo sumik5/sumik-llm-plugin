@@ -1,17 +1,19 @@
 ---
 name: developing-google-cloud
 description: >-
-  Google Cloud development guide covering Cloud Run (architecture, scaling, CI/CD),
-  GCP security (IAM, VPC, KMS, SCC, Zero Trust), data engineering (BigQuery, Dataflow,
-  pipelines, governance), networking (VPC, LB, CDN), Memorystore (Redis/Memcached),
-  enterprise architecture (account design, org hierarchy, migration, modernization),
-  compute selection (GCE/GKE/GAE/Run/Functions), GKE orchestration (Kubernetes),
-  GAE/PaaS, monitoring design (SLO/SLI, alerting), and BigQuery analytics (KPI, SQL, fluentd).
-  MUST load when Dockerfile with google-cloud packages, cloudbuild.yaml,
-  or BigQuery/Dataflow/Dataproc/Interconnect/Memorystore detected.
-  For Docker patterns, use managing-containers. For general monitoring, use implementing-observability.
-  For code security (OWASP), use securing-code. For data architecture (CQRS), use architecting-data.
-  For AWS, use developing-aws. For serverless security, use securing-serverless.
+  Google Cloud guide: Cloud Run, GCP security (IAM/VPC/KMS/Zero Trust),
+  data engineering (BigQuery/Dataflow/pipelines/governance/lakehouse),
+  networking (VPC/LB/CDN), Memorystore, enterprise architecture,
+  compute selection (GCE/GKE/GAE/Run/Functions), GKE, GAE,
+  monitoring (SLO/SLI), BigQuery analytics (SQL/window functions/GA4),
+  BigQuery ops (editions/HA-DR/slots), workflow (Composer/Dataform/Data Fusion),
+  BI (Looker/Looker Studio/BI Engine), ingestion (DTS/Datastream CDC/GA4),
+  real-time (Pub/Sub/Dataflow streaming), ML (BigQuery ML/Vertex AI/GIS).
+  MUST load when google-cloud packages, cloudbuild.yaml,
+  BigQuery/Dataflow/Memorystore/Looker/Dataplex detected.
+  For Docker→managing-containers. For monitoring→implementing-observability.
+  For OWASP→securing-code. For CQRS→architecting-data.
+  For AWS→developing-aws. For GenAI→designing-genai-patterns.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

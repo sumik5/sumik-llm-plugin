@@ -1,6 +1,6 @@
 # Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク・キャッシングガイド
 
-このスキルは、Google Cloud Platform（GCP）でのアプリケーション開発・デプロイ・プラットフォームセキュリティ・データエンジニアリング・ネットワークエンジニアリング・インメモリキャッシングを包括的にカバーします。**Cloud Run中心のサーバーレスデプロイメント**、**GCPセキュリティサービス活用**、**データエンジニアリング**、**ネットワークエンジニアリング（VPC設計・ハイブリッド接続・LB・CDN・監視・高度なネットワーキング）**、**Memorystore（マネージドRedis/Memcachedキャッシング）**、**エンタープライズアーキテクチャ（アカウント設計・移行戦略）**、**コンピューティング選択（GCE/GKE/GAE/Run/Functions）**、**コンテナオーケストレーション（GKE/Kubernetes）**、**監視・運用設計**、**BigQuery分析** の10本柱で構成されています。
+このスキルは、Google Cloud Platform（GCP）でのアプリケーション開発・デプロイ・プラットフォームセキュリティ・データエンジニアリング・ネットワークエンジニアリング・インメモリキャッシングを包括的にカバーします。**Cloud Run中心のサーバーレスデプロイメント**、**GCPセキュリティサービス活用**、**データエンジニアリング**、**ネットワークエンジニアリング（VPC設計・ハイブリッド接続・LB・CDN・監視・高度なネットワーキング）**、**Memorystore（マネージドRedis/Memcachedキャッシング）**、**エンタープライズアーキテクチャ（アカウント設計・移行戦略）**、**コンピューティング選択（GCE/GKE/GAE/Run/Functions）**、**コンテナオーケストレーション（GKE/Kubernetes）**、**監視・運用設計**、**BigQuery分析**、**BigQuery高度運用（エディション・HA/DR・チューニング）**、**レイクハウス（BigLake・Dataplex）**、**ワークフロー管理（Cloud Composer・Dataform）**、**BI・データ可視化（Looker・Looker Studio）**、**データ集約（DTS・Datastream CDC）**、**リアルタイム分析（Pub/Sub・Dataflowストリーミング）** の16本柱で構成されています。
 
 ---
 
@@ -364,13 +364,36 @@ gcloud run deploy cost-optimized-api \
 | **[GAE-PAAS-DEVELOPMENT.md](references/GAE-PAAS-DEVELOPMENT.md)** | GAE Standard/Flexible環境比較、デプロイ・バージョン管理、トラフィック分割、セキュリティ設計、Cloud Vision API連携、サーバーレスアーキテクチャ |
 | **[GCE-OPERATIONS.md](references/GCE-OPERATIONS.md)** | マシンタイプ選択（ファミリー別）、ディスク・ネットワーク設計、MIG（マネージドインスタンスグループ）、ライブマイグレーション、起動スクリプト、運用自動化 |
 
-### 運用・分析・業界別アーキテクチャ（3ファイル）
+### 運用・業界別アーキテクチャ（2ファイル）
 
 | ファイル | 内容 |
 |---------|------|
 | **[MONITORING-OPERATIONS-DESIGN.md](references/MONITORING-OPERATIONS-DESIGN.md)** | SLO/SLI定義と逆算設計、Cloud Monitoring・Cloud Logging・Cloud Trace、アラート戦略、ダッシュボード設計、Stackdriver実践、Cloud Operations Suite統合 |
-| **[BIGQUERY-ANALYTICS.md](references/BIGQUERY-ANALYTICS.md)** | ゲーム分析基盤構築（Aiming社事例）、ログ収集パイプライン・fluentd設定、ゲーム固有KPI設計（DAU/ARPU/リテンション）、実践的BigQuery SQL、コスト管理事例 |
 | **[GAME-INFRASTRUCTURE.md](references/GAME-INFRASTRUCTURE.md)** | モバイル/オンライン/コンソールゲームバックエンド設計、スパイクトラフィック対策、常時接続型アーキテクチャ（WebSocket/gRPC）、グローバル展開、移行事例（Aiming/grasys/シリコンスタジオ） |
+
+### BigQuery高度機能（3ファイル）
+
+| ファイル | 内容 |
+|---------|------|
+| **[BIGQUERY-ANALYTICS.md](references/BIGQUERY-ANALYTICS.md)** | ゲーム分析基盤構築、ログ収集パイプライン・fluentd設定、ゲーム固有KPI設計（DAU/ARPU/リテンション）、実践的BigQuery SQL、コスト管理事例 |
+| **[BIGQUERY-SQL-ANALYTICS.md](references/BIGQUERY-SQL-ANALYTICS.md)** | 分析関数・ウィンドウ関数、UNNEST/配列操作、JSON処理、地理空間分析（GIS）、BigQuery ML SQL、高度なSQL最適化パターン |
+| **[BIGQUERY-ADVANCED-OPERATIONS.md](references/BIGQUERY-ADVANCED-OPERATIONS.md)** | 内部アーキテクチャ（Dremel/Capacitor）、エディション選択・スロット管理・HA/DR設計、テーブル設計最適化（パーティション/クラスタ/マテリアライズドビュー/検索インデックス）、トランザクション・DML最適化、INFORMATION_SCHEMAモニタリング |
+
+### データプラットフォーム（5ファイル）
+
+| ファイル | 内容 |
+|---------|------|
+| **[WORKFLOW-ORCHESTRATION.md](references/WORKFLOW-ORCHESTRATION.md)** | Cloud Composer（Apache Airflow）DAG設計・スケジューリング、Dataformによるスケジュール実行、ワークフロー間連携パターン |
+| **[BI-VISUALIZATION.md](references/BI-VISUALIZATION.md)** | Looker（LookML・データモデリング）、Looker Studio（ダッシュボード設計・データソース接続）、BigQuery連携、KPIレポート設計 |
+| **[DATA-INGESTION.md](references/DATA-INGESTION.md)** | BigQuery Data Transfer Service（DTS）、Datastream CDC（MySQL/PostgreSQL/Oracle → BigQuery）、バッチ/ストリーミング取り込みパターン |
+| **[REALTIME-ANALYTICS.md](references/REALTIME-ANALYTICS.md)** | Pub/Subメッセージング設計、Dataflowストリーミングパイプライン（Apache Beam）、Dataflow SQL、リアルタイムダッシュボード統合 |
+| **[LAKEHOUSE-BIGLAKE-DATAPLEX.md](references/LAKEHOUSE-BIGLAKE-DATAPLEX.md)** | BigLakeによるオープンフォーマット統合（Iceberg/Delta/Hudi）、Dataplexデータレイク管理・ゾーニング・データ品質、レイクハウスアーキテクチャ設計 |
+
+### ML・高度分析（1ファイル）
+
+| ファイル | 内容 |
+|---------|------|
+| **[ML-ANALYTICS.md](references/ML-ANALYTICS.md)** | BigQuery ML（CREATE MODEL・評価・予測SQL）、Vertex AI統合、特徴量エンジニアリング、モデルデプロイ・監視、分析AIユースケース |
 
 ---
 

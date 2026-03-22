@@ -697,3 +697,116 @@ FROM TABLE_DATE_RANGE(login_, TIMESTAMP('20151201'), TIMESTAMP('20151231'))
 - **アクション単位分割**: ガチャログのみ集計など、不要テーブルをスキャン対象外に
 - **Billing Alert必須**: 従量課金のため運用ミスで予期せぬ課金が発生しやすい
 - **定型レポート**: 月数千円〜数万円、全社的活用: 月数十万円が目安
+
+---
+
+## 外部接続の最適化（Storage API / BI Engine）
+
+BigQueryをDWHとして利用する際には、BIツール・ODBC/JDBC接続・Jupyter Notebookなどの外部接続ツールと組み合わせることが多い。接続方法の選択によってスループットが大きく変わる。
+
+### BigQuery Storage API（Notebook / Hadoop / Spark）
+
+BigQuery Storage APIはRPC経由で並行してデータを読み出す高速API。列プロジェクション（必要な列のみ取得）とフィルタリングをサーバーサイド（ストレージ側）で実行するため、転送データ量を最小化できる。
+
+| 利用シーン | 推奨ライブラリ/コネクタ |
+|-----------|----------------------|
+| Python / Pandas | `google-cloud-bigquery`（Storage API を内包） |
+| Jupyter Notebook | `pandas-gbq` → `google-cloud-bigquery` への移行推奨 |
+| Apache Spark | BigQuery Spark / Hadoop コネクタ |
+| ODBC/JDBC | BigQuery ODBC/JDBC ドライバ（Storage API 対応） |
+
+> **確認ポイント**: 各ライブラリはオプションでStorage APIの有効/無効を切り替えられる。デフォルトで無効になっている場合があるため、大量データを扱う場合は明示的に有効化する。
+
+### BigQuery BI Engine（BIツール）
+
+BigQuery BI Engineはインメモリのクエリエンジンを利用し、BIツールからのデータマートアクセスやドリルダウンを高速化する。BI Engine SQL Interfaceにより、Tableau・Looker・Power BIなどから透過的に利用できる。
+
+| 特徴 | 内容 |
+|-----|------|
+| **高速化対象** | BIツールからのフィルタ・ドリルダウン・集計クエリ |
+| **Looker Studio** | 1GBのメモリが無料で利用可能（ネイティブ統合を除く） |
+| **課金** | 予約したメモリ容量に対して課金（クエリ課金とは別） |
+| **透過利用** | 既存SQLを変更せずにアクセラレーション可能 |
+
+---
+
+## データマートジョブの設計最適化
+
+データウェアハウス上のデータを目的別に事前集計したデータマートを作成・運用する際の最適化パターン。
+
+### データマート更新：差分更新より洗い替えが有効
+
+DMLによる差分更新は直感的だが、BigQueryの特性（スキャン・演算の高速さ）を活かすには**洗い替え（パーティション単位の全件再集計）**の方が結果的に高速になることが多い。
+
+**差分更新（DML）の問題点**:
+- 差分を絞り込む `last_updated_at` のフィルタがパーティションキーと異なる場合、全表スキャンが発生
+- UPDATEは内部的にCOPY+MERGEとなりコストが高い
+
+**洗い替えパターン（推奨）**:
+
+```sql
+-- Step 1: 対象日付のパーティションを削除（スキャンなしで高速削除）
+DELETE FROM `project.dataset.daily_sales_summary`
+WHERE sales_date = "2024-01-01";
+
+-- Step 2: 同日分を全件再集計してINSERT
+INSERT INTO `project.dataset.daily_sales_summary`
+SELECT sales_date, product_id, store_id, SUM(amount) AS daily_amount_sold
+FROM `project.dataset.sales_records`
+WHERE sales_date = "2024-01-01"
+GROUP BY sales_date, product_id, store_id;
+```
+
+**一括更新パターン（更新中の値を見せたくない場合）**:
+
+```sql
+-- 一時テーブルで計算してから本テーブルを一括置換
+CREATE OR REPLACE TABLE `project.dataset.daily_sales_summary`
+PARTITION BY sales_date
+CLUSTER BY store_id, product_id
+AS
+SELECT sales_date, product_id, store_id, SUM(amount) AS daily_amount_sold
+FROM `project.dataset.sales_records`
+GROUP BY sales_date, product_id, store_id;
+```
+
+### データマートテーブル設計の推奨構成
+
+| 設定項目 | 推奨 | 理由 |
+|---------|------|------|
+| **sales_records（元データ）** | `PARTITION BY sales_date` | 差分更新の絞り込みをパーティション単位で実現 |
+| **daily_sales_summary（マート）** | `PARTITION BY sales_date` | BIツールのフィルタ高速化 |
+| **daily_sales_summary（マート）** | `CLUSTER BY store_id, product_id` | フィルタ・GROUP BYの高速化 |
+
+> **マテリアライズドビューの活用**: 要件が合う場合はマテリアライズドビューで最新データを保持しながらより簡単にデータマートを構成できる。
+
+---
+
+## Analytics Hub によるデータ共有
+
+BigQueryはデータセット権限で組織・プロジェクト間のデータ共有が可能だが、共有先とデータセットがM:N関係で増えると権限管理が煩雑になる。**Analytics Hub**はこの問題を解決するBigQuery上のデータ交換プラットフォーム。
+
+### Analytics Hub の主要コンポーネント
+
+| コンポーネント | 役割 |
+|-------------|------|
+| **データエクスチェンジ** | パブリッシャーとサブスクライバーをつなぐ交換所。限定公開/一般公開を選択可能 |
+| **リスティング** | データエクスチェンジに登録される共有データセットのエントリ。名前・説明・ドキュメントを含む |
+| **共有データセット** | パブリッシャーが提供するBigQueryデータセット（テーブル・MLモデル・承認済みビューを含められる） |
+| **リンク済みデータセット** | サブスクライバーがサブスクライブすると作成される読み取り専用データセット（共有データセットへのシンボリックリンク） |
+
+### Analytics Hub の特徴
+
+- **データ複製なし**: リンク済みデータセットはシンボリックリンクであり、ストレージ料金が追加されない
+- **課金モデル**: サブスクライバー側でのクエリ実行にのみ課金
+- **使用状況監視**: `INFORMATION_SCHEMA.SHARED_DATASET_USAGE` でアクセスしたジョブレベルの使用状況を確認可能
+- **セキュリティ制御**: パブリッシャーはコピー/エクスポート操作の無効化、行レベル・列レベルのアクセス制御、データマスキングを設定可能
+
+### 利用ケースの判断基準
+
+| シナリオ | 推奨アプローチ |
+|---------|-------------|
+| 少数のチームへの社内共有 | データセット権限による直接共有 |
+| 多数の部門/組織への共有 | Analytics Hub（管理コスト削減） |
+| 組織外へのデータ販売・提供 | Analytics Hub（データマーケットプレイス） |
+| プライバシー保護が必要 | Analytics Hub（データクリーンルーム機能）|

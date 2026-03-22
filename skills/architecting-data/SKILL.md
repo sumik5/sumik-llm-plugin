@@ -10,7 +10,7 @@ description: >-
   For DDD domain modeling, use applying-domain-driven-design instead.
   For database engine internals, use developing-databases instead.
   For relational DB schema design, use developing-databases instead.
-  For GCP-specific data services (BigQuery, Dataflow, Dataproc), use developing-google-cloud instead.
+  For GCP-specific data services (BigQuery, Dataflow, Dataproc), lakehouse (BigLake, Dataplex), and BigQuery advanced operations (editions, HA/DR), use developing-google-cloud instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
