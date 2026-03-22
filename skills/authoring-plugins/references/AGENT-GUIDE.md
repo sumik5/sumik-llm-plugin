@@ -178,6 +178,48 @@ CLI フラグでも指定可能: `claude --disallowedTools "Agent(Explore)"`
 
 ---
 
+## Agent ファイル命名とディレクトリ構造
+
+### 🔴 サブディレクトリ非対応
+
+Claude Code Plugin のエージェント探索は `agents/*.md`（トップレベルのみ）で行われる。サブディレクトリ配置（例: `agents/cloud/aws.md`）は**完全に無視**される。
+
+| 配置 | 検出 |
+|------|------|
+| `agents/tachikoma-aws.md` | ✅ 検出される |
+| `agents/cloud/tachikoma-aws.md` | ❌ 検出されない |
+
+### 命名プレフィックスによるグループ化
+
+サブディレクトリの代替として、ファイル名にカテゴリプレフィックスを付与する:
+
+| プレフィックス | カテゴリ | 例 |
+|---------------|----------|-----|
+| (なし) | コア・汎用 | `tachikoma.md`, `serena-expert.md` |
+| `tachikoma-lang-` | プログラミング言語 | `tachikoma-lang-python.md` |
+| `tachikoma-fw-` | フレームワーク | `tachikoma-fw-nextjs.md` |
+| `tachikoma-fe-` | フロントエンド・デザイン | `tachikoma-fe-frontend.md` |
+| `tachikoma-cloud-` | クラウド・インフラ | `tachikoma-cloud-aws.md` |
+| `tachikoma-qa-` | 品質・テスト・セキュリティ | `tachikoma-qa-test.md` |
+| `tachikoma-data-` | データ・AI | `tachikoma-data-database.md` |
+| `tachikoma-doc-` | ドキュメント・教育 | `tachikoma-doc-document.md` |
+| `tachikoma-str-` | 戦略・設計 | `tachikoma-str-architecture.md` |
+
+**効果**: `ls` でアルファベット順ソートした際、カテゴリ別に自然にグループ化される。
+
+### ファイル名リネームの安全性
+
+`subagent_type` によるルーティングはフロントマターの `name` フィールドで決定される。ファイル名は検出にのみ使用される。
+
+| 変更対象 | ルーティング影響 |
+|---------|----------------|
+| ファイル名変更（例: `tachikoma-aws.md` → `tachikoma-cloud-aws.md`） | **なし**（name フィールドが同じなら同一エージェント） |
+| `name` フィールド変更 | **あり**（skill-triggers.md等の更新が必要） |
+
+> **ベストプラクティス**: リネーム時は `name` フィールドを変更せず、ファイル名のみ変更する。これにより既存のルーティング設定への影響をゼロにできる。
+
+---
+
 ## name フィールドの注意事項
 
 公式ドキュメントでは `name` フィールドは **「lowercase letters and hyphens」** と規定されている。
@@ -235,6 +277,29 @@ CLI フラグでも指定可能: `claude --disallowedTools "Agent(Explore)"`
 
 ---
 
+## スキルカバレッジ分析
+
+エージェント体制の品質を維持するため、定期的にスキルとエージェントのクロスリファレンスを実施する。
+
+### 分析手順
+
+1. **全スキル一覧の取得**: `ls skills/*/SKILL.md` で全スキルを列挙
+2. **全エージェントのskills参照を取得**: `grep -A 15 "^skills:" agents/*.md` で各エージェントのプリロードスキルを抽出
+3. **マトリクス作成**: スキル × エージェントのクロスリファレンス表を作成
+4. **ギャップ分析**: どのエージェントにもプリロードされていないスキルを特定
+
+### ギャップへの対応判断
+
+| 状況 | 対応 |
+|------|------|
+| 本体専用スキル（orchestrating-teams, managing-claude-md等） | 対応不要（エージェントプリロード対象外） |
+| メタ/ツール系スキル（using-serena, authoring-plugins等） | 対応不要（オンデマンド参照で十分） |
+| ドメインスキルだが既存エージェントと親和性が高い | 既存エージェントの `skills:` に追加 |
+| ドメインスキルだが既存エージェントと親和性が低い | 新規エージェント作成を検討 |
+| 既存エージェントのスキル数が9を超える | 追加見送り or スキル分割を検討 |
+
+---
+
 ## スキルプリロード戦略
 
 ### コア品質スキル（4種）
@@ -256,7 +321,7 @@ CLI フラグでも指定可能: `claude --disallowedTools "Agent(Explore)"`
 | セキュリティ（読取専用） | なし | securing-code自体がドメイン |
 | ドキュメント | なし | コードを書かない |
 | Go | enforcing-type-safety 除外 | 静的型付け言語（型ガード不要） |
-| Bash | enforcing-type-safety, testing-code 除外 | シェルスクリプトの特性 |
+| Bash | enforcing-type-safety 除外 | 静的型付け不要。testing-code はシェルスクリプトのテスト（bats等）に有効 |
 
 ### スキル継承ルール（🔴 重要）
 

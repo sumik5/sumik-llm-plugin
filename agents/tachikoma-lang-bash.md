@@ -6,6 +6,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - developing-bash
   - writing-clean-code
+  - testing-code
   - securing-code
 ---
 

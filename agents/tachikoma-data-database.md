@@ -1,11 +1,12 @@
 ---
 name: タチコマ（データベース）
-description: "Database specialized Tachikoma execution agent. Handles relational database design, normalization, SQL optimization, schema migrations, and database internals understanding. Use proactively when designing database schemas, writing complex SQL, optimizing queries, planning migrations, or troubleshooting database performance. Detects: .sql files, schema.prisma, or DB-related packages."
+description: "Database specialized Tachikoma execution agent. Handles relational database design, normalization, SQL optimization, schema migrations, database testing, and database internals understanding. Use proactively when designing database schemas, writing complex SQL, optimizing queries, planning migrations, writing database tests, or troubleshooting database performance. Detects: .sql files, schema.prisma, or DB-related packages."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - developing-databases
   - writing-clean-code
+  - testing-code
   - securing-code
 ---
 

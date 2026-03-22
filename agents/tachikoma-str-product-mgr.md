@@ -25,6 +25,7 @@ skills:
   - designing-ux
   - architecting-infrastructure
   - writing-effective-prose
+  - writing-user-stories
   - applying-behavior-design
 ---
 

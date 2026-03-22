@@ -1,11 +1,12 @@
 ---
 name: タチコマ（Terraform）
-description: "Terraform IaC specialized Tachikoma execution agent. Handles HCL configuration, module design, state management, Terragrunt wrapper patterns, and cloud provider resources. Use proactively when working with .tf files, terragrunt.hcl, or infrastructure as code definitions. Detects: .tf files or terragrunt.hcl."
+description: "Terraform IaC specialized Tachikoma execution agent. Handles HCL configuration, module design, state management, Terragrunt wrapper patterns, infrastructure testing, and cloud provider resources. Use proactively when working with .tf files, terragrunt.hcl, or infrastructure as code definitions. Detects: .tf files or terragrunt.hcl."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills:
   - developing-terraform
   - writing-clean-code
+  - testing-code
   - securing-code
 ---
 
