@@ -1,8 +1,13 @@
 ---
 name: developing-react
 description: >-
-  React 19.x development guide covering internals (rendering, reconciliation, Fiber), performance optimization
-  (47+ react-doctor rules, memoization, bundle size), UI animation patterns (CSS transitions, easing, hover/touch),
+  React 19.x development guide covering internals (rendering, reconciliation, Fiber),
+  design patterns (Container/Presenter, HOC, Render Props, Headless Components, Compound Components),
+  state management (useState to Zustand/TanStack Query, 2025 recommendations: nuqs/Jotai, anti-patterns),
+  error handling (ErrorBoundary, react-error-boundary, React 19 error APIs),
+  accessibility (ARIA, focus management, keyboard navigation, WCAG 2.1 AA),
+  performance optimization (47+ react-doctor rules, React Compiler, memoization, bundle size),
+  UI animation patterns (CSS transitions, easing, hover/touch),
   React Testing Library (RTL queries, interactions, TDD patterns), and Storybook (CSF3, interaction testing, a11y).
   Use when package.json contains 'react' (without 'next'), or when working on React-specific concerns
   in any framework. Also covers Storybook story creation, play function interaction tests, and axe-core a11y testing.

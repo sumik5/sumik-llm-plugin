@@ -44,6 +44,12 @@ React固有の開発知識を集約したスキル。React Internals、パフォ
 - **[REACT-TDD-PATTERNS.md](./references/REACT-TDD-PATTERNS.md)**: React固有TDDパターン
 - **[VITEST-RTL-GUIDELINES.md](./references/VITEST-RTL-GUIDELINES.md)**: Vitest + RTL統合設定
 
+### 🧩 React開発パターン・実践ガイド（RD-*）
+- **[RD-DESIGN-PATTERNS.md](./references/RD-DESIGN-PATTERNS.md)**: Container/Presenter、HOC、Render Props、State Reducer、Headless Components、Control Props等（RI-PATTERNS.mdのProvider/Composite/Summaryを補完）
+- **[RD-ERROR-HANDLING.md](./references/RD-ERROR-HANDLING.md)**: ErrorBoundary、react-error-boundary、React 19エラーAPI、配置戦略
+- **[RD-ACCESSIBILITY.md](./references/RD-ACCESSIBILITY.md)**: セマンティックHTML、ARIA、フォーカス管理、キーボードナビゲーション、WCAG 2.1 AAチェックリスト
+- **[RD-MODERN-REACT.md](./references/RD-MODERN-REACT.md)**: React Compiler、Concurrent Features実践、2025年状態管理推奨（nuqs/Jotai）、アンチパターン
+
 ## react-doctor CLIの使用
 
 プロジェクトのReactコード品質を診断する:

@@ -68,6 +68,25 @@ skills:
 - `tsconfig.json`: `strict: true` + `noUncheckedIndexedAccess` を推奨
 - `any` 型禁止、`unknown` + 型ガードを使用
 
+### Reactデザインパターン
+- **Container/Presenter**: ロジックとUIの明確な分離
+- **Compound Components**: 名前空間付きサブコンポーネント（タブ、アコーディオン）
+- **Headless Components**: Radix UI等のロジック提供パターン
+- **Custom Hooks**: ビジネスロジック抽出・再利用
+- パターン選定は `developing-react` スキルの RD-DESIGN-PATTERNS.md / RI-PATTERNS.md 参照
+
+### エラーハンドリング
+- ErrorBoundary配置戦略（アプリ全体 / ページ / コンポーネントレベルの3層）
+- react-error-boundary ライブラリの活用
+- 非同期エラーはtry/catch + TanStack Query error stateで処理
+- 詳細は `developing-react` スキルの RD-ERROR-HANDLING.md 参照
+
+### アクセシビリティ
+- セマンティックHTML優先、ARIA補助的に使用
+- フォーカス管理（モーダル、ルート変更時）
+- キーボードナビゲーション対応
+- 詳細は `developing-react` スキルの RD-ACCESSIBILITY.md 参照
+
 ## ワークフロー
 
 1. **タスク受信**: Claude Code本体からNext.js関連タスクと要件を受信
