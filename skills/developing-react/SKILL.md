@@ -2,20 +2,17 @@
 name: developing-react
 description: >-
   React 19.x development guide covering internals (rendering, reconciliation, Fiber),
-  design patterns (Container/Presenter, HOC, Render Props, Headless Components, Compound Components),
-  state management (useState to Zustand/TanStack Query, 2025 recommendations: nuqs/Jotai, anti-patterns),
-  error handling (ErrorBoundary, react-error-boundary, React 19 error APIs),
+  design patterns (Container/Presenter, HOC, Render Props, Compound Components),
+  state management (useState to Zustand/TanStack Query, nuqs/Jotai),
+  error handling (ErrorBoundary, React 19 error APIs),
   accessibility (ARIA, focus management, keyboard navigation, WCAG 2.1 AA),
-  performance optimization (47+ react-doctor rules, React Compiler, memoization, bundle size),
-  UI animation patterns (CSS transitions, easing, hover/touch),
+  performance optimization (react-doctor, React Compiler, memoization),
+  UI animation patterns (CSS transitions, easing),
   React Testing Library (RTL queries, interactions, TDD patterns), and Storybook (CSF3, interaction testing, a11y).
   Use when package.json contains 'react' (without 'next'), or when working on React-specific concerns
   in any framework. Also covers Storybook story creation, play function interaction tests, and axe-core a11y testing.
-  For Next.js-specific features (App Router, Server Components, Cache Components),
-  use developing-nextjs instead. For E2E testing with Playwright, use testing-e2e-with-playwright.
-  For general testing methodology, use testing-code.
-  For Clean Architecture patterns in React (DI, SPA layer mapping, Redux integration), see references/CLEAN-ARCHITECTURE.md.
-  For general Clean Architecture principles, use applying-clean-architecture.
+  For Next.js-specific features, use developing-nextjs instead.
+  For E2E testing, use testing-e2e-with-playwright. For general testing methodology, use testing-code.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
