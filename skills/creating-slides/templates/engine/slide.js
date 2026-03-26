@@ -25,10 +25,17 @@
     if (e.key === 'f' || e.key === 'F')                   { toggleFullscreen(); }
   });
 
-  // ── デッキクリック（ナビUI除く）──
+  // ── デッキクリック（左半分=前、右半分=次）──
   document.querySelector('.deck')?.addEventListener('click', e => {
     if (e.target.closest('.slide-ui')) return;
-    next();
+    const deck = document.querySelector('.deck');
+    const rect = deck.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    if (clickX < rect.width / 2) {
+      prev();
+    } else {
+      next();
+    }
   });
 
   // ── ナビボタン ──
