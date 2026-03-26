@@ -256,35 +256,5 @@
 </div>
 
 <script src="../../engine/slide.js"></script>
-<script>
-(() => {
-  const deck = document.querySelector('.deck');
-  if (!deck) return;
-
-  // ── URLハッシュ連動: スライド移動時にハッシュ更新、リロード時に復元 ──
-  function updateHash() {
-    const active = deck.querySelector('.slide.is-active');
-    if (!active) return;
-    const idx = [...deck.querySelectorAll('.slide')].indexOf(active);
-    const newHash = '#' + (idx + 1);
-    if (location.hash !== newHash) {
-      history.replaceState(null, '', newHash);
-    }
-  }
-
-  const observer = new MutationObserver(updateHash);
-  deck.querySelectorAll('.slide').forEach(s => {
-    observer.observe(s, { attributes: true, attributeFilter: ['class'] });
-  });
-
-  // ページロード時: ハッシュからスライド復元
-  const hash = parseInt(location.hash.replace('#', ''), 10);
-  if (hash > 1 && hash <= deck.querySelectorAll('.slide').length) {
-    for (let i = 0; i < hash - 1; i++) {
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
-    }
-  }
-})();
-</script>
 </body>
 </html>

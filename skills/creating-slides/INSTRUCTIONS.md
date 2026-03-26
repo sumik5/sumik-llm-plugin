@@ -135,8 +135,8 @@ slide-starter/
 ├── plan.md                ← 構築ガイド
 ├── README.md              ← ユーザー向け説明書
 ├── engine/
-│   ├── slide.css          ← 16:9ロック・ナビUI・PDF出力（触らない）
-│   └── slide.js           ← キーボード操作・スケーリング・PDF（触らない）
+│   ├── slide.css          ← 16:9ロック・ナビUI・PDF出力
+│   └── slide.js           ← キーボード操作・スケーリング・PDF・ハッシュ連動・進捗バーAPI
 ├── theme/
 │   └── sample.css           ← デザイントークン（カスタマイズはここだけ）
 ├── shared/                ← 共有アセット（画像・テクスチャなど）
@@ -149,7 +149,7 @@ slide-starter/
 
 | 層 | ファイル | 役割 | 編集 |
 |----|----------|------|------|
-| Engine | `engine/slide.css`, `engine/slide.js` | 16:9ロック、ナビ、PDF出力、スケーリング | **禁止** |
+| Engine | `engine/slide.css`, `engine/slide.js` | 16:9ロック、ナビ、PDF出力、スケーリング、ハッシュ連動、進捗バーAPI | **ユーザー確認の上で変更可** |
 | Theme | `theme/sample.css` | カラー・フォント・余白の変数、スライドタイプ、ユーティリティ | テーマ変更時のみ |
 | Content | `decks/{name}/index.html` | 発表ごとのコンテンツ | **自由** |
 
@@ -183,7 +183,7 @@ slide-starter/
 
 1. 上記ディレクトリ構成を作成
 2. 本スキルの `templates/` ディレクトリから各ファイル・ディレクトリをコピーして配置する:
-   - `templates/engine/` → `engine/`（**編集禁止**の共通エンジン）
+   - `templates/engine/` → `engine/`（共通エンジン。共通化すべき機能追加時はユーザー確認の上で変更可）
    - `templates/theme/` → `theme/`（テーマカスタマイズの起点）
    - `templates/decks/01_sample/` → `decks/01_sample/`（サンプルデッキ＋サンプル画像）
    - `templates/shared/` → `shared/`（共有アセット置き場）
@@ -320,16 +320,28 @@ slide-starter/
 
 `engine/slide.js` でデッキの `getBoundingClientRect()` を基準にクリック位置を判定する。ナビUI（ボタン）上のクリックは無視される。
 
-## URLハッシュ連動
+## engine/slide.js の共通機能
 
-テンプレートの `index.html` にはURLハッシュ連動スクリプトが組み込まれている。
+`engine/slide.js` には以下の機能が組み込まれている。デッキ側でインラインスクリプトを書く必要はない。
 
-- スライド移動時にURLが `index.html#5` のように更新される
+### URLハッシュ連動（自動）
+
+- スライド移動時にURLが `index.html#5` のように自動更新される
 - ページリロード時にハッシュを読み取り、同じスライドに復元する
 - `history.replaceState` を使用し、ブラウザの戻る/進む履歴を汚さない
-- `engine/slide.js` を変更せず、MutationObserver + キーボードイベントで実現
+- MutationObserver でスライドの `is-active` クラス変更を自動監視
 
-パーツビルドの場合は `_foot.html` にこのスクリプトを含める。
+### 外部API
+
+| API | 用途 |
+|-----|------|
+| `window.__slideShow(n)` | スライド番号（0ベース）に直接移動 |
+| `window.__initProgressBar(segments)` | 進捗インジケータを初期化（セグメント配列を渡す） |
+
+### デッキ側で書くこと
+
+進捗インジケータを使わない場合、`_foot.html`（またはデッキ末尾）は `<script src="../../engine/slide.js"></script>` だけでよい。
+進捗インジケータを使う場合のみ、セグメント定義を書く（後述）。
 
 ## パーツベースのビルドシステム（大規模デッキ向け）
 
@@ -439,65 +451,28 @@ echo "Built index.html ($(grep -c 'class="slide ' index.html) slides)"
 <div class="progress-bar" id="progress-bar"></div>
 ```
 
-### JavaScript（`_foot.html` のスクリプト内、URLハッシュと同じ `<script>` ブロックに統合）
+### JavaScript（`_foot.html` に記述）
 
-セグメント配列を定義し、MutationObserver で更新する。セグメントの `start` / `end` はスライドの0ベースインデックス。
+描画・更新ロジックは `engine/slide.js` の `__initProgressBar` に集約済み。デッキ側はセグメント定義を渡すだけでよい。
 
-```javascript
-const bar = document.getElementById('progress-bar');
-const deck = document.querySelector('.deck');
-if (bar && deck) {
-  const segments = [
-    { label: 'Opening',   start: 0,  end: 9  },
-    { label: 'Session 1', start: 10, end: 24 },
-    // ... セクション構成に合わせて定義
-  ];
-
-  segments.forEach(seg => {
-    const el = document.createElement('div');
-    el.className = 'progress-seg';
-    el.style.flex = (seg.end - seg.start + 1) + '';
-    el.title = seg.label;
-    const fill = document.createElement('div');
-    fill.className = 'progress-seg-fill';
-    el.appendChild(fill);
-    const lbl = document.createElement('span');
-    lbl.className = 'progress-seg-label';
-    lbl.textContent = seg.label;
-    el.appendChild(lbl);
-    bar.appendChild(el);
-    seg.el = el;
-    seg.fill = fill;
-    seg.lbl = lbl;
-  });
-
-  function updateProgress() {
-    const active = deck.querySelector('.slide.is-active');
-    if (!active) return;
-    const idx = [...deck.querySelectorAll('.slide')].indexOf(active);
-
-    segments.forEach(seg => {
-      seg.el.classList.remove('done', 'active');
-      if (idx > seg.end) {
-        seg.el.classList.add('done');
-        seg.fill.style.width = '100%';
-        seg.lbl.textContent = seg.label;
-      } else if (idx >= seg.start) {
-        seg.el.classList.add('active');
-        const pct = ((idx - seg.start + 1) / (seg.end - seg.start + 1)) * 100;
-        seg.fill.style.width = pct + '%';
-        const total = deck.querySelectorAll('.slide').length;
-        seg.lbl.textContent = seg.label + ' [' + (idx + 1) + '/' + total + ']';
-      } else {
-        seg.fill.style.width = '0%';
-        seg.lbl.textContent = seg.label;
-      }
-    });
-  }
-}
+```html
+<script src="../../engine/slide.js"></script>
+<script>
+// デッキ固有: セグメント定義のみ
+window.__updateProgress = window.__initProgressBar([
+  { label: 'Opening',   start: 0,  end: 9  },
+  { label: 'Session 1', start: 10, end: 24 },
+  // ... セクション構成に合わせて定義
+]);
+if (window.__updateProgress) window.__updateProgress();
+</script>
 ```
 
-各セグメントの幅は `flex: (end - start + 1)` でスライド枚数に比例させる。`updateProgress` は URLハッシュの `updateHash` と同じ MutationObserver コールバックに統合する。
+各セグメントの `start` / `end` はスライドの0ベースインデックス。幅は `flex: (end - start + 1)` でスライド枚数に比例。クリックでそのセクションの先頭に直接ジャンプする。
+
+### 進捗インジケータを使わない場合
+
+`<div id="progress-bar">` と `<script>` 内のセグメント定義を省略し、`<script src="../../engine/slide.js"></script>` だけを記述する。URLハッシュ連動やクリック操作は `slide.js` が自動で有効化する。
 
 ---
 

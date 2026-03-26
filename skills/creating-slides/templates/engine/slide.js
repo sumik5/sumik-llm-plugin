@@ -87,7 +87,96 @@
     deck.style.transform = `scale(${scale})`;
   }
 
+  // ── 外部API ──
+  window.__slideShow = show;
+
+  // ── URLハッシュ連動 ──
+  function updateHash() {
+    const deck = document.querySelector('.deck');
+    if (!deck) return;
+    const active = deck.querySelector('.slide.is-active');
+    if (!active) return;
+    const idx = [...deck.querySelectorAll('.slide')].indexOf(active);
+    const newHash = '#' + (idx + 1);
+    if (location.hash !== newHash) {
+      history.replaceState(null, '', newHash);
+    }
+  }
+
+  // ── セグメント式進捗インジケータ（オプション） ──
+  // _foot.html 等から window.__initProgressBar(segments) を呼び出して有効化
+  window.__initProgressBar = function(segments) {
+    const bar = document.getElementById('progress-bar');
+    const deck = document.querySelector('.deck');
+    if (!bar || !deck) return;
+
+    segments.forEach(seg => {
+      const el = document.createElement('div');
+      el.className = 'progress-seg';
+      el.style.flex = (seg.end - seg.start + 1) + '';
+      el.title = seg.label;
+      const fill = document.createElement('div');
+      fill.className = 'progress-seg-fill';
+      el.appendChild(fill);
+      const lbl = document.createElement('span');
+      lbl.className = 'progress-seg-label';
+      lbl.textContent = seg.label;
+      el.appendChild(lbl);
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => show(seg.start));
+      bar.appendChild(el);
+      seg.el = el;
+      seg.fill = fill;
+      seg.lbl = lbl;
+    });
+
+    function updateProgress() {
+      const active = deck.querySelector('.slide.is-active');
+      if (!active) return;
+      const idx = [...deck.querySelectorAll('.slide')].indexOf(active);
+      const total = deck.querySelectorAll('.slide').length;
+
+      segments.forEach(seg => {
+        seg.el.classList.remove('done', 'active');
+        if (idx > seg.end) {
+          seg.el.classList.add('done');
+          seg.fill.style.width = '100%';
+          seg.lbl.textContent = seg.label;
+        } else if (idx >= seg.start) {
+          seg.el.classList.add('active');
+          const pct = ((idx - seg.start + 1) / (seg.end - seg.start + 1)) * 100;
+          seg.fill.style.width = pct + '%';
+          seg.lbl.textContent = seg.label + ' [' + (idx + 1) + '/' + total + ']';
+        } else {
+          seg.fill.style.width = '0%';
+          seg.lbl.textContent = seg.label;
+        }
+      });
+    }
+
+    return updateProgress;
+  };
+
+  // ── スライド変更の監視・ハッシュ更新 ──
+  const deck = document.querySelector('.deck');
+  if (deck) {
+    const observer = new MutationObserver(() => {
+      updateHash();
+      if (window.__updateProgress) window.__updateProgress();
+    });
+    deck.querySelectorAll('.slide').forEach(s => {
+      observer.observe(s, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
+  // ── ビューポートスケーリング ──
   window.addEventListener('resize', scaleDeck);
   scaleDeck();
   show(0);
+
+  // ── ページロード時: ハッシュからスライド復元 ──
+  const hash = parseInt(location.hash.replace('#', ''), 10);
+  if (hash > 1 && hash <= slides().length) {
+    show(hash - 1);
+  }
 })();
