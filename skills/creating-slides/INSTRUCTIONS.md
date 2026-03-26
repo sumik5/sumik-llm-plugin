@@ -309,6 +309,111 @@ slide-starter/
 | ← / ↑ | 前のスライド |
 | F | フルスクリーン切替 |
 
+## URLハッシュ連動
+
+テンプレートの `index.html` にはURLハッシュ連動スクリプトが組み込まれている。
+
+- スライド移動時にURLが `index.html#5` のように更新される
+- ページリロード時にハッシュを読み取り、同じスライドに復元する
+- `history.replaceState` を使用し、ブラウザの戻る/進む履歴を汚さない
+- `engine/slide.js` を変更せず、MutationObserver + キーボードイベントで実現
+
+パーツビルドの場合は `_foot.html` にこのスクリプトを含める。
+
+## パーツベースのビルドシステム（大規模デッキ向け）
+
+スライド数が50枚を超える場合は、セクション単位でファイルを分割して管理する。
+
+### ディレクトリ構成
+
+```
+decks/{name}/
+├── parts/
+│   ├── _head.html          ← DOCTYPE・CSS変数・デッキ固有スタイル
+│   ├── 00_opening.html     ← セクション単位のスライド群
+│   ├── 01_session1.html
+│   ├── 02_session2.html
+│   ├── ...
+│   ├── _foot.html          ← ナビUI・進捗バー・URLハッシュ・script
+├── build.sh                ← パーツ結合スクリプト
+└── index.html              ← build.sh で生成（直接編集しない）
+```
+
+### build.sh の基本形
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+cat parts/_head.html \
+    parts/00_opening.html \
+    parts/01_session1.html \
+    parts/02_session2.html \
+    parts/_foot.html > index.html
+echo "Built index.html ($(grep -c 'class="slide ' index.html) slides)"
+```
+
+### 運用ルール
+
+- `index.html` は直接編集しない（`build.sh` で再生成）
+- **スライド枚数が変わったら** `_foot.html` のカウンター分母と進捗バーセグメントを必ず更新
+- 各パーツの先頭にHTMLコメントで含まれるスライド範囲を記載
+
+## セグメント式進捗バー（オプション）
+
+長時間の研修やセッション区切りがあるデッキには、セグメント式進捗バーを追加できる。
+
+### CSS（デッキの `<style>` ブロックまたは `_head.html` に追加）
+
+```css
+.progress-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  display: flex;
+  gap: 2px;
+  z-index: 200;
+  padding: 0 2px;
+}
+.progress-seg {
+  height: 100%;
+  position: relative;
+  background: rgba(255,255,255,.08);
+  overflow: hidden;
+}
+.progress-seg-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0%;
+  background: var(--color-accent);
+  transition: width .3s ease;
+}
+.progress-seg.done .progress-seg-fill { width: 100% !important; }
+@media print { .progress-bar { display: none !important; } }
+```
+
+### HTML（`</div><!-- /.deck -->` の後に配置）
+
+```html
+<div class="progress-bar" id="progress-bar"></div>
+```
+
+### JavaScript（`_foot.html` のスクリプト内、URLハッシュと同じ `<script>` ブロックに統合）
+
+セグメント配列を定義し、MutationObserver で更新する。セグメントの `start` / `end` はスライドの0ベースインデックス。
+
+```javascript
+const segments = [
+  { label: 'Opening',   start: 0,  end: 9  },
+  { label: 'Session 1', start: 10, end: 24 },
+  // ... セクション構成に合わせて定義
+];
+```
+
+各セグメントの幅は `flex: (end - start + 1)` でスライド枚数に比例させる。
+
 ---
 
 ## デザインガイドライン
