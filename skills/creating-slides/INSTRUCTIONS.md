@@ -359,29 +359,34 @@ echo "Built index.html ($(grep -c 'class="slide ' index.html) slides)"
 - **スライド枚数が変わったら** `_foot.html` のカウンター分母と進捗バーセグメントを必ず更新
 - 各パーツの先頭にHTMLコメントで含まれるスライド範囲を記載
 
-## セグメント式進捗バー（オプション）
+## セグメント式進捗インジケータ（オプション）
 
-長時間の研修やセッション区切りがあるデッキには、セグメント式進捗バーを追加できる。
+長時間の研修やセッション区切りがあるデッキには、セグメント式進捗インジケータを追加できる。セッション名・現在ページ番号・全体ページ数を表示し、聴衆がプレゼンのどこにいるかを一目で把握できる。
 
 ### CSS（デッキの `<style>` ブロックまたは `_head.html` に追加）
 
 ```css
+/* ── 進捗インジケータ（セグメント式・ラベル付き） ── */
 .progress-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 8px;
+  height: 54px;
   display: flex;
   gap: 2px;
   z-index: 200;
   padding: 0 2px;
+  font-family: var(--font-mono);
 }
 .progress-seg {
   height: 100%;
   position: relative;
-  background: rgba(255,255,255,.08);
+  background: rgba(255,255,255,.15);
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .progress-seg-fill {
   position: absolute;
@@ -390,9 +395,32 @@ echo "Built index.html ($(grep -c 'class="slide ' index.html) slides)"
   background: var(--color-accent);
   transition: width .3s ease;
 }
+.progress-seg-label {
+  position: relative;
+  z-index: 1;
+  font-size: 24px;
+  font-weight: 600;
+  color: rgba(0,0,0,.7);       /* 灰色背景では黒文字 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 6px;
+  letter-spacing: .02em;
+}
+.progress-seg.active { background: rgba(110,231,183,.3); }  /* アクティブセグメント全体を薄い緑に */
+.progress-seg.active .progress-seg-label { color: #fff; }   /* 青/緑背景では白文字 */
+.progress-seg.done .progress-seg-label { color: rgba(255,255,255,.9); }
 .progress-seg.done .progress-seg-fill { width: 100% !important; }
 @media print { .progress-bar { display: none !important; } }
 ```
+
+### 表示状態
+
+| 状態 | 背景色 | フィル | ラベル色 | ラベル内容 |
+|------|--------|--------|---------|-----------|
+| 未到達 | `rgba(255,255,255,.15)` | なし | 黒 `rgba(0,0,0,.7)` | セッション名のみ |
+| **アクティブ** | `rgba(110,231,183,.3)` | アクセント色で進行表示 | 白 `#fff` | セッション名 + `[現在/全体]` |
+| 完了 | アクセント色100% | 全幅 | 白 `rgba(255,255,255,.9)` | セッション名のみ |
 
 ### HTML（`</div><!-- /.deck -->` の後に配置）
 
@@ -405,14 +433,60 @@ echo "Built index.html ($(grep -c 'class="slide ' index.html) slides)"
 セグメント配列を定義し、MutationObserver で更新する。セグメントの `start` / `end` はスライドの0ベースインデックス。
 
 ```javascript
-const segments = [
-  { label: 'Opening',   start: 0,  end: 9  },
-  { label: 'Session 1', start: 10, end: 24 },
-  // ... セクション構成に合わせて定義
-];
+const bar = document.getElementById('progress-bar');
+const deck = document.querySelector('.deck');
+if (bar && deck) {
+  const segments = [
+    { label: 'Opening',   start: 0,  end: 9  },
+    { label: 'Session 1', start: 10, end: 24 },
+    // ... セクション構成に合わせて定義
+  ];
+
+  segments.forEach(seg => {
+    const el = document.createElement('div');
+    el.className = 'progress-seg';
+    el.style.flex = (seg.end - seg.start + 1) + '';
+    el.title = seg.label;
+    const fill = document.createElement('div');
+    fill.className = 'progress-seg-fill';
+    el.appendChild(fill);
+    const lbl = document.createElement('span');
+    lbl.className = 'progress-seg-label';
+    lbl.textContent = seg.label;
+    el.appendChild(lbl);
+    bar.appendChild(el);
+    seg.el = el;
+    seg.fill = fill;
+    seg.lbl = lbl;
+  });
+
+  function updateProgress() {
+    const active = deck.querySelector('.slide.is-active');
+    if (!active) return;
+    const idx = [...deck.querySelectorAll('.slide')].indexOf(active);
+
+    segments.forEach(seg => {
+      seg.el.classList.remove('done', 'active');
+      if (idx > seg.end) {
+        seg.el.classList.add('done');
+        seg.fill.style.width = '100%';
+        seg.lbl.textContent = seg.label;
+      } else if (idx >= seg.start) {
+        seg.el.classList.add('active');
+        const pct = ((idx - seg.start + 1) / (seg.end - seg.start + 1)) * 100;
+        seg.fill.style.width = pct + '%';
+        const total = deck.querySelectorAll('.slide').length;
+        seg.lbl.textContent = seg.label + ' [' + (idx + 1) + '/' + total + ']';
+      } else {
+        seg.fill.style.width = '0%';
+        seg.lbl.textContent = seg.label;
+      }
+    });
+  }
+}
 ```
 
-各セグメントの幅は `flex: (end - start + 1)` でスライド枚数に比例させる。
+各セグメントの幅は `flex: (end - start + 1)` でスライド枚数に比例させる。`updateProgress` は URLハッシュの `updateHash` と同じ MutationObserver コールバックに統合する。
 
 ---
 
