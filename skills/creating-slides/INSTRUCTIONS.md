@@ -416,6 +416,106 @@ const segments = [
 
 ---
 
+## 情報密度の高いデッキ向けCSS調整
+
+ハンズオン研修・ワークショップなど、コードブロック・手順・つまずきポイントが多いデッキでは、テーマのデフォルトフォントサイズが小さすぎる場合がある。以下の推奨オーバーライドをデッキの `<style>` ブロック（または `_head.html`）に追加する。
+
+### 推奨フォントサイズ（テーマ比 約93%）
+
+```css
+:root {
+  --text-xs:   .75rem;    /* 12px */
+  --text-sm:   .875rem;   /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.1875rem; /* 19px */
+  --text-xl:   1.625rem;  /* 26px */
+  --text-2xl:  1.875rem;  /* 30px */
+  --text-3xl:  2.5rem;    /* 40px */
+  --text-4xl:  3.75rem;   /* 60px */
+
+  --sp-xs:  .5rem;        /* 8px */
+  --sp-sm:  .9375rem;     /* 15px */
+  --sp-md:  1.375rem;     /* 22px */
+  --sp-lg:  2.125rem;     /* 34px */
+  --sp-xl:  3.25rem;      /* 52px */
+}
+```
+
+### 推奨デッキ固有クラスのオーバーライド
+
+テーマのデフォルトではハンズオン系スライドの以下の要素が小さすぎるため、デッキ固有スタイルで上書きする:
+
+```css
+/* コードブロック: テーマの --text-sm → --text-lg に拡大 */
+.code-block { font-size: var(--text-lg); }
+
+/* 手順テキスト: --text-base → --text-xl */
+.step-row p { font-size: var(--text-xl); }
+
+/* ステップ番号: 1.5rem → 2.5rem */
+.step-num { width: 2.5rem; height: 2.5rem; line-height: 2.5rem; font-size: var(--text-lg); }
+
+/* つまずきポイント: 見出し・本文を拡大 */
+.troubleshoot h3 { font-size: var(--text-xl); }
+.troubleshoot p { font-size: var(--text-lg); }
+
+/* 期待される結果: ラベル・本文を拡大 */
+.expect::before { font-size: var(--text-base); }
+.expect p { font-size: var(--text-lg); }
+
+/* リスト項目（もくじ・学習目標等） */
+.list li { font-size: var(--text-xl); }
+.goal-list li { font-size: var(--text-xl); }
+
+/* タグバッジ: --text-xs → --text-base */
+.tag { font-size: var(--text-base); padding: .2em .6em; }
+
+/* ツリー表示（ディレクトリ構造等） */
+.tree { font-size: var(--text-lg); }
+```
+
+### 縦レイアウト優先の原則
+
+情報密度の高いデッキでは、`cols-2` / `cols-3` のカードグリッドを使わず、**縦並びの `.troubleshoot` スタイル**を優先する。
+
+| パターン | 使用場面 |
+|---------|---------|
+| `cols-2` / `cols-3` + `.card` | 要素が少なく各カードの情報量が1-2行のとき |
+| `.troubleshoot` 縦並び | 各項目に見出し+説明文があるとき（**デフォルトでこちらを使う**） |
+
+縦並びの利点:
+- フォントサイズを大きく保てる（横に詰め込まないため）
+- オンライン投影時に読みやすい
+- スライド分割せずに3-4項目を1枚に収められる
+
+```html
+<!-- 推奨: 縦並びパターン -->
+<div class="troubleshoot">
+  <h3><span class="tag" style="margin-right: var(--sp-sm);">01</span>タイトル</h3>
+  <p>説明文</p>
+</div>
+<div class="troubleshoot" style="margin-top: var(--sp-sm);">
+  <h3><span class="tag" style="margin-right: var(--sp-sm);">02</span>タイトル</h3>
+  <p>説明文</p>
+</div>
+```
+
+### テキストサイズの使い分け目安
+
+| 要素 | 推奨サイズ |
+|------|-----------|
+| スライド説明文（h2の直下） | `--text-xl`（26px） |
+| 手順テキスト（step-row） | `--text-xl`（26px） |
+| コードブロック | `--text-lg`（19px） |
+| 補足・mutedテキスト | `--text-lg`（19px） |
+| 期待される結果の本文 | `--text-lg`（19px） |
+| つまずきポイント見出し | `--text-xl`（26px） |
+| つまずきポイント本文 | `--text-lg`（19px） |
+
+> **注意**: `--text-sm`（14px）以下をスライド本文に使わないこと。オンライン投影では見えない。`--text-sm` はインラインコードのサイズ調整（`.code-inline` の `.9em`）でのみ使う。
+
+---
+
 ## デザインガイドライン
 
 ### 設計思想
