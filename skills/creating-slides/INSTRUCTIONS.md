@@ -574,6 +574,45 @@ if (window.__updateProgress) window.__updateProgress();
 
 > **注意**: `--text-sm`（14px）以下をスライド本文に使わないこと。オンライン投影では見えない。`--text-sm` はインラインコードのサイズ調整（`.code-inline` の `.9em`）でのみ使う。
 
+### 印刷（PDF）用CSS変数の縮小（必須）
+
+画面は1280px幅で描画するが、印刷は254mm ≈ 960px（75%）になる。`rem`ベースのCSS変数はコンテナ幅に連動しないため、印刷時にテキストが相対的に大きくなりはみ出る。**情報密度の高いデッキでは `@media print` でCSS変数を75%スケールに上書きすること。**
+
+```css
+@media print {
+  :root {
+    --text-xs:   .5625rem;  /* 9px */
+    --text-sm:   .6875rem;  /* 11px */
+    --text-base: .75rem;    /* 12px */
+    --text-lg:   .875rem;   /* 14px */
+    --text-xl:   1.1875rem; /* 19px */
+    --text-2xl:  1.375rem;  /* 22px */
+    --text-3xl:  1.875rem;  /* 30px */
+    --text-4xl:  2.75rem;   /* 44px */
+
+    --sp-xs:  .375rem;      /* 6px */
+    --sp-sm:  .6875rem;     /* 11px */
+    --sp-md:  1rem;         /* 16px */
+    --sp-lg:  1.5rem;       /* 24px */
+    --sp-xl:  2.375rem;     /* 38px */
+  }
+  .code-block { font-size: var(--text-sm); }
+  .step-row p { font-size: var(--text-lg); }
+  .step-num { width: 1.75rem; height: 1.75rem; line-height: 1.75rem; font-size: var(--text-sm); }
+  .troubleshoot h3 { font-size: var(--text-lg); }
+  .troubleshoot p { font-size: var(--text-sm); }
+  .expect::before { font-size: var(--text-xs); }
+  .expect p { font-size: var(--text-sm); }
+  .list li { font-size: var(--text-lg); }
+  .tag { font-size: var(--text-xs); padding: .15em .4em; }
+}
+```
+
+> **追加の注意事項**:
+> - `engine/slide.css` の `print-color-adjust: exact` がダーク背景の印刷を保証する。デッキ側で `background: #fff !important` を指定しないこと
+> - ブラウザの印刷ダイアログで「背景のグラフィック」にチェックが必要
+> - 進捗インジケータは `@media print { .progress-bar { display: none !important; } }` で自動非表示
+
 ---
 
 ## デザインガイドライン
