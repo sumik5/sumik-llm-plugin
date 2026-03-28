@@ -355,14 +355,13 @@ git add <変更ファイル> .claude-plugin/plugin.json
 git commit -m "feat(skill-name): 変更内容の要約"
 ```
 
-### 3. タグ付与とプッシュ
+### 3. タグ付与
 
 ```bash
 git tag v{new-version}
-git push origin main --tags
 ```
 
-**⚠️ git書き込み操作（commit / push / tag）はユーザー確認必須。** タチコマが直接実行してはならない。Claude Code本体がユーザーに確認した上で実行する。
+**⚠️ git書き込み操作（commit / tag）はユーザー確認必須。** タチコマが直接実行してはならない。Claude Code本体がユーザーに確認した上で実行する。
 
 ---
 
