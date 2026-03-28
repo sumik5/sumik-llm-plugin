@@ -17,6 +17,11 @@
 - **[AI-REVIEW-GUIDELINES.md](./references/AI-REVIEW-GUIDELINES.md)**: AIテストコードレビュー観点
 - **[AI-TESTING-STRATEGY.md](./references/AI-TESTING-STRATEGY.md)**: AI活用テスト戦略（マインドセット・判断基準）
 - **[AI-TEST-TECHNIQUES.md](./references/AI-TEST-TECHNIQUES.md)**: AI活用テストテクニック集（データ生成・探索的テスト・UI自動化）
+- **[FOUR-PILLARS.md](./references/FOUR-PILLARS.md)**: 良い単体テストの4本の柱（退行保護・リファクタリング耐性・迅速フィードバック・保守性）
+- **[THREE-STYLES.md](./references/THREE-STYLES.md)**: 3つのテスト手法（出力値ベース・状態ベース・コミュニケーションベース）と関数型アーキテクチャ
+- **[CODE-CLASSIFICATION.md](./references/CODE-CLASSIFICATION.md)**: 4種類のプロダクションコードとHumble Objectパターン
+- **[INTEGRATION-TESTING.md](./references/INTEGRATION-TESTING.md)**: 統合テストの原則・モック判断基準・データベーステスト
+- **[TEST-ANTI-PATTERNS.md](./references/TEST-ANTI-PATTERNS.md)**: テストのアンチパターン（プライベートメソッドテスト・ドメイン知識漏洩等）
 
 ## 🎯 使用タイミング
 

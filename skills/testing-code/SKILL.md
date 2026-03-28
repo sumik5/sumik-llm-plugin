@@ -4,11 +4,11 @@ description: >-
   REQUIRED for all feature implementations. Automatically load when writing or reviewing tests.
   Enforces TDD approach with AAA pattern, actual/expected variables, and 100% coverage goal for business logic.
   Covers Vitest, Jest, Playwright, and AI-augmented testing strategies.
-  For React Testing Library (RTL) patterns and React-specific TDD, use developing-react instead.
-  For Web API testing strategy (contract testing, performance, security), use developing-web-apis instead.
-  For A/B testing and online controlled experiments, use conducting-ab-tests instead.
-  For engineering-level testing practices (TDD mindset, ATDD, BDD, testing in production, flaky test elimination), see TESTING-PRACTICES.md subfile.
-  For project foundations, team organization, and developer habits, use practicing-software-engineering instead.
+  Includes Khorikov's Four Pillars (regression protection, refactoring resistance, fast feedback, maintainability),
+  three testing styles (output/state/communication-based), code classification, and test anti-patterns.
+  For RTL patterns, use developing-react. For Web API testing, use developing-web-apis.
+  For A/B testing, use conducting-ab-tests. For TDD mindset/ATDD/BDD, see TESTING-PRACTICES.md.
+  For project foundations and team organization, use practicing-software-engineering.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
