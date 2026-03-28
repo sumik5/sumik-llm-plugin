@@ -61,7 +61,9 @@ Phase B: ユーザー確認（Claude Code本体）- docs/読み込み → AskUse
     ↓
 Phase C: 実装（Implementerタチコマ × N・Sonnet）- スキルファイル生成
     ↓
-Phase D: 品質チェック（Claude Code本体）- 最終検証 → TeamDelete
+Phase D: 品質チェック（Claude Code本体）- 最終検証
+    ↓
+Phase E: リリース（Claude Code本体）- バージョン更新・コミット・タグ → TeamDelete
 ```
 
 ---
@@ -129,6 +131,7 @@ docs/conversion-{skill-name}/
 - [ ] Phase B: ユーザー確認
 - [ ] Phase C: 実装（Implementer）
 - [ ] Phase D: 品質チェック
+- [ ] Phase E: リリース
 
 ## 変換済みMDファイル
 （Phase A完了後に記録）
@@ -151,6 +154,7 @@ compaction 発生時:
    - Phase B 未完了 → 03-design-plan.md を読み込み → ユーザー確認再実行
    - Phase C 未完了 → Implementer再起動（生成済みファイルをスキップ）
    - Phase D 未完了 → 品質チェック再実行
+   - Phase E 未完了 → リリース手順再実行
 ```
 
 ---
@@ -494,7 +498,7 @@ Task({
 
 後述の「品質チェックリスト」セクションを全項目確認する。
 
-#### D.3 TeamDelete + リリース
+#### D.3 TeamDelete
 
 ```json
 // 全メンバーにシャットダウン要求
@@ -509,7 +513,36 @@ SendMessage({
 TeamDelete()
 ```
 
-リリースは INSTRUCTIONS.md の「Release Workflow」に従い、バージョン更新 → コミット → bookmark移動 → プッシュを実行する。
+---
+
+### Phase E: リリース（Claude Code本体）
+
+TeamDelete完了後、INSTRUCTIONS.md の「🔴 完了ワークフロー」に従い以下を実行する。
+
+**⚠️ git書き込み操作はユーザー確認必須。Claude Code本体がユーザーに確認した上で実行する。**
+
+#### E.1 バージョン更新
+
+`.claude-plugin/plugin.json` の `version` フィールドを Semantic Versioning に従って更新:
+
+| 変更内容 | バージョン |
+|---------|----------|
+| 新規コンポーネント追加 | **MINOR** |
+| 既存コンポーネントの修正・改善 | **PATCH** |
+| 破壊的変更 | **MAJOR** |
+
+#### E.2 コミット・タグ・プッシュ
+
+```bash
+git add <変更ファイル> .claude-plugin/plugin.json
+git commit -m "feat(skill-name): 変更内容の要約"
+git tag v{new-version}
+git push origin main --tags
+```
+
+#### E.3 進捗ファイル更新
+
+`99-progress.md` の Phase E を完了としてマーク。
 
 ---
 
