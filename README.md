@@ -134,7 +134,7 @@ sumik-claude-plugin/
 | `developing-python` | Python 3.13開発（Effective Python 125項目・実践パターン50問・SEプロセス・Clean Architecture実践・Architecture Patterns: Repository/UoW/Aggregates/Domain Events/CQRS・DDD Tactical Patterns: Entity/Value Object/Aggregate Root） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
 | `developing-fullstack-javascript` | フルスタックJS |
-| `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド + Total TypeScript: satisfies・余剰プロパティ・コンパイラ振る舞い） |
+| `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド + Total TypeScript: satisfies・余剰プロパティ・コンパイラ振る舞い + TS5デコレータ完全ガイド + 型関係論・型推論パターン・型安全テクニック） |
 | `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・コード硬化・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |
 | `integrating-ai-web-apps` | Vercel AI SDK + LangChain.js + MCPによるWebアプリAI統合 |
 | `building-ai-agents` | AIエージェント構築統合ガイド（LangChain/LangGraph: LCEL・ReAct・マルチエージェント・MCP統合・LangSmith評価 ＋ Google ADK: Agent分類・ツール設計・A2A・RAG・セキュリティ ＋ リアルタイムマルチモーダル: WebSocket・Web Audio API・Gemini Live API） |
