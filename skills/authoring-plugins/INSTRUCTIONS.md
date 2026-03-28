@@ -330,6 +330,40 @@ AskUserQuestion の使い方は2つの文脈で異なる。混同しないこと
 
 ---
 
+## 完了ワークフロー（全作業完了時）
+
+すべてのコンポーネント作成・更新作業が完了したら、以下の手順でバージョン更新・タグ付与・コミットを行う。
+
+### 1. バージョン更新
+
+`.claude-plugin/plugin.json` の `version` フィールドを Semantic Versioning に従って更新する:
+
+| 変更内容 | バージョン | 例 |
+|---------|----------|-----|
+| 新規コンポーネント追加（スキル・Agent・Command） | **MINOR** | `9.24.0` → `9.25.0` |
+| 既存コンポーネントの修正・改善 | **PATCH** | `9.24.0` → `9.24.1` |
+| 破壊的変更（スキルの大幅な構成変更等） | **MAJOR** | `9.24.0` → `10.0.0` |
+
+### 2. コミット
+
+Conventional Commits 形式でコミットする:
+
+```bash
+git add <変更ファイル> .claude-plugin/plugin.json
+git commit -m "feat(skill-name): 変更内容の要約"
+```
+
+### 3. タグ付与とプッシュ
+
+```bash
+git tag v{new-version}
+git push origin main --tags
+```
+
+**⚠️ git書き込み操作（commit / push / tag）はユーザー確認必須。** タチコマが直接実行してはならない。Claude Code本体がユーザーに確認した上で実行する。
+
+---
+
 ## 関連ドキュメント
 
 ### Agent詳細
