@@ -1,5 +1,7 @@
 # Observability on AWS
 
+> **関連**: CloudWatch Logs/Events・Inspector・Config設定実践は [ENTERPRISE-GOVERNANCE-PRACTICE.md](./ENTERPRISE-GOVERNANCE-PRACTICE.md) を参照
+
 AWS上での可観測性（Observability）実践ガイド。CloudWatch、X-Ray、CloudWatch Logs Insights、サーバーレス監視、およびSLI/SLO/SLA設計をカバーします。
 
 ---

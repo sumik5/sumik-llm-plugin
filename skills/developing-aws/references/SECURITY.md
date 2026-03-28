@@ -1,5 +1,7 @@
 # Security on AWS
 
+> **関連**: Cognito認証（User Pools/Federated Identities/OAuth）は [COGNITO-AUTHENTICATION.md](./COGNITO-AUTHENTICATION.md) を参照、セキュリティガバナンス（NIST CSF/リスクアセスメント）は [SECURITY-GOVERNANCE.md](./SECURITY-GOVERNANCE.md) を参照
+
 AWS上でのセキュリティ実践ガイド。IAM、VPCセキュリティ、データ保護、認証・認可、EKSセキュリティ、およびコンプライアンスをカバーします。
 
 ---

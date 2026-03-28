@@ -1,5 +1,7 @@
 # Resilience on AWS
 
+> **関連**: HA・耐障害性の具体的実装（デカップリング/べき等リトライ/Auto Scaling）は [INFRASTRUCTURE-HA-RESILIENCE.md](./INFRASTRUCTURE-HA-RESILIENCE.md) を参照
+
 AWS上でのレジリエンス（回復力）実践ガイド。レジリエンスパターン、AWS Fault Injection Service、マルチAZ/マルチリージョン設計、インシデント対応、およびバックアップ・リカバリ戦略をカバーします。
 
 ---

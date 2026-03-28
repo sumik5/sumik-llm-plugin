@@ -2,7 +2,7 @@
 
 AWSのネットワークサービスを活用し、セキュアで高可用性なネットワークアーキテクチャを構築するための実践的なガイドです。
 
-> **関連**: システム運用は [SYSOPS-OPERATIONS.md](./SYSOPS-OPERATIONS.md)、セキュリティは [SECURITY-ADVANCED.md](./SECURITY-ADVANCED.md) を参照
+> **関連**: システム運用は [SYSOPS-OPERATIONS.md](./SYSOPS-OPERATIONS.md)、セキュリティは [SECURITY-ADVANCED.md](./SECURITY-ADVANCED.md) を参照、VPC基礎と接続パターンは [NETWORK-VPC-CONNECTIVITY.md](./NETWORK-VPC-CONNECTIVITY.md) を参照
 
 ---
 

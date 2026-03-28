@@ -2,7 +2,7 @@
 
 Amazon VPC（Virtual Private Cloud）の設計パターン、サブネット構成、CIDR計画、マルチAZデプロイ、ハイブリッド接続、およびセキュリティ制御の包括的ガイド。
 
-> **関連**: ロードバランシングは [NETWORKING.md](./NETWORKING.md)、CDPネットワークパターンは [CLOUD-DESIGN-PATTERNS.md](./CLOUD-DESIGN-PATTERNS.md) を参照
+> **関連**: ロードバランシングは [NETWORKING.md](./NETWORKING.md)、CDPネットワークパターンは [CLOUD-DESIGN-PATTERNS.md](./CLOUD-DESIGN-PATTERNS.md) を参照、VPC接続パターン（PrivateLink/VPCピアリング/VPN）は [NETWORK-VPC-CONNECTIVITY.md](./NETWORK-VPC-CONNECTIVITY.md) を参照
 
 ---
 

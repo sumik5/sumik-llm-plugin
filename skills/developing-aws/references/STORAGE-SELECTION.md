@@ -1,5 +1,7 @@
 # AWSストレージサービス選定ガイド
 
+> **関連**: S3/EBS/EFS運用実践・パフォーマンス調整は [INFRASTRUCTURE-DATA-STORAGE.md](./INFRASTRUCTURE-DATA-STORAGE.md) を参照
+
 AWSのストレージサービスを適切に選定し、効率的なデータ管理を実現するための実践的なガイドです。
 
 ---

@@ -2,7 +2,7 @@
 
 エンタープライズ向けAWSセキュリティの包括的ガイド。
 
-> **関連**: 基本的なIAMセキュリティは [SECURITY.md](./SECURITY.md)、ネットワークセキュリティは [NETWORKING.md](./NETWORKING.md) を参照
+> **関連**: 基本的なIAMセキュリティは [SECURITY.md](./SECURITY.md)、ネットワークセキュリティは [NETWORKING.md](./NETWORKING.md) を参照、検知・インシデントレスポンス実践は [SECURITY-DETECTION-RESPONSE.md](./SECURITY-DETECTION-RESPONSE.md) を参照
 
 ---
 

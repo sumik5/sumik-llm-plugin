@@ -2,7 +2,7 @@
 
 AWSにおけるエンタープライズ基盤設計、マルチアカウント戦略、Landing Zone構築、および14種類の定番業務システムパターンを解説する。
 
-> **関連**: VPC設計は [VPC-ARCHITECTURE.md](./VPC-ARCHITECTURE.md)、セキュリティは [SECURITY-ADVANCED.md](./SECURITY-ADVANCED.md) を参照
+> **関連**: VPC設計は [VPC-ARCHITECTURE.md](./VPC-ARCHITECTURE.md)、セキュリティは [SECURITY-ADVANCED.md](./SECURITY-ADVANCED.md)、ガバナンス・運用監視の実践設定は [ENTERPRISE-GOVERNANCE-PRACTICE.md](./ENTERPRISE-GOVERNANCE-PRACTICE.md)、業務システム9設計パターンは [ENTERPRISE-SYSTEM-PATTERNS.md](./ENTERPRISE-SYSTEM-PATTERNS.md) を参照
 
 ---
 

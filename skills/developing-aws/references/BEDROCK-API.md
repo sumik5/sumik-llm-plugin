@@ -1,5 +1,7 @@
 # Amazon Bedrock API リファレンス
 
+> **関連**: 入門・プレイグラウンドは [BEDROCK-GETTING-STARTED.md](./BEDROCK-GETTING-STARTED.md)、SDK開発実践は [BEDROCK-SDK-DEVELOPMENT.md](./BEDROCK-SDK-DEVELOPMENT.md) を参照
+
 ## Amazon Bedrock 概要
 
 ### サービスアーキテクチャ

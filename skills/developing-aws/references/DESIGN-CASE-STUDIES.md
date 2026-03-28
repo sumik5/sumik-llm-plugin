@@ -1,5 +1,7 @@
 # AWSシステム設計ケーススタディ
 
+> **関連**: エンタープライズ業務パターンは [ENTERPRISE-SYSTEM-PATTERNS.md](./ENTERPRISE-SYSTEM-PATTERNS.md)、クラウドネイティブ実装パターンは [CLOUD-NATIVE-APP-PATTERNS.md](./CLOUD-NATIVE-APP-PATTERNS.md) を参照
+
 実践的なシステム設計パターンとAWSサービス選定の事例集。要件定義からアーキテクチャ設計、スケーリング戦略まで体系的に解説します。
 
 ---

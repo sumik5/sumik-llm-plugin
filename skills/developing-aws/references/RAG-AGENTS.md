@@ -1,5 +1,7 @@
 # RAG & Agents リファレンス
 
+> **関連**: 基礎Embedding・自前セマンティック検索は [BEDROCK-EMBEDDING-SEARCH.md](./BEDROCK-EMBEDDING-SEARCH.md) を参照
+
 ## Knowledge Bases 概要
 
 ### アーキテクチャ

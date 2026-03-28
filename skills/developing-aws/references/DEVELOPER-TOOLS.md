@@ -2,7 +2,7 @@
 
 アプリケーション開発者向けのAWS開発ツールとサービス。
 
-> **関連**: サーバーレスは [SERVERLESS-PATTERNS.md](./SERVERLESS-PATTERNS.md)、IaCは [CDK.md](./CDK.md) を参照
+> **関連**: サーバーレスは [SERVERLESS-PATTERNS.md](./SERVERLESS-PATTERNS.md)、IaCは [CDK.md](./CDK.md) を参照、コンテナ固有のCI/CD（ECR→ECS Blue/Green）は [CONTAINER-OPERATIONS.md](./CONTAINER-OPERATIONS.md) を参照
 
 ---
 

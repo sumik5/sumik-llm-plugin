@@ -1,5 +1,7 @@
 # EKS FUNDAMENTALS
 
+> **関連**: ECS/Fargateコンテナ設計は [CONTAINER-DESIGN.md](./CONTAINER-DESIGN.md) を参照
+
 Amazon Elastic Kubernetes Service (EKS)の基礎知識と環境構築、クラスタ運用の実践ガイド。
 
 ## EKS概要

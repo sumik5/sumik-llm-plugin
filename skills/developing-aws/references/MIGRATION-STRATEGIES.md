@@ -2,7 +2,7 @@
 
 オンプレミスからAWSへの移行戦略、移行パターン（7R）、AWS Migration Hub、AWS MGN（Application Migration Service）、データベース移行、大規模データ移行、および移行後の最適化を包括的に解説する。
 
-> **関連**: データベース移行は [DATABASE-MIGRATION.md](./DATABASE-MIGRATION.md)、エンタープライズ基盤は [ENTERPRISE-ARCHITECTURE.md](./ENTERPRISE-ARCHITECTURE.md) を参照
+> **関連**: データベース移行は [DATABASE-MIGRATION.md](./DATABASE-MIGRATION.md)、エンタープライズ基盤は [ENTERPRISE-ARCHITECTURE.md](./ENTERPRISE-ARCHITECTURE.md)、DMS/SMS/Snowball移行テクニック実践は [ENTERPRISE-SYSTEM-PATTERNS.md](./ENTERPRISE-SYSTEM-PATTERNS.md) を参照
 
 ---
 

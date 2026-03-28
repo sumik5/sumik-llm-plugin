@@ -1,5 +1,7 @@
 # AWSシステム設計の基礎
 
+> **関連**: クラウドネイティブアーキテクチャ（2-Tier/3-Tier/IoT）は [CLOUD-NATIVE-ARCHITECTURE.md](./CLOUD-NATIVE-ARCHITECTURE.md) を参照
+
 AWSでの大規模システム設計における基本概念、トレードオフ、設計ガイドライン、およびアーキテクチャパターンを解説します。
 
 ---

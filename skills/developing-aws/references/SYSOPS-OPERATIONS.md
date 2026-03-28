@@ -2,7 +2,7 @@
 
 AWSシステム運用管理のための包括的ガイド。監視、自動化、コスト管理、トラブルシューティングを網羅。
 
-> **関連**: セキュリティは [SECURITY-ADVANCED.md](./SECURITY-ADVANCED.md)、ネットワークは [NETWORKING.md](./NETWORKING.md) を参照
+> **関連**: セキュリティは [SECURITY-ADVANCED.md](./SECURITY-ADVANCED.md)、ネットワークは [NETWORKING.md](./NETWORKING.md)、SSM・Inspector・Config・CloudTrail実践は [ENTERPRISE-GOVERNANCE-PRACTICE.md](./ENTERPRISE-GOVERNANCE-PRACTICE.md) を参照
 
 ---
 

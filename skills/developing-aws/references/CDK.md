@@ -1,5 +1,7 @@
 # CDK
 
+> **関連**: CloudFormation直接記述・EB/OpsWorksは [INFRASTRUCTURE-AUTOMATION.md](./INFRASTRUCTURE-AUTOMATION.md) を参照
+
 AWS CDKを使用したインフラストラクチャ as Codeの実践的なガイド。TypeScriptとPythonでのクラウドネイティブアプリケーション構築。
 
 ## CDK基礎

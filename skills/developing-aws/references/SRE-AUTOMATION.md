@@ -1,5 +1,7 @@
 # SRE Automation on AWS
 
+> **関連**: デプロイツール比較（CloudFormation/EB/OpsWorks）は [INFRASTRUCTURE-AUTOMATION.md](./INFRASTRUCTURE-AUTOMATION.md) を参照
+
 AWS上でのSite Reliability Engineering (SRE)自動化の実践ガイド。Infrastructure as Code (IaC)、インフラメンテナンス自動化、リリース自動化、および自動化ツールチェーンをカバーします。
 
 ---

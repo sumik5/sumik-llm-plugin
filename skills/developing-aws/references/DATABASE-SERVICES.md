@@ -2,7 +2,7 @@
 
 AWSの各種データベースサービスの詳細アーキテクチャと実装パターン。
 
-> **関連**: 基本的なDB選定は [SYSTEM-DESIGN.md](./SYSTEM-DESIGN.md) を参照
+> **関連**: 基本的なDB選定は [SYSTEM-DESIGN.md](./SYSTEM-DESIGN.md)、RDS/ElastiCache/DynamoDB運用実践は [INFRASTRUCTURE-DATA-STORAGE.md](./INFRASTRUCTURE-DATA-STORAGE.md) を参照
 
 ---
 
