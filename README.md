@@ -94,7 +94,7 @@ sumik-claude-plugin/
 |--------|------|
 | `implementing-as-tachikoma` | タチコマAgent運用ガイド |
 | `using-serena` | Serena MCP活用 |
-| `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・Kent Beck 4 Rules・Uncle Bob 66ヒューリスティクス・ソフトウェアデザインの法則含む27カテゴリのコードスメル検出・リファクタリング・フォーマット・境界管理・19リファレンスファイル） |
+| `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・Kent Beck 4 Rules・Uncle Bob 66ヒューリスティクス・ソフトウェアデザインの法則含む27カテゴリのコードスメル検出・リファクタリング・フォーマット・境界管理・20リファレンスファイル） |
 | `testing-code` | テストファースト（Vitest/Playwright）・Khorikovの4本の柱フレームワーク（16リファレンス）。RTL固有は`developing-react`参照 |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |

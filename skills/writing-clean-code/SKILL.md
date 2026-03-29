@@ -9,6 +9,7 @@ description: >-
   For trade-off analysis on code duplication, error handling, and flexibility, use architecting-infrastructure.
   For architecture-level clean design with dependency rules and component principles, use applying-clean-architecture.
   For legacy code refactoring strategies, see CHANGEABLE-CODE.md subfile.
+  For refactoring mindset (spikes, feature toggles, structural discovery, avoiding premature generalization), see REFACTORING-MINDSET.md reference.
   For IC effectiveness mindset and career-stage skill development beyond code quality, use practicing-software-engineering instead.
 ---
 
@@ -17,3 +18,4 @@ description: >-
 ## サブファイル
 
 - [`CHANGEABLE-CODE.md`](CHANGEABLE-CODE.md) — レガシーコードへの対処戦略（5ステップアプローチ）と変更容易性の設計原則（Modularity・Cohesion・Separation of Concerns・Abstraction）。未知のコードベースナビゲーションと汚いコードの実践的対処法を含む
+- [`references/REFACTORING-MINDSET.md`](references/REFACTORING-MINDSET.md) — リファクタリングマインドセット。スパイク・心理的安全性・割合の固定・重複コードの戦略的利用・機能トグル・空行による構造発見・汎用性最小化・小さなステップ哲学・ミケランジェロの比喩（Ch.1/Ch.10-12/Ch.14）
