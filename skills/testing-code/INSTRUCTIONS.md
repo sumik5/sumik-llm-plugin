@@ -22,6 +22,7 @@
 - **[CODE-CLASSIFICATION.md](./references/CODE-CLASSIFICATION.md)**: 4種類のプロダクションコードとHumble Objectパターン
 - **[INTEGRATION-TESTING.md](./references/INTEGRATION-TESTING.md)**: 統合テストの原則・モック判断基準・データベーステスト
 - **[TEST-ANTI-PATTERNS.md](./references/TEST-ANTI-PATTERNS.md)**: テストのアンチパターン（プライベートメソッドテスト・ドメイン知識漏洩等）
+- **[VITEST-LIFECYCLE.md](./references/VITEST-LIFECYCLE.md)**: Vitest 4.1 ライフサイクルフック（aroundEach/aroundAll）
 
 ## 🎯 使用タイミング
 
@@ -95,6 +96,12 @@ it('有効なデータの時、ユーザーを作成すべき', () => {
 | **actual/expected** | AAA パターンで `actual` と `expected` 変数を使用 |
 | **1テスト1検証** | オブジェクト比較で複数プロパティを1回で検証可 |
 | **スナップショット制限** | セマンティックHTMLとa11y属性の検証のみに使用 |
+
+#### Vitest 4.1 ライフサイクルフック（aroundEach / aroundAll）
+
+コールバック形式のAPIを使う場合や、変数スコープを最小化したい場合は `aroundEach` / `aroundAll` を活用する。`beforeEach/afterEach` の置き換えではなく**補完的な選択肢**。
+
+詳細は **[VITEST-LIFECYCLE.md](./references/VITEST-LIFECYCLE.md)** を参照。
 
 ## 🎯 カバレッジ目標
 
