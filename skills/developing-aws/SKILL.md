@@ -1,23 +1,15 @@
 ---
 name: developing-aws
 description: >-
-  AWS development guide covering serverless (Lambda, API Gateway, DynamoDB, Step Functions),
-  CDK, EKS, ECS/Fargate (container design, Well-Architected containers, CI/CD pipelines,
-  FireLens logging, Trivy/Dockle security scanning),
-  SRE, cost optimization (FinOps/CCoE),
-  security (IAM, VPC, KMS, GuardDuty, security governance, NIST CSF, ISO 27001,
-  risk assessment, incident response, forensics, Detective),
-  GenAI (Bedrock, RAG, Agents, Embedding, semantic search),
-  databases (Aurora, DynamoDB, ElastiCache),
-  data engineering (Glue, Athena, Redshift), developer tools (CodePipeline),
-  Cloud Design Patterns (57 CDP),
-  VPC architecture (subnet, CIDR, Transit Gateway, VPC peering, Site-to-Site VPN, PrivateLink, ENI),
-  enterprise architecture (multi-account, Landing Zone, 14 business system patterns,
-  Organizations, governance, Cognito authentication),
-  cloud migration strategies (7R, AWS MGN, database migration, DMS),
-  cloud-native patterns (2-Tier/3-Tier, serverless-first),
-  infrastructure automation (CloudFormation, Elastic Beanstalk, OpsWorks),
-  and high availability/fault tolerance (decoupling, idempotent retry, auto scaling).
+  AWS development guide covering serverless (Lambda, API Gateway, DynamoDB),
+  CDK, EKS, ECS/Fargate, SRE, FinOps,
+  security (IAM, VPC, KMS, GuardDuty),
+  GenAI (Bedrock, RAG), databases (Aurora, ElastiCache),
+  data engineering (Glue, Athena, Redshift), 57 Cloud Design Patterns,
+  VPC architecture, enterprise architecture (multi-account, Landing Zone, Cognito),
+  cloud migration (7R, DMS), and HA/fault tolerance.
+  Use when working with AWS services, CDK infrastructure, or serverless applications.
+  For GCP, use developing-google-cloud. For Terraform IaC, use developing-terraform.
   MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in package.json,
   cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), or eksctl configs.
   For GCP→developing-google-cloud, Terraform→developing-terraform, Docker→managing-containers,

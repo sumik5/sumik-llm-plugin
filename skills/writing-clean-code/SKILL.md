@@ -6,11 +6,9 @@ description: >-
   software design laws, Kent Beck's 4 rules of simple design, Uncle Bob's 66 code smell heuristics,
   formatting principles, and boundary management patterns. Language-agnostic clean code guide.
   For language-specific practices, use developing-go, mastering-typescript, or developing-python.
-  For trade-off analysis on code duplication, error handling, and flexibility, use architecting-infrastructure.
-  For architecture-level clean design with dependency rules and component principles, use applying-clean-architecture.
-  For legacy code refactoring strategies, see CHANGEABLE-CODE.md subfile.
-  For refactoring mindset (spikes, feature toggles, structural discovery, avoiding premature generalization), see REFACTORING-MINDSET.md reference.
-  For IC effectiveness mindset and career-stage skill development beyond code quality, use practicing-software-engineering instead.
+  For architecture-level clean design, use applying-clean-architecture.
+  For legacy code refactoring, see CHANGEABLE-CODE.md subfile.
+  For refactoring mindset (spikes, feature toggles, structural discovery), see REFACTORING-MINDSET.md reference.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
