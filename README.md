@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (62個)
+└── skills/             # ナレッジスキル (63個)
 ```
 
 ---
@@ -86,7 +86,7 @@ sumik-claude-plugin/
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (62個)
+### Skills (63個)
 
 #### コア開発
 
@@ -109,6 +109,7 @@ sumik-claude-plugin/
 | `authoring-plugins` | Claude Code Plugin開発ガイド（Agent・Skill・コマンド定義の作成・最適化・フロントマター仕様・Progressive Disclosure・ツール制限） |
 | `practicing-software-engineering` | SW開発プラクティス包括ガイド（プロジェクト基盤: Fast Feedback・DORA計測 ＋ チーム組織: Team Topologies・4チームタイプ ＋ ペアプログラミング: 4パターン ＋ 開発者習慣: GREAT Habits ＋ IC効果性マインドセット: アウトカム思考・戦略的優先順位付け ＋ キャリア成長: Junior→Staff・IC/Management パス ＋ 影響力: PM/デザイナー協働・権限なきリーダーシップ ＋ 20アンチパターン: 個人15+チーム5 ＋ 持続可能パフォーマンス: バーンアウト防止・リモートワーク ＋ AI活用ワークフロー: 日常AI統合・90日チーム採用計画、10リファレンスファイル） |
 | `writing-user-stories` | ユーザーストーリー作成ガイド（テンプレート・よくある間違い・技術要件変換・受入条件・分割テクニック） |
+| `solving-algorithms` | 競技プログラミング向けアルゴリズムとデータ構造リファレンス（計算量早見表・ソート7種・データ構造（スタック/キュー/木/BST/ヒープ/Union-Find）・探索（二分探索/ハッシュ/バックトラッキング/IDA*）・動的計画法（LCS/ナップザック/LIS）・グラフ（DFS/BFS/Dijkstra/Bellman-Ford/Floyd-Warshall/トポロジカルソート）・計算幾何学（ベクトル演算/凸包/交差判定）・整数論（素数/GCD/繰り返し二乗法）・7リファレンスファイル） |
 
 #### アーキテクチャ
 
