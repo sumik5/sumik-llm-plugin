@@ -612,3 +612,46 @@ const dbPassword = process.env.DB_PASSWORD;
 5. **スケーリング**（必要になったタイミングで）
 
 **最重要原則**: **コミュニケーションとドキュメント**がすべての基盤です。技術的判断を記録し、チームと共有してください。
+
+---
+
+## 8. JavaScript言語基礎リファレンス
+
+このセクションはJavaScript言語レベルの知識をカバーします。フレームワーク（NestJS/Express/React）の知識に加えて、型システム・クロージャ・プロトタイプ・非同期パターン・メタプログラミングなどの言語仕様を深く理解するために参照してください。
+
+### 8.1 使用タイミング
+
+以下の状況でこのリファレンス群を参照してください：
+
+- **型・変数の問題**: 型強制・`null`/`undefined` の挙動・`===` vs `==` の判断
+- **スコープ・クロージャ**: 変数のスコープ理解・クロージャを使ったファクトリーパターン
+- **プロトタイプ・クラス**: `this` バインドの問題・継承の設計・プロトタイプチェーンのデバッグ
+- **非同期**: `Promise` の連鎖・`async/await` のエラーハンドリング・並行実行パターン
+- **モジュール**: ESモジュール vs CommonJS の使い分け・動的インポート
+- **メタプログラミング**: `Proxy`/`Reflect` の活用・イテレータ・ジェネレータ
+
+### 8.2 5つの大原則
+
+| 原則 | 内容 |
+|------|------|
+| **1. let/const（var禁止）** | `var` のスコープ問題・巻き上げを避けるため `let`/`const` を使う。`const` を優先し、再代入が必要な場合のみ `let` を使う |
+| **2. strict mode** | `'use strict'` を有効化し暗黙の挙動を排除する。ESモジュールでは自動的に有効 |
+| **3. 型を正しく理解する** | 暗黙の型変換に頼らない。`typeof`/`instanceof` を適切に使い、意図しない型強制を避ける |
+| **4. プロトタイプを理解した上でモダン構文を使う** | `class` 構文はプロトタイプの糖衣構文。内部動作を理解することでバグのデバッグが容易になる |
+| **5. thisの使用を限定する** | `this` は文脈依存で混乱しやすい。アロー関数・`bind`/`call`/`apply` の使い分けを理解し、意図しないバインドを防ぐ |
+
+### 8.3 詳細リファレンス
+
+| ファイル | 対応トピック | 主な内容 |
+|---------|------------|---------|
+| **[JS-FUNDAMENTALS.md](./references/JS-FUNDAMENTALS.md)** | 値・型・変数・制御構造 | typeof・型強制・const/let・分割代入・テンプレートリテラル・Optional chaining・falsy値リスト |
+| **[JS-FUNCTIONS-AND-FP.md](./references/JS-FUNCTIONS-AND-FP.md)** | 関数・FP・クロージャ | アロー関数・高階関数・クロージャ・ファクトリーパターン・rest/spread・例外処理 |
+| **[JS-OOP-AND-PROTOTYPES.md](./references/JS-OOP-AND-PROTOTYPES.md)** | OOP・プロトタイプ・class・this | プロトタイプチェーン・class構文・プライベートフィールド・継承・thisバインド |
+| **[JS-STDLIB.md](./references/JS-STDLIB.md)** | 数値・日付・文字列・正規表現・配列・コレクション | Number/Math・Date・String・RegExp・Array・Map/Set/WeakMap |
+| **[JS-ASYNC-AND-MODULES.md](./references/JS-ASYNC-AND-MODULES.md)** | 非同期・Promise・モジュール | イベントループ・Promise API・async/await・ESモジュール・動的インポート |
+| **[JS-ADVANCED-PATTERNS.md](./references/JS-ADVANCED-PATTERNS.md)** | メタプログラミング・Proxy・イテレータ | Symbol・プロパティ属性・Proxy/Reflect・イテレータ・ジェネレータ |
+
+### 8.4 スコープ外トピック
+
+- **国際化（Intl API）**: `Intl.DateTimeFormat`・`Intl.NumberFormat`・`Intl.Collator` はMDNを参照してください
+- **TypeScript型システム**: 型定義・ジェネリクス・Conditional Types等のTypeScript固有の機能は `mastering-typescript` スキルを参照してください
