@@ -14,6 +14,7 @@ description: >-
   For Docker→managing-containers. For monitoring→implementing-observability.
   For OWASP→securing-code. For CQRS→architecting-data.
   For AWS→developing-aws. For GenAI→designing-genai-patterns.
+  For Firebase (Auth/Firestore/Storage/Functions/Hosting)→developing-firebase.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

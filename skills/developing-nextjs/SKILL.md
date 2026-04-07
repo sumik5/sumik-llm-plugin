@@ -10,6 +10,7 @@ description: >-
   For AI integration with Vercel AI SDK and LangChain.js, use integrating-ai-web-apps.
   For application logging design and structured logging patterns, use implementing-observability.
   For Tailwind CSS methodology, component design patterns, and customization, use styling-with-tailwind.
+  For Firebase platform details (Auth/Firestore/Rules)→developing-firebase.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (63個)
+└── skills/             # ナレッジスキル (64個)
 ```
 
 ---
@@ -86,7 +86,7 @@ sumik-claude-plugin/
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (63個)
+### Skills (64個)
 
 #### コア開発
 
@@ -130,6 +130,7 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `developing-react` | React 19.x 開発ガイド（Internals・パフォーマンスルール47+・デザインパターン（Container/Presenter・HOC・Render Props・Headless等）・エラーハンドリング（ErrorBoundary・react-error-boundary・React 19 error APIs）・アクセシビリティ（ARIA・フォーカス管理・キーボードナビゲーション）・2025年状態管理推奨（nuqs・Jotai・React Compiler）・アニメーション・RTLテスト・8リファレンスファイル） |
+| `developing-firebase` | Firebaseプラットフォーム開発ガイド（Authentication, Firestore, RTDB, Storage, Functions, Hosting, Analytics, FCM, Remote Config等） |
 | `developing-nextjs` | Next.js 16.x開発ガイド（App Router・Server Components・Cache Components・Turbopack・実践パターン集）。Route Segment・Parallel/Intercepting Routes・Prisma・NextAuth.js・Server Actions・4種キャッシュ戦略を含む10リファレンスファイル。React固有は`developing-react`参照 |
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
 | `developing-python` | Python 3.13開発（Effective Python 125項目・実践パターン50問・SEプロセス・Clean Architecture実践・Architecture Patterns: Repository/UoW/Aggregates/Domain Events/CQRS・DDD Tactical Patterns: Entity/Value Object/Aggregate Root） |
