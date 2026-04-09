@@ -148,7 +148,7 @@ skills:
 
 2. **初回レビュー実行**
    ```bash
-   bash scripts/codex-plan-review.sh "{plan_file_fullpath}"
+   SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec -m "gpt-5.4" "このプランをレビューしてください。瑣末な点へのクソリプはしないでください。致命的な点のみを指摘してください: {plan_file_fullpath}"
    ```
    実行エラー → **スキップして完了報告へ進む**
 
@@ -163,7 +163,7 @@ skills:
 4. **プラン修正 → 再レビュー（ループ）**
    プランを修正した後、以下のコマンドで再レビューする:
    ```bash
-   bash scripts/codex-plan-review.sh "{plan_file_fullpath}" --resume
+   SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec resume --last -m "gpt-5.4" "プランを更新したのでレビューを再度してください。瑣末なクソリプはせず、致命的な点だけ指摘してください: {plan_file_fullpath}"
    ```
    **致命的な指摘がなくなるまでステップ3-4を繰り返す。**
 

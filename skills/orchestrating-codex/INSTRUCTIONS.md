@@ -324,10 +324,10 @@ scripts/codex-consult.sh "<project_directory>" "<request>"
 
 ```bash
 # 初回レビュー
-scripts/codex-plan-review.sh "<plan_file_fullpath>"
+SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec -m "gpt-5.4" "このプランをレビューしてください。瑣末な点へのクソリプはしないでください。致命的な点のみを指摘してください: <plan_file_fullpath>"
 
 # 再レビュー（直近セッション継続）
-scripts/codex-plan-review.sh "<plan_file_fullpath>" --resume
+SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec resume --last -m "gpt-5.4" "プランを更新したのでレビューを再度してください。瑣末なクソリプはせず、致命的な点だけ指摘してください: <plan_file_fullpath>"
 ```
 
 codex未インストールの場合: `npm install -g @openai/codex` でインストールを案内して終了。
@@ -341,7 +341,6 @@ codex未インストールの場合: `npm install -g @openai/codex` でインス
 | `references/PLAN-TEMPLATE.md` | `docs/plan-{feature-name}.md` テンプレート・回復手順・実行ログ記録方法 |
 | `references/WORKFLOW-GUIDE.md` | Phase 1-2 詳細ワークフロー（計画策定 → ユーザー確認 → Wave並列実装 → 統合 → 完了） |
 | `scripts/codex-consult.sh` | コード相談ラッパースクリプト（モデル固定・プロンプト補正付き） |
-| `scripts/codex-plan-review.sh` | プランレビューラッパースクリプト（初回・resume両モード対応） |
 
 ---
 
