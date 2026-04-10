@@ -314,7 +314,8 @@ Wave 3: E2Eテスト (tachikoma-e2e-test) ∥ 統合テスト (tachikoma-test)
 ### コード相談
 
 ```bash
-scripts/codex-consult.sh "<project_directory>" "<request>"
+# コード相談（読取専用）
+SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec -m "gpt-5.4" --full-auto --sandbox read-only --cd "<project_directory>" "<request> 確認や質問は不要です。具体的な提案・修正案・コード例まで自主的に出力してください。"
 ```
 
 - `<project_directory>`: 対象プロジェクトのディレクトリ
@@ -340,7 +341,6 @@ codex未インストールの場合: `npm install -g @openai/codex` でインス
 |---------|------|
 | `references/PLAN-TEMPLATE.md` | `docs/plan-{feature-name}.md` テンプレート・回復手順・実行ログ記録方法 |
 | `references/WORKFLOW-GUIDE.md` | Phase 1-2 詳細ワークフロー（計画策定 → ユーザー確認 → Wave並列実装 → 統合 → 完了） |
-| `scripts/codex-consult.sh` | コード相談ラッパースクリプト（モデル固定・プロンプト補正付き） |
 
 ---
 
