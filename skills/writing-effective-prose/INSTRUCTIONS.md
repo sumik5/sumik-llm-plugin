@@ -489,7 +489,7 @@ UIコピー・マイクロコピー・キャッチフレーズ・ネーミング
 | [JAPANESE-PROSE-CRAFT.md](references/JAPANESE-PROSE-CRAFT.md) | 日本語作文技術（修飾語の順序4原則、句読点の二大原則、助詞の使い方、漢字/カナバランス、欠陥文パターン） |
 | [CLARITY-WRITING.md](references/CLARITY-WRITING.md) | わかりやすい文章術（一文一義100技法、文章整形術、「極み」の全技術、感情の言語化） |
 | [EXPLANATION-TECHNIQUES.md](references/EXPLANATION-TECHNIQUES.md) | 説明・伝達の技法（説明の基本モデル、論理的伝え方、池上彰メソッド、図解技法、技術の伝え方） |
-| [NATALIE-METHOD.md](references/NATALIE-METHOD.md) | ナタリー式文章メソッド（完読概念、主眼と骨子、構造シート、多階層重複チェック、速度制御、文章改善テクニック集） |
+| [WEB-EDITORIAL-METHOD.md](references/WEB-EDITORIAL-METHOD.md) | Web編集メソッド（完読概念、主眼と骨子、構造シート、多階層重複チェック、速度制御、文章改善テクニック集） |
 | [DOCUMENT-ARCHITECTURE.md](references/DOCUMENT-ARCHITECTURE.md) | 文書の構造設計（5要素階層、辞書形式vs読み物形式、認知心理学的基盤） |
 
 ---
@@ -579,7 +579,7 @@ UIコピー・マイクロコピー・キャッチフレーズ・ネーミング
         |       -> 設計書 -> ENGINEERING-DESIGN-DOCS.md
         |
         +-- 「書く前の準備が足りない・構造シートで整理したい」
-        |       -> 主眼と骨子・構造シート -> NATALIE-METHOD.md
+        |       -> 主眼と骨子・構造シート -> WEB-EDITORIAL-METHOD.md
         |
         +-- 「文書の構造が伝わらない・情報の階層が崩れている」
         |       -> 文書構造設計 -> DOCUMENT-ARCHITECTURE.md

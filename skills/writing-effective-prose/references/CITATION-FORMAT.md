@@ -233,7 +233,7 @@
 著者姓, イニシャル（出版年）, タイトル（イタリック or アンダーライン）, 出版社
 
 【例（日本語）】
-木下是雄（1981）『理科系の作文技術』中央公論社
+山田太郎（2020）『〇〇入門』△△出版社
 
 【例（英語）】
 Simpson, H. (1999), From Springfield: A Life and Opinion of a Nuclear Plant Worker, Oxbridge University Press

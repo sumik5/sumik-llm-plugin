@@ -252,4 +252,4 @@
 
 - **[LOGICAL-STRUCTURE.md](LOGICAL-STRUCTURE.md)**: パラグラフ・ライティングの7つのルール、補足情報の3タイプ（WHAT/WHY/HOW MUCH）、並列構造の設計
 - **[PREPARATION.md](PREPARATION.md)**: 書く前の思考設計、Why-What-How分解フレームワーク、読み手分析の3次元モデル
-- **[NATALIE-METHOD.md](NATALIE-METHOD.md)**: 完読の哲学、主眼と骨子、構造シート、速度制御
+- **[WEB-EDITORIAL-METHOD.md](WEB-EDITORIAL-METHOD.md)**: 完読の哲学、主眼と骨子、構造シート、速度制御

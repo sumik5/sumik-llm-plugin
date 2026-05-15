@@ -350,7 +350,3 @@ Hi, do you have a couple of minutes for some questions?
 - 成果がなくても「お時間をいただきありがとうございました」の一言は忘れずに送る
 
 ---
-
-## 参考
-
-- Wallwork, A. (2016). *English for Presentations at International Conferences* (2nd ed.). Springer. — Ch.16「懇親会で人脈を広げる」・Ch.17「個別面談で人脈を広げる」の知見を再構成
