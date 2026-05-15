@@ -1,5 +1,7 @@
 ---
 description: Run react-doctor to diagnose React code for security, performance, correctness, and architecture issues. Outputs a 0-100 health score with actionable diagnostics.
+context: fork
+agent: general-purpose
 allowed-tools: Bash, Read, Glob, Grep, AskUserQuestion
 argument-hint: "[directory] [--verbose] [--diff base] [--no-lint] [--no-dead-code] [--score]"
 ---

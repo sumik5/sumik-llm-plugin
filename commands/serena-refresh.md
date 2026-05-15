@@ -8,6 +8,8 @@ allowed-tools:
   - Bash
   - Read
 description: 現在のプロジェクトのserenaデータを最新化
+context: fork
+agent: general-purpose
 ---
 
 ## 概要

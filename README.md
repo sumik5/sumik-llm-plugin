@@ -30,7 +30,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (11個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (64個)
+└── skills/             # ナレッジスキル (68個)
 ```
 
 ---
@@ -86,7 +86,7 @@ sumik-claude-plugin/
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 
-### Skills (64個)
+### Skills (68個)
 
 #### コア開発
 
@@ -106,10 +106,11 @@ sumik-claude-plugin/
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
 | `reviewing-code` | コードレビュー方法論（PRの構成・効果的なコメント技法・TWA・アンチパターン対策） |
 | `developing-databases` | DB設計・SQLアンチパターン・DB内部構造・PostgreSQL実践運用を統合した包括的データベース開発ガイド（リレーショナルDB設計・正規化・PostgreSQL・25のSQLアンチパターン・Bツリー/LSMストレージエンジン・分散システム・合意アルゴリズム・クエリチューニング・MVCC/VACUUM・バックアップ/PITR・レプリケーション/HA・監視） |
-| `authoring-plugins` | Claude Code Plugin開発ガイド（Agent・Skill・コマンド定義の作成・最適化・フロントマター仕様・Progressive Disclosure・ツール制限） |
+| `authoring-plugins` | Claude Code Plugin開発ガイド（Agent・Skill・コマンド定義の作成・最適化・フロントマター仕様・Progressive Disclosure・ツール制限）。Agent Skills標準 vs Claude Code拡張の分離原則・fork判定5軸マトリクス・FORK-GUIDE.md含む |
 | `practicing-software-engineering` | SW開発プラクティス包括ガイド（プロジェクト基盤: Fast Feedback・DORA計測 ＋ チーム組織: Team Topologies・4チームタイプ ＋ ペアプログラミング: 4パターン ＋ 開発者習慣: GREAT Habits ＋ IC効果性マインドセット: アウトカム思考・戦略的優先順位付け ＋ キャリア成長: Junior→Staff・IC/Management パス ＋ 影響力: PM/デザイナー協働・権限なきリーダーシップ ＋ 20アンチパターン: 個人15+チーム5 ＋ 持続可能パフォーマンス: バーンアウト防止・リモートワーク ＋ AI活用ワークフロー: 日常AI統合・90日チーム採用計画、10リファレンスファイル） |
 | `writing-user-stories` | ユーザーストーリー作成ガイド（テンプレート・よくある間違い・技術要件変換・受入条件・分割テクニック） |
 | `solving-algorithms` | 競技プログラミング向けアルゴリズムとデータ構造リファレンス（計算量早見表・ソート7種・データ構造（スタック/キュー/木/BST/ヒープ/Union-Find）・探索（二分探索/ハッシュ/バックトラッキング/IDA*）・動的計画法（LCS/ナップザック/LIS）・グラフ（DFS/BFS/Dijkstra/Bellman-Ford/Floyd-Warshall/トポロジカルソート）・計算幾何学（ベクトル演算/凸包/交差判定）・整数論（素数/GCD/繰り返し二乗法）・7リファレンスファイル） |
+| `find-skills` | スキル発見・インストールガイド（agent skills エコシステム検索・"how do I do X" / "find a skill for X" クエリへの応答・能力拡張サポート） |
 
 #### アーキテクチャ
 
@@ -173,6 +174,10 @@ sumik-claude-plugin/
 | `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
 | `orchestrating-teams` | Agent Teamオーケストレーション（チーム編成・タチコマ並列起動・進捗管理・docs先行開発） |
 | `converting-content` | コンテンツ変換ガイド（画像ベースEPUB→テキストOCR変換・LM Studio英日翻訳・pandoc・recognize-image.py） |
+| `chronicle` | スクリーン録画・履歴参照スキル（Rolling Bufferで過去数時間の作業コンテキストを取得・OCR解析・作業の曖昧さ解消） |
+| `gws-slides` | Google Slides 読み書き（gws CLI経由でプレゼンテーション作成・編集・batchUpdate） |
+| `orchestrating-codex` | Codex CLI統合スキル（基本操作・プランレビュー・Agentオーケストレーション・Wave並列実行・max_threads制御） |
+| `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodex subagent定義（.toml）に変換するガイド（フィールドマッピング・developer_instructions変換・スキル展開・検証） |
 
 #### ドキュメント・品質
 

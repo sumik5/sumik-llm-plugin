@@ -10,6 +10,8 @@ description: >-
   Detects: promptfooconfig.yaml or promptfoo in package.json.
   For general LLMOps operations, use practicing-llmops.
   For general test methodology (TDD/AAA), use testing-code.
+context: fork
+agent: general-purpose
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -5,6 +5,8 @@ description: >-
   フィールドマッピング・developer_instructions変換・skills.config展開・検証手順・よくある失敗パターンを網羅。
   Use when converting Claude Code agents to Codex format, migrating agent definitions, or setting up Codex subagents.
   Triggers: "agentをcodexに変換", "codex agent変換", "agent migration"。
+context: fork
+agent: general-purpose
 disable-model-invocation: true
 ---
 

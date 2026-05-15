@@ -5,6 +5,8 @@ description: >-
   Use when converting textbooks, question banks, or study materials into spaced repetition flashcards, or when managing Anki cards via MCP tools.
   Covers full workflow: MCP setup → file conversion → content analysis → batch card creation. For MCP server/client development, use developing-mcp instead.
 argument-hint: "<file-path>"
+context: fork
+agent: general-purpose
 disable-model-invocation: true
 ---
 

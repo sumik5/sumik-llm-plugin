@@ -1,3 +1,9 @@
+---
+description: Webアプリのコードを分析してユーザーストーリー（docs/user-story.md）とE2Eテストケース（docs/e2e.md）を作成・更新する。コードベース全体を走査して、ペルソナ・受入基準・Mermaid図付きのドキュメントを生成。
+context: fork
+agent: general-purpose
+---
+
 # /generate-user-story コマンド
 
 ## 目的
