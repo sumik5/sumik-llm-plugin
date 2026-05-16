@@ -12,7 +12,8 @@ commands/        # スラッシュコマンド（.md）
 hooks/           # イベントフック（.sh）
 scripts/         # ヘルパースクリプト
 skills/          # ナレッジスキル（ディレクトリ/SKILL.md）
-.claude-plugin/  # プラグインマニフェスト
+.claude-plugin/  # プラグインマニフェスト（Claude Code 用）
+.codex-plugin/   # プラグインマニフェスト（Codex CLI 用・version は .claude-plugin と同期必須）
 .mcp.json        # MCPサーバー設定
 ```
 
@@ -83,11 +84,30 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョン管理
 
-- バージョンは `.claude-plugin/plugin.json` の `version` フィールドで管理
+- バージョンは `.claude-plugin/plugin.json` の `version` フィールドで管理（**両 plugin.json を必ず同期**→下記参照）
 - Semantic Versioning (semver) に従う:
   - **MAJOR**: 破壊的変更（スキルの大幅な構成変更等）
   - **MINOR**: 新規コンポーネント追加（新スキル、新コマンド等）
   - **PATCH**: 既存コンポーネントの修正・改善
+
+### バージョンファイルの同期（🔴 重要）
+
+`.claude-plugin/plugin.json` の `version` を更新する際は、必ず `.codex-plugin/plugin.json` の `version` も**同じ値に同期**すること。両ファイルは別のプラグインマネージャー（Claude Code と Codex CLI）から参照されるため、片方だけ更新するとバージョンが乖離し、配布物の整合性が崩れる。
+
+| ファイル | バージョン更新時の扱い |
+|---------|---------------------|
+| `.claude-plugin/plugin.json` | 必ず更新（Claude Code の参照ファイル） |
+| `.codex-plugin/plugin.json` | `.claude-plugin/plugin.json` の `version` 更新時は同期必須（Codex CLI の参照ファイル） |
+
+#### 同期チェック
+
+コミット前に以下のコマンドで両ファイルの version が一致していることを確認すること:
+
+```bash
+diff <(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])") \
+     <(python3 -c "import json; print(json.load(open('.codex-plugin/plugin.json'))['version'])")
+# 出力が空（差分なし）であること
+```
 
 ---
 

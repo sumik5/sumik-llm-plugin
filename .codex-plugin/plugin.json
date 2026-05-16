@@ -1,0 +1,38 @@
+{
+  "name": "sumik",
+  "version": "9.33.0",
+  "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・68個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "agents",
+    "skills",
+    "tachikoma",
+    "developer-tools"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sumik Claude Plugin",
+    "shortDescription": "タチコマAgentシステムとスキル群でClaude Codeの開発ワークフローを強化するプラグイン",
+    "longDescription": "28体のタチコマAgent、68個のナレッジスキル、12個のスラッシュコマンドを提供。並列実行モデル・トークン効率化・型安全・セキュリティファーストの開発ワークフローを実現します。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash"
+    ],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "タチコマでこの機能を実装して",
+      "creating-flashcards でカードを作成",
+      "スキルを評価して改善案を提示"
+    ],
+    "brandColor": "#00D9FF"
+  }
+}

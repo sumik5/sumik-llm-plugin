@@ -22,12 +22,14 @@ claude plugin add sumik5/sumik-claude-plugin
 
 ```
 sumik-claude-plugin/
-├── .claude-plugin/     # プラグインマニフェスト
+├── .claude-plugin/     # Claude Code プラグインマニフェスト
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
+├── .codex-plugin/      # Codex CLI プラグインマニフェスト
+│   └── plugin.json     # プラグインメタデータ（.claude-plugin/ と version 同期必須）
 ├── .mcp.json           # MCPサーバー設定
 ├── agents/             # Agent定義 (28体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str)
-├── commands/           # スラッシュコマンド (11個)
+├── commands/           # スラッシュコマンド (12個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
 └── skills/             # ナレッジスキル (68個)
@@ -70,7 +72,7 @@ sumik-claude-plugin/
 | **タチコマ（アーキテクチャ）** (tachikoma-str-architecture) | Opus | アーキテクチャ設計専門（読み取り専用）。DDD・マイクロサービス・トレードオフ分析。設計ドキュメント作成のみ |
 | **タチコマ（プロダクトマネジメント）** (tachikoma-str-product-mgr) | Opus | プロダクトマネジメント専門（読み取り専用）。PRD作成・ロードマップ策定・優先順位付け・A/Bテスト設計・成長メトリクス分析・AIプロダクト成熟度評価・技術トレードオフ分析。ドキュメント作成のみ |
 
-### Commands (11個)
+### Commands (12個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -85,6 +87,7 @@ sumik-claude-plugin/
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
+| `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-PROCESSING.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
 
 ### Skills (68個)
 
