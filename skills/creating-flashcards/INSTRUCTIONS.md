@@ -363,6 +363,17 @@ def anki_request(action, params=None):
 
 > ⚠️ **`addNotes` のエラーレスポンス形式**: 重複カードが含まれるバッチでは、AnkiConnect が `error` フィールドを文字列ではなく**配列**（per-note errors）で返す場合がある。この場合 `result` は `null` となり、バッチ全体が失敗する。上記の `isinstance(error, list)` チェックでこのケースを検出し、呼び出し側で個別にハンドリングすること。
 
+> ⚠️ **`addNotes` の `duplicateScope` 既定値による cross-deck バッチ全件失敗**: AnkiConnect `addNotes` の `options.duplicateScope` は既定で **collection 全体** (`"collection"`) を対象に重複判定する。そのため、別デッキ（他資格・他書籍）に同一 Front テキストのカードが1枚でも存在すると、対象デッキが全く違うにもかかわらず**バッチ全体が per-note errors で失敗**する。資格試験のような汎用的な問題文（「次の記述は正しいか」等の短い設問）で発生しやすい。**対策**: `notes` 配列の各要素で `options.duplicateScope: "deck"` を明示し、deck-local の重複チェックに切り替える。さらに `options.allowDuplicate: true` を併用すると、deck 内重複も許容できる（ただし冪等性は別途確保が必要 → 後段の dedup 知見参照）。
+>
+> ```python
+> note = {
+>     "deckName": deck, "modelName": model, "fields": {...}, "tags": [...],
+>     "options": {"allowDuplicate": True, "duplicateScope": "deck"},
+> }
+> ```
+
+> ⚠️ **`allowDuplicate: true` 設定時の冪等性確保（再実行時 dedup）**: 知見6の `allowDuplicate: true` + `duplicateScope: "deck"` 設定はバッチ失敗を回避できるが、副作用として**スクリプトを2回実行すると deck 内に同じカードが重複追加される**。`createDeck` のような自然な冪等性は得られない。**対策**: スクリプト末尾または別ユーティリティとして以下の dedup を実装する: (1) `findNotes "deck:<deck-name>"` で全ノート ID を取得、(2) `notesInfo` で各ノートの Front を取得、(3) Front 文字列をキーに辞書化し、**最古の noteId のみ残して残りを `deleteNotes`**。これにより N 回実行しても deck 内に重複が残らない。`addNotes` 投入直前にこの dedup を走らせれば事実上の冪等化が可能。
+
 ```python
 # 50件ずつバッチ投入
 BATCH_SIZE = 50
