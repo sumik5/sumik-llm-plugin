@@ -28,7 +28,6 @@ Claude Code Agent定義ファイル（`.md`）をCodexのsubagent定義（`agent
 ```toml
 name = "tachikoma-nextjs"
 description = "Next.js/React specialized Tachikoma execution agent. ..."
-model = "gpt-5.4"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 nickname_candidates = ["Route", "Server", "Cache"]
@@ -224,7 +223,6 @@ Claude Code subagent_type → Codex agent名の対応（変換時の参照用）
 ```toml
 name = "<ascii_agent_name>"
 description = "<元frontmatterのdescription>"
-model = "gpt-5.4"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 nickname_candidates = ["Alpha", "Beta", "Gamma"]

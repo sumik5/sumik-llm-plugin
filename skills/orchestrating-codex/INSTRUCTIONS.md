@@ -84,7 +84,6 @@ git書込操作（commit/push）は行わないこと。
 
 # オプション
 nickname_candidates = ["Atlas", "Delta", "Echo"]
-model = "gpt-5.4"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"  # "read-only" or "workspace-write"
 
@@ -315,7 +314,7 @@ Wave 3: E2Eテスト (tachikoma-e2e-test) ∥ 統合テスト (tachikoma-test)
 
 ```bash
 # コード相談（読取専用）
-SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec -m "gpt-5.4" --full-auto --sandbox read-only --cd "<project_directory>" "<request> 確認や質問は不要です。具体的な提案・修正案・コード例まで自主的に出力してください。"
+SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec --full-auto --sandbox read-only --cd "<project_directory>" "<request> 確認や質問は不要です。具体的な提案・修正案・コード例まで自主的に出力してください。"
 ```
 
 - `<project_directory>`: 対象プロジェクトのディレクトリ
@@ -325,10 +324,10 @@ SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec -m "gpt-5.4" --fu
 
 ```bash
 # 初回レビュー
-SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec -m "gpt-5.4" "このプランをレビューしてください。瑣末な点へのクソリプはしないでください。致命的な点のみを指摘してください: <plan_file_fullpath>"
+SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec "このプランをレビューしてください。瑣末な点へのクソリプはしないでください。致命的な点のみを指摘してください: <plan_file_fullpath>"
 
 # 再レビュー（直近セッション継続）
-SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec resume --last -m "gpt-5.4" "プランを更新したのでレビューを再度してください。瑣末なクソリプはせず、致命的な点だけ指摘してください: <plan_file_fullpath>"
+SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}" codex exec resume --last "プランを更新したのでレビューを再度してください。瑣末なクソリプはせず、致命的な点だけ指摘してください: <plan_file_fullpath>"
 ```
 
 codex未インストールの場合: `npm install -g @openai/codex` でインストールを案内して終了。
