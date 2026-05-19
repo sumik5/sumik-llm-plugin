@@ -19,6 +19,7 @@ tools:
   - Glob
   - Edit
   - Write
+  - Bash
 permissionMode: default
 skills:
   - practicing-product-management
