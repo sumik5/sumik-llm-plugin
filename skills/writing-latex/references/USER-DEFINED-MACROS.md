@@ -24,15 +24,15 @@ LaTeXは組み込みコマンドや環境を提供していますが、ユーザ
 
 | 定義（プリアンブル） | 意味 |
 |-------------------|------|
-| `\newcommand{\bs}{$\backslash$}` | `\bs` で `\` を出力 |
-| `\newcommand{\xv}{\mbox{\boldmath$x$}}` | `\xv` でベクトル **x** を出力 |
+| `\newcommand{\bs}{\(\backslash\)}` | `\bs` で `\` を出力 |
+| `\newcommand{\xv}{\mbox{\boldmath\(x\)}}` | `\xv` でベクトル **x** を出力 |
 | `\newcommand{\veps}{\ensuremath{\varepsilon}}` | `\veps` で ε を出力（モードを問わない） |
 | `\newcommand{\cg}{\it Center of Gravity\ /}` | `\cg` で *Center of Gravity* を出力 |
 
 **使用例**:
 ```latex
-\newcommand{\bs}{$\backslash$}
-\newcommand{\xv}{\mbox{\boldmath$x$}}
+\newcommand{\bs}{\(\backslash\)}
+\newcommand{\xv}{\mbox{\boldmath\(x\)}}
 
 % 本文で使用
 The command \bs\ is used for backslash.
@@ -149,7 +149,7 @@ The definite integral is \dint{p}{p^3q+5pq-q}{0}{3}.
 
 ```latex
 % 箇条書きの記号を変更
-\renewcommand{\labelitemi}{{\small$\vartriangleright$}}
+\renewcommand{\labelitemi}{{\small\(\vartriangleright\)}}
 
 % 章のラベルを変更
 \renewcommand{\chaptername}{Unit}
@@ -201,7 +201,7 @@ LaTeXの見出しコマンドが生成するデフォルトラベルワード:
 \show\sigma  % コンパイル時に "> \sigma=\mathchar"11B" と表示
 
 % 内部コーディングを使って再定義
-\renewcommand{\sigma}{\mbox{\boldmath{$\mathchar"11B$}}}
+\renewcommand{\sigma}{\mbox{\boldmath{\(\mathchar"11B\)}}}
 ```
 
 **\show コマンドの使い方**:
@@ -498,14 +498,14 @@ from a given data set of n points are shown in
 Algorithm~\ref{algo:max}.
 
 \begin{algorithm}
-\caption{Maximum of $n$ data points.}
+\caption{Maximum of \(n\) data points.}
 \label{algo:max}
 \begin{enumerate}
-  \item Read the number of data points $n$.
-  \item Read the data point $a_i$; $i=1$ to $n$.
-  \item Set {\it max} $=a_1$.
-  \item If max $< a_i$, set max $=a_i$; $i=2$ to $n$.
-  \item Print max as the maximum of given $n$ number of data points.
+  \item Read the number of data points \(n\).
+  \item Read the data point \(a_i\); \(i=1\) to \(n\).
+  \item Set {\it max} \(=a_1\).
+  \item If max \(< a_i\), set max \(=a_i\); \(i=2\) to \(n\).
+  \item Print max as the maximum of given \(n\) number of data points.
 \end{enumerate}
 \end{algorithm}
 
@@ -513,7 +513,7 @@ Algorithm~\ref{algo:max} is coded in the C computer programming
 language, which is shown here in Program~\ref{prog:max}.
 
 \begin{program}
-\caption{Maximum of $n$ data points.}
+\caption{Maximum of \(n\) data points.}
 \label{prog:max}
 \begin{verbatim}
 #include <stdio.h>
@@ -662,7 +662,7 @@ int main()
 % カスタムリスト環境
 \newenvironment{checklist}%
   {\begin{itemize}%
-   \renewcommand{\labelitemi}{$\square$}}%
+   \renewcommand{\labelitemi}{\(\square\)}}%
   {\end{itemize}}
 ```
 

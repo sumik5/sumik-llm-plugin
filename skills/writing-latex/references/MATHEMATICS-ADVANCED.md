@@ -263,7 +263,7 @@ x = a_0 + \cfrac{1}{a_1 + \cfrac{1}{a_2 + \cfrac{1}{a_3 + \dotsb}}}
 \]
 
 % インライン数式で display style
-The fraction $\dfrac{1}{2}$ is half.
+The fraction \(\dfrac{1}{2}\) is half.
 ```
 
 ### 積分記号
@@ -610,14 +610,14 @@ a = b \quad \text{and} \quad c = d
 
 | コマンド | 説明 | 例 |
 |---------|------|-----|
-| `\mathrm{...}` | Roman（立体） | $\mathrm{ABC}$ |
-| `\mathit{...}` | Italic（斜体） | $\mathit{ABC}$ |
-| `\mathbf{...}` | Bold（太字） | $\mathbf{ABC}$ |
-| `\mathsf{...}` | Sans Serif | $\mathsf{ABC}$ |
-| `\mathtt{...}` | Typewriter | $\mathtt{ABC}$ |
-| `\mathcal{...}` | Calligraphic | $\mathcal{ABC}$ |
-| `\mathbb{...}` | Blackboard Bold | $\mathbb{ABC}$ |
-| `\mathfrak{...}` | Fraktur | $\mathfrak{ABC}$ |
+| `\mathrm{...}` | Roman（立体） | \(\mathrm{ABC}\) |
+| `\mathit{...}` | Italic（斜体） | \(\mathit{ABC}\) |
+| `\mathbf{...}` | Bold（太字） | \(\mathbf{ABC}\) |
+| `\mathsf{...}` | Sans Serif | \(\mathsf{ABC}\) |
+| `\mathtt{...}` | Typewriter | \(\mathtt{ABC}\) |
+| `\mathcal{...}` | Calligraphic | \(\mathcal{ABC}\) |
+| `\mathbb{...}` | Blackboard Bold | \(\mathbb{ABC}\) |
+| `\mathfrak{...}` | Fraktur | \(\mathfrak{ABC}\) |
 
 ### amsmath 追加スタイル
 

@@ -330,7 +330,7 @@ Package hyperref Warning: Token not allowed in a PDF string
 - `\texorpdfstring{LaTeX版}{PDF版}` を使用
 
 ```latex
-\section{\texorpdfstring{$\alpha$-Calculus}{Alpha-Calculus}}
+\section{\texorpdfstring{\(\alpha\)-Calculus}{Alpha-Calculus}}
 ```
 
 ---

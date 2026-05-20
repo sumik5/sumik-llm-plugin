@@ -25,7 +25,7 @@
 まず最も内側の `[n/2]` から始めます。
 
 ```latex
-$\left[ \frac{n}{2} \right]$
+\(\left[ \frac{n}{2} \right]\)
 ```
 
 ### ステップ2: 総和記号
@@ -65,13 +65,13 @@ x_{i, i + 1}^{i^{2}}\qquad\left[ \frac{i + 3}{3} \right]
 分子の複雑な部分を構築：
 
 ```latex
-$\mu(i)^{ \frac{3}{2} } (i^{2} - 1)$
+\(\mu(i)^{ \frac{3}{2} } (i^{2} - 1)\)
 ```
 
 次に平方根で囲みます：
 
 ```latex
-$\sqrt{ \mu(i)^{ \frac{3}{2} } (i^{2} - 1) }$
+\(\sqrt{ \mu(i)^{ \frac{3}{2} } (i^{2} - 1) }\)
 ```
 
 ### ステップ6: 立方根
@@ -79,7 +79,7 @@ $\sqrt{ \mu(i)^{ \frac{3}{2} } (i^{2} - 1) }$
 分母の2つの立方根を作成：
 
 ```latex
-$\sqrt[3]{ \rho(i) - 2 }$ $\sqrt[3]{ \rho(i) - 1 }$
+\(\sqrt[3]{ \rho(i) - 2 }\) \(\sqrt[3]{ \rho(i) - 1 }\)
 ```
 
 ### ステップ7: 分数の組み立て
@@ -190,7 +190,7 @@ x \mapsto \{ c \in C \mid c \leq x \}
 ```latex
 \[
 A = \{ x \in X \mid x \in X_{i},
-\text{ for some $i \in I$} \}
+\text{ for some \(i \in I\)} \}
 \]
 ```
 

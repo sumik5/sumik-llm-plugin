@@ -103,7 +103,7 @@ author = {{The LaTeX Project Team}},      % 団体名（二重ブレース）
 ```bibtex
 title = {The Art of Computer Programming},
 title = {{LaTeX} in 24 Hours},             % "LaTeX" を保護
-title = {An Introduction to $\alpha$-Calculus},  % 数式
+title = {An Introduction to \(\alpha\)-Calculus},  % 数式
 ```
 
 #### 日付フィールド

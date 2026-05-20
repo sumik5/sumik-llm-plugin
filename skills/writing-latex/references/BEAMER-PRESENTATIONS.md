@@ -394,7 +394,7 @@ Beamerは学術プレゼンテーションに最適なLaTeXドキュメントク
   \end{alertblock}
 
   \begin{exampleblock}{例}<3>
-    $\sin^2\theta + \cos^2\theta = 1$
+    \(\sin^2\theta + \cos^2\theta = 1\)
   \end{exampleblock}
 \end{frame}
 ```

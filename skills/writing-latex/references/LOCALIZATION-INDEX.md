@@ -184,7 +184,7 @@ LaTeX\index{LaTeX} is a document preparation system.
 \index{LaTeX!environments}
 
 % 表示形式の指定（@ で区切る）
-\index{alpha@$\alpha$}      % "α" と表示されるが "alpha" でソート
+\index{alpha@\(\alpha\)}      % "α" と表示されるが "alpha" でソート
 \index{TeX@\TeX}            % "TeX" と表示されるが "TeX" でソート
 
 % ページ修飾（| で指定）
@@ -209,7 +209,7 @@ LaTeX\index{LaTeX} is a document preparation system.
 | 記号 | 意味 | 例 |
 |------|------|-----|
 | `!` | サブエントリ | `\index{A!B!C}` → A > B > C |
-| `@` | 表示形式とソートキーを分離 | `\index{alpha@$\alpha$}` |
+| `@` | 表示形式とソートキーを分離 | `\index{alpha@\(\alpha\)}` |
 | `\|` | ページ番号修飾 | `\index{term\|textbf}` |
 | `\|(` | 範囲開始 | `\index{term\|(}` |
 | `\|)` | 範囲終了 | `\index{term\|)}` |
