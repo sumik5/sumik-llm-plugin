@@ -147,9 +147,9 @@ has gained significant attention in recent years.
 
 ```latex
 \begin{tcolorbox}[title=Definition and Example]
-  \textbf{Definition:} A function $f$ is continuous if...
+  \textbf{Definition:} A function \(f\) is continuous if...
   \tcblower  % 下部セクション開始
-  \textbf{Example:} Consider $f(x) = x^2$...
+  \textbf{Example:} Consider \(f(x) = x^2\)...
 \end{tcolorbox}
 ```
 
@@ -206,7 +206,7 @@ has gained significant attention in recent years.
 }{thm}
 
 \begin{mytheo}{Pythagorean Theorem}{pythag}
-  For a right triangle with sides $a$, $b$, and hypotenuse $c$:
+  For a right triangle with sides \(a\), \(b\), and hypotenuse \(c\):
   \[ a^2 + b^2 = c^2 \]
 \end{mytheo}
 
@@ -458,7 +458,7 @@ used a mechanical machine called a typewriter.
 
 ```latex
 % 以下は等価
-\shapepar{\heartshape} text\ \ $\heartsuit$\par
+\shapepar{\heartshape} text\ \ \(\heartsuit\)\par
 \heartpar{text}
 ```
 

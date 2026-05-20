@@ -52,7 +52,7 @@ LaTeXで科学技術分野の文書を作成する際に有用な専門パッケ
 \algnewcommand{\Local}{\State\textbf{local variables: }}
 
 % 代入文用コマンド（左辺幅調整）
-\newcommand{\Let}[2]{\State $\mathmakebox[1em]{#1} \gets #2$}
+\newcommand{\Let}[2]{\State \(\mathmakebox[1em]{#1} \gets #2\)}
 ```
 
 ---
@@ -126,7 +126,7 @@ int main() {
 \end{luacode}
 
 % \directluaコマンド（1行）
-$\sqrt{2} \approx \directlua{tex.print(math.sqrt(2))}$
+\(\sqrt{2} \approx \directlua{tex.print(math.sqrt(2))}\)
 
 \end{document}
 ```
@@ -232,9 +232,9 @@ $\sqrt{2} \approx \directlua{tex.print(math.sqrt(2))}$
 \usetikzlibrary{positioning,quotes}
 
 \feynmandiagram[horizontal=a to b] {
-  i1 [particle=$e^-$] -- [fermion] a -- [fermion] f1 [particle=$e^-$],
-  a -- [photon, "$\gamma$", red, thick, momentum' = {[arrow style=red]$k$}] b,
-  i2 [particle=$\mu^-$] -- [anti fermion] b -- [anti fermion] f2 [particle=$\mu^-$]
+  i1 [particle=\(e^-\)] -- [fermion] a -- [fermion] f1 [particle=\(e^-\)],
+  a -- [photon, "\(\gamma\)", red, thick, momentum' = {[arrow style=red]\(k\)}] b,
+  i2 [particle=\(\mu^-\)] -- [anti fermion] b -- [anti fermion] f2 [particle=\(\mu^-\)]
 };
 ```
 
@@ -323,17 +323,17 @@ $\sqrt{2} \approx \directlua{tex.print(math.sqrt(2))}$
 \usepackage{circuitikz}
 
 \begin{circuitikz}[american voltages]
-  \draw (0,0) to[battery1, l=$V$] (0,2)
-    to[R=$R_1$] (2,2)
-    to[C=$C$] (2,0)
+  \draw (0,0) to[battery1, l=\(V\)] (0,2)
+    to[R=\(R_1\)] (2,2)
+    to[C=\(C\)] (2,0)
     to[short] (0,0);
 
   % 並列回路
-  \draw (2,2) to[R=$R_2$] (4,2)
-    to[L=$L$] (4,0) -- (2,0);
+  \draw (2,2) to[R=\(R_2\)] (4,2)
+    to[L=\(L\)] (4,0) -- (2,0);
 
   % 測定器
-  \draw (4,2) to[ammeter, l=$A$] (6,2);
+  \draw (4,2) to[ammeter, l=\(A\)] (6,2);
 \end{circuitikz}
 
 % european / american スタイル選択可能

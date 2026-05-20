@@ -28,8 +28,8 @@ LaTeXで数学関数のプロット、幾何図形、計算処理を行うため
 \begin{tikzpicture}
   \begin{axis}[
     axis lines = center,  % 中央配置軸
-    xlabel = $x$,
-    ylabel = $f(x)$
+    xlabel = \(x\),
+    ylabel = \(f(x)\)
   ]
     \addplot[domain=-3:3, thick, smooth] {x^3 - 5*x};
   \end{axis}
@@ -44,8 +44,8 @@ LaTeXで数学関数のプロット、幾何図形、計算処理を行うため
 \begin{axis}[
   grid,
   xtick = {-360,-270,...,360},  % 目盛り位置明示
-  xlabel = $x$,
-  ylabel = $\sin(x)$
+  xlabel = \(x\),
+  ylabel = \(\sin(x)\)
 ]
   \addplot[domain=-360:360, samples=100, thick] {sin(x)};
 \end{axis}
@@ -63,7 +63,7 @@ LaTeXで数学関数のプロット、幾何図形、計算処理を行うため
 \begin{axis}[legend pos=north west]
   \addplot[domain=-2:2, blue, thick] {x^2};
   \addplot[domain=-2:2, red, dashed] {x^3};
-  \legend{$x^2$, $x^3$}
+  \legend{\(x^2\), \(x^3\)}
 \end{axis}
 ```
 
@@ -87,9 +87,9 @@ LaTeXで数学関数のプロット、幾何図形、計算処理を行うため
 \begin{axis}[
   colorbar,              % カラーバー表示
   view={30}{45},         % 視点角度（azimuth, elevation）
-  xlabel=$x$,
-  ylabel=$y$,
-  zlabel=$z$
+  xlabel=\(x\),
+  ylabel=\(y\),
+  zlabel=\(z\)
 ]
   \addplot3[
     surf,
@@ -164,7 +164,7 @@ LaTeXで数学関数のプロット、幾何図形、計算処理を行うため
 
 % 角度マーク
 \tkzMarkAngle[size=0.8cm](B,A,C)
-\tkzLabelAngle[pos=1.2](B,A,C){$\alpha$}
+\tkzLabelAngle[pos=1.2](B,A,C){\(\alpha\)}
 ```
 
 ---

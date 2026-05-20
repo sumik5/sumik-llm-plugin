@@ -204,11 +204,25 @@ latexmk -pdfdvi -shell-escape document.tex
 
 詳細パターンは [REFERENCE.md](./references/REFERENCE.md) を参照。
 
+### 🔴 インライン数式の記法ルール
+
+**インライン数式は `\( ... \)` を使用する。`$ ... $` は使わない。**
+
+理由:
+- LaTeX2e 推奨の記法（`$` は TeX 由来のプリミティブで LaTeX2e ロバストデリミタは `\(...\)`）
+- ChkTeX warning 46 (`46: Use \( ... \) instead of $ ... $.`) を抑制
+- 閉じ忘れエラーを LaTeX が確実に検出（`$` は閉じ忘れがサイレント化しやすい）
+
+❌ `時定数は $\tau = RC$ で表される。`
+✅ `時定数は \(\tau = RC\) で表される。`
+
+ディスプレイ数式は `\[ ... \]` または `equation` 環境を使用する（`$$ ... $$` は非推奨）。
+
 ### 基本パターン
 
 ```latex
 % インライン数式
-時定数は $\tau = RC$ で表される。
+時定数は \(\tau = RC\) で表される。
 
 % 番号付き数式
 \begin{equation}\label{eq:name}

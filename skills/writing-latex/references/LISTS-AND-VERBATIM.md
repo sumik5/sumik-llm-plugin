@@ -105,7 +105,7 @@ LaTeXの標準リスト：
 % 記号
 \begin{itemize}[label=\textbullet]  % 標準の黒丸
 \begin{itemize}[label=\textendash]  % enダッシュ
-\begin{itemize}[label=$\triangleright$]  % 右向き三角
+\begin{itemize}[label=\(\triangleright\)]  % 右向き三角
 
 % 複数レベルの統一設定
 \setlist[enumerate,1]{label=\arabic*.}
@@ -191,7 +191,7 @@ LaTeXの標準リスト：
 
 ```latex
 \begin{theorem}[ピタゴラスの定理]
-直角三角形において、斜辺の長さを $c$、他の2辺の長さを $a, b$ とすると、
+直角三角形において、斜辺の長さを \(c\)、他の2辺の長さを \(a, b\) とすると、
 \[ a^2 + b^2 = c^2 \]
 が成り立つ。
 \end{theorem}
@@ -278,7 +278,7 @@ LaTeXの標準リスト：
 
 ```latex
 \settasks{
-  label=$\triangleright$,
+  label=\(\triangleright\),
   label-width=2em,
   item-indent=2.5em,
   column-sep=1em

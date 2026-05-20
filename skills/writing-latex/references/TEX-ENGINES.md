@@ -140,7 +140,7 @@ DVI（Device Independent）は特定のプリンター・画面に依存しな�
 \begin{document}
   \chapter{方程式}
   \section{二次方程式}
-  $ax^2 + bx + c = 0$
+  \(ax^2 + bx + c = 0\)
 \end{document}
 ```
 
@@ -150,7 +150,7 @@ DVI（Device Independent）は特定のプリンター・画面に依存しな�
 \starttext
 \startchapter[title={方程式}]
 \startsection[title={二次方程式}]
-$ax^2 + bx + c = 0$
+\(ax^2 + bx + c = 0\)
 \stopsection
 \stopchapter
 \stoptext

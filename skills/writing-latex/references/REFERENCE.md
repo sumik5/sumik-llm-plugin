@@ -18,7 +18,7 @@ mintedが使えない環境（`-shell-escape`不可）ではlistingsを使用す
     stringstyle={\small\ttfamily},
     frame={tb},
     breaklines=true,
-    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    postbreak=\mbox{\textcolor{red}{\(\hookrightarrow\)}\space},
     numbers=left,
     xleftmargin=3zw,
     xrightmargin=0zw,
