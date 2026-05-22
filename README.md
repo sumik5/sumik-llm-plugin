@@ -32,7 +32,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (12個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (68個)
+└── skills/             # ナレッジスキル (69個)
 ```
 
 ---
@@ -89,7 +89,7 @@ sumik-claude-plugin/
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-PROCESSING.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
 
-### Skills (68個)
+### Skills (69個)
 
 #### コア開発
 
@@ -177,6 +177,7 @@ sumik-claude-plugin/
 | `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
 | `orchestrating-teams` | Agent Teamオーケストレーション（チーム編成・タチコマ並列起動・進捗管理・docs先行開発） |
 | `converting-content` | コンテンツ変換ガイド（画像ベースEPUB→テキストOCR変換・LM Studio英日翻訳・pandoc・recognize-image.py） |
+| `compressing-epub-images` | EPUB 内 JPEG 画像の再エンコード・リサイズによるサイズ削減スキル。実測サンプリングで予測サイズを算出し AskUserQuestion で圧縮レベル（quality 60〜70・1080pxリサイズ）をユーザーに選ばせる対話型ワークフロー。mimetype 先頭無圧縮格納・並列圧縮（xargs -P 8）・出力方式選択を含む |
 | `chronicle` | スクリーン録画・履歴参照スキル（Rolling Bufferで過去数時間の作業コンテキストを取得・OCR解析・作業の曖昧さ解消） |
 | `gws-slides` | Google Slides 読み書き（gws CLI経由でプレゼンテーション作成・編集・batchUpdate） |
 | `orchestrating-codex` | Codex CLI統合スキル（基本操作・プランレビュー・Agentオーケストレーション・Wave並列実行・max_threads制御） |
