@@ -87,7 +87,7 @@ sumik-claude-plugin/
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
-| `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-PROCESSING.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
+| `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
 
 ### Skills (69個)
 

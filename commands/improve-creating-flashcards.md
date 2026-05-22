@@ -1,8 +1,8 @@
 ---
 description: >-
   creating-flashcards スキルを実行した直後のセッションを分析し、新たに発見したパーサー罠・
-  OCRアーティファクト・構造パターン・判定マーカー表記揺れ等の知見を CONTENT-PROCESSING.md /
-  INSTRUCTIONS.md に追記してスキルを進化させるコマンド。
+  OCRアーティファクト・構造パターン・判定マーカー表記揺れ等の知見を CONTENT-DETECTION.md /
+  CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md に追記してスキルを進化させるコマンド。
   Use when a flashcard creation session has just completed and you want to capture
   newly discovered parsing patterns or edge cases into the skill files.
   会話履歴を自動抽出し、追記案を diff 提示 → ユーザー承認後に PATCH bump + commit + タグ付与まで一気通貫で実行。
@@ -57,7 +57,9 @@ argument-hint: "[追記したい知見の補足メモ]"
 
 - `skills/creating-flashcards/SKILL.md`
 - `skills/creating-flashcards/INSTRUCTIONS.md`
-- `skills/creating-flashcards/references/CONTENT-PROCESSING.md`
+- `skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
+- `skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
+- `skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
 - `skills/creating-flashcards/references/ANKI-MCP-GUIDE.md`
 - `skills/creating-flashcards/references/ANKI-MCP-TOOLS.md`
 
@@ -87,7 +89,7 @@ argument-hint: "[追記したい知見の補足メモ]"
 ## 抽出した知見 N 件
 
 ### 知見1: [タイトル]
-**対象ファイル**: skills/creating-flashcards/references/CONTENT-PROCESSING.md
+**対象ファイル**: skills/creating-flashcards/references/CONTENT-{DETECTION|BY-TYPE|COMMON}.md（知見の種別に応じて選択）
 **追記位置**: line XXX 付近（[既存セクション名] の直後）
 **追記内容**:
 > ⚠️ **[タイトル]**: [本文]
@@ -125,7 +127,9 @@ AskUserQuestion(
 
 ```bash
 grep -nE "『|』|TAC|オライリー|オーム社|技術評論|翔泳社|日経BP|インプレス" \
-  skills/creating-flashcards/references/CONTENT-PROCESSING.md \
+  skills/creating-flashcards/references/CONTENT-DETECTION.md \
+  skills/creating-flashcards/references/CONTENT-BY-TYPE.md \
+  skills/creating-flashcards/references/CONTENT-COMMON.md \
   skills/creating-flashcards/INSTRUCTIONS.md
 ```
 
@@ -142,7 +146,7 @@ grep -nE "『|』|TAC|オライリー|オーム社|技術評論|翔泳社|日経
 
    ```bash
    git add skills/creating-flashcards/ .claude-plugin/plugin.json
-   git commit -m "docs(creating-flashcards): N件の追加知見を CONTENT-PROCESSING.md に反映"
+   git commit -m "docs(creating-flashcards): N件の追加知見を CONTENT-{DETECTION|BY-TYPE|COMMON}.md に反映"
    ```
 
 3. アノテーション付きタグを付与:
