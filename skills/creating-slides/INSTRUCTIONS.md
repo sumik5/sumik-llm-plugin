@@ -655,6 +655,59 @@ if (window.__updateProgress) window.__updateProgress();
 
 ---
 
+## はみ出し（overflow）の予防・測定・解消（🔴 必須）
+
+固定16:9（1280×720）キャンバスでは、フォント拡大・コード全表示・情報過密が容易にスライド下端のはみ出しを生む。以下を順守する。
+
+### 測定の正しい方法（罠に注意）
+
+`.slide` は `overflow: hidden; height: 720px` 固定。はみ出しは内部コンテンツで起きるため、**`scrollHeight - clientHeight`（クランプ状態）で測る**。
+
+```js
+// 1280×720 のページで、対象スライドだけ is-active にして測定
+const slides = [...document.querySelectorAll('.slide')];
+slides.forEach(s => s.classList.remove('is-active'));
+target.classList.add('is-active');
+const overflowPx = target.scrollHeight - target.clientHeight; // > 2 ならはみ出し
+```
+
+- ❌ `height: auto` / `overflow: visible` を付けて「自然高さ」を測らない（はみ出しを検出できない）
+- 🔴 **CSS変更が反映されているか必ず確認**: HTTP プレビューサーバは旧CSSをキャッシュする。`file://` を直接開くか、`?cb=<timestamp>` を HTML と `<link>` の両方に付けてキャッシュバストする。古いCSSで測ると「縮んで見えてはみ出し0」と誤判定する。
+- 全スライドを1枚ずつ is-active 化して総当りで測る（特定スライドだけ見ない）
+
+### 解消は systemic-fix を優先（分割は最後の手段）
+
+はみ出しを見つけたら、**個別スライドを分割する前に**、全スライドに効く根本対処を先に試す（少ない変更で大量のはみ出しが一括解消する）:
+
+1. **上部・下部の余白を削る**（`engine/slide.css` の `.slide { padding }`。上を `var(--sp-xs)` 程度まで詰めると content 領域が大きく広がる）
+2. **`.slide-content` の gap を詰める**（`--sp-lg` → `--sp-md`）
+3. **cols-N が縦積みになっていないか確認**（theme で `.slide-content .body.cols-N { display:grid }` 対策済み。カードは横並びが正）
+4. それでも収まらない密なコード/テーブルのみ、**論理境界でスライド分割**（コード値・情報は無改変、`slide-counter` を更新）
+
+> 実例: フォント拡大で27スライドがはみ出したが、上部余白削減（+96px）だけで大半が解消し、真に分割が必要だったのは数枚だった。**まず余白・gap・grid、最後に分割**。
+
+### コードブロックはスクロールバー禁止
+
+`.slide pre` に `max-height` + `overflow:auto` を付けない（スライド内スクロールバーは NG）。収まらなければ分割する。長い行は `white-space: pre-wrap` で折り返す（theme 設定済み）。
+
+### 既知のCSSの罠（theme で対策済み・再発させない）
+
+| 罠 | 症状 | 対策（theme済み） |
+|----|------|-----------------|
+| `.list li { display:flex }` | li 内のインライン要素（tag/mono/テキスト）が flex item に分解され、隙間・単語途中改行で崩れる | `.list li` は block + bullet を `::before` 絶対配置 |
+| `.body cols-N` 併用 | `.slide-content .body` の flex-column が grid を打ち消しカード縦積み→はみ出し | `.slide-content .body.cols-N { display:grid }` で詳細度上書き |
+| `pre { max-height; overflow:auto }` | スライド内にスクロールバー | max-height を使わず分割で対応 |
+
+### 制作メタデータをスライドに出さない（🔴）
+
+「想定尺 約N分」「前提タグ: section-xx-end」「前提: リポジトリ未取得」等は**制作者向けの内部メモ**。受講者・聴衆が見るスライドには出さない（タイトルスライドのサブタイトルは演題の説明のみに留める）。現在位置は `slide-counter` とプログレスバー（`engine/slide.js` が `#auto-progress` を自動生成）が担う。
+
+### シンタックスハイライト（任意・opt-in）
+
+コード講座ではコードに色を付けると可読性が上がる。`highlight.js` をローカル同梱（`engine/vendor/highlight.min.js` + テーマCSS）し、`engine/slide.js` から動的ロード→`hljs.highlightElement(codeEl)` する方式が、オフライン・PDF でも安定。色付けは `<span>` 付与のみでテキスト値は不変（写経安全）。CDN ではなくローカル vendoring を推奨（録画・配布時の安定性）。`.hljs` の背景・padding はスライド側に合わせて上書きする。
+
+---
+
 ## デザインガイドライン
 
 ### 設計思想

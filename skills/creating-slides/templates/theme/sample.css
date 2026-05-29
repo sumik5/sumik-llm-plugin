@@ -69,6 +69,35 @@ body { font-family: var(--font-sans); }
   color: var(--color-muted);
 }
 
+/* ── コードブロック ──
+   🔴 動画/プレゼン用途では可読サイズ（0.9rem 前後）を基準にする。
+   🔴 max-height + overflow:auto は使わない（スライド内にスクロールバーが出るのは NG）。
+   コードが固定枠（720px相当）に収まらない場合は「フォント縮小」ではなく
+   「コードを論理境界で別スライドに分割」して解消する（値・インデントは無改変）。
+   長い行は white-space:pre-wrap で折り返し、横スクロールも防ぐ。 */
+.slide code {
+  font-family: var(--font-mono);
+  font-size: .9em;
+  background: var(--color-card-bg);
+  border-radius: 2px;
+  padding: .05rem .3rem;
+}
+.slide pre {
+  background: var(--color-card-bg);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-sm) var(--sp-md);
+  font-family: var(--font-mono);
+  font-size: .9rem;
+  line-height: 1.5;
+  color: var(--color-fg);
+  overflow: visible;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.slide pre code { background: transparent; padding: 0; font-size: inherit; }
+.slide pre.code-sm { font-size: .8rem; line-height: 1.45; }   /* 行数が多い時のワンサイズ下げ（分割が基本） */
+
 
 /* ============================================================
    スライドタイプ（index.html の class で指定する）
@@ -88,7 +117,10 @@ body { font-family: var(--font-sans); }
   color: var(--color-accent);
   text-transform: uppercase;
 }
-.slide-title h1 { max-width: 860px; }
+/* 🔴 max-width を狭く固定するとタイトルが不要に2行へ折り返す。
+   利用可能幅を使い、長い時だけ text-wrap:balance で均等に折る。
+   それでも長すぎるタイトルは font-size を 1段下げる（例: var(--text-3xl)）。 */
+.slide-title h1 { max-width: none; text-wrap: balance; }
 .slide-title .sub {
   font-size: var(--text-lg);
   color: var(--color-muted);
@@ -178,6 +210,12 @@ body { font-family: var(--font-sans); }
   margin-block: auto;
 }
 
+/* 🔴 .body と cols-N を同一要素に併用した時の対策。
+   .slide-content .body { display:flex } (詳細度0,2,0) が .cols-N { display:grid } (0,1,0) を
+   打ち消してカードが縦積みになり、はみ出しの原因になる。詳細度を上げて grid を復活させる。 */
+.slide-content .body.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-lg); align-content: center; }
+.slide-content .body.cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--sp-lg); align-content: center; }
+
 /* 箇条書き（行頭にアクセント色の棒） */
 .list {
   display: flex;
@@ -185,23 +223,25 @@ body { font-family: var(--font-sans); }
   gap: var(--sp-sm);
   list-style: none;
 }
+/* 🔴 li は block。flex にすると li 内のインライン要素（.tag / .mono / テキスト）が
+   個別の flex item に分解され、隙間・単語途中改行で表示が崩れる（既知の罠）。
+   bullet は ::before の絶対配置で表現する。 */
 .list li {
-  display: flex;
-  align-items: baseline;
-  gap: var(--sp-sm);
+  position: relative;
+  padding-left: calc(6px + var(--sp-sm));
   font-size: var(--text-lg);
   color: var(--color-muted);
   line-height: 1.6;
 }
 .list li::before {
   content: '';
-  display: inline-block;
-  flex-shrink: 0;
+  position: absolute;
+  left: 0;
+  top: .65em;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--color-accent);
-  margin-top: .55em;
 }
 
 /* ── カード ── */

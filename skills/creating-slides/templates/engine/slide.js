@@ -13,6 +13,16 @@
     const el = document.querySelector('.slide-counter');
     if (el) el.textContent =
       `${String(cur + 1).padStart(2, '0')} / ${String(all.length).padStart(2, '0')}`;
+    // ── 簡易プログレスバー（全デッキ自動・ビューポート最下部に現在位置を表示） ──
+    let bar = document.getElementById('auto-progress');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'auto-progress';
+      bar.innerHTML = '<div id="auto-progress-fill"></div>';
+      document.body.appendChild(bar);
+    }
+    const fill = document.getElementById('auto-progress-fill');
+    if (fill) fill.style.width = ((cur + 1) / all.length * 100) + '%';
   }
 
   const next = () => show(cur + 1);

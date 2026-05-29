@@ -83,6 +83,25 @@ body {
   color: rgba(255,255,255,.9);
 }
 
+/* ── 簡易プログレスバー（slide.js が自動生成・ビューポート最下部に現在位置） ── */
+#auto-progress {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,.08);
+  z-index: 9999;
+  pointer-events: none;
+}
+#auto-progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--color-accent, #6ee7b7);
+  transition: width .3s ease;
+}
+@media print { #auto-progress { display: none !important; } }
+
 /* ── PDF / 印刷 ── */
 @media print {
   @page { size: 254mm 142.875mm; margin: 0; }
