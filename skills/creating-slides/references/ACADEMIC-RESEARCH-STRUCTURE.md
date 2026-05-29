@@ -381,4 +381,4 @@ In conclusion ... / To sum up ... / I'd like to leave you with ...
 - `QUALITY-ENGAGEMENT-STRATEGIES.md`（聴衆エンゲージメント・Holy Shit Moment）
 - `QUALITY-STORYTELLING.md`（ストーリーテリング基礎）
 - `QUALITY-LOGICAL-STRUCTURE.md`（トランジション設計）
-- `ENGLISH-PRESENTATION-EXPRESSIONS.md`（英語定型表現集）※計画中
+- `ENGLISH-PRESENTATION-EXPRESSIONS.md`（英語定型表現集）

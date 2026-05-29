@@ -8,6 +8,7 @@
 
   function show(n) {
     const all = slides();
+    if (!all.length) return;  // スライド0枚時の 0/0 幅計算ガード
     cur = Math.max(0, Math.min(n, all.length - 1));
     all.forEach((s, i) => s.classList.toggle('is-active', i === cur));
     const el = document.querySelector('.slide-counter');
@@ -178,6 +179,29 @@
       observer.observe(s, { attributes: true, attributeFilter: ['class'] });
     });
   }
+
+  // ── シンタックスハイライト（highlight.js を engine/vendor から読み込み） ──
+  (function initHighlight() {
+    // data-no-highlight が付いたデッキ/body ではハイライトを無効化（CSS/JS の読込もしない）
+    if (document.querySelector('.deck[data-no-highlight], body[data-no-highlight]')) return;
+    const engineScript = [...document.scripts].find(s => s.src && s.src.includes('engine/slide.js'));
+    if (!engineScript) return;
+    const base = engineScript.src.replace(/slide\.js(\?.*)?$/, '');
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = base + 'vendor/hljs-theme.css';
+    document.head.appendChild(link);
+    const s = document.createElement('script');
+    s.src = base + 'vendor/highlight.min.js';
+    s.onload = () => {
+      if (!window.hljs) return;
+      window.hljs.configure({ ignoreUnescapedHTML: true });
+      document.querySelectorAll('.slide pre > code').forEach(el => {
+        try { window.hljs.highlightElement(el); } catch (e) {}
+      });
+    };
+    document.head.appendChild(s);
+  })();
 
   // ── ビューポートスケーリング ──
   window.addEventListener('resize', scaleDeck);

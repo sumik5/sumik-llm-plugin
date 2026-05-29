@@ -4,28 +4,30 @@
    ============================================================ */
 
 :root {
-  /* ── カラー ── */
-  --color-chrome:  #111111;          /* deckの外側（ブラウザ背景） */
-  --color-bg:      #0f0f0f;          /* スライド背景 */
-  --color-fg:      #f0f0ee;          /* テキスト（メイン） */
-  --color-muted:   rgba(240,240,238,.45);  /* テキスト（サブ） */
-  --color-accent:  #6ee7b7;          /* アクセント色（線・テキストのみ、塗りには使わない） */
-  --color-border:  rgba(240,240,238,.1);
-  --color-num:     rgba(240,240,238,.2);  /* スライド番号 */
-  --color-card-bg: rgba(255,255,255,.04); /* カード・ボックス背景 */
+  /* ── カラー（ライトテーマ。撮影・配信での視認性が高い） ── */
+  --color-chrome:  #e8e8e8;          /* deckの外側（ブラウザ背景） */
+  --color-bg:      #ffffff;          /* スライド背景 */
+  --color-fg:      #1a1a1a;          /* テキスト（メイン） */
+  --color-muted:   rgba(26,26,26,.6);  /* テキスト（サブ）。白背景で約#767676＝WCAG AA 4.5:1 を満たす小テキスト下限 */
+  --color-accent:  #0033FF;          /* アクセント色（線・テキストのみ、塗りには使わない） */
+  --color-border:  rgba(26,26,26,.1);
+  --color-num:     rgba(26,26,26,.2);  /* スライド番号 */
+  --color-card-bg: rgba(0,0,0,.03); /* カード・ボックス背景 */
 
   /* ── タイポグラフィ ── */
-  --font-sans: "Helvetica Neue", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+  /* webfontは埋め込まない。"Zen Kaku Gothic New" 未導入環境では Hiragino 等へ自動フォールバック */
+  --font-sans: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
   --font-mono: "SF Mono", "Fira Code", "Consolas", monospace;
 
-  --text-xs:   .75rem;    /* 12px */
-  --text-sm:   .875rem;   /* 14px */
-  --text-base: 1rem;      /* 16px */
-  --text-lg:   1.25rem;   /* 20px */
-  --text-xl:   1.75rem;   /* 28px */
-  --text-2xl:  2.5rem;    /* 40px */
-  --text-3xl:  3.5rem;    /* 56px */
-  --text-4xl:  5rem;      /* 80px */
+  /* 本文を全体的に底上げ（撮影・配信で小さすぎないサイズ）。見出し系 2xl/3xl/4xl は据置 */
+  --text-xs:   .85rem;    /* 13.6px */
+  --text-sm:   .98rem;    /* 15.7px */
+  --text-base: 1.1rem;    /* 17.6px */
+  --text-lg:   1.38rem;   /* 22px */
+  --text-xl:   1.85rem;   /* 29.6px */
+  --text-2xl:  2.5rem;    /* 40px（見出し・据置） */
+  --text-3xl:  3.5rem;    /* 56px（据置） */
+  --text-4xl:  5rem;      /* 80px（据置） */
 
   --weight-normal: 400;
   --weight-medium: 500;
@@ -41,6 +43,12 @@
   /* ── その他 ── */
   --radius: 4px;
   --border: 1px solid var(--color-border);
+
+  /* ── ナビUIクローム（counter / nav ボタン）。ライト背景で視認可能なコントラスト ── */
+  --color-ui-fg:        rgba(26,26,26,.5);
+  --color-ui-bg:        rgba(0,0,0,.05);
+  --color-ui-border:    rgba(0,0,0,.14);
+  --color-ui-fg-strong: rgba(26,26,26,.85);
 }
 
 /* ── ベースタイポグラフィ ── */
@@ -96,7 +104,7 @@ body { font-family: var(--font-sans); }
   word-break: break-word;
 }
 .slide pre code { background: transparent; padding: 0; font-size: inherit; }
-.slide pre.code-sm { font-size: .8rem; line-height: 1.45; }   /* 行数が多い時のワンサイズ下げ（分割が基本） */
+.slide pre.code-sm { font-size: .84rem; line-height: 1.45; }   /* 行数が多い時のワンサイズ下げ（分割が基本） */
 
 
 /* ============================================================
@@ -120,7 +128,7 @@ body { font-family: var(--font-sans); }
 /* 🔴 max-width を狭く固定するとタイトルが不要に2行へ折り返す。
    利用可能幅を使い、長い時だけ text-wrap:balance で均等に折る。
    それでも長すぎるタイトルは font-size を 1段下げる（例: var(--text-3xl)）。 */
-.slide-title h1 { max-width: none; text-wrap: balance; }
+.slide-title h1 { max-width: none; font-size: var(--text-3xl); text-wrap: balance; }
 .slide-title .sub {
   font-size: var(--text-lg);
   color: var(--color-muted);
@@ -129,7 +137,7 @@ body { font-family: var(--font-sans); }
 }
 
 /* ② content — 汎用コンテンツスライド */
-.slide-content { gap: var(--sp-lg); }
+.slide-content { gap: var(--sp-md); }
 .slide-content .body {
   display: flex;
   flex-direction: column;
@@ -402,7 +410,8 @@ body { font-family: var(--font-sans); }
   justify-content: center;
   align-items: center;
   text-align: center;
-  position: relative;
+  /* position は base .slide の absolute+inset:0 を継承（高さ720を保つ）。
+     relative で上書きすると高さがコンテンツ分に潰れるため指定しない。 */
 }
 .slide-breath::before {
   content: '';
@@ -410,7 +419,7 @@ body { font-family: var(--font-sans); }
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(110, 231, 183, .03) 0%,
+    rgba(0, 51, 255, .03) 0%,
     transparent 60%
   );
   pointer-events: none;
@@ -440,7 +449,8 @@ body { font-family: var(--font-sans); }
 
 /* ⑧ photo-overlay — 3層写真スライド（写真→透過オーバーレイ→テキスト） */
 .slide-photo-overlay {
-  position: relative;
+  /* position は base .slide の absolute+inset:0 を継承（高さ720を保つ）。
+     relative で上書きすると高さがコンテンツ分に潰れるため指定しない。 */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

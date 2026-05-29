@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="20" viewBox="0 0 96 20" role="img" aria-label="Logo placeholder（差し替えてください）">
+  <rect x="0.75" y="0.75" width="18.5" height="18.5" rx="3" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <circle cx="10" cy="10" r="3.8" fill="#0033FF"/>
+  <text x="28" y="14.5" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="1.5" fill="#1a1a1a">LOGO</text>
+</svg>
