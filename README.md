@@ -32,7 +32,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (12個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (69個)
+└── skills/             # ナレッジスキル (70個)
 ```
 
 ---
@@ -89,7 +89,7 @@ sumik-claude-plugin/
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
 
-### Skills (69個)
+### Skills (70個)
 
 #### コア開発
 
@@ -155,6 +155,7 @@ sumik-claude-plugin/
 | `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証） |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
+| `creating-countdown-icons` | カウントダウンアプリ用アプリアイコン（512×512 PNG）を対話フローで生成するスキル。絵文字候補4択→背景パレット4択の選択フローを経て、clean版とプレビュー版（白数字重ね）を出力 |
 
 #### ブラウザ自動化・E2Eテスト
 
