@@ -7,6 +7,8 @@
 - 判別後のパース戦略 → [CONTENT-BY-TYPE.md](CONTENT-BY-TYPE.md)
 - **共通処理（本ファイル）**: 全タイプで使う前処理・後処理・フォーマット規則
 
+> 🔴 **本ファイルの散文知見と `scripts/anki_toolkit.py` の関係**: ここに集約された Anki 投入・HTML整形・冪等性（`duplicateScope` 罠・per-note errors・事前フィルタ・dedup 等）の知見は、`skills/creating-flashcards/scripts/anki_toolkit.py` に**実装本体**として常設されている（投入インフラ・HTML整形・冪等性の不変ロジック）。毎回の作業では toolkit を再利用し、これらを /tmp に書き起こさない。**本ファイルの散文は削除せず残す**: toolkit が「なぜその設計を採るのか」の根拠であり、不変バグ発見時に `anki_toolkit.py` を修正する際の参照資料になる。一方、pandocアーティファクト除去・構造検出などの**ソース固有の前処理**は `scripts/parser_scaffold.py` の共通ヘルパ（毎回呼ぶ/差し替える素材）と `parse()`（使い捨て手書き）が担い、toolkit には入れない（ジェネリックパーサー禁止の鉄則を侵食しないため）。契約・API の詳細は INSTRUCTIONS.md の「scripts ディレクトリ（投入インフラの契約）」節を参照。
+
 ---
 
 ## pandocアーティファクトのクリーニング

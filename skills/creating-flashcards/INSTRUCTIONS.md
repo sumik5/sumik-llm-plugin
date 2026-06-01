@@ -63,6 +63,29 @@ curl http://127.0.0.1:3141/
 
 ## ワークフロー
 
+### 投入インフラの利用（毎回の作業の前提）
+
+このスキルは `skills/creating-flashcards/scripts/` に**2層構成の Python**を常備している。投入・整形・冪等性のインフラは毎回 /tmp に書き起こさず、これらを再利用する。
+
+| ファイル | 性質 | 役割 |
+|---------|------|------|
+| `scripts/anki_toolkit.py` | 🔴 **不変・育てる側** | ソースに依らず毎回同じ部分（AnkiConnect クライアント・`addNotes` バッチ投入・冪等性・HTML整形・タグ生成・`QAPair` 中間表現契約・翻訳スキップ判定・品質検証）を全格納する。投入時に書き換えない。発見した不変バグはここを1箇所修正する |
+| `scripts/parser_scaffold.py` | **雛形・コピーして使う側** | ソース固有の `parse()` だけを毎回埋める使い捨てパーサーの雛形。共通前処理ヘルパ（pandocアーティファクト除去・NFKC正規化・smart_join・ページ番号抽出・セクションマーカーgrep・画像抽出）を「素材」として持つが、呼ぶ/呼ばない/regexの差し替えは毎回ソースを見て判断する |
+
+**毎回の作業フロー:**
+
+1. `parser_scaffold.py` を /tmp にソース固有名でコピーする（例: `cp skills/creating-flashcards/scripts/parser_scaffold.py /tmp/parse-<descriptive-name>.py`）
+2. ソース Markdown を目視し、Step 3 のコンテンツ構造分析を実施する（過去のパーサーを再利用しない前提）
+3. scaffold の共通ヘルパは必要なものだけ呼び、regex をソースに合わせて差し替える
+4. `parse()` の TODO ブロックにソース固有の抽出ロジックを手書きし `list[QAPair]` を返す
+5. `main()` が `anki_toolkit` を import して投入する（投入インフラは二度と書かない）
+
+> ⚠️ scaffold が toolkit を import するため、コピー先で `CLAUDE_PLUGIN_ROOT` 環境変数を設定する（`export CLAUDE_PLUGIN_ROOT=<プラグインルート>`）か、scaffold 冒頭の `<CLAUDE_PLUGIN_ROOT>` プレースホルダを実パスへ置換する。
+
+> 🔴 **toolkit があっても parse は使い捨て**: 共通化したのは「ソースに依らない投入インフラ」だけ。`parse()` 本体をジェネリック化してはならない（Step 3 の警告参照: 同シリーズ・同一級でも pandoc 後の構造は変異し、汎用パーサーはサイレント抽出漏れを起こす）。toolkit 導入で parse が楽になったと誤解しないこと。
+
+`scripts/` ディレクトリの詳細な契約（`QAPair` フィールド・公開API シグネチャ・機械可読の CONTRACT ブロック）は本ファイル末尾の「scripts ディレクトリ（投入インフラの契約）」節を参照。
+
 ### Step 1: ファイル形式の検出と変換
 
 引数として受け取ったファイルパスの拡張子を判定し、Markdownに変換する。
@@ -232,6 +255,16 @@ AskUserQuestion(
 
 > ⚠️ **既存デッキで使われているノートタイプを最優先する原則**: 新規デッキを作成して既存サブデッキ群と並列配置する場合、**ノートタイプを既存と揃える**ことが学習UX上極めて重要。Anki ではノートタイプごとに CSS テンプレートが異なり、同じ親デッキ内で `資格試験` と `資格試験(ランダム)` のような近似モデルが混在すると、`<li>` の箱化スタイルや `<details>` 内インデント等の見た目が変わって視覚ノイズになる。**手順**: (1) 既存サブデッキの代表ノートを `findNotes deck:"<既存サブデッキ>"` で1件取得、(2) `notesInfo` で `modelName` を確認、(3) その modelName を新規デッキでも使用、(4) `modelFieldNames` で field 名（Question/Answer/Knowledge Area 等）を確認してパース結果のマッピングを合わせる。**Anki既定の `Basic` を選んではいけない**: 既定の `Basic` は Front/Back 2フィールドのみで、既存デッキの `Question/Answer/Knowledge Area` 等のフィールド構造と互換性がなく、後から統合できない。実観測: 既存「過去問題第45回」が `資格試験(ランダム)` を使っていたので、新規「過去問題第46-49回」も同じ modelName を採用し、視覚的一貫性と将来の再編成可能性を確保した。複数モデルが混在する場合は AskUserQuestion で「既存と揃える / 別モデルで進む」を確認する。
 
+> 🔴 **`modelTemplates` 確認結果を `RenderOptions` に反映する**: 上記のJS干渉チェック／シャッフルJS活用の判断結果は、scaffold の `main()` で `RenderOptions(...)` を組み立てて `upload(..., render=...)` に渡すことで toolkit の HTML 整形に反映する。判断と設定の対応は次のとおり:
+>
+> | `modelTemplates` の所見 | `RenderOptions` の設定 |
+> |------------------------|----------------------|
+> | `$('.question ol').find("li")` 等で `<ol><li>` をシャッフルする JS がある | `choice_list_style="ol"`（既定。メイン選択肢を `<ol style="list-style-type:none"><li>` で出力しシャッフルJSを活用） |
+> | JS が全 `<li>` を取得して選択肢を倍増させるテンプレ | `choice_list_style="br"`（メイン選択肢を `<br>` 区切りプレーンテキストで出力） |
+> | （常に固定） | `details_choice_style="br"`（`<details>` 原文内の選択肢は常に `<br>` 区切り。`<ol><li>` を入れると倍増・再シャッフルする既知の致命罠のため toolkit 側でも固定） |
+>
+> `<details>` 内に `<ol><li>` を置くと選択肢が倍増・再シャッフルされる罠（上記「カスタムJSテンプレートとの干渉チェック」）は、toolkit が `details_choice_style` を `"br"` 固定にすることで踏み抜かない。メイン選択肢の `choice_list_style` だけをテンプレに合わせて選ぶ。
+
 #### 5c: 出典情報の取得（任意）
 
 カード生成時に解答末尾へ出典情報（書籍名・ページ番号）を付与する場合は、以下の手順で情報を取得する。
@@ -291,7 +324,7 @@ AskUserQuestion(
 <b>C:</b> [不正解解説テキスト]
 ```
 
-- **比較テーブル**: 解説に含まれるプレーンテキストの比較テーブルは、HTMLテーブル（`<table>`）に変換してAnkiで見やすく表示する
+- **比較テーブル**: 解説に含まれるプレーンテキストの比較テーブルは、HTMLテーブル（`<table>`）に変換してAnkiで見やすく表示する。🔴 この変換は **scaffold の `parse()` がソース固有に行い**、組み立てた `<table>` を `QAPair.back` に注入する。`anki_toolkit.build_back_html()` は `back` 本文を **raw HTML として素通し**（escape しない）するだけで、プレーンテキスト→`<table>` の自動変換は行わない（表構造の検出はソース依存のため toolkit の責務にしない）
 - **出典付与（Step 5c で情報を取得した場合）**: Back フィールド末尾に以下の出典 div を付与する:
 
   ```html
@@ -354,34 +387,39 @@ AskUserQuestion(
 
 #### 一括作成（バッチAPI推奨）
 
-大量のカード作成（50件以上）には、MCP `add_note` の個別呼び出しではなく、**AnkiConnect の `addNotes` バッチAPI**を直接使用する。
+大量のカード作成（50件以上）でも、`anki_request` や `addNotes` のバッチ処理を**手書きしない**。`scripts/anki_toolkit.py` がこれらの投入インフラ（AnkiConnect クライアント・`addNotes` バッチ投入・冪等性・HTML整形）を不変ライブラリとして提供する。scaffold の `main()` から `upload()` を呼ぶだけでよい。
 
 ```python
-import json, urllib.request
+# /tmp/parse-<descriptive-name>.py（parser_scaffold.py をコピーしたもの）の main()
+from anki_toolkit import QAPair, RenderOptions, upload
 
-def anki_request(action, params=None):
-    payload = {"action": action, "version": 6}
-    if params:
-        payload["params"] = params
-    req = urllib.request.Request(
-        "http://127.0.0.1:8765",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-        error = data.get("error")
-        # addNotes: エラーが配列形式（per-note errors）の場合がある
-        if isinstance(error, list):
-            return {"per_note_errors": error}
-        if error:
-            raise RuntimeError(f"AnkiConnect error: {error}")
-        return data["result"]
+# parse() がソース固有に構築した QAPair のリスト
+qas = parse(md, ctx)
+
+# field_map はノートタイプに合わせる（Step5b で modelFieldNames 確認後）
+#   2フィールド: {"front": "Front", "back": "Back"}
+#   資格試験系3フィールド: {"front": "Question", "back": "Answer", "extra": "Knowledge Area"}
+field_map = {"front": "Question", "back": "Answer", "extra": "Knowledge Area"}
+
+# render はノートタイプの modelTemplates に合わせる（Step5b の表参照）
+#   <ol><li> シャッフルJSがある → choice_list_style="ol"（既定）
+#   JSが <li> を倍増させる → choice_list_style="br"
+render = RenderOptions(choice_list_style="ol")
+
+result = upload(qas, deck_name=deck, model_name=model,
+                field_map=field_map, render=render, skip_existing=True)
+# result = {"added": int, "skipped_existing": int, "media_stored": int, "errors": list}
 ```
 
-> ⚠️ **`addNotes` のエラーレスポンス形式**: 重複カードが含まれるバッチでは、AnkiConnect が `error` フィールドを文字列ではなく**配列**（per-note errors）で返す場合がある。この場合 `result` は `null` となり、バッチ全体が失敗する。上記の `isinstance(error, list)` チェックでこのケースを検出し、呼び出し側で個別にハンドリングすること。
+> 🔴 **toolkit を import しても parse は使い捨て**: 共通化したのは投入インフラだけ。`parse()` は今回のソース1冊専用に手書きし、過去のコピーを再利用しない（Step 3「同シリーズでも構造変異する前提」「ジェネリックパーサー禁止」の鉄則は不変）。toolkit が楽になったのは投入であってパースではない。
 
-> ⚠️ **`addNotes` の `duplicateScope` 既定値による cross-deck バッチ全件失敗**: AnkiConnect `addNotes` の `options.duplicateScope` は既定で **collection 全体** (`"collection"`) を対象に重複判定する。そのため、別デッキ（他資格・他書籍）に同一 Front テキストのカードが1枚でも存在すると、対象デッキが全く違うにもかかわらず**バッチ全体が per-note errors で失敗**する。資格試験のような汎用的な問題文（「次の記述は正しいか」等の短い設問）で発生しやすい。**対策**: `notes` 配列の各要素で `options.duplicateScope: "deck"` を明示し、deck-local の重複チェックに切り替える。さらに `options.allowDuplicate: true` を併用すると、deck 内重複も許容できる（ただし冪等性は別途確保が必要 → 後段の dedup 知見参照）。
+> ⚠️ **`RenderOptions` の選び方**: `upload()` / `build_note()` / `build_front_html()` / `build_back_html()` はいずれも `render: RenderOptions = RenderOptions()` を任意引数で受ける。Step5b の `modelTemplates` 確認結果に従い、メイン選択肢の `choice_list_style` を `"ol"`（シャッフルJS活用）か `"br"`（li倍増テンプレ向け）から選ぶ。`details_choice_style` は常に `"br"` 固定（変更不可のガード）。
+
+> ⚠️ **`addNotes` のエラーレスポンス形式（toolkit が内部処理する）**: 重複カードが含まれるバッチでは、AnkiConnect が `error` フィールドを文字列ではなく**配列**（per-note errors）で返す場合がある。この場合 `result` は `null` となり、バッチ全体が失敗する。`anki_toolkit.anki_request()` はこのケースを `isinstance(error, list)` で検出して `{"per_note_errors": [...]}` を返し、`upload()` が戻り値の `errors` に集約する（この罠の根拠として記載を残す）。
+
+> 🔴 **以下の `duplicateScope` / `allowDuplicate` / 事前フィルタ / dedup は `anki_toolkit.py` が内部で処理する**: `build_note()` が `options` に `allowDuplicate: True` + `duplicateScope: "deck"` を自動付与し、`upload(..., skip_existing=True)` が `filter_new()` で既存 Front 集合との差分を取って投入する。`dedup_deck()` は事後 dedup の保険として提供される。**したがって投入時にこれらを手書きする必要はない**。以下の散文は toolkit がなぜこの設計を採るのかの根拠であり、不変バグ発見時の参照価値があるため残す。
+
+> ⚠️ **`addNotes` の `duplicateScope` 既定値による cross-deck バッチ全件失敗**: AnkiConnect `addNotes` の `options.duplicateScope` は既定で **collection 全体** (`"collection"`) を対象に重複判定する。そのため、別デッキ（他資格・他書籍）に同一 Front テキストのカードが1枚でも存在すると、対象デッキが全く違うにもかかわらず**バッチ全体が per-note errors で失敗**する。資格試験のような汎用的な問題文（「次の記述は正しいか」等の短い設問）で発生しやすい。**対策**: `notes` 配列の各要素で `options.duplicateScope: "deck"` を明示し、deck-local の重複チェックに切り替える。さらに `options.allowDuplicate: true` を併用すると、deck 内重複も許容できる（ただし冪等性は別途確保が必要 → 後段の dedup 知見参照）。`anki_toolkit.build_note()` がこの `options` を全 note に自動付与する。
 >
 > ```python
 > note = {
@@ -390,35 +428,48 @@ def anki_request(action, params=None):
 > }
 > ```
 
-> ⚠️ **`allowDuplicate: true` 設定時の冪等性確保（再実行時 dedup）**: 知見6の `allowDuplicate: true` + `duplicateScope: "deck"` 設定はバッチ失敗を回避できるが、副作用として**スクリプトを2回実行すると deck 内に同じカードが重複追加される**。`createDeck` のような自然な冪等性は得られない。**対策**: スクリプト末尾または別ユーティリティとして以下の dedup を実装する: (1) `findNotes "deck:<deck-name>"` で全ノート ID を取得、(2) `notesInfo` で各ノートの Front を取得、(3) Front 文字列をキーに辞書化し、**最古の noteId のみ残して残りを `deleteNotes`**。これにより N 回実行しても deck 内に重複が残らない。`addNotes` 投入直前にこの dedup を走らせれば事実上の冪等化が可能。
+> ⚠️ **`allowDuplicate: true` 設定時の冪等性確保（再実行時 dedup）**: 知見6の `allowDuplicate: true` + `duplicateScope: "deck"` 設定はバッチ失敗を回避できるが、副作用として**スクリプトを2回実行すると deck 内に同じカードが重複追加される**。`createDeck` のような自然な冪等性は得られない。**対策**: スクリプト末尾または別ユーティリティとして以下の dedup を実装する: (1) `findNotes "deck:<deck-name>"` で全ノート ID を取得、(2) `notesInfo` で各ノートの Front を取得、(3) Front 文字列をキーに辞書化し、**最古の noteId のみ残して残りを `deleteNotes`**。これにより N 回実行しても deck 内に重複が残らない。`addNotes` 投入直前にこの dedup を走らせれば事実上の冪等化が可能。この dedup は `anki_toolkit.dedup_deck(deck_name, front_field)` として実装されており、`front_field` には AnkiConnect 上の実フィールド名（例 `"Question"`）を渡す。
 
-> ⚠️ **既投入 Front 事前フィルタによる冪等性向上**: `addNotes` 投入前に `findNotes` + `notesInfo` で対象デッキの既存 Front 集合を Set として取得し、投入候補リストとの差分（`new_fronts - existing_fronts`）のみを投入対象にする事前フィルタを実装すると、`allowDuplicate: true` + dedup の後処理に頼らず投入前の段階で冪等性を確保できる。**利点**: (1) 重複カードが一切作成されないため `deleteNotes` コストが発生しない、(2) スクリプト再実行時に新規カードのみ追加される差分更新として機能する。**注意**: `findNotes` は Anki MCP の `find_notes` ツールまたは AnkiConnect `findNotes` アクションどちらでも利用可能。デッキ名が完全一致していることを確認すること（サブデッキは `deck:"親デッキ名::子デッキ名"` のようにクォートで囲む）。
+> ⚠️ **既投入 Front 事前フィルタによる冪等性向上**: `addNotes` 投入前に `findNotes` + `notesInfo` で対象デッキの既存 Front 集合を Set として取得し、投入候補リストとの差分（`new_fronts - existing_fronts`）のみを投入対象にする事前フィルタを実装すると、`allowDuplicate: true` + dedup の後処理に頼らず投入前の段階で冪等性を確保できる。**利点**: (1) 重複カードが一切作成されないため `deleteNotes` コストが発生しない、(2) スクリプト再実行時に新規カードのみ追加される差分更新として機能する。**注意**: `findNotes` は Anki MCP の `find_notes` ツールまたは AnkiConnect `findNotes` アクションどちらでも利用可能。デッキ名が完全一致していることを確認すること（サブデッキは `deck:"親デッキ名::子デッキ名"` のようにクォートで囲む）。この事前フィルタは `anki_toolkit.filter_new()`（および `upload(..., skip_existing=True)` 内部）が担い、🔴 **実フィールド名**（`field_map["front"]` で決まる名前。`Front` 固定にしない。`Question/Answer/Knowledge Area` 等が普通に出る）で `build_note()` 生成後の note と既存集合を突き合わせる。
 
 > ⚠️ **差分判定スキップ（全件投入）シナリオでの冪等性確保**: 差分判定をスキップして全件投入するシナリオ（年度版独立リソース投入等）では、以下の組み合わせで冪等性と cross-deck 衝突防止を両立させる: (1) `options.duplicateScope: "deck"` を明示して別デッキの同一Front問題と衝突しない、(2) 事前フィルタで投入対象デッキの既存Front集合をSet差分して重複を排除（再実行時の追加投入を防ぐ）、(3) `options.allowDuplicate: true` は事前フィルタがある場合は不要だが、フィルタ実装が困難なシナリオでは保険として使用可。年度版ごとに別サブデッキに配置する設計にすると、(1)だけで大半の衝突を防げる。
 
-```python
-# 50件ずつバッチ投入
-BATCH_SIZE = 50
-for start in range(0, len(notes), BATCH_SIZE):
-    batch = notes[start:start + BATCH_SIZE]
-    result = anki_request("addNotes", {"notes": batch})
-```
+50件ずつのバッチ投入は `anki_toolkit.upload()` が内部で実施する（`BATCH_SIZE = 50` はモジュール定数）。手書きの投入ループは不要。
 
 **進捗表示:**
 
-- 50件ごとに進捗を報告
-- エラー発生時はスキップし、最後にエラー一覧を表示
+- `upload()` が 50 件ごとに `[upload] N/total processed` を stderr へ出力する
+- per-note エラーは `upload()` の戻り値 `errors` リストに集約され、最後にまとめて確認できる
+
+#### 画像取り込み（EPUB 埋め込み画像）の責務分担
+
+EPUB の埋め込み画像をカードに取り込む場合、**抽出と投入で責務を分ける**:
+
+| 工程 | 担当 | 内容 |
+|------|------|------|
+| 画像の抽出・`<img>` 化・base64 化 | 🔴 **scaffold の `extract_images(text, ctx)`**（ソース固有） | 本文中の `![...](image_rsrcXXX...)` を `<img src="<prefix>...">` に置換し、`unzip` で EPUB から実体を取り出して base64 化する。画像参照の regex・prefix 命名はソース依存のため毎回手書きする。escape 順序の罠（プレースホルダ退避→escape→復元）に注意 |
+| 画像の投入 | **toolkit の `store_media()`**（不変） | `QAPair.media`（`[{"filename","data_b64"}]`）に載せた実体を AnkiConnect `storeMediaFile` で登録する。`upload()` 内で `addNotes` 前に自動実行される（同名は上書き=冪等） |
+
+scaffold が `extract_images()` で返した `[{"filename","data_b64"}]` を `QAPair.media` に載せ、本文には `<img src="<filename>">` を埋め込む。投入は `upload()` に任せる。
+
+> 🔴 **`media_prefix` は必須**: filename に接頭辞を付けない汎用名（pandoc 由来の `image_rsrc001.jpg` 等）は、Anki のメディアフォルダ全体で**別ソースの既存画像を静かに上書きする**（メディアは collection 共有でデッキ分離されない）。`store_media()` は `MEDIA_PREFIX_RE`（接頭辞付きパターン）に一致しない filename を `ValueError` で拒否する。scaffold の `SourceContext.media_prefix`（例 `"<識別子>_"`）を必ず設定し、`extract_images()` が `epub_path` 指定時に `media_prefix` 未設定なら `ValueError` を出す（汎用名衝突によるデータ破壊の事前防止）。
 
 ### Step 7: 品質検証
 
 作成完了後、**必ず以下の品質検証を実施する**（最初の実行時およびスクリプト修正後）:
 
-1. **サンプルチェック**: `findNotes` + `notesInfo` で先頭5件・中盤5件のカードを取得し、以下を確認:
+1. **サンプルチェック**: `anki_toolkit.sample_cards(deck_name, head=5, mid=5)` で先頭5件・中盤5件のカードを取得し（内部で `findNotes` + `notesInfo` を実行）、以下を確認:
    - コードブロック（`<pre><code>`）の中身が空でないか
    - pandocアーティファクト（`[]`、`{.class_sXXX}`）が残っていないか
    - pandoc行折り返しが`<br>`として残っていないか（例: `AWS<br>コンソール`→`AWS コンソール`）
    - 「正解の選択肢」セクションが空でないか（特に複数正解問題）
    - 選択肢内のエスケープ文字（`\[`, `\]`, `\"`）が正しく復元されているか
+
+   ```python
+   from anki_toolkit import sample_cards
+   for note in sample_cards(deck_name, head=5, mid=5):
+       print(note["fields"])  # Front/Back（または Question/Answer）の整形結果を目視
+   ```
 
 2. **問題発見時**: スクリプトを修正し、既存カードを全削除→再作成する
 
@@ -449,10 +500,20 @@ for start in range(0, len(notes), BATCH_SIZE):
    - パーサーで発生したバグとその修正方法
    - 構造分析の改善点（新しい検出パターン等）
    - 品質検証で発見した問題パターン
-3. 該当するスキルファイルに知見を追記する（具体例とともに）
-4. 追記内容をユーザーに提示し、AskUserQuestionで確認を得てから適用する
+3. 🔴 **発見知見を性質で振り分ける**（toolkit 導入後の重要ルール）。知見が「ソース非依存・不変」なら toolkit コードを修正し、「ソース固有・パース時判断」なら references の散文に追記する:
 
-> ⚠️ この自己改善ステップにより、スキルは使うたびに賢くなる。発見のない場合はスキップしてよい。
+   | 発見した知見 | 性質 | 振り分け先 | バンプ |
+   |------------|------|-----------|--------|
+   | `addNotes` の新しいエラー形式 / 冪等性の穴 / HTML整形の出力バグ | ソース非依存・不変 | `scripts/anki_toolkit.py` をコード修正 | PATCH |
+   | 新しい pandocアーティファクト / 構造パターン / 判定マーカー表記揺れ / 章見出し変異 | ソース固有・パース時判断 | references に散文追記（従来どおり） | PATCH |
+   | `QAPair` に新フィールドが必要（例: 新しい問題種別） | 契約変更 | 🔴 3箇所同時更新（toolkit / scaffold / INSTRUCTIONS の CONTRACT ブロック）。本体に相談 | PATCH or MINOR |
+
+   > 🔴 scaffold の `parse()` TODO や共通ヘルパ（`clean_pandoc` 等）の regex は**自動修正しない**（ソース固有のため）。scaffold に普遍的に効く改善（新しい共通クリーニングヘルパの追加等）のみ scaffold を編集対象に含めてよいが、`parse()` 本体は触らない。
+
+4. 該当するスキルファイル（または toolkit コード）に知見を反映する（具体例とともに）
+5. 反映内容をユーザーに提示し、AskUserQuestionで確認を得てから適用する
+
+> ⚠️ この自己改善ステップにより、スキルは使うたびに賢くなる。発見のない場合はスキップしてよい。`/improve-creating-flashcards` コマンドがこの振り分けを自動エントリポイントとして実行する。
 
 ---
 
@@ -542,10 +603,12 @@ D. [Original English choice]
 1. **パース**: 全Q&AペアをJSON（英語）に抽出（パーサースクリプト）
 2. **パイプラインスクリプト生成**: 翻訳→HTMLフォーマット→Ankiアップロードを1つのPythonスクリプトにまとめる
    - LM Studio API（`http://127.0.0.1:1234/v1/chat/completions`）を`urllib.request`で直接呼び出す
-   - 問題文、各選択肢、解説を個別に翻訳
-   - HTMLフォーマット（日本語メイン + `<details>`折りたたみ英語原文）
-   - AnkiConnect `addNotes` バッチAPIで50件ずつ投入
+   - 問題文、各選択肢、解説を個別に翻訳。🔴 翻訳スキップ判定には `anki_toolkit.is_code_like(text)` を使う（`$` プレフィックス・ドット区切り識別子・バッククォート囲み・コード文字を多く含む短文を `True` 判定。下記「翻訳時の注意事項」参照）
+   - HTMLフォーマット: 翻訳結果と原文を `QAPair`（`original_front` / `original_back` に英語原文を格納）に詰める。`<details>` 折りたたみ英語原文の整形は `build_front_html()` / `build_back_html()` が担う
+   - 投入は `anki_toolkit.upload()` に任せる（`addNotes` バッチ・冪等性・進捗出力は toolkit が処理。手書きしない）
 3. **バックグラウンド実行**: Bashツールの `run_in_background: true` で起動し、`TaskOutput` で進捗を監視
+
+> ⚠️ 大規模翻訳パイプラインでも投入インフラ（`addNotes` バッチ・冪等性）と翻訳スキップ判定（`is_code_like()`）は toolkit から使い、毎回書き起こさない。パイプラインのうち**ソース固有なのは parse と翻訳呼び出しのオーケストレーションだけ**。
 
 > ⚠️ **スクリプト呼び出しではなくAPI直接呼び出しの理由**: `lmstudio-translate.py` スクリプトを毎回プロセス起動すると、149問 × (問題文+選択肢4つ+解説) = 約900回のプロセス生成オーバーヘッドが発生する。API直接呼び出しなら1プロセスで全翻訳を処理でき、大幅に効率的。
 
@@ -576,6 +639,73 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/translating-with-lmstudio/scripts/lmstudio-
 - 言語の判定（内容から自動判定）
 - 選択肢のリスト化フォーマット（常に `<ol>` + `list-style-type: none`）
 - 無駄な改行の除去（常に実施）
+
+---
+
+## scripts ディレクトリ（投入インフラの契約）
+
+`skills/creating-flashcards/scripts/` の2層構成（[投入インフラの利用](#投入インフラの利用毎回の作業の前提)節の概説を参照）の**契約定義**をここに集約する。`anki_toolkit.py` の実コード・`parser_scaffold.py` の雛形・本節の3者で、`QAPair` フィールド名と公開API名は**完全一致**させる（ズレると投入が壊れる）。
+
+### `QAPair` 中間表現（IR）スキーマ
+
+`parse()` が返す問題1件の中間表現。`anki_toolkit.py` に `@dataclass` で定義されている。
+
+| フィールド | 型 | 既定 | 用途 |
+|-----------|-----|------|------|
+| `front` | `str` | （必須・非空） | 整形前の問題本文。問題番号ヘッダー（「問N」等）は含めない |
+| `back` | `str` | `""` | 整形前の解答/解説本文。🔴 raw HTML 素通し（toolkit は escape しない。`<table>` 等は parse 側が注入） |
+| `qtype` | `str` | `"basic"` | `"choice"` / `"truefalse"` / `"basic"` のいずれか（他は `ValueError`） |
+| `choices` | `list[str]` | `[]` | 選択肢型用。`["A. テキスト", "B. テキスト", ...]`（レター付き） |
+| `correct` | `list[str]` | `[]` | 正解レター（`["A"]` / 複数正解 `["A","C"]`） |
+| `wrong_explanations` | `dict` | `{}` | `{"B": "不正解解説", ...}`（レター→解説） |
+| `verdict` | `str` | `""` | ○×型用。`"○"` / `"✕"` / `""`（空=判定マーカー欠落。`×→✕` / `〇→○` は toolkit が正規化） |
+| `tags` | `list[str]` | `[]` | Anki タグ（階層は `::`、空白は `-`） |
+| `knowledge_area` | `str` | `""` | 補助フィールド（`field_map["extra"]` の投入先） |
+| `source_book` | `str` | `""` | 出典書籍名（Step5c）。空なら出典div出力しない |
+| `source_page` | `str` | `""` | 出典ページ番号（Step5c）。空可 |
+| `important` | `bool` | `False` | 重要マーカー（⭐重要表示 + タグ「重要」） |
+| `needs_fix` | `bool` | `False` | 不完全カード（`_要手修正` タグ + 警告div） |
+| `original_front` | `str` | `""` | 多言語用・原文問題（`<details>` 折りたたみ） |
+| `original_back` | `str` | `""` | 多言語用・原文解答（`<details>` 折りたたみ） |
+| `media` | `list[dict]` | `[]` | `[{"filename","data_b64"}]`。本文に `<img src="<filename>">` を埋めた上で実体を載せる。空なら `storeMediaFile` を呼ばない |
+
+`RenderOptions`（HTMLレンダリング方針。Step5b の `modelTemplates` 確認結果を反映）:
+
+| フィールド | 型 | 既定 | 用途 |
+|-----------|-----|------|------|
+| `choice_list_style` | `str` | `"ol"` | メイン選択肢の出力。`"ol"`=`<ol style="list-style-type:none"><li>`（シャッフルJS活用） / `"br"`=`<br>`区切り（li倍増テンプレ向け） |
+| `details_choice_style` | `str` | `"br"` | `<details>` 原文内の選択肢。常に `"br"`（`<ol><li>` 倍増回避の固定ガード） |
+| `front_field_is_choice_shuffle` | `bool` | `True` | 選択肢頭にレター（「ア.」「A.」等）を付与し、シャッフル後も内容で正解判定可能にする |
+
+### `anki_toolkit.py` 公開API（サマリ）
+
+| 関数 | シグネチャ（要点） | 役割 |
+|------|------------------|------|
+| `anki_request` | `(action, params=None) -> object` | AnkiConnect へ POST。error が配列なら `{"per_note_errors":[...]}`、文字列なら `RuntimeError` |
+| `ensure_deck` | `(deck_name) -> None` | `createDeck`（冪等）。`addNotes` 前に必須 |
+| `existing_fronts` | `(deck_name, front_field) -> set[str]` | 既存 Front 集合を実フィールド名で取得 |
+| `filter_new` | `(notes, deck_name, front_field) -> (list, int)` | 既存と重複しない note のみ返す（実フィールド名で差分） |
+| `dedup_deck` | `(deck_name, front_field) -> int` | 最古 noteId 残しで重複削除（事後 dedup の保険） |
+| `build_note` | `(qa, deck_name, model_name, field_map, render=RenderOptions()) -> dict` | `QAPair` を addNotes 用 note に変換。`options` に `allowDuplicate:True`+`duplicateScope:"deck"` 自動付与 |
+| `store_media` | `(qas) -> int` | `QAPair.media` を `storeMediaFile` で投入（同名上書き=冪等）。🔴 接頭辞なし filename は `ValueError` |
+| `upload` | `(qas, deck_name, model_name, field_map, render=RenderOptions(), skip_existing=True) -> dict` | ensure_deck→store_media→build_note(全件)→filter_new→addNotes(50件ずつ)。戻り値 `{added, skipped_existing, media_stored, errors}` |
+| `build_front_html` | `(qa, render=RenderOptions()) -> str` | Front HTML 生成（純関数） |
+| `build_back_html` | `(qa, render=RenderOptions()) -> str` | Back HTML 生成（純関数・back は raw HTML 素通し） |
+| `build_tags` | `(qa) -> list[str]` | `important→"重要"` / `needs_fix→"_要手修正"` を補完 |
+| `is_code_like` | `(text) -> bool` | 翻訳スキップ判定 |
+| `sample_cards` | `(deck_name, head=5, mid=5) -> list[dict]` | 先頭/中盤サンプル取得（Step7 用） |
+
+モジュール定数: `BATCH_SIZE = 50`（投入バッチ件数）／ `MEDIA_PREFIX_RE = ^(?!image_rsrc)[A-Za-z0-9][A-Za-z0-9_-]*_`（メディア接頭辞の許可パターン。接頭辞なし汎用名 `image_rsrcXXX` を拒否し別ソースとのメディア衝突を防ぐ）。`field_map` のキーは `"front"`・`"back"` が必須、`"extra"`（`knowledge_area` の投入先）は任意。
+
+### 🔴 機械可読 CONTRACT ブロック
+
+以下のブロックは `QAPair` フィールド・`RenderOptions` フィールド・公開API名の**単一の真実**であり、`anki_toolkit.py` の実コードと完全一致する（検証コマンドがこのブロックを抽出して実コードと突き合わせる）。契約変更時はこのブロックと実コードを同時に更新する。
+
+<!-- CONTRACT:BEGIN -->
+QAPAIR_FIELDS: front,back,qtype,choices,correct,wrong_explanations,verdict,tags,knowledge_area,source_book,source_page,important,needs_fix,original_front,original_back,media
+RENDEROPTIONS_FIELDS: choice_list_style,details_choice_style,front_field_is_choice_shuffle
+PUBLIC_API: anki_request,ensure_deck,existing_fronts,filter_new,dedup_deck,build_note,store_media,upload,build_front_html,build_back_html,build_tags,is_code_like,sample_cards
+<!-- CONTRACT:END -->
 
 ---
 
