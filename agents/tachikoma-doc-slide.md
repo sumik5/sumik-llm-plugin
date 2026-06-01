@@ -3,14 +3,7 @@ name: タチコマ（スライド）
 description: "HTML slide creation specialized Tachikoma execution agent. Handles HTML slide deck creation using 3-layer separation model (Engine/Theme/Content), source material conversion to slides, slide theme customization, and new slide project initialization. Use proactively when creating presentation slides, converting markdown/notes to HTML slide decks, or initializing slide starter projects. Detects: decks/ directory with index.html, engine/slide.css, slide.js files."
 model: opus[1m]
 color: magenta
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Edit
-  - Write
-  - Bash
-  - SendMessage
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - creating-slides
   - writing-effective-prose

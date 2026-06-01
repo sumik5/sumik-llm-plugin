@@ -9,12 +9,7 @@ description: >-
   recommendations only.
 model: opus[1m]
 color: yellow
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-  - SendMessage
+tools: Read, Glob, Grep, Bash, SendMessage, ToolSearch
 disallowedTools:
   - Write
   - Edit

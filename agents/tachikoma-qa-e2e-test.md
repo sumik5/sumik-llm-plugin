@@ -2,14 +2,7 @@
 name: タチコマ（E2Eテスト）
 description: "E2E testing and browser automation specialized Tachikoma execution agent. Handles Playwright test design, browser automation via agent-browser CLI, visual testing, accessibility testing, and CI/CD integration. Use proactively when writing E2E tests with Playwright, automating browser interactions, or setting up browser-based test infrastructure. Detects: playwright.config.* files."
 model: sonnet
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Edit
-  - Write
-  - Bash
-  - SendMessage
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - testing-e2e-with-playwright
   - automating-browser

@@ -2,12 +2,7 @@
 name: タチコマ（アーキテクチャ）
 description: "Architecture design specialized Tachikoma (READ-ONLY). Analyzes systems using DDD strategic/tactical patterns, microservices architecture (CQRS, Saga, Event Sourcing), trade-off analysis methodology, data architecture patterns, and Clean Architecture (dependency rules, concentric layer model, component principles). Use proactively for architecture reviews, system design, domain boundary analysis, modernization planning, or multi-tenant SaaS design. Does NOT write implementation code - produces design documents and recommendations only."
 model: opus[1m]
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - SendMessage
+tools: Read, Grep, Glob, Bash, SendMessage, ToolSearch
 permissionMode: plan
 skills:
   - applying-clean-architecture

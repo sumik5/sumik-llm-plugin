@@ -3,14 +3,7 @@ name: タチコマ（オブザーバビリティ）
 description: "Observability specialized Tachikoma execution agent. Handles monitoring system design, OpenTelemetry instrumentation (traces, metrics, logs), structured logging architecture, SLO/SLI design, and alerting strategies. Use proactively when implementing observability, distributed tracing, metrics collection, log pipelines, or monitoring dashboards. Detects: @opentelemetry/* packages or prometheus.yml."
 model: sonnet
 color: cyan
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Edit
-  - Write
-  - Bash
-  - SendMessage
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - implementing-observability
   - writing-clean-code
