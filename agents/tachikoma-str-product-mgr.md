@@ -13,14 +13,7 @@ description: >-
   only.
 model: opus[1m]
 color: yellow
-tools:
-  - Read
-  - Grep
-  - Glob
-  - Edit
-  - Write
-  - Bash
-  - SendMessage
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 permissionMode: default
 skills:
   - practicing-product-management

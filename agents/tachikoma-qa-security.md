@@ -2,12 +2,7 @@
 name: タチコマ（セキュリティ）
 description: "Security review specialized Tachikoma (READ-ONLY). Reviews code for OWASP Top 10 vulnerabilities, serverless security threats, IAM patterns, dynamic authorization (ABAC/ReBAC/Cedar), Keycloak IAM, and AI development security. Use proactively after code implementation for security audits, penetration test planning, or access control design. Does NOT modify code - produces security reports and recommendations only."
 model: opus[1m]
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-  - SendMessage
+tools: Read, Glob, Grep, Bash, SendMessage, ToolSearch
 permissionMode: plan
 skills:
   - securing-code
