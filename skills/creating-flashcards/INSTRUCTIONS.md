@@ -70,7 +70,7 @@ curl http://127.0.0.1:3141/
 | ファイル | 性質 | 役割 |
 |---------|------|------|
 | `scripts/anki_toolkit.py` | 🔴 **不変・育てる側** | ソースに依らず毎回同じ部分（AnkiConnect クライアント・`addNotes` バッチ投入・冪等性・HTML整形・タグ生成・`QAPair` 中間表現契約・翻訳スキップ判定・品質検証）を全格納する。投入時に書き換えない。発見した不変バグはここを1箇所修正する |
-| `scripts/parser_scaffold.py` | **雛形・コピーして使う側** | ソース固有の `parse()` だけを毎回埋める使い捨てパーサーの雛形。共通前処理ヘルパ（pandocアーティファクト除去・NFKC正規化・smart_join・ページ番号抽出・セクションマーカーgrep・画像抽出）を「素材」として持つが、呼ぶ/呼ばない/regexの差し替えは毎回ソースを見て判断する |
+| `scripts/parser_scaffold.py` | **雛形・コピーして使う側** | ソース固有の `parse()` だけを毎回埋める使い捨てパーサーの雛形。共通前処理ヘルパ（pandocアーティファクト除去・NFKC正規化・smart_join・ページ番号抽出・セクションマーカーgrep・画像抽出）に加え、OCR残存フォールバック用の `collapse_repeated_lines(text, max_repeat=3)`（反復崩壊圧縮・消費側閾値3）・`strip_thinking_logs(text)`（メタ思考ログ除去・○×単独行保護）を「素材」として持つ。呼ぶ/呼ばない/regexの差し替えは毎回ソースを見て判断する（一括統合関数にはしない） |
 
 **毎回の作業フロー:**
 
@@ -107,6 +107,8 @@ scripts/pdf-to-markdown <input.pdf> /tmp/flashcard-source.md
 ```
 
 変換後、Markdownの内容をReadツールで**全文読み込む**。
+
+> 🔵 **OCR汚染の二層防衛**: ソースが `recognize-image-to-markdown` 経由のOCR出力なら、思考ログ除去・反復崩壊検出・自動再OCRはコマンド側で一次対処済み。本スキルでは**コマンドをすり抜けた残存ケース／コマンド未経由の他ツールOCR出力のサルベージ**に注力する。残存対処は `parser_scaffold.py` の `collapse_repeated_lines`（反復崩壊圧縮・消費側閾値3）・`strip_thinking_logs`（メタ思考ログ除去）を素材として使い、高度サルベージは [CONTENT-BY-TYPE.md](references/CONTENT-BY-TYPE.md) の「OCR汚染対策」を参照する。
 
 **JSON（構造化済みQ&Aデータ）:**
 
