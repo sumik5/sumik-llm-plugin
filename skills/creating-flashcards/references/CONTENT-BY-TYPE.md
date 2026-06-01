@@ -2,6 +2,8 @@
 
 [CONTENT-DETECTION.md](CONTENT-DETECTION.md) で判別した構造パターンに応じた**具体的なパース戦略・サブパターン対応・実装例**を集約。共通の前処理・後処理は [CONTENT-COMMON.md](CONTENT-COMMON.md) を参照。
 
+> 🔴 ここで示すパース戦略は `scripts/parser_scaffold.py` をコピーした使い捨てスクリプトの `parse()` に**毎回手書き**する（同シリーズ・同一級でも構造変異するためジェネリック化禁止）。投入・HTML整形・冪等性は `scripts/anki_toolkit.py` を再利用する。
+
 **使用フロー**:
 1. CONTENT-DETECTION.md で判定1〜7のいずれかを決定
 2. 本ファイル該当セクションでパース戦略を実装
