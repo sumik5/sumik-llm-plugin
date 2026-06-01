@@ -120,6 +120,100 @@ def find_section_markers(text: str, pattern: str) -> list[int]:
     return [i for i, line in enumerate(text.splitlines()) if rx.search(line)]
 
 
+# ── OCR残存フォールバック用ヘルパ（“素材”。一括統合関数にはしない）──
+#   位置づけ: recognize-image-to-markdown 経由のOCRなら、思考ログ除去・
+#   反復崩壊検出・自動再OCRはコマンド側で一次対処済み。以下2関数は
+#   ①コマンドをすり抜けた残存ケース ②コマンド未経由の他ツールOCR出力
+#   向けの最終防衛線（フォールバック）。parse() が必要なときだけ呼ぶ。
+#   閾値は消費側=3（コマンド=4）と意図的に非対称（最終防衛線なので厳しめ）。
+#   🔴 CJK/カタカナ字形混同（エ↔工 等）の機械置換はここに入れない
+#      （誤爆リスク。CONTENT-DETECTION.md L104 の機械置換フォールバックに残す）。
+
+# OCRメタ専用行のアンカー（“思考ログ”行のみにマッチさせる）。
+#   本文を巻き込まないよう、行頭定型句に限定する。
+_THINK_ANCHORS = [
+    r"^\s*\d*\.?\s*\*{0,2}(?:Analyze the Request|Scan the Image|Transcribe Section|"
+    r"Final Formatting|Self-Correction|Mental Draft)",
+    r"^The user wants the text",
+    r"^\s*\*{0,2}Hypothesis\s*\d*\s*[:：]",
+    r"^Let'?s look at (?:the|this) character",
+    r"^Testing the hypothesis",
+    r"^Confirming the reading",
+    r"^(?:画像の(?:分析|文字)|いや、待て|よし、「.+?」|もう一度)",
+    r"^(?:ユーザーは.+画像|これは.+問題だと|実際には.+(?:右から|左から)|画像を拡大して)",
+]
+_THINK_RE = [re.compile(p) for p in _THINK_ANCHORS]
+
+# ○×単独行は判定マーカーの可能性が高いので保護する（思考ログ除去より先に判定）。
+_OXMARK_ONLY_RE = re.compile(r"^\s*[○×✕〇◯❌☓OXＯＸ]\s*$")
+
+
+def collapse_repeated_lines(text: str, max_repeat: int = 3) -> tuple[str, bool]:
+    """同一行の連続反復（OCR無限ループ崩壊）を1回に畳む。
+
+    位置づけ: コマンドが反復圧縮＋自動再OCRで一次対処済み。これはコマンド
+    未経由ソース／残存崩壊ページ向けのフォールバック（最終防衛線）。
+
+    正規化（``" ".join(line.split())`` で strip + 連続空白を単一空白化）した
+    行が ``max_repeat`` 回以上連続したら 1 回に畳む。
+    - デフォルト閾値 3（消費側は最終防衛線なので厳しめ。コマンド側=4 と非対称）。
+    - 空行はカウント対象外（反復判定に含めず、そのまま保持）。
+    - 検出した反復は破棄せず必ず 1 回残す（過剰除去を避ける）。
+
+    戻り値: ``(畳んだ後のテキスト, 1箇所でも畳んだか)``。
+    """
+    lines = text.split("\n")
+    out: list[str] = []
+    collapsed = False
+    i = 0
+    n = len(lines)
+    while i < n:
+        line = lines[i]
+        norm = " ".join(line.split())
+        if norm == "":
+            # 空行は反復判定の対象外。そのまま保持して次へ。
+            out.append(line)
+            i += 1
+            continue
+        # 同一正規化行の連続数を数える
+        j = i + 1
+        while j < n and " ".join(lines[j].split()) == norm:
+            j += 1
+        run_len = j - i
+        if run_len >= max_repeat:
+            out.append(line)   # 反復は破棄せず 1 回だけ残す
+            collapsed = True
+        else:
+            out.extend(lines[i:j])
+        i = j
+    return "\n".join(out), collapsed
+
+
+def strip_thinking_logs(text: str) -> str:
+    """OCRメタ思考ログ専用行を除去する（除去のみ・スコア機構は持たない）。
+
+    位置づけ: コマンドは思考ログ除去・自動再OCRで一次対処済み。これは
+    コマンド未経由ソース／すり抜けた残存行向けのフォールバック（最終防衛線）。
+    消費側は再OCRできないため、コマンド側 detect_thinking_contamination の
+    「除去」部分だけを抜き出した版（再OCR判断用スコアは返さない）。
+
+    - ``_THINK_ANCHORS`` にマッチするメタ専用行のみ除去する。
+    - ``_OXMARK_ONLY_RE`` の○×単独行は保護する（先にチェックして必ず残す）。
+    - 簡体字の機械削除はしない（本文巻き込み＝誤爆を避けるため）。
+
+    本文（問題文・選択肢・解説）は触らない。除去対象は行頭定型句のみ。
+    """
+    out: list[str] = []
+    for line in text.split("\n"):
+        if _OXMARK_ONLY_RE.match(line):
+            out.append(line)   # ○×単独行は判定マーカーとして保護
+            continue
+        if any(rx.search(line) for rx in _THINK_RE):
+            continue            # メタ専用行は除去
+        out.append(line)
+    return "\n".join(out)
+
+
 def extract_images(text: str, ctx: "SourceContext") -> tuple[str, list[dict]]:
     """本文中の画像参照を <img src="<ctx.media_prefix>..."> に置換し、
     ctx.epub_path から実体を base64 で取り出して [{"filename","data_b64"}] を返す。
