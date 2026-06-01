@@ -10,6 +10,7 @@ tools:
   - Edit
   - Write
   - Bash
+  - SendMessage
 skills:
   - creating-slides
   - writing-effective-prose

@@ -2,7 +2,7 @@
 name: タチコマ（AWS）
 description: "AWS cloud specialized Tachikoma execution agent. Handles Lambda, API Gateway, DynamoDB, CDK, EKS, S3, Bedrock, and all AWS services including security (IAM, KMS, GuardDuty), cost optimization, and SRE operations. Use proactively when working with AWS services, CDK infrastructure, serverless applications, or AWS-related code. Detects: cdk.json, samconfig.toml, serverless.yml, @aws-sdk in package.json, or boto3 in Python deps."
 model: sonnet
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage
 skills:
   - developing-aws
   - writing-clean-code

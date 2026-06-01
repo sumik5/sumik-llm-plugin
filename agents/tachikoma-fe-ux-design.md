@@ -8,6 +8,7 @@ tools:
   - Glob
   - Edit
   - Write
+  - SendMessage
 skills:
   - designing-ux
   - creating-content

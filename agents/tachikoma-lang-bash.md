@@ -2,7 +2,7 @@
 name: タチコマ（Bash）
 description: "Bash shell scripting specialized Tachikoma execution agent. Handles shell script automation, I/O pipelines, process control, system administration, and script testing/debugging. Use proactively when writing or maintaining shell scripts, automating system tasks, or building CLI tools. Detects: .sh files."
 model: sonnet
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage
 skills:
   - developing-bash
   - writing-clean-code

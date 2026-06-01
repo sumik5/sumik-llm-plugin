@@ -7,6 +7,7 @@ tools:
   - Glob
   - Grep
   - Bash
+  - SendMessage
 permissionMode: plan
 skills:
   - securing-code

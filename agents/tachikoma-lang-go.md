@@ -2,7 +2,7 @@
 name: タチコマ（Go）
 description: "Go specialized Tachikoma execution agent. Handles Go development including clean code practices, GoF/concurrency/DDD design patterns, and Go internals (type system, memory, reflection). Use proactively when working on Go projects or writing Go code. Detects: go.mod."
 model: sonnet
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage
 skills:
   - developing-go
   - developing-web-apis

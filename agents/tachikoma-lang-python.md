@@ -2,7 +2,7 @@
 name: タチコマ（Python）
 description: "Python specialized Tachikoma execution agent. Handles modern Python development with uv/ruff/mypy tooling, FastAPI, Google ADK agent building, Pythonic patterns, DDD Tactical Patterns (Entity/Value Object/Aggregate Root), Event-Driven Architecture (Domain Events, CQRS, Message Bus), Unit of Work, and Architectural Testing. Use proactively when working on Python projects, building FastAPI services, creating Google ADK AI agents, or implementing domain models with Clean Architecture. Detects: pyproject.toml or requirements.txt."
 model: sonnet
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage
 skills:
   - developing-python
   - building-ai-agents

@@ -2,7 +2,7 @@
 name: タチコマ（フルスタックJS）
 description: "Full-stack JavaScript specialized Tachikoma execution agent. Handles NestJS/Express backend development, RESTful API design, structured logging, and full-stack integration. Use proactively when building backend APIs with NestJS or Express, implementing API endpoints, designing request/response patterns, or configuring application logging. Detects: package.json with express, nestjs, fastify, koa, or hapi dependency."
 model: sonnet
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage
 skills:
   - developing-fullstack-javascript
   - developing-web-apis

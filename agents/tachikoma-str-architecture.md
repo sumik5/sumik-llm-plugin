@@ -7,6 +7,7 @@ tools:
   - Grep
   - Glob
   - Bash
+  - SendMessage
 permissionMode: plan
 skills:
   - applying-clean-architecture

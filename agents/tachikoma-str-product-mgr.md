@@ -20,6 +20,7 @@ tools:
   - Edit
   - Write
   - Bash
+  - SendMessage
 permissionMode: default
 skills:
   - practicing-product-management

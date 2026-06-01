@@ -2,7 +2,7 @@
 name: タチコマ（Figma実装）
 description: "Figma-to-code implementation specialized Tachikoma execution agent. Handles Figma MCP integration (all 13 tools), Code Connect mappings, design token synchronization, visual validation, and Tailwind CSS styling methodology. Use proactively when converting Figma designs to code, syncing design tokens, managing Code Connect mappings, or implementing pixel-perfect UI from Figma mockups. Detects: Figma URLs in user prompts, .figma/ directory, or design-system-rules files."
 model: sonnet
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage
 skills:
   - implementing-design
   - styling-with-tailwind

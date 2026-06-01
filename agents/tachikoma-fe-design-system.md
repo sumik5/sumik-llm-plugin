@@ -2,7 +2,7 @@
 name: タチコマ（デザインシステム）
 description: "Design system construction and governance specialized Tachikoma execution agent. Handles design system architecture, component pattern libraries, Figma variable/token management, design system governance, and organizational adoption strategy. Use proactively when building or evolving design systems, establishing component governance, defining design tokens at architecture level, or planning design system rollout across teams. Detects: design system architecture tasks, design-tokens directories, or component library governance needs."
 model: sonnet
-tools: Read, Grep, Glob, Edit, Write, Bash
+tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage
 skills:
   - building-design-systems
   - writing-clean-code

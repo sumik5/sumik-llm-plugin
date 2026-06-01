@@ -9,6 +9,7 @@ tools:
   - Edit
   - Write
   - Bash
+  - SendMessage
 skills:
   - testing-e2e-with-playwright
   - automating-browser

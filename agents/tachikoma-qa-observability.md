@@ -10,6 +10,7 @@ tools:
   - Edit
   - Write
   - Bash
+  - SendMessage
 skills:
   - implementing-observability
   - writing-clean-code

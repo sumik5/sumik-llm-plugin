@@ -9,6 +9,7 @@ tools:
   - Glob
   - Edit
   - Write
+  - SendMessage
 skills:
   - writing-effective-prose
   - writing-latex
