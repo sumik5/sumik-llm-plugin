@@ -146,7 +146,6 @@ class TransmitterAdapter implements Transmitter {
 ## クリーンな境界の原則
 
 > "Good software designs accommodate change without huge investments and rework."
-> ― Clean Code Ch.8
 
 1. **依存の方向を逆転する**: 自分がコントロールできないものではなく、自分がコントロールできるものに依存する
 2. **境界への参照を最小化する**: サードパーティを直接参照する場所をコードベース全体で少なくする

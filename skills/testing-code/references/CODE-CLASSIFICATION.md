@@ -1,6 +1,6 @@
 # テスト価値を高めるコード分類とリファクタリング
 
-> 出典: Vladimir Khorikov 著『単体テストの考え方/使い方（Unit Testing: Principles, Practices, and Patterns）』第7章
+> 単体テストの体系的な公開実践知（テスト価値を高めるコード分類とリファクタリング）に基づく
 > クロスリファレンス: [FOUR-PILLARS.md](./FOUR-PILLARS.md) | [THREE-STYLES.md](./THREE-STYLES.md) | [TESTABLE-DESIGN.md](./TESTABLE-DESIGN.md)
 
 ---

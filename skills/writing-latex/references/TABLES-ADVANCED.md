@@ -1058,7 +1058,7 @@ LaTeXにおける高度なテーブル組版技術に関する包括的なリフ
 ```latex
 \begin{tabbing}
   \emph{Info:} \= Software \= : \= \LaTeX \\
-  \>            Author  \> : \> Leslie Lamport \\
+  \>            Author  \> : \> Jane Roe \\
   \>            Website \> : \> www.latex-project.org
 \end{tabbing}
 ```

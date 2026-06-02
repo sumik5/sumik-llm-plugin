@@ -1,6 +1,6 @@
 # テストのアンチパターン
 
-> 出典: Vladimir Khorikov「単体テストの考え方/使い方（Unit Testing: Principles, Practices, and Patterns）」第11章
+> 単体テストの体系的な公開実践知（テストのアンチパターン）に基づく
 
 ---
 

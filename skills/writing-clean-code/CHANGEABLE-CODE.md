@@ -191,7 +191,7 @@ function processOrder() {
 
 ## 未知のコードベースのナビゲーション
 
-*Pete Goodliffe「Becoming a Better Programmer」第6章 より*
+*優れたプログラマになるための実践知より*
 
 新しいコードベースに入る際は、段階的に理解を深める。
 
@@ -246,7 +246,7 @@ function processOrder() {
 
 ## 汚いコードとの実践的対処
 
-*Pete Goodliffe「Becoming a Better Programmer」第7章 より*
+*汚いコードへの実践的対処に関する公開知見より*
 
 ### 前兆を嗅ぎ付ける
 

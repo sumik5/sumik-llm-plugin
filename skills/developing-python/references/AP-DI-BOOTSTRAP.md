@@ -325,5 +325,4 @@ def test_order_confirmation_email_sent(message_bus, fake_notifications):
 
 ## 参考文献
 
-- "Architecture Patterns with Python" — Harry Percival, Bob Gregory（O'Reilly Media, 2020）
-  - Chapter 13: Dependency Injection (and Bootstrapping)
+- Pythonアーキテクチャパターンの公開実践知（Dependency Injection と Bootstrapping のパターン）

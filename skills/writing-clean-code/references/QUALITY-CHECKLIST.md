@@ -423,9 +423,9 @@ const totalAmount = orderTotals.reduce((a, b) => a + b, 0)
 
 ---
 
-## Uncle Bob のコードスメル＆ヒューリスティクスカタログ
+## コードスメル＆ヒューリスティクスカタログ
 
-*Robert C. Martin「Clean Code」第17章 Smells and Heuristics より*
+*コードスメルとヒューリスティクスの体系的カタログ（公開知見）より*
 
 ### 💬 コメント系（C1-C5）
 

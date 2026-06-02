@@ -791,12 +791,12 @@ tests/
 - **[writing-clean-code](../../writing-clean-code/SKILL.md)**: コードレベルSOLID原則・コードスメル・リファクタリング手法
 - **[applying-domain-driven-design](../../applying-domain-driven-design/SKILL.md)**: DDD戦術パターン（Entity/Value Object/Aggregate/Repositoryの詳細設計）
 
-### Architecture Patterns（Cosmic Python 系）
+### Architecture Patterns 実践系
 - **[AP-DOMAIN-SERVICE.md](./AP-DOMAIN-SERVICE.md)**: ドメインモデリング・Repository Pattern・Service Layer（FakeRepository高速テスト含む）
 - **[AP-UOW-AGGREGATES.md](./AP-UOW-AGGREGATES.md)**: Unit of Work パターン・Aggregates設計・TDD High/Low Gear
 - **[AP-EVENTS-CQRS.md](./AP-EVENTS-CQRS.md)**: Domain Events・Message Bus・Commands・CQRS読み取りモデル
 - **[AP-DI-BOOTSTRAP.md](./AP-DI-BOOTSTRAP.md)**: フレームワーク非依存のDI・Composition Root・Bootstrap関数
 
-### Clean Architecture 実践（Cosmic Python / Giordani 系）
+### Clean Architecture 実践系
 - **[CB-DDD-TACTICAL.md](./CB-DDD-TACTICAL.md)**: DDD Tactical Patterns（Value Object/Entity/Aggregate Root）・Result Pattern
 - **[CB-TESTING-CA.md](./CB-TESTING-CA.md)**: CAレイヤー別テストパターン（Unit/Integration/E2E）・テストピラミッド実践

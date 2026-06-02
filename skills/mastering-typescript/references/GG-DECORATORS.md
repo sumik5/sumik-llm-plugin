@@ -320,5 +320,5 @@ function decorator<This extends abstract new (...args: any[]) => any>(
 
 ## 参照
 
-- 書籍: 「現場で使えるTypeScript詳解実践ガイド」Chapter 7
+- TypeScript デコレータに関する公開実践知見
 - TypeScript 5.0 リリースノート: Decorators（ECMAScript Stage 3準拠）

@@ -1,12 +1,12 @@
-# モダンTypeScript設定・高度パターン（Total TypeScript）
+# モダンTypeScript設定・高度パターン
 
-> **出典**: Matt Pocock著「Total TypeScript」（No Starch Press）の知見に基づく。Ch9（TypeScript-Only Features）・Ch14（tsconfig）・Ch16（Generic Functions）を中心に、現代的なTypeScript開発に必要な設定・パターンを整理。
+> **出典**: 現代的なTypeScript開発の公開知見に基づく。TypeScript固有機能・tsconfig・ジェネリック関数を中心に、必要な設定・パターンを整理。
 
 ---
 
-## 1. 推奨 tsconfig.json（Ch14）
+## 1. 推奨 tsconfig.json
 
-### Matt Pocockの推奨ベース設定
+### 推奨ベース設定
 
 ```json
 {
@@ -58,7 +58,7 @@
 
 ---
 
-## 2. TypeScript-Only Features の注意点（Ch9）
+## 2. TypeScript-Only Features の注意点
 
 TypeScriptには「ランタイムJSコードを生成する」独自構文が存在する。これらはTypeScriptの将来方向性とは逆行する「レガシー」として位置づけられる。
 
@@ -146,7 +146,7 @@ class Rating {
 
 ---
 
-## 3. --erasableSyntaxOnly（TS 5.8+）（Ch9）
+## 3. --erasableSyntaxOnly（TS 5.8+）
 
 ### 概念と背景
 
@@ -190,7 +190,7 @@ Node.js 22.6+ではTypeScriptを直接実行できるが、Non-erasable構文は
 
 ---
 
-## 4. Generic Function vs Generic Type の区別（Ch16）
+## 4. Generic Function vs Generic Type の区別
 
 ### 構文の違い
 
@@ -234,7 +234,7 @@ type Result<T, E = Error> = { ok: true; value: T } | { ok: false; error: E };
 
 ---
 
-## 5. /utils フォルダパターン（Ch16）
+## 5. /utils フォルダパターン
 
 ### 概念
 

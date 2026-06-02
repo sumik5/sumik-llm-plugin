@@ -1164,12 +1164,11 @@ int multiply(int firstMultiplier, int secondMultiplier) {
 
 ### 関数名の長さとスコープの関係
 
-**出典**: Robert C. Martin「Clean Craftsmanship」第5章 Refactoring — Extract Method
+**出典**: リファクタリングの公開実践知（Extract Method）
 
 関数名の長さはスコープ（可視性）に**反比例**すべきである。
 
 > "The length of a function's name should be inversely proportional to the scope that contains it."
-> — Robert C. Martin, Clean Craftsmanship
 
 | スコープ | 名前の長さ | 理由 |
 |---------|----------|------|

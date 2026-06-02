@@ -33,7 +33,7 @@ type User struct {
     Addr string
 }
 
-u := User{Name: "O'Reilly Japan", Addr: "東京都新宿区四谷坂町"}
+u := User{Name: "サンプル商事", Addr: "東京都千代田区1-1-1"}
 payload, err := json.Marshal(u)
 if err != nil {
     return err
