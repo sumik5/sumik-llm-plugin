@@ -1,4 +1,4 @@
-# Cosmic Python Part 1: ドメインモデリングとRepository/Service Layer
+# Pythonアーキテクチャパターン Part 1: ドメインモデリングとRepository/Service Layer
 
 ドメインモデルを「インフラから守る」一連のパターン。
 - ORM逆転（Classical Mapping）でドメインをDBから分離
@@ -409,7 +409,7 @@ def test_reserve_stock_raises_when_insufficient():
 
 ## 相互参照
 
-- **[CA-PYTHON.md](./CA-PYTHON.md)**: Giordani流Clean Architecture全体像（4レイヤー・ABC/Protocol・FastAPI統合）
+- **[CA-PYTHON.md](./CA-PYTHON.md)**: Clean Architecture全体像（4レイヤー・ABC/Protocol・FastAPI統合）
 - **[AP-UOW-AGGREGATES.md](./AP-UOW-AGGREGATES.md)**: Ch5-7 Unit of Work・Aggregates・楽観的並行制御
 - **[applying-clean-architecture](../../applying-clean-architecture/SKILL.md)**: DDD戦略パターン・ヘキサゴナルアーキテクチャの全体像
 
@@ -417,5 +417,4 @@ def test_reserve_stock_raises_when_insufficient():
 
 ## 参考文献
 
-Harry Percival, Bob Gregory. *Architecture Patterns with Python*. O'Reilly Media, 2020.
-（別名: Cosmic Python — https://www.cosmicpython.com/ で無料公開）
+- Pythonアーキテクチャパターンの公開実践知（ドメインモデリング・Repository・Service Layer のパターン）

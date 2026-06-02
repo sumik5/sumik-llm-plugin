@@ -12,19 +12,19 @@ LaTeXの参考文献データベース（BibTeX/biber）と、引用システム
 
 ```latex
 \begin{thebibliography}{99}
-\bibitem{knuth1984}
-Donald E. Knuth.
-\textit{The TeXbook}.
-Addison-Wesley, 1984.
+\bibitem{doe1984}
+John Doe.
+\textit{The Art of Typesetting}.
+Sample Publishing, 1984.
 
-\bibitem{lamport1994}
-Leslie Lamport.
-\textit{LaTeX: A Document Preparation System}.
-Addison-Wesley, 1994.
+\bibitem{roe1994}
+Jane Roe.
+\textit{Modern Document Preparation}.
+Sample Publishing, 1994.
 \end{thebibliography}
 
 % 引用
-\cite{knuth1984}
+\cite{doe1984}
 ```
 
 **問題点：**
@@ -101,8 +101,8 @@ author = {{The LaTeX Project Team}},      % 団体名（二重ブレース）
 #### タイトルフィールド
 
 ```bibtex
-title = {The Art of Computer Programming},
-title = {{LaTeX} in 24 Hours},             % "LaTeX" を保護
+title = {A Sample Book Title},
+title = {{LaTeX} Sample Title},             % "LaTeX" を保護
 title = {An Introduction to \(\alpha\)-Calculus},  % 数式
 ```
 
@@ -121,8 +121,8 @@ journal = {Journal of Computer Science},
 volume = {42},
 number = {3},
 pages = {123--145},                        % en-dash（--）
-publisher = {Addison-Wesley},
-address = {Reading, Massachusetts},
+publisher = {Sample Publishing},
+address = {Sample City},
 doi = {10.1234/example.doi},
 url = {https://example.com},
 note = {Accessed: 2024-01-15},
@@ -179,7 +179,7 @@ title = {Café Culture},
 
 ```bibtex
 @string{jcp = "Journal of Computational Physics"}
-@string{aw = "Addison-Wesley"}
+@string{aw = "Sample Publishing"}
 
 @article{example,
   author = {Doe, John},
@@ -299,7 +299,7 @@ See Smith, "Introduction", pp. 12-13.
 本文中に完全な書誌情報を表示：
 
 ```latex
-% 出力例: John Smith, The Art of LaTeX, Addison-Wesley, 2024, pp. 12-13.
+% 出力例: John Smith, The Art of LaTeX, Sample Publishing, 2024, pp. 12-13.
 ```
 
 | パッケージ | 特徴 |
@@ -543,8 +543,8 @@ Text \cite{ref1} and \citebooks{book1}.
 \usepackage[authoryear, round]{natbib}
 
 \begin{document}
-According to \citet{knuth1984}, \TeX\ is powerful.
-This is well known \citep{lamport1994, knuth1984}.
+According to \citet{doe1984}, \TeX\ is powerful.
+This is well known \citep{roe1994, doe1984}.
 
 \bibliographystyle{plainnat}
 \bibliography{mybib}
@@ -559,8 +559,8 @@ This is well known \citep{lamport1994, knuth1984}.
 \addbibresource{mybib.bib}
 
 \begin{document}
-According to \textcite{knuth1984}, \TeX\ is powerful.
-This is well known \parencite{lamport1994, knuth1984}.
+According to \textcite{doe1984}, \TeX\ is powerful.
+This is well known \parencite{roe1994, doe1984}.
 
 \printbibliography
 \end{document}
@@ -569,21 +569,21 @@ This is well known \parencite{lamport1994, knuth1984}.
 ### .bib ファイルの例
 
 ```bibtex
-@book{knuth1984,
-  author = {Knuth, Donald E.},
-  title = {The {{\TeX}}book},
-  publisher = {Addison-Wesley},
+@book{doe1984,
+  author = {Doe, John},
+  title = {The Art of Typesetting},
+  publisher = {Sample Publishing},
   year = {1984},
-  address = {Reading, Massachusetts}
+  address = {Sample City}
 }
 
-@book{lamport1994,
-  author = {Lamport, Leslie},
-  title = {{{\LaTeX}}: A Document Preparation System},
-  publisher = {Addison-Wesley},
+@book{roe1994,
+  author = {Roe, Jane},
+  title = {Modern Document Preparation},
+  publisher = {Sample Publishing},
   year = {1994},
   edition = {2nd},
-  address = {Reading, Massachusetts}
+  address = {Sample City}
 }
 
 @online{latex-project,
@@ -660,8 +660,8 @@ This is well known \parencite{lamport1994, knuth1984}.
   Author A. \textit{Title}. Publisher, 2024.
 
   % カスタムラベルを指定（alpha スタイル風）
-  \bibitem[Knu84]{key2}
-  D.E. Knuth. \textit{The TeXbook}. Addison-Wesley, 1984.
+  \bibitem[Doe84]{key2}
+  J. Doe. \textit{The Art of Typesetting}. Sample Publishing, 1984.
 
   % natbib 使用時も同様の構文でオプション引数が有効
   \bibitem[Author(2024)]{key3}
@@ -680,7 +680,7 @@ This is well known \parencite{lamport1994, knuth1984}.
 |---------|-------|-------|------|
 | `plain` | 著者名順（アルファベット） | 数値 [1] | 汎用的な学術論文 |
 | `unsrt` | 引用出現順 | 数値 [1] | 引用順に並べたい場合 |
-| `alpha` | 著者名順 | 略称 [Knu84] | 著者名が一般的に知られている場合 |
+| `alpha` | 著者名順 | 略称 [Doe84] | 著者名が一般的に知られている場合 |
 | `abbrv` | 著者名順（省略形） | 数値 [1] | スペース節約（著者名・雑誌名を省略） |
 
 ```latex

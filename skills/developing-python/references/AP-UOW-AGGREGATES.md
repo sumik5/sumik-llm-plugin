@@ -1,4 +1,4 @@
-# Cosmic Python Part 1後半: UoW・Aggregates・TDD戦略
+# Pythonアーキテクチャパターン Part 1後半: UoW・Aggregates・TDD戦略
 
 Unit of WorkでService LayerをDBから完全分離し、
 Aggregateで一貫性境界を定義し、楽観的ロックで並行性を制御する。
@@ -439,12 +439,11 @@ def allocate_order(
 ## 相互参照
 
 - **[AP-DOMAIN-SERVICE.md](./AP-DOMAIN-SERVICE.md)**: Ch1-4 ドメインモデリング・Repository・Service Layer・FakeRepository
-- **[CA-PYTHON.md](./CA-PYTHON.md)**: Giordani流Clean Architecture（依存性ルール・4レイヤー実装）
+- **[CA-PYTHON.md](./CA-PYTHON.md)**: Clean Architecture（依存性ルール・4レイヤー実装）
 - **[applying-clean-architecture](../../applying-clean-architecture/SKILL.md)**: DDD戦略パターン・境界コンテキスト
 
 ---
 
 ## 参考文献
 
-Harry Percival, Bob Gregory. *Architecture Patterns with Python*. O'Reilly Media, 2020.
-（別名: Cosmic Python — https://www.cosmicpython.com/ で無料公開）
+- Pythonアーキテクチャパターンの公開実践知（Unit of Work・Aggregates・楽観的並行制御 のパターン）

@@ -492,7 +492,7 @@ used a mechanical machine called a typewriter.
     \hrule\vspace{1ex}
     \textit{I can't go to a restaurant and order food
       because I keep looking at the fonts on the menu.}
-    \hfill Knuth, Donald (2002)%
+    \hfill Doe, John (2002)%
     \vspace{1ex}
     \hrule
   }%

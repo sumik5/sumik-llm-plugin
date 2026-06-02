@@ -1328,7 +1328,7 @@ function unlockPremiumFeature(user: User) { /* ... */ }
 
 ### Extract 'til you drop（抽出できなくなるまで抽出する）
 
-> *A function does one thing when no other function can be extracted from it.* — *Clean Craftsmanship*
+> *A function does one thing when no other function can be extracted from it.*
 
 **「一つのことをする」の定義は「これ以上抽出できない」こと**。感覚で判断するのではなく、「まだ抽出できるか？」という問いを繰り返す。
 
@@ -1352,7 +1352,7 @@ if (employeeShouldHaveFullBenefits())
 
 ### Stepdown Rule（ステップダウンルール）
 
-> *We want the code to read like a top-down narrative. We want every function to be followed by those at the next level of abstraction.* — *Clean Code*
+> *We want the code to read like a top-down narrative. We want every function to be followed by those at the next level of abstraction.*
 
 **ルールの本質**: 関数内の各行は **その関数名より1レベル下の抽象レベル** に保つ。
 
@@ -1377,7 +1377,7 @@ TO include the setups and teardowns,
 
 ### リファクタリングは継続的活動
 
-> *The purpose of refactoring is to clean the code. The process is the red → green → refactor cycle. Refactoring is a constant activity, not a scheduled and planned activity.* — *Clean Craftsmanship*
+> *The purpose of refactoring is to clean the code. The process is the red → green → refactor cycle. Refactoring is a constant activity, not a scheduled and planned activity.*
 
 **スケジュールしない、計画しない** — リファクタリングは機能追加・バグ修正と並走する日常作業だ。
 
@@ -1397,7 +1397,7 @@ red → green → refactor サイクルの中で:
 
 ### 小さいステップの重要性
 
-> *Each individual refactoring is small. How small? Small enough that I won't have to debug.* — *Clean Craftsmanship*
+> *Each individual refactoring is small. How small? Small enough that I won't have to debug.*
 
 デバッガに頼らなければならないほど大きなステップは、ステップを分割すべきシグナルだ。
 
@@ -1406,7 +1406,7 @@ red → green → refactor サイクルの中で:
 | 小さすぎるほど小さい | テストが通り続ける / デバッガ不要 / 自信を持って進める |
 | 大きすぎる | 失敗時の原因特定が困難 / デバッガに頼ることになる |
 
-> Rule 15 (Clean Craftsmanship): **Avoid using debuggers.**
+> 実践原則: **Avoid using debuggers.**
 
 デバッガを使う状況 = ステップが大きすぎた証拠。ステップを小さくすることで、そもそもデバッグが不要になる。
 
@@ -1414,7 +1414,7 @@ red → green → refactor サイクルの中で:
 
 ### One Thing Rule（一つのことをする）
 
-> ***FUNCTIONS SHOULD DO ONE THING. THEY SHOULD DO IT WELL. THEY SHOULD DO IT ONLY.*** — *Clean Code*
+> ***FUNCTIONS SHOULD DO ONE THING. THEY SHOULD DO IT WELL. THEY SHOULD DO IT ONLY.***
 
 30年以上語り継がれてきた原則。「一つのこと」の判断基準:
 
@@ -1435,7 +1435,7 @@ red → green → refactor サイクルの中で:
 
 ### 引数の数は少なくする
 
-> *The ideal number of arguments for a function is zero (niladic). Next comes one (monadic), followed closely by two (dyadic). Three (triadic) should be avoided where possible. More than three (polyadic) requires very special justification—and then shouldn't be used anyway.* — *Clean Code*
+> *The ideal number of arguments for a function is zero (niladic). Next comes one (monadic), followed closely by two (dyadic). Three (triadic) should be avoided where possible. More than three (polyadic) requires very special justification—and then shouldn't be used anyway.*
 
 | 引数の数 | 名称 | 評価 |
 |---------|------|------|

@@ -598,8 +598,8 @@ Population of Delhi can be found in §II.1.1.
 ```latex
 \documentclass[11pt,a4paper]{book}
 
-\title{\LaTeX\ in 24 Hours \\ A Practical Guide for Scientific Writing}
-\author{Dilip Datta}
+\title{Sample Book Title \\ A Practical Guide}
+\author{John Doe}
 
 \begin{document}
 
@@ -614,7 +614,7 @@ The necessity for writing this book …
 \mainmatter
 
 \chapter{Introduction}
-Donald E. Knuth developed \TeX\ in the year 1977 …
+An introduction to the subject is presented here …
 
 \chapter{Equation}
 Mathematical equations …
@@ -643,8 +643,8 @@ List of symbols …
 % Cover page
 \thispagestyle{empty}
 \begin{center}
-  {\Huge\bf \LaTeX\ in 24 Hours}\\[5mm]
-  {\Large\bf A Practical Guide for Scientific Writing}
+  {\Huge\bf Sample Book Title}\\[5mm]
+  {\Large\bf A Practical Guide}
 \end{center}
 \cleardoublepage
 
@@ -662,7 +662,7 @@ The necessity for writing this book was felt long back …
 \pagenumbering{arabic}
 
 \chapter{Introduction}
-Donald E. Knuth developed \TeX\ in the year 1977 …
+An introduction to the subject is presented here …
 
 \chapter{Fonts Selection}
 There are three modes for processing texts in \LaTeX\ …
@@ -767,8 +767,8 @@ mybib.bib           (参考文献データベース)
 \vspace*{\fill}
 \begin{titlepage}
 \begin{center}
-  {\Huge\bf \LaTeX\ in 24 Hours}\\[5mm]
-  {\Large\bf A Practical Guide for Scientific Writing}
+  {\Huge\bf Sample Book Title}\\[5mm]
+  {\Large\bf A Practical Guide}
 \end{center}
 ...
 \end{titlepage}

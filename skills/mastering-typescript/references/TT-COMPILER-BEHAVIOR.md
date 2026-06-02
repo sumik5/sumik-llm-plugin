@@ -1,6 +1,6 @@
 # TypeScriptコンパイラの振る舞いと型システムの深層
 
-TypeScriptの型システムは表面的な型チェックにとどまらず、`satisfies`による型推論の制御、Fresh/Staleオブジェクトの区別、型の世界と値の世界の分離など、多くの精巧な仕組みを持ちます。本ファイルでは「Total TypeScript」（Matt Pocock著, No Starch Press）の知見をもとに、コンパイラの振る舞いを深く理解するための概念を解説します。
+TypeScriptの型システムは表面的な型チェックにとどまらず、`satisfies`による型推論の制御、Fresh/Staleオブジェクトの区別、型の世界と値の世界の分離など、多くの精巧な仕組みを持ちます。本ファイルでは現代的なTypeScriptの公開知見をもとに、コンパイラの振る舞いを深く理解するための概念を解説します。
 
 ---
 
@@ -566,16 +566,14 @@ type DomainUser = {
 
 ---
 
-## 参考: Total TypeScript対応章
+## 参考: 本ファイルで扱う主要トピック
 
-| セクション | 参照章 |
-|-----------|-------|
-| satisfiesパターン | Chapter 11 |
-| 余剰プロパティチェック | Chapter 12 |
-| Open vs Closed Object Types | Chapter 12 |
-| Evolving any型 | Chapter 3 |
-| 空オブジェクト型 {} | Chapter 5 |
-| 型の世界と値の世界 | Chapter 2 |
-| Function Assignability | Chapter 12 |
-| Mutabilityと型推論 | Chapter 7 |
-| DervivingとDecoupling | Chapter 10 |
+- satisfiesパターン
+- 余剰プロパティチェック
+- Open vs Closed Object Types
+- Evolving any型
+- 空オブジェクト型 {}
+- 型の世界と値の世界
+- Function Assignability
+- Mutabilityと型推論
+- DervivingとDecoupling

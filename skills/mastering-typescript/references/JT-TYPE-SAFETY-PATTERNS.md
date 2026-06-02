@@ -1,6 +1,6 @@
 # 型安全パターン詳解 — Weak Type・Excess Property Checks・宣言空間
 
-出典: 実践TypeScript（吉井健文）Chapter 4-5
+出典: TypeScriptの型安全に関する公開知見
 
 > **TS-TYPE-SAFETY.mdとの差別化**: あちらはany禁止・型ガード・ジェネリクス中心。
 > こちらはWeak Type・Excess Property Checks・宣言空間という「なぜエラーが出る/出ない」に焦点を当てる。

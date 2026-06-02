@@ -1,6 +1,6 @@
 # バックエンド開発戦略ガイド
 
-> O'Reilly書籍「Full Stack JavaScript Strategies」に基づくバックエンド開発の包括的ガイド
+> フルスタックJavaScript開発の業界標準パターンに基づくバックエンド開発の包括的ガイド
 
 ## 目次
 
@@ -4805,7 +4805,6 @@ async function verifyResolution(): Promise<boolean> {
 ---
 
 **参考文献:**
-- O'Reilly「Full Stack JavaScript Strategies」
 - NestJS公式ドキュメント: https://docs.nestjs.com/
 - Prisma公式ドキュメント: https://www.prisma.io/docs/
 - BullMQ公式ドキュメント: https://docs.bullmq.io/

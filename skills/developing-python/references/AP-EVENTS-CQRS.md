@@ -484,9 +484,4 @@ class RedisEventPublisher(EventPublisher):
 
 ## 参考文献
 
-- "Architecture Patterns with Python" — Harry Percival, Bob Gregory（O'Reilly Media, 2020）
-  - Chapter 8: Events and the Message Bus
-  - Chapter 9: Going to Town on the Message Bus
-  - Chapter 10: Commands and Command Handler
-  - Chapter 11: Event-Driven Architecture: Using Events to Integrate Microservices
-  - Chapter 12: Command-Query Responsibility Segregation (CQRS)
+- Pythonアーキテクチャパターンの公開実践知（Events・Message Bus・Commands・Event-Driven Architecture・CQRS のパターン）

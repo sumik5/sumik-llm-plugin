@@ -1,6 +1,6 @@
 # 品質・セキュリティ・デバッグチェックリスト
 
-> O'Reilly書籍「Full Stack JavaScript Strategies: The Hidden Parts Every Mid-Level Developer Needs to Know」(2025, Milecia McGregor著) に基づく、フルスタックJavaScriptアプリケーションの品質保証チェックリスト。レビュー時に直接使用できる実践的なフォーマットで構成。
+> フルスタックJavaScript開発の業界標準パターンに基づく、アプリケーションの品質保証チェックリスト。レビュー時に直接使用できる実践的なフォーマットで構成。
 
 ## 目次
 

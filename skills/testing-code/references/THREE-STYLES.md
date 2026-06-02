@@ -1,7 +1,6 @@
 # 3つのテスト手法と関数型アーキテクチャ
 
-> 出典: Vladimir Khorikov, *Unit Testing: Principles, Practices, and Patterns* (Manning, 2020)
-> 須田智之 訳「単体テストの考え方/使い方」(マイナビ出版) — 第6章
+> 単体テストの体系的な公開実践知（3つのテスト手法・関数型アーキテクチャ）に基づく
 
 ---
 

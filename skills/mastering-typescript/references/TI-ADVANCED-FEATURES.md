@@ -1,6 +1,6 @@
 # TypeScript 高度な型機能リファレンス
 
-TypeScriptの高度な型システム機能。リテラル型の制御・型述語・as const・mapped types・条件型・async型・コンパイラオプションなどCh6-9の独自コンテンツを収録。
+TypeScriptの高度な型システム機能。リテラル型の制御・型述語・as const・mapped types・条件型・async型・コンパイラオプションなどの独自コンテンツを収録。
 
 ---
 

@@ -231,12 +231,12 @@ Em（管理コスト）と Vf（将来の価値）の推移パターンで、実
 
 ---
 
-## Kent Beck の 4 Rules of Simple Design
+## シンプルデザインの4つのルール（4 Rules of Simple Design）
 
-> **"Uncle Bob wrote thousands of pages on clean code. Kent Beck wrote four lines."**
-> — Chet Hendrickson（AATC2017 にて）
+> **「クリーンコードについては膨大なページ数の解説が書かれてきた。一方、シンプルデザインの要諦はわずか4行に凝縮できる。」**
+> — あるアジャイル開発カンファレンスでの言葉
 
-Kent Beck が提唱した「シンプルデザインの4つのルール」は、あらゆるデザイン原則の出発点となる根本的な指針である。
+あるアジャイル開発の提唱者が示した「シンプルデザインの4つのルール」は、あらゆるデザイン原則の出発点となる根本的な指針である。
 
 ### 4 ルールの進化（1999→2015）
 
@@ -244,11 +244,11 @@ Kent Beck が提唱した「シンプルデザインの4つのルール」は、
 
 | 年 | 出典 | 4つのルール |
 |----|------|------------|
-| 1999 | *XP Explained* 初版（Kent Beck） | コードとテストが伝えるべきことをすべて伝える / 重複がない / クラスが最小 / メソッドが最小 |
-| 2011 | Beck 再解釈 | Tests pass / Reveal intent / No duplication / Small |
-| 2014 | Corey Haines『Understanding the Four Rules』 | 4ルールの体系的解説書 |
-| 2015 | Martin Fowler ブログ「BeckDesignRules」 | Passes the tests / Reveals intention / No duplication / Fewest elements |
-| 現在 | *Clean Craftsmanship* (Uncle Bob) | **Covered by tests** / Maximize Expression / Minimize Duplication / Minimize Size |
+| 1999 | あるアジャイル開発手法の解説書（初版） | コードとテストが伝えるべきことをすべて伝える / 重複がない / クラスが最小 / メソッドが最小 |
+| 2011 | 提唱者による再解釈 | Tests pass / Reveal intent / No duplication / Small |
+| 2014 | シンプル設計4原則の体系的解説（公開知見） | 4ルールの体系的解説書 |
+| 2015 | ソフトウェア設計に関するブログ記事 | Passes the tests / Reveals intention / No duplication / Fewest elements |
+| 現在 | 近年のクリーンコード実践の解説 | **Covered by tests** / Maximize Expression / Minimize Duplication / Minimize Size |
 
 **注目**: 第1ルールの「コード**と**テスト」が「テストカバレッジ」に変化した歴史的意味は大きい。テストは「通ればいい」から「網羅的に存在すべきもの」へと重要性が増した。
 
@@ -270,9 +270,9 @@ Kent Beck が提唱した「シンプルデザインの4つのルール」は、
 
 **テストカバレッジ100%は漸近的目標**:
 
-> カバレッジ80%は、コードの20%が動くかどうかわからないことを意味する。どうしてそれで満足できるのか？ — *Clean Craftsmanship*
+> カバレッジ80%は、コードの20%が動くかどうかわからないことを意味する。どうしてそれで満足できるのか？
 
-100%カバレッジは「到達すべき絶対値」ではなく「常に近づいていく漸近的目標（asymptotic goal）」である。この考え方は1963年のMiller & Maloney論文に起源を持つ。
+100%カバレッジは「到達すべき絶対値」ではなく「常に近づいていく漸近的目標（asymptotic goal）」である。この考え方は1963年の研究に起源を持つ。
 
 ```
 カバレッジ 100% という目標は:
@@ -285,7 +285,7 @@ Kent Beck が提唱した「シンプルデザインの4つのルール」は、
 
 ### Rule 2: Reveal Intent（意図を表す）
 
-> *"Any fool can write code that a computer can understand. Good programmers write code that humans can understand."* — Martin Fowler
+> *"Any fool can write code that a computer can understand. Good programmers write code that humans can understand."*
 
 意図を表すことは「変数に良い名前をつける」だけではない。本質は **高レベルポリシーと低レベル詳細の分離** である。
 
@@ -306,7 +306,7 @@ public List<Paycheck> run(Database db) {
 2. **小さな関数**: 小さいほど、正確な名前をつけやすい
 3. **テスト**: テストはコードの使用例として機能し、production code が伝えられないコンテキストを補完する
 
-> *Taken together, the code and the tests are an expression of what each element of the system does and how each element should be used.* — *Clean Craftsmanship*
+> *Taken together, the code and the tests are an expression of what each element of the system does and how each element should be used.*
 
 ---
 
@@ -351,7 +351,7 @@ abstract class VacationPolicy {
 
 ### YAGNI の歴史的文脈（1999年）
 
-> In 1999, I was teaching an Extreme Programming course... Someone wrote YAGNI on the whiteboard. Beck interrupted and said something to the effect: *"maybe you are gonna need it, but you should ask yourself, 'What if you aren't?'"* — Uncle Bob, *Clean Craftsmanship*
+> In 1999, in an Extreme Programming course, someone wrote YAGNI on the whiteboard. The originator of XP interrupted and said something to the effect: *"maybe you are gonna need it, but you should ask yourself, 'What if you aren't?'"*
 
 1999年以前、ソフトウェアは変更が難しかった（ビルドに1時間、テストはすべて手動）。「フックを仕込む」のが当時のベストプラクティスだった。
 
@@ -379,4 +379,4 @@ Simple Design の実践サイクル:
      - 関数を最小化（Extract 'til you drop）
 ```
 
-> *"If you followed these four things as diligently as possible, all other design principles would be satisfied."* — Kent Beck（Uncle Bob との対話より）
+> *"If you followed these four things as diligently as possible, all other design principles would be satisfied."* — シンプルデザインの4ルールの提唱者
