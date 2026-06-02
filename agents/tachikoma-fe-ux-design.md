@@ -1,5 +1,5 @@
 ---
-name: タチコマ（UXデザイン）
+name: tachikoma-fe-ux-design
 description: "UX strategy, visual design, and creative specialized Tachikoma execution agent. Handles UI/UX philosophy (Fluid Interfaces, motion theory, constraint design), design thinking process (empathize, define, ideate, prototype, test), graphic design fundamentals (form, color, typography, layout), AI experience design (mental models, maturity frameworks), and AI-assisted creative generation. Use proactively when conducting UX research, making visual design decisions, running design thinking workshops, designing AI user experiences, or creating design creatives. Does NOT handle Figma-to-code conversion or design system code implementation."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, SendMessage, ToolSearch

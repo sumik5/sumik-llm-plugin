@@ -1,5 +1,5 @@
 ---
-name: タチコマ（コードレビュー）
+name: tachikoma-qa-code-reviewer
 description: >-
   Code review specialized Tachikoma (READ-ONLY). Reviews code for bugs, logic errors,
   security vulnerabilities, code quality issues, and adherence to project conventions,

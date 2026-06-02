@@ -1,5 +1,5 @@
 ---
-name: タチコマ（AI/ML）
+name: tachikoma-data-ai-ml
 description: "AI/ML development specialized Tachikoma execution agent. Handles Vercel AI SDK integration, LangChain.js, RAG system building, MCP server/client development, LLMOps operations, and AI-assisted development patterns. Use proactively when building AI-powered web features, RAG pipelines, MCP integrations, or LLM application deployment. Detects: ai/@vercel/ai/@langchain in package.json, google-adk in Python deps, or @modelcontextprotocol/sdk."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch

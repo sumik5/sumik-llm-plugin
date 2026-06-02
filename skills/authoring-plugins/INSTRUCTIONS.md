@@ -180,7 +180,7 @@ Agent定義ファイルの詳細は [AGENT-GUIDE.md](references/AGENT-GUIDE.md) 
 
 ```yaml
 ---
-name: タチコマ（role）           # 必須: 表示名
+name: tachikoma-{category}-{domain}   # 必須: ファイル名と一致するケバブケース
 description: "..."                # 必須: トリガー検出用（英語推奨）
 model: sonnet                      # sonnet / opus[1m] / haiku / inherit
 color: cyan                        # ターミナル表示色

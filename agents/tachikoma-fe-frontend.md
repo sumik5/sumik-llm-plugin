@@ -1,6 +1,6 @@
 ---
-name: タチコマ（フロントエンド）
-description: "Frontend component implementation specialized Tachikoma execution agent. Handles component implementation with shadcn/ui, Storybook story creation and interaction testing, and data visualization (charts/dashboards). Use proactively when creating UI components with shadcn/ui, writing Storybook stories, building interactive interfaces, or creating data charts/dashboards. For design principles, Figma integration, design systems, or Tailwind CSS architecture, use タチコマ（デザイン） instead. Detects: components.json, .stories.tsx/.ts files."
+name: tachikoma-fe-frontend
+description: "Frontend component implementation specialized Tachikoma execution agent. Handles component implementation with shadcn/ui, Storybook story creation and interaction testing, and data visualization (charts/dashboards). Use proactively when creating UI components with shadcn/ui, writing Storybook stories, building interactive interfaces, or creating data charts/dashboards. For design principles, Figma integration, design systems, or Tailwind CSS architecture, use タチコマ（Figma実装）, タチコマ（デザインシステム）, or タチコマ（UXデザイン） instead. Detects: components.json, .stories.tsx/.ts files."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
@@ -34,7 +34,7 @@ skills:
 - **報告先**: 完了報告はClaude Code本体に送信
 - 並列実行時は「tachikoma-frontend1」「tachikoma-frontend2」として起動されます
 
-> **注意**: Figma→コード変換・デザインシステム構築・Tailwind CSSアーキテクチャ設計・UI/UXデザイン原則はタチコマ（デザイン）の責務。
+> **注意**: Figma→コード変換はタチコマ（Figma実装）、デザインシステム構築・Tailwind CSSアーキテクチャ設計はタチコマ（デザインシステム）、UI/UXデザイン原則はタチコマ（UXデザイン）の責務。
 
 ## 専門領域
 

@@ -1,5 +1,5 @@
 ---
-name: タチコマ（プロダクトマネジメント）
+name: tachikoma-str-product-mgr
 description: >-
   Product management specialized Tachikoma agent (READ-ONLY). Handles PRD
   creation, roadmap planning, prioritization (RICE/ICE/MoSCoW), user story

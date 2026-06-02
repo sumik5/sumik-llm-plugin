@@ -49,7 +49,7 @@ planner タチコマの起動:
 {
   "description": "計画策定",
   "prompt": "## タスク: 実装計画の策定\n\n**ユーザー要求:** {ユーザーの要求をそのまま記載}\n\n以下を実行してください:\n1. コードベースを分析し、変更対象ファイル・影響範囲を特定\n2. TEAM-PATTERNS.md を参照し、最適なチーム編成パターンを選択\n3. タスク分解（1メンバーあたり5-6タスク目標）\n4. ファイル所有権パターンを定義（同一ファイル同時書込禁止）\n5. docs/plan-{feature-name}.md を PLAN-TEMPLATE.md の形式で作成\n6. 各タスクに最適な専門タチコマのsubagent_typeを推奨\n（参照: rules/skill-triggers.md のルーティング表）\n7. 🔴 Codex プランレビューループ: 計画書作成後、完了報告前に必ず実行\n   a. `which codex` で存在確認（見つからない or エラー → スキップしてOK）\n   b. `using-codex` スキルを使って `{plan_file_fullpath}` を初回レビューする\n   c. 致命的な指摘があればプランを修正し、同スキルの `--resume` モードで再レビューする\n   d. 致命的な指摘がなくなるまで修正→再レビューを繰り返す\n   e. 本質的でないコメントは無視してOK\n\n参照スキル: orchestrating-teams（references/TEAM-PATTERNS.md, references/PLAN-TEMPLATE.md）, using-codex\n\n禁止事項:\n- 実装コードの変更（計画策定のみ）\n- git書込操作",
-  "subagent_type": "sumik:タチコマ（プロダクトマネジメント）",
+  "subagent_type": "sumik:tachikoma-str-product-mgr",
   "model": "opus",
   "team_name": "user-management",
   "name": "planner",
@@ -146,7 +146,7 @@ AskUserQuestion(
 |-----------|------|------|
 | `description` | ✅ | 3-5語の短い説明（例: "フロントエンド実装"） |
 | `prompt` | ✅ | タスクの詳細指示（Spawn Prompt全文を含める） |
-| `subagent_type` | ✅ | **ドメイン別専門タチコマ**を選択（`rules/skill-triggers.md` ルーティング表参照）。例: `"sumik:タチコマ（Next.js）"`, `"sumik:タチコマ（E2Eテスト）"` |
+| `subagent_type` | ✅ | **ドメイン別専門タチコマ**を選択（`rules/skill-triggers.md` ルーティング表参照）。例: `"sumik:tachikoma-fw-nextjs"`, `"sumik:tachikoma-qa-e2e-test"` |
 | `team_name` | ✅ | チーム名（TeamCreateで作成した名前）。**tmux pane起動に必須** |
 | `name` | 任意 | メンバー名（例: "frontend", "backend"） |
 | `run_in_background` | ✅ | `true` で並列実行（**必須**）。`team_name` と組み合わせてtmux pane起動 |
@@ -161,7 +161,7 @@ AskUserQuestion(
 {
   "description": "フロントエンド実装",
   "prompt": "## タスク: Reactコンポーネント実装\n\n担当タスク: #4, #5, #6\nファイル所有権: src/components/**, src/pages/**\n参照スキル: developing-nextjs\n\n具体的な実装指示:\n- ユーザー一覧コンポーネント（データテーブル、ページネーション）\n- ユーザー編集フォーム（バリデーション、API連携）\n- エラー表示・ローディング状態\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作（commit等）を実行しない",
-  "subagent_type": "sumik:タチコマ（Next.js）",
+  "subagent_type": "sumik:tachikoma-fw-nextjs",
   "team_name": "user-management",
   "name": "frontend",
   "run_in_background": true,
@@ -172,7 +172,7 @@ AskUserQuestion(
 {
   "description": "バックエンドAPI実装",
   "prompt": "## タスク: REST API CRUD実装\n\n担当タスク: #1, #2, #3\nファイル所有権: src/api/**, src/services/**, src/models/**\n参照スキル: developing-fullstack-javascript\n\n具体的な実装指示:\n- PostgreSQLスキーマ設計・マイグレーション\n- GET/POST/PUT/DELETE エンドポイント実装\n- バリデーション、エラーハンドリング\n- 認可チェック\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作を実行しない",
-  "subagent_type": "sumik:タチコマ（フルスタックJS）",
+  "subagent_type": "sumik:tachikoma-fw-fullstack-js",
   "team_name": "user-management",
   "name": "backend",
   "run_in_background": true,
@@ -183,7 +183,7 @@ AskUserQuestion(
 {
   "description": "E2Eテスト作成",
   "prompt": "## タスク: E2Eテストシナリオ作成\n\n担当タスク: #7, #8\nファイル所有権: tests/e2e/**\n参照スキル: testing-e2e-with-playwright\n\n具体的な実装指示:\n- Playwrightによるユーザー登録・編集・削除フロー検証\n- 各種エラーケースのテスト\n- アクセシビリティチェック\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作を実行しない",
-  "subagent_type": "sumik:タチコマ（E2Eテスト）",
+  "subagent_type": "sumik:tachikoma-qa-e2e-test",
   "team_name": "user-management",
   "name": "tester",
   "run_in_background": true,

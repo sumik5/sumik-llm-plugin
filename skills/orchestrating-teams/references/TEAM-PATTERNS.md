@@ -135,16 +135,16 @@ Agent Team編成の4つのパターンとモデル戦略を提供します。
 **例: 複数ページの同時実装**
 ```
 TeamCreate → Task tool × 3（1メッセージで同時発行）:
-  1. sumik:タチコマ（Next.js）, name: "page-dashboard", prompt: "ダッシュボードページ実装"
-  2. sumik:タチコマ（Next.js）, name: "page-settings", prompt: "設定ページ実装"
-  3. sumik:タチコマ（Next.js）, name: "page-profile", prompt: "プロフィールページ実装"
+  1. sumik:tachikoma-fw-nextjs, name: "page-dashboard", prompt: "ダッシュボードページ実装"
+  2. sumik:tachikoma-fw-nextjs, name: "page-settings", prompt: "設定ページ実装"
+  3. sumik:tachikoma-fw-nextjs, name: "page-profile", prompt: "プロフィールページ実装"
 → 3つのtmux paneで同時進行
 ```
 
 **例: 複数テストスイートの同時作成**
 ```
-  1. sumik:タチコマ（テスト）, name: "test-auth", prompt: "認証モジュールのテスト作成"
-  2. sumik:タチコマ（テスト）, name: "test-api", prompt: "APIエンドポイントのテスト作成"
+  1. sumik:tachikoma-qa-test, name: "test-auth", prompt: "認証モジュールのテスト作成"
+  2. sumik:tachikoma-qa-test, name: "test-api", prompt: "APIエンドポイントのテスト作成"
 ```
 
 **scale-outの判断基準:**
@@ -188,7 +188,7 @@ TeamCreate → Task tool × 3（1メッセージで同時発行）:
 
 ```json
 {
-  "subagent_type": "sumik:タチコマ（Next.js）",  // ドメインに応じた専門タチコマを選択
+  "subagent_type": "sumik:tachikoma-fw-nextjs",  // ドメインに応じた専門タチコマを選択
   "team_name": "user-management",
   "name": "frontend",
   "run_in_background": true
@@ -204,13 +204,13 @@ TeamCreate → Task tool × 3（1メッセージで同時発行）:
 
 | 役割 | 推奨 subagent_type | 用途 |
 |------|-------------------|------|
-| planner | `sumik:タチコマ（プロダクトマネジメント）` | 要件分析・計画策定（model: opus） |
-| frontend | `sumik:タチコマ（Next.js）` / `sumik:タチコマ（フロントエンド）` | React/UI実装 |
-| backend | `sumik:タチコマ（フルスタックJS）` / `sumik:タチコマ（Python）` / `sumik:タチコマ（Go）` | API/ビジネスロジック |
-| tester | `sumik:タチコマ（テスト）` / `sumik:タチコマ（E2Eテスト）` | テスト作成 |
-| infra | `sumik:タチコマ（インフラ）` / `sumik:タチコマ（Terraform）` / `sumik:タチコマ（AWS）` | インフラ構築 |
-| researcher | `sumik:タチコマ（アーキテクチャ）` / `sumik:タチコマ（セキュリティ）` | 調査・分析（読取専用） |
-| documenter | `sumik:タチコマ（ドキュメント）` | 技術文書作成 |
+| planner | `sumik:tachikoma-str-product-mgr` | 要件分析・計画策定（model: opus） |
+| frontend | `sumik:tachikoma-fw-nextjs` / `sumik:tachikoma-fe-frontend` | React/UI実装 |
+| backend | `sumik:tachikoma-fw-fullstack-js` / `sumik:tachikoma-lang-python` / `sumik:tachikoma-lang-go` | API/ビジネスロジック |
+| tester | `sumik:tachikoma-qa-test` / `sumik:tachikoma-qa-e2e-test` | テスト作成 |
+| infra | `sumik:tachikoma-cloud-infra` / `sumik:tachikoma-cloud-terraform` / `sumik:tachikoma-cloud-aws` | インフラ構築 |
+| researcher | `sumik:tachikoma-str-architecture` / `sumik:tachikoma-qa-security` | 調査・分析（読取専用） |
+| documenter | `sumik:tachikoma-doc-document` | 技術文書作成 |
 
 **選択判断の基準:**
 - プロジェクトの技術スタック（package.json, go.mod等）から判定
@@ -246,6 +246,6 @@ TeamCreate → Task tool × 3（1メッセージで同時発行）:
 `rules/skill-triggers.md` のサブエージェントルーティング表を参照し、プロジェクト構成に基づいて適切な**専門タチコマ**をメンバーとして割り当てる。各専門タチコマにはドメインスキルがプリロード済みのため、追加のスキルロード指示は不要。
 
 **例:**
-- `package.json` に `next` → メンバーに `sumik:タチコマ（Next.js）` を起用
-- `package.json` に `@playwright/test` → テスターに `sumik:タチコマ（E2Eテスト）` を起用
-- `.tf` ファイル → インフラに `sumik:タチコマ（Terraform）` を起用
+- `package.json` に `next` → メンバーに `sumik:tachikoma-fw-nextjs` を起用
+- `package.json` に `@playwright/test` → テスターに `sumik:tachikoma-qa-e2e-test` を起用
+- `.tf` ファイル → インフラに `sumik:tachikoma-cloud-terraform` を起用

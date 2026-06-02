@@ -1,43 +1,23 @@
 {
   "mcpServers": {
     "serena": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
-        "start-mcp-server",
-        "--context",
-        "ide-assistant"
-      ],
-      "env": {}
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/uvx-mise.sh",
+      "args": ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant"]
     },
     "puppeteer": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-puppeteer"
-      ],
-      "env": {}
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/npx-mise.sh",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
     },
     "chrome-devtools": {
-      "command": "npx",
-      "args": [
-        "chrome-devtools-mcp@latest",
-        "--isolated"
-      ],
-      "env": {}
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/npx-mise.sh",
+      "args": ["chrome-devtools-mcp@latest", "--isolated"]
     },
     "sequentialthinking": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ],
-      "env": {}
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/npx-mise.sh",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "drawio": {
-      "command": "npx",
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/npx-mise.sh",
       "args": ["@drawio/mcp"]
     }
   }

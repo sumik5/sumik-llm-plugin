@@ -1,5 +1,5 @@
 ---
-name: タチコマ（テスト）
+name: tachikoma-qa-test
 description: "Unit/Integration testing specialized Tachikoma execution agent. Handles TDD methodology, test design across all languages (Vitest/Jest, Go testing, pytest, etc.), React Testing Library, mock strategies, coverage optimization, and test refactoring. Use proactively when writing unit tests, integration tests, improving test coverage, or setting up test infrastructure. Detects: files containing 'test' or 'spec' in name (*test*, *spec*, *_test.go, test_*.py), vitest.config.*, jest.config.*, or pytest.ini."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch

@@ -1,5 +1,5 @@
 ---
-name: タチコマ（TypeScript）
+name: tachikoma-lang-typescript
 description: "TypeScript specialized Tachikoma execution agent. Handles advanced type system patterns, generics, conditional types, GoF design patterns in TypeScript, and type-safe architecture. Use proactively when deep TypeScript expertise is needed: complex type definitions, type refactoring, generic utility creation, or migrating JavaScript to TypeScript. Detects: tsconfig.json."
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch

@@ -8,7 +8,7 @@
 
 ````markdown
 ---
-name: タチコマ（{ドメイン名}）
+name: tachikoma-{category}-{domain}   # ファイル名と一致するケバブケース（例: tachikoma-fw-nextjs）
 description: "{ドメイン英語} specialized Tachikoma execution agent. Handles {具体的タスク列挙}. Use proactively when {トリガー条件}. Detects: {ファイルパターン}."
 model: {sonnet|opus[1m]}
 color: {色名}
@@ -176,24 +176,31 @@ skills:
 
 | ファイル | name | model | 専門領域 |
 |---------|------|-------|---------|
-| tachikoma.md | タチコマ | sonnet | 汎用フォールバック |
-| serena-expert.md | Serena Expert | sonnet | トークン効率化開発 |
-| tachikoma-nextjs.md | タチコマ（Next.js） | sonnet | Next.js/React |
-| tachikoma-frontend.md | タチコマ（フロントエンド） | sonnet | UI/UX・shadcn |
-| tachikoma-fullstack-js.md | タチコマ（フルスタックJS） | sonnet | NestJS/Express |
-| tachikoma-typescript.md | タチコマ（TypeScript） | sonnet | TypeScript型設計 |
-| tachikoma-python.md | タチコマ（Python） | sonnet | Python・ADK |
-| tachikoma-go.md | タチコマ（Go） | sonnet | Go開発 |
-| tachikoma-bash.md | タチコマ（Bash） | sonnet | シェルスクリプト |
-| tachikoma-infra.md | タチコマ（インフラ） | sonnet | Docker/CI-CD |
-| tachikoma-terraform.md | タチコマ（Terraform） | sonnet | Terraform IaC |
-| tachikoma-aws.md | タチコマ（AWS） | sonnet | AWS全般 |
-| tachikoma-google-cloud.md | タチコマ（Google Cloud） | sonnet | GCP全般 |
-| tachikoma-architecture.md | タチコマ（アーキテクチャ） | opus | 設計・DDD（読取専用） |
-| tachikoma-security.md | タチコマ（セキュリティ） | opus | セキュリティ監査（読取専用） |
-| tachikoma-database.md | タチコマ（データベース） | sonnet | DB設計・SQL |
-| tachikoma-ai-ml.md | タチコマ（AI/ML） | sonnet | AI/RAG/MCP/LLM |
-| tachikoma-test.md | タチコマ（テスト） | sonnet | ユニット/統合テスト |
-| tachikoma-e2e-test.md | タチコマ（E2Eテスト） | sonnet | Playwright E2E |
-| tachikoma-observability.md | タチコマ（オブザーバビリティ） | sonnet | 監視・OTel・ログ |
-| tachikoma-document.md | タチコマ（ドキュメント） | sonnet | 技術文書・記事 |
+| tachikoma.md | tachikoma | sonnet | 汎用フォールバック |
+| serena-expert.md | serena-expert | sonnet | トークン効率化開発 |
+| tachikoma-lang-typescript.md | tachikoma-lang-typescript | sonnet | TypeScript型設計 |
+| tachikoma-lang-python.md | tachikoma-lang-python | sonnet | Python・ADK |
+| tachikoma-lang-go.md | tachikoma-lang-go | sonnet | Go開発 |
+| tachikoma-lang-bash.md | tachikoma-lang-bash | sonnet | シェルスクリプト |
+| tachikoma-fw-nextjs.md | tachikoma-fw-nextjs | sonnet | Next.js/React |
+| tachikoma-fw-fullstack-js.md | tachikoma-fw-fullstack-js | sonnet | NestJS/Express |
+| tachikoma-fe-frontend.md | tachikoma-fe-frontend | sonnet | UI/UX・shadcn |
+| tachikoma-fe-figma-impl.md | tachikoma-fe-figma-impl | sonnet | Figma→コード変換 |
+| tachikoma-fe-design-system.md | tachikoma-fe-design-system | sonnet | デザインシステム構築・運用 |
+| tachikoma-fe-ux-design.md | tachikoma-fe-ux-design | sonnet | UX戦略・ビジュアルデザイン |
+| tachikoma-cloud-aws.md | tachikoma-cloud-aws | sonnet | AWS全般 |
+| tachikoma-cloud-gcp.md | tachikoma-cloud-gcp | sonnet | GCP全般 |
+| tachikoma-cloud-terraform.md | tachikoma-cloud-terraform | sonnet | Terraform IaC |
+| tachikoma-cloud-infra.md | tachikoma-cloud-infra | sonnet | Docker/CI-CD |
+| tachikoma-data-database.md | tachikoma-data-database | sonnet | DB設計・SQL |
+| tachikoma-data-ai-ml.md | tachikoma-data-ai-ml | sonnet | AI/RAG/MCP/LLM |
+| tachikoma-qa-test.md | tachikoma-qa-test | sonnet | ユニット/統合テスト |
+| tachikoma-qa-e2e-test.md | tachikoma-qa-e2e-test | sonnet | Playwright E2E |
+| tachikoma-qa-security.md | tachikoma-qa-security | opus[1m] | セキュリティ監査（読取専用） |
+| tachikoma-qa-code-reviewer.md | tachikoma-qa-code-reviewer | opus[1m] | コードレビュー（読取専用） |
+| tachikoma-qa-observability.md | tachikoma-qa-observability | sonnet | 監視・OTel・ログ |
+| tachikoma-doc-document.md | tachikoma-doc-document | sonnet | 技術文書・記事 |
+| tachikoma-doc-slide.md | tachikoma-doc-slide | opus[1m] | HTMLスライド作成 |
+| tachikoma-doc-training.md | tachikoma-doc-training | sonnet | 研修設計・プレゼン改善（自己進化型） |
+| tachikoma-str-architecture.md | tachikoma-str-architecture | opus[1m] | 設計・DDD（読取専用） |
+| tachikoma-str-product-mgr.md | tachikoma-str-product-mgr | opus[1m] | 要件分析・計画策定（読取専用） |
