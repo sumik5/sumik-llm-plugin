@@ -5,7 +5,7 @@
   },
   "plugins": [
     {
-      "name": "sumik",
+      "name": "sumik-claude-plugin",
       "source": "./",
       "description": "sumik Claude Code Plugin"
     }
