@@ -466,7 +466,7 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 
 スキルポートフォリオの健全性を維持するため、定期的なレビューを実施:
 
-1. `scripts/analyze-skill-usage.sh` でログ分析
+1. ログを手動でレビューして利用状況を分析
 2. 判断基準テーブルに基づき棚卸し
 3. 維持 / description改善 / 統合 / 廃止 を決定
 

@@ -96,7 +96,7 @@ SOURCE CONVERSION (if creating from existing material)
 - [ ] Content reframed as general best practices
 
 USAGE REVIEW (if reviewing skill portfolio)
-- [ ] analyze-skill-usage.sh report generated
+- [ ] skill usage reviewed manually
 - [ ] Top/bottom skill usage reviewed
 - [ ] Unused skills triaged (deprecate/improve/hold)
 - [ ] Description improvements applied (three-part formula)
