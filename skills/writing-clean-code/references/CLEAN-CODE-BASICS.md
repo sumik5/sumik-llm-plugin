@@ -576,6 +576,8 @@ async function getUserById(userId: string): Promise<User | null> {
 }
 ```
 
+> TSDoc拡張タグ（@remarks/@link）と TypeDoc による静的ドキュメントサイト生成は mastering-typescript: [CC-DOCUMENTATION.md](../../mastering-typescript/references/CC-DOCUMENTATION.md) を参照。
+
 ---
 
 ## 🔗 関連ドキュメント
