@@ -70,6 +70,11 @@ SKILL↔AGENT IMPACT (if skill is referenced by agents, or new skill was created
 - [ ] 内容大幅変更: エージェントの「専門領域」セクション更新要否を確認済み
 - [ ] 削除: 全参照エージェントから当該スキルを除去済み
 
+CROSS-REFERENCE INTEGRITY (if skill is renamed, merged, or deleted)
+- [ ] クロスリファレンスにダングリング（実在しないスキル名への use/see/→ 参照）がゼロか（CROSS-REFERENCE-INTEGRITY.md の検出スクリプトで検証）
+- [ ] 本文・手順が参照する全スクリプト/ファイル（scripts/X・references/X）が実在するか（捏造参照ゼロ）
+- [ ] スキルのリネーム/統合/削除時、4層（他スキル frontmatter・他スキル本文・hook・README/rules・自己参照）すべての参照を更新したか
+
 SOURCE ATTRIBUTION (if skill is based on external material)
 - [ ] No book titles, author names, or publisher names
 - [ ] No "based on", "according to" attribution phrases

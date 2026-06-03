@@ -431,6 +431,9 @@ my-skill/
 - [ ] `README.md` が更新されているか
 - [ ] `rules/skill-triggers.md` のルーティング表との整合性（Agent追加時）
 - [ ] 標準準拠の検証: `skills-ref validate ./skills/<skill-name>`（<https://github.com/agentskills/agentskills/tree/main/skills-ref>）
+- [ ] クロスリファレンスにダングリング（実在しないスキル名への use/see/→ 参照）がゼロか（[CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md) の検出スクリプトで検証）
+- [ ] 本文・手順が参照する全スクリプト/ファイル（scripts/X・references/X）が実在するか（捏造参照ゼロ）
+- [ ] スキルのリネーム/統合/削除時、4層（他スキル frontmatter・他スキル本文・hook・README/rules・自己参照）すべての参照を更新したか
 
 ### 標準フィールドの活用（任意推奨）
 
@@ -456,9 +459,13 @@ my-skill/
 
 ## スキル変更時のエージェント影響分析
 
+スキルを作成・変更・削除した場合、以下の2観点から影響を確認する。
+
+### A. エージェントへの影響
+
 スキルを作成・変更・削除した場合、`agents/` 内の関連エージェントへの影響を確認する。
 
-### 影響判定マトリクス
+#### 影響判定マトリクス
 
 | 操作 | 確認事項 | 対応 |
 |------|---------|------|
@@ -467,7 +474,7 @@ my-skill/
 | **内容大幅変更** | エージェント body の「専門領域」セクション | 主要概念・推奨パターンが変わった場合は要約も更新 |
 | **削除** | `skills:` フィールドの参照除去 | 全参照エージェントから該当スキル名を削除 |
 
-### 2層影響チェック手順
+#### 2層影響チェック手順
 
 影響範囲は「フロントマター参照」と「body 要約」の2層で確認する:
 
@@ -480,7 +487,7 @@ my-skill/
    - 主要概念・用語・推奨パターンが変わった → body 要約も更新必須
    - マイナーな詳細変更のみ → body 更新は不要（スキル全文がプリロードされるため）
 
-### 新規スキル作成時のプリロード判断フロー
+#### 新規スキル作成時のプリロード判断フロー
 
 | 条件 | 判断 |
 |------|------|
@@ -490,6 +497,22 @@ my-skill/
 | スキルが軽量・汎用（チェックリスト等） | オンデマンド参照のみで十分（プリロード不要） |
 
 詳細な手順は [AGENT-GUIDE.md](references/AGENT-GUIDE.md) の「スキル変更時のエージェント更新」セクションを参照。
+
+### B. スキル間クロスリファレンスへの影響（リネーム・統合・削除時）
+
+スキルをリネーム・統合・削除すると、そのスキル名への参照が「実在しないスキル名（ダングリング参照）」として残り、ルーティング失敗・幽霊推奨を招く。**1スキルのリネームが数十ファイルに波及しうる**。
+
+#### 参照が潜む4層 × 操作別対応マトリクス
+
+| 操作 | Layer 1: 他スキル frontmatter | Layer 2: 他スキル本文 | Layer 3: hook | Layer 4: README/rules/自己参照 |
+|------|------------------------------|----------------------|---------------|-------------------------------|
+| **リネーム** | 旧名→新名に書き換え | 旧名→新名に書き換え | 配列・case文を更新 | 表を更新、自スキル内も確認 |
+| **統合（吸収）** | `use 統合先` に書き換え | 同左 | 旧名を削除または統合先名に変更 | 旧名行を削除 |
+| **削除** | 参照を削除（移行先がなければ警告コメント） | 同左 | 旧名を配列から削除 | 旧名行を削除 |
+
+**検出は多角的パターンで行う**: `use X` だけ追うと hook のシェル配列や `see X` / `→X` を取りこぼす（実例あり）。
+
+詳細な検出スクリプト・検証コマンド・捏造禁止原則は [CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md) を参照。
 
 ---
 
@@ -539,6 +562,8 @@ AskUserQuestion の使い方は2つの文脈で異なる。混同しないこと
 
 `.claude-plugin/plugin.json` の `version` フィールドを Semantic Versioning に従って更新する:
 
+> ⚠️ bump前に現行versionを**実ファイルまたは `git show HEAD:.claude-plugin/plugin.json` から読む**（HEADで既にbump済みの場合があり、記憶や推測の値を使うと既存versionと衝突する）
+
 | 変更内容 | バージョン | 例 |
 |---------|----------|-----|
 | 新規コンポーネント追加（スキル・Agent・Command） | **MINOR** | `9.24.0` → `9.25.0` |
@@ -583,3 +608,4 @@ git tag v{new-version}
 - **[CONVERTING.md](references/CONVERTING.md)**: ソース→スキル変換ワークフロー
 - **[CONTEXT-MANAGEMENT.md](references/CONTEXT-MANAGEMENT.md)**: Context圧迫防止・disable-model-invocationベストプラクティス
 - **[USAGE-REVIEW.md](references/USAGE-REVIEW.md)**: スキル利用状況レビュー・棚卸しガイド
+- **[CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md)**: スキルリネーム・統合・削除時のダングリング参照防止ガイド（4層スキャン・検出スクリプト・捏造禁止原則）
