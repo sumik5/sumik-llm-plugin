@@ -657,4 +657,4 @@ AskUserQuestion(
 
 - `writing-clean-code`: SOLID原則の詳細（本スキルのメインファイル）
 - `testing`: リファクタリング時のテスト戦略
-- `enforcing-type-safety`: 型システムによる依存関係の明示
+- `mastering-typescript`: 型システムによる依存関係の明示

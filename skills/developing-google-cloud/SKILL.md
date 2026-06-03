@@ -11,7 +11,7 @@ description: >-
   real-time (Pub/Sub/Dataflow streaming), ML (BigQuery ML/Vertex AI/GIS).
   MUST load when google-cloud packages, cloudbuild.yaml,
   BigQuery/Dataflow/Memorystore/Looker/Dataplex detected.
-  For Docker→managing-containers. For monitoring→implementing-observability.
+  For Docker→practicing-devops. For monitoring→implementing-observability.
   For OWASP→securing-code. For CQRS→architecting-data.
   For AWS→developing-aws. For GenAI→designing-genai-patterns.
   For Firebase (Auth/Firestore/Storage/Functions/Hosting)→developing-firebase.

@@ -513,9 +513,9 @@
 
 ## 既存スキルとの使い分け
 
-### enforcing-type-safety との関係
+### mastering-typescript との関係
 
-**enforcing-type-safety**: 型安全性に特化
+**mastering-typescript**: 型安全性に特化
 **writing-clean-code**: 型の誤用（Ch.24）を含む包括的品質
 
 ### testing との関係

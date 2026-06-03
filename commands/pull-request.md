@@ -1,3 +1,9 @@
+---
+description: 現在のブランチとベースブランチの差分・コミットメッセージを分析し、GitHubプルリクエスト用の文章を自動生成する
+allowed-tools: Bash, Read
+argument-hint: "[ベースブランチ（デフォルト: main）]"
+user-invocable: true
+---
 # Git Pull Request Command
 
 このコマンドは、現在のブランチの変更点とコミットメッセージを分析し、GitHubプルリクエスト用の文章を自動生成します。

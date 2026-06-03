@@ -169,4 +169,4 @@ class TransmitterAdapter implements Transmitter {
 
 - `writing-clean-code`: SOLID原則（依存関係逆転の原則と深く関係）
 - `testing-code`: 学習テストと境界テストの実装
-- `enforcing-type-safety`: 境界でのキャストを型安全なラッパーに閉じ込める
+- `mastering-typescript`: 境界でのキャストを型安全なラッパーに閉じ込める

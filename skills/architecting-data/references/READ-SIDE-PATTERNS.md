@@ -319,6 +319,6 @@ Phase 4: Analytics Service独立
 ## Related Skills
 
 - **architecting-infrastructure**: CQRS実装、Saga、データ所有権
-- **applying-domain-driven-design**: ドメイン境界定義、戦略的DDD
+- **applying-clean-architecture**: ドメイン境界定義、戦略的DDD
 - **understanding-database-internals**: レプリケーション内部、トランザクション分離レベル
 - **designing-relational-databases**: 正規化、非正規化トレードオフ

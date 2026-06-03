@@ -398,4 +398,4 @@ latexmk -pdfdvi -shell-escape document.tex
 ## 関連スキル
 
 - **writing-effective-prose**: 技術文書・学術文書の原則（7つのCを含む）
-- **enforcing-type-safety**: 数式の型安全性（単位の一貫性）
+- **mastering-typescript**: 数式の型安全性（単位の一貫性）

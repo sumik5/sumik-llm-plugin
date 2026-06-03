@@ -312,7 +312,7 @@ all_mcp_tools = await mcp_client.get_tools()
 
 ## 6. 差別化: developing-mcpとの使い分け
 
-| 観点 | 本スキル（building-langchain-agents） | developing-mcp |
+| 観点 | 本スキル（building-ai-agents） | developing-mcp |
 |-----|--------------------------------------|----------------|
 | **対象** | LangGraphエージェントからMCPを消費する実装 | MCPプロトコル・サーバー/クライアントの詳細設計 |
 | **SDK** | FastMCP 2（Python）・MultiServerMCPClient | TypeScript SDK・Python SDK（全般） |

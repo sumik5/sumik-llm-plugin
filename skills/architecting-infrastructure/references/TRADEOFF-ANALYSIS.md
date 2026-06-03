@@ -797,4 +797,4 @@ Step 3: 変更時にその結合がどんな影響をもたらすかを見極め
 
 **関連スキル:**
 - [architecting-microservices](../../architecting-microservices/SKILL.md): マイクロサービスの8つのサーガパターン、粒度決定、データ所有権
-- [applying-domain-driven-design](../../applying-domain-driven-design/SKILL.md): ドメイン境界、境界づけられたコンテキスト、データ分解
+- [applying-clean-architecture](../../applying-clean-architecture/SKILL.md): ドメイン境界、境界づけられたコンテキスト、データ分解

@@ -13,7 +13,7 @@ description: >-
   engineering design documents (requirements specs, system design docs), reports, slides, emails,
   academic papers, dissertations, university reports, graduation theses, business documents,
   web content, FAQ/help docs, design specs, README.md files, Zenn tech articles).
-  For LaTeX → writing-latex. For presentations → creating-presentations.
+  For LaTeX → writing-latex. For presentations → creating-slides.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -104,7 +104,7 @@ class User(BaseModel):
 **設計原則：**
 - バリデーションルールを明確に定義
 - ドメインモデルとリクエスト/レスポンスモデルを分離
-- `Any`型を使用しない（`enforcing-type-safety`スキル参照）
+- `Any`型を使用しない（`mastering-typescript`スキル参照）
 
 ### repositories/ - データアクセス層
 **データベースアクセスを抽象化：**

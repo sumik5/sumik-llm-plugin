@@ -320,7 +320,7 @@ uv run ruff check --fix . && uv run ruff format .
 ### mypyとは
 - **静的型チェックツール**
 - 型エラーを実行前に検出
-- 型安全性を確保（`enforcing-type-safety`スキル参照）
+- 型安全性を確保（`mastering-typescript`スキル参照）
 
 ### 基本コマンド
 

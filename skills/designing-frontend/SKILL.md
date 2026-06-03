@@ -8,7 +8,7 @@ description: >-
   (object extraction, view/navigation patterns, layout pattern selection);
   or when architecting micro-frontend systems (team splitting, Module Federation,
   BFF patterns, migration strategy, Conway's Law application).
-  For Storybook story creation and component testing, use developing-storybook instead.
+  For Storybook story creation and component testing, use developing-react instead.
   For theoretical UI/UX design principles, use designing-ux instead.
   For Tailwind CSS methodology, component design patterns, and design system construction, use styling-with-tailwind instead.
   For design system methodology (pattern language, organizational strategy, UI pattern catalog, anti-patterns), use building-design-systems instead.

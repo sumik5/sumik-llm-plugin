@@ -14,7 +14,7 @@
 
 ---
 
-# practicing-design-thinking — 詳細ガイド
+# designing-ux — 詳細ガイド
 
 > 出典: 東京工業大学 EDP（エンジニアリングデザインプロジェクト）の実践知見
 > d.school（スタンフォード大学）・IDEO を源流とする方法論
@@ -70,7 +70,7 @@
 
 | スキル | 使用場面 |
 |-------|---------|
-| `practicing-design-thinking`（本スキル）| プロセス方法論・ユーザーリサーチ・アイデア発想 |
+| `designing-ux`（本スキル）| プロセス方法論・ユーザーリサーチ・アイデア発想 |
 | `applying-design-guidelines` | UI/UX ビジュアルデザイン原則の適用 |
 | `applying-behavior-design` | CREATE Action Funnel による行動変容設計 |
 | `designing-training` | 研修・ワークショップの設計・ファシリテーション |

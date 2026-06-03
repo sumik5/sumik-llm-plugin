@@ -361,7 +361,7 @@ pnpm add -D \
 | ルール | 説明 |
 |--------|------|
 | `react-compiler/react-compiler: "error"` | React Compiler最適化（必須） |
-| `@typescript-eslint/no-explicit-any: "error"` | any型禁止（`enforcing-type-safety`スキル参照） |
+| `@typescript-eslint/no-explicit-any: "error"` | any型禁止（`mastering-typescript`スキル参照） |
 | `@typescript-eslint/consistent-type-imports` | 型インポート分離 |
 | `@typescript-eslint/no-unnecessary-condition` | 不要な条件式検出（型情報ベース） |
 | `@typescript-eslint/consistent-type-exports` | 型エクスポート分離 |
@@ -606,4 +606,4 @@ export const env = envSchema.parse(process.env);
 
 **関連ドキュメント:**
 - [PROJECT-STRUCTURE.md](./PROJECT-STRUCTURE.md) - プロジェクト構造
-- **`enforcing-type-safety`スキル**: 型安全性の原則
+- **`mastering-typescript`スキル**: 型安全性の原則

@@ -372,7 +372,7 @@ mcp__nextjs_docs__search(query="Server Components")
 
 ### 型安全性の徹底
 
-**詳細は`enforcing-type-safety`スキルを参照してください。**
+**詳細は`mastering-typescript`スキルを参照してください。**
 
 **絶対禁止:**
 - TypeScriptの`any`型使用
@@ -475,7 +475,7 @@ Skill tool: /codeguard-security:software-security
 - **designing-frontend** - UIコンポーネント管理
 - **mcp-search** - 情報検索戦略
 - **writing-clean-code** - SOLID原則とクリーンコード
-- **enforcing-type-safety** - 型安全性の徹底
+- **mastering-typescript** - 型安全性の徹底
 - **testing** - テストファーストアプローチ
 - **securing-code** - セキュアコーディング
 - **managing-docker** - Docker環境構築

@@ -1,4 +1,4 @@
-# building-nextjs-saas
+# developing-nextjs
 
 ## 概要
 
@@ -336,7 +336,7 @@ tailwind.config.ts
 
 | 要件 | 推奨スキル |
 |---|---|
-| 個人・小規模SaaS、AI機能中心 | `building-nextjs-saas`（本スキル） |
+| 個人・小規模SaaS、AI機能中心 | `developing-nextjs`（本スキル） |
 | エンタープライズB2B SaaS、組織管理 | `building-multi-tenant-saas` |
 | Next.jsの基本機能のみ | `developing-nextjs` |
 | API提供がメイン | `designing-web-apis` |

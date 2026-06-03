@@ -9,11 +9,10 @@ description: >-
   team-level), sustainable performance (burnout, remote work), and AI-enhanced workflows (daily
   AI, 90-day rollout). Use when starting projects, organizing teams, for IC effectiveness,
   career growth, or team AI culture.
-  For TDD/BDD/ATDD, use testing-code instead.
-  For SOLID/refactoring, use writing-clean-code instead.
-  For CI/CD, use practicing-devops instead.
-  For DDD/Clean Architecture, use applying-clean-architecture instead.
-  For ODD/debugging, use implementing-observability instead.
+when_to_use: >-
+  For TDD/BDD/ATDD, use testing-code instead. For SOLID/refactoring, use writing-clean-code
+  instead. For CI/CD, use practicing-devops instead. For DDD/Clean Architecture, use
+  applying-clean-architecture instead. For ODD/debugging, use implementing-observability instead.
   For prompt engineering techniques, use developing-with-ai instead.
 ---
 

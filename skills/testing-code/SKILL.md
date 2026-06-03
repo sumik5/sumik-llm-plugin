@@ -7,7 +7,7 @@ description: >-
   Includes the Four Pillars of good tests (regression protection, refactoring resistance, fast feedback, maintainability),
   three testing styles (output/state/communication-based), code classification, and test anti-patterns.
   For RTL patterns, use developing-react. For Web API testing, use developing-web-apis.
-  For A/B testing, use conducting-ab-tests. For TDD mindset/ATDD/BDD, see TESTING-PRACTICES.md.
+  For A/B testing, use practicing-product-management. For TDD mindset/ATDD/BDD, see TESTING-PRACTICES.md.
   For project foundations and team organization, use practicing-software-engineering.
 ---
 

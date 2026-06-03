@@ -144,5 +144,5 @@ Developer Agentは並列実行時に4つの専門性を持ちます：
 - **using-serena**: serena MCPの詳細使用法
 - **securing-code**: CodeGuard実行の詳細
 - **writing-clean-code**: SOLID原則・コード品質基準
-- **enforcing-type-safety**: 型安全性の遵守
+- **mastering-typescript**: 型安全性の遵守
 - **testing**: テストファーストアプローチ

@@ -368,4 +368,4 @@ React 開発の文化・慣習に沿った設計をすることが重要。Clean
 |--------|------|
 | **`applying-clean-architecture`** | CA一般原則（依存性ルール・同心円モデル・コンポーネント原則・Humble Objects等）。本ドキュメントはReact固有の適用に特化 |
 | **`writing-clean-code`** | コードレベルのSOLID原則・クリーンコード。本ドキュメントはアーキテクチャレベルのCA適用に特化 |
-| **`applying-domain-driven-design`** | DDD戦術パターン（Entity・Repository等）。CAのエンティティ層設計で活用 |
+| **`applying-clean-architecture`** | DDD戦術パターン（Entity・Repository等）。CAのエンティティ層設計で活用 |

@@ -103,7 +103,7 @@ open_drawio_mermaid({
 })
 ```
 
-> Mermaid構文の詳細（22+ダイアグラムタイプ）は `mermaid-diagrams` スキルを参照。
+> Mermaid構文の詳細（22+ダイアグラムタイプ）は本スキル（creating-diagrams）の Mermaid 構文セクションを参照。
 
 ---
 
@@ -305,5 +305,5 @@ Accountant,経理担当,CFO,business`
 
 ## 関連スキル
 
-- **mermaid-diagrams**: Mermaid構文の詳細リファレンス（22+ダイアグラムタイプ、テーマ設定）
+- **本スキル（creating-diagrams）**: Mermaid構文の詳細リファレンス（22+ダイアグラムタイプ、テーマ設定）
 - **developing-mcp**: MCPサーバー/クライアントの開発ガイド

@@ -7,9 +7,9 @@ description: >-
   (JSON-RPC 2.0, stdio/Streamable HTTP), and security threats
   (Tool Poisoning, Shadowing, Rug Pull, Prompt Injection).
   MUST load when building MCP servers or clients.
-  For Claude Code plugin MCP configuration, use plugin-dev:mcp-integration instead.
+  For Claude Code plugin MCP configuration, use authoring-plugins instead.
   For MCP integration with Vercel AI SDK in web apps, see integrating-ai-web-apps.
-  For consuming MCP tools from LangGraph agents, see building-langchain-agents.
+  For consuming MCP tools from LangGraph agents, see building-ai-agents.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

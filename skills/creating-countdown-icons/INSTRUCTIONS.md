@@ -55,7 +55,7 @@
 以下のコマンドで4絵文字の候補グリッド画像を生成する（`--mode candidates`）。
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/creating-countdown-icons/scripts/generate_icon.py \
+python3 ${CLAUDE_SKILL_DIR}/scripts/generate_icon.py \
   --mode candidates \
   --candidates "💡,⚖️,📚,🎓" \
   --palette I \
@@ -122,7 +122,7 @@ options:
 ### 最終生成コマンド
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/creating-countdown-icons/scripts/generate_icon.py \
+python3 ${CLAUDE_SKILL_DIR}/scripts/generate_icon.py \
   --text "知財検定" \
   --emoji "💡" \
   --palette I \
@@ -183,7 +183,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/creating-countdown-icons/scripts/generate_i
 
 ```bash
 # 候補グリッド生成（Step 3）
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/creating-countdown-icons/scripts/generate_icon.py \
+python3 ${CLAUDE_SKILL_DIR}/scripts/generate_icon.py \
   --mode candidates \
   --candidates "💡,⚖️,📚,🎓" \
   --palette I \
@@ -191,7 +191,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/creating-countdown-icons/scripts/generate_i
   --out /tmp/candidates.png
 
 # 最終生成（Step 6）
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/creating-countdown-icons/scripts/generate_icon.py \
+python3 ${CLAUDE_SKILL_DIR}/scripts/generate_icon.py \
   --text "知財検定" \
   --emoji "💡" \
   --palette I \
@@ -204,7 +204,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/creating-countdown-icons/scripts/generate_i
 
 | 状況 | 対処 |
 |------|------|
-| `generate_icon.py` が存在しない | `${CLAUDE_PLUGIN_ROOT}/skills/creating-countdown-icons/scripts/` を確認。スクリプト未配置の場合は別タスクで生成が必要 |
+| `generate_icon.py` が存在しない | `${CLAUDE_SKILL_DIR}/scripts/` を確認。スクリプト未配置の場合は別タスクで生成が必要 |
 | 絵文字が正しく描画されない | `--icon-style color` を試す |
 | 出力先ディレクトリが存在しない | `mkdir -p` で事前作成 |
 | 文字列が長すぎて収まらない | `--text` を短縮するか省略形を使用 |

@@ -144,5 +144,5 @@ PM用CLAUDE.mdに含めるべき項目:
 
 - `developing-with-ai`: AI支援開発メソドロジー（エンジニア向け）
 - `managing-claude-md`: CLAUDE.md管理の詳細ガイド
-- `authoring-skills`: スキル作成の詳細ガイド
+- `authoring-plugins`: スキル作成の詳細ガイド
 - `writing-effective-prose`: テクニカルドキュメント・学術文書作成の一般原則

@@ -10,8 +10,8 @@ description: >-
   skill map creation, and training material development.
   Use when designing training programs, facilitating workshops,
   creating training materials, building skill maps, or managing training operations.
-  For behavior design→applying-behavior-design. For presentation content→creating-presentations.
-  For design thinking process methodology (empathize/define/ideate/prototype/test)→practicing-design-thinking.
+  For behavior design→applying-behavior-design. For presentation content→creating-slides.
+  For design thinking process methodology (empathize/define/ideate/prototype/test)→designing-ux.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

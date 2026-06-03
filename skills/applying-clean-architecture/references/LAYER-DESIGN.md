@@ -247,7 +247,7 @@ src/
     └── typeorm/
 ```
 
-### DDD との協調（applying-domain-driven-design との関係）
+### DDD との協調
 
 | CA の概念 | DDD の対応概念 |
 |-----------|--------------|

@@ -521,8 +521,8 @@ skills/developing-fullstack-javascript/
     ├── DEPLOYMENT-STRATEGIES.md
     └── QUALITY-CHECKLIST.md
 
-# authoring-skills（深度別分割）
-skills/authoring-skills/
+# authoring-plugins（深度別分割）
+skills/authoring-plugins/
 ├── SKILL.md
 ├── references/
 │   ├── NAMING.md
@@ -803,7 +803,7 @@ skills/my-skill/
 
 ---
 
-#### パターン2: 深度別（authoring-skills型）
+#### パターン2: 深度別（authoring-plugins型）
 
 同一ドメイン内で詳細度を段階的に深める場合。SKILL.mdが概要、サブファイルが各観点の詳細。
 

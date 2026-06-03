@@ -11,7 +11,7 @@ fi
 # 常時適用スキル
 ALWAYS_SKILLS=(
     "writing-clean-code"
-    "enforcing-type-safety"
+    "mastering-typescript"
     "testing-code"
     "securing-code"
     "writing-effective-prose"
@@ -71,7 +71,6 @@ get_skill_description() {
     local skill="$1"
     case "$skill" in
         "writing-clean-code") echo "コード実装前に必ずロード" ;;
-        "enforcing-type-safety") echo "TypeScriptコード記述時にロード" ;;
         "evaluating-with-promptfoo") echo "promptfooによるLLM評価・レッドチーミング" ;;
         "testing-code") echo "テスト作成・修正時にロード" ;;
         "securing-code") echo "実装完了後に必ずロード" ;;
@@ -81,25 +80,21 @@ get_skill_description() {
         "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
         "architecting-infrastructure") echo "インフラパターン127種＋マイクロサービス（CQRS/Saga/粒度決定）＋モダナイゼーション・トレードオフ分析" ;;
         "implementing-observability") echo "監視・オブザーバビリティ設計（ログ・トレース・メトリクス・OpenTelemetry）" ;;
-        "applying-domain-driven-design") echo "DDD戦略/戦術パターン・データ分解・データメッシュ" ;;
         "developing-react") echo "React 19.x 開発（Internals・パフォーマンス・アニメーション・RTL）" ;;
         "developing-nextjs") echo "Next.js 16 / React 19開発" ;;
         "using-next-devtools") echo "Next.js DevTools MCP活用" ;;
         "mastering-typescript") echo "TypeScript型システム・パターン" ;;
         "designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
-        "developing-storybook") echo "Storybook開発（CSF3・テスト・a11y）" ;;
         "developing-go") echo "Go開発ガイド" ;;
         "developing-python") echo "Python開発ガイド" ;;
         "developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
         "developing-terraform") echo "Terraform IaC開発" ;;
-        "managing-containers") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
+        "practicing-devops") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
         "writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
         "developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
         "automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
         "testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
-        "building-adk-agents") echo "Google ADK AIエージェント開発" ;;
-        "building-langchain-agents") echo "LangChain/LangGraph AIエージェント開発（Python）" ;;
-        "building-nextjs-saas") echo "Next.js SaaSアプリケーション構築" ;;
+        "building-ai-agents") echo "LangChain/LangGraph・Google ADK AIエージェント開発" ;;
         "implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
         "searching-web") echo "gemini CLI によるWeb検索" ;;
         "designing-ux") echo "UX戦略・デザイン思考・グラフィックデザイン・AIエクスペリエンス設計" ;;
@@ -109,7 +104,6 @@ get_skill_description() {
         "developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
         "developing-google-cloud") echo "Google Cloud 開発・セキュリティ（Cloud Run + IAM/VPC/KMS/DLP/SCC）" ;;
         "developing-aws") echo "AWS開発（システム設計・サーバーレス・CDK・EKS・SRE・コスト最適化・Bedrock）" ;;
-        "architecting-micro-frontends") echo "マイクロフロントエンドアーキテクチャ" ;;
         "integrating-ai-web-apps") echo "AI web app integration with Vercel AI SDK, LangChain.js, and MCP (streaming, RAG, tool calling, structured data)" ;;
         "styling-with-tailwind") echo "Tailwind CSSスタイリング方法論（v4プライマリ）" ;;
         *) echo "" ;;
@@ -140,7 +134,7 @@ check_package_json() {
 
         # Next.js SaaS チェック（stripe / next-auth / @auth/core / @clerk/nextjs）
         if echo "$deps" | grep -qE '^(stripe|next-auth|@auth/core|@clerk/nextjs)$'; then
-            PROJECT_SKILLS+=("building-nextjs-saas")
+            PROJECT_SKILLS+=("developing-nextjs")
         fi
     fi
 
@@ -198,7 +192,7 @@ check_design() {
     # Storybook
     if find "$WORK_DIR" -maxdepth 3 -name "*.stories.tsx" -o -name "*.stories.ts" 2>/dev/null | grep -q .; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("developing-storybook")
+        PROJECT_SKILLS+=("developing-react")
     fi
 
     # Tailwind CSS（v3: tailwind.config.*, v4: package.json tailwindcss依存）
@@ -253,7 +247,7 @@ check_terraform() {
 # Docker チェック
 check_docker() {
     if [[ -f "$WORK_DIR/Dockerfile" ]] || find "$WORK_DIR" -maxdepth 3 -name "docker-compose.*" 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("managing-containers")
+        PROJECT_SKILLS+=("practicing-devops")
     fi
 }
 
@@ -262,7 +256,7 @@ check_podman() {
     if find "$WORK_DIR" -maxdepth 3 -name "Containerfile" 2>/dev/null | grep -q . \
         || find "$WORK_DIR" -maxdepth 3 -name "podman-compose.*" 2>/dev/null | grep -q . \
         || [[ -d "$WORK_DIR/.containers" ]]; then
-        PROJECT_SKILLS+=("managing-containers")
+        PROJECT_SKILLS+=("practicing-devops")
     fi
 }
 
@@ -323,12 +317,12 @@ check_python_deps() {
 
     # Google ADK チェック
     if echo "$deps_content" | grep -q "google-adk"; then
-        PROJECT_SKILLS+=("building-adk-agents")
+        PROJECT_SKILLS+=("building-ai-agents")
     fi
 
     # LangChain / LangGraph チェック
     if echo "$deps_content" | grep -qE "(langchain|langgraph)"; then
-        PROJECT_SKILLS+=("building-langchain-agents")
+        PROJECT_SKILLS+=("building-ai-agents")
     fi
 
     # OpenTelemetry チェック（Python）

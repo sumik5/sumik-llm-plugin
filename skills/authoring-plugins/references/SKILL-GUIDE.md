@@ -13,7 +13,7 @@
 
 ## 🔴 デフォルト動作規則（毎回自動適用）
 
-以下のルールはauthoring-skillsを使用するすべてのタスクで**自動的に適用**される。ユーザーからの個別指示は不要。
+以下のルールはauthoring-pluginsを使用するすべてのタスクで**自動的に適用**される。ユーザーからの個別指示は不要。
 
 ### 情報の保存方針
 
@@ -40,11 +40,11 @@
 
 ### 自己改善の自動実行
 
-authoring-skills 自身に改善すべき点を発見した場合、**タスク完了時に自動的に修正・追記を行う**（ユーザーの個別指示は不要）。詳細は後述の「自己改善プロトコル」セクションを参照。
+authoring-plugins 自身に改善すべき点を発見した場合、**タスク完了時に自動的に修正・追記を行う**（ユーザーの個別指示は不要）。詳細は後述の「自己改善プロトコル」セクションを参照。
 
 ### 公式ドキュメントとの同期
 
-ユーザーが公式ドキュメントの確認を指示した場合、または新しいClaude Code機能がスキル作成に関連すると判断した場合、Claude Code公式スキルドキュメント（`https://code.claude.com/docs/en/skills`）をWebFetchで取得し、authoring-skillsの記載内容と差分を分析する。未反映の新機能・仕様変更があれば、自己改善プロトコルに従い改善提案を行う。
+ユーザーが公式ドキュメントの確認を指示した場合、または新しいClaude Code機能がスキル作成に関連すると判断した場合、Claude Code公式スキルドキュメント（`https://code.claude.com/docs/en/skills`）をWebFetchで取得し、authoring-pluginsの記載内容と差分を分析する。未反映の新機能・仕様変更があれば、自己改善プロトコルに従い改善提案を行う。
 
 ## When to Use
 
@@ -229,7 +229,7 @@ agent: Explore
 - **特徴**: スキル発動時にシステムプロンプトに注入される知識・ガイドライン
 - **用途**: コーディング規約、API仕様、ベストプラクティス集
 - **設定**: `user-invocable: false`（バックグラウンド知識として自動ロード）
-- **例**: `writing-clean-code`, `enforcing-type-safety`
+- **例**: `writing-clean-code`, `mastering-typescript`
 
 ### Task Content（タスク型）
 - **特徴**: `/skill-name` で呼び出し、特定のアクションを実行する
@@ -281,7 +281,7 @@ detect-project-skills.sh は以下のスキルグループで構成される:
 
 | グループ | 検出条件 | 含まれるスキル |
 |---------|---------|--------------|
-| ALWAYS_SKILLS | 常時 | writing-clean-code, enforcing-type-safety, testing-code, securing-code, writing-effective-prose |
+| ALWAYS_SKILLS | 常時 | writing-clean-code, mastering-typescript, testing-code, securing-code, writing-effective-prose |
 | COMMON_DEV_SKILLS | 言語プロジェクト検出時 | researching-libraries, architecting-infrastructure |
 | 個別検出 | ファイル・依存関係 | developing-nextjs, developing-go 等（ファイルベースで1対1検出） |
 | WRITING_SKILLS | .tex 検出時 | writing-latex, writing-effective-prose, searching-web |
@@ -476,11 +476,11 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 
 ## 自己改善プロトコル（🔴 タスク完了後必須）
 
-スキル作成・変更タスクの完了後、このスキル自身（authoring-skills）を改善する機会を逃さない。**これはデフォルト動作規則であり、ユーザーからの個別指示がなくても毎回自動的に実行する。**
+スキル作成・変更タスクの完了後、このスキル自身（authoring-plugins）を改善する機会を逃さない。**これはデフォルト動作規則であり、ユーザーからの個別指示がなくても毎回自動的に実行する。**
 
 ### トリガー
 
-authoring-skills を使用してスキルの作成・変換・変更を完了した直後。
+authoring-plugins を使用してスキルの作成・変換・変更を完了した直後。
 
 ### 分析の6観点
 
@@ -491,13 +491,13 @@ authoring-skills を使用してスキルの作成・変換・変更を完了し
 | 3 | **繰り返しパターン** | 複数のスキル作成で共通して発生した判断・構造パターン |
 | 4 | **エッジケース** | 既存ガイドラインでカバーされていなかった状況・判断 |
 | 5 | **アンチパターン** | 実行中に発見した「やってはいけないこと」 |
-| 6 | **公式ドキュメントの変更追従** | Claude Code公式ドキュメント（https://code.claude.com/docs/en/skills）に記載されているが、authoring-skills にまだ反映されていない新機能・仕様変更・ベストプラクティス |
+| 6 | **公式ドキュメントの変更追従** | Claude Code公式ドキュメント（https://code.claude.com/docs/en/skills）に記載されているが、authoring-plugins にまだ反映されていない新機能・仕様変更・ベストプラクティス |
 
 ### 実行手順
 
 1. タスク完了報告の後、会話中のユーザー指示・フィードバックを振り返る
 2. 上記6観点で改善候補を抽出
-3. **観点6（公式ドキュメント追従）については**: ユーザーから公式ドキュメントの確認指示があった場合、または新機能が話題に上った場合に、WebFetch で公式ドキュメント（https://code.claude.com/docs/en/skills）を取得し、authoring-skills の記載内容と差分を分析する
+3. **観点6（公式ドキュメント追従）については**: ユーザーから公式ドキュメントの確認指示があった場合、または新機能が話題に上った場合に、WebFetch で公式ドキュメント（https://code.claude.com/docs/en/skills）を取得し、authoring-plugins の記載内容と差分を分析する
 4. 既存の INSTRUCTIONS.md / references/* と照合し、**未記載のもののみ**リスト化
 5. AskUserQuestion で改善提案を提示し承認を得る
 6. 承認された項目を INSTRUCTIONS.md または適切な reference ファイルに追記

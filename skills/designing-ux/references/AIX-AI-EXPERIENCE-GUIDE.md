@@ -495,6 +495,5 @@ AIプロダクト設計前に確認すべき倫理リスク:
 |-------|------|
 | `managing-ai-products` | AIプロダクトのPM戦略・ロードマップ設計 |
 | `applying-design-guidelines` | 一般的UI/UXデザイン原則 |
-| `practicing-design-thinking` | デザイン思考プロセス（共感・定義・発想・プロトタイプ・テスト） |
 | `designing-frontend` | フロントエンドコードの実装 |
-| `conducting-ab-tests` | A/Bテスト設計・統計的検証 |
+| `practicing-product-management` | A/Bテスト設計・統計的検証 |

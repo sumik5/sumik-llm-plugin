@@ -27,7 +27,7 @@
 
 **他スキルとの使い分け**:
 - マイクロサービスのSaga、粒度決定 → `architecting-infrastructure`
-- DDDドメインモデリング → `applying-domain-driven-design`
+- DDDドメインモデリング → `applying-clean-architecture`
 - データベースエンジン内部構造 → `understanding-database-internals`
 - リレーショナルDBスキーマ設計 → `designing-relational-databases`
 
@@ -165,7 +165,7 @@
 マイクロサービスにおけるデータ所有権、トランザクション境界、Sagaパターン。（詳細は `architecting-infrastructure` 参照）
 
 #### Data Domain Based Architectures
-ドメイン駆動設計に基づくデータアーキテクチャ。（詳細は `applying-domain-driven-design` 参照）
+ドメイン駆動設計に基づくデータアーキテクチャ。（詳細は `applying-clean-architecture` 参照）
 
 #### Data Architecture for Search
 検索最適化データストア（Elasticsearch等）の設計と実装。
@@ -216,7 +216,7 @@ Data WarehouseからData Fabricへの移行パス。
 ## Related Skills
 
 - **architecting-infrastructure**: マイクロサービスの粒度、Saga、CQRS実装
-- **applying-domain-driven-design**: 戦略的DDD、ドメインモデリング、境界づけられたコンテキスト
+- **applying-clean-architecture**: 戦略的DDD、ドメインモデリング、境界づけられたコンテキスト
 - **understanding-database-internals**: データベースエンジン内部、インデックス、トランザクション分離レベル
 - **designing-relational-databases**: 正規化、スキーマ設計、PostgreSQL実装
 - **implementing-opentelemetry**: 分散トレーシング、データパイプライン可観測性

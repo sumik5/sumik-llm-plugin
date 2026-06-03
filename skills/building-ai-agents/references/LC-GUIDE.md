@@ -267,7 +267,7 @@ llm = ChatOllama(model="llama3.1")
 | RAG設計理論・戦略 | → `building-rag-systems` | 汎用RAGアーキテクチャ理論 |
 | JavaScript/Vercel AI SDK | → `integrating-ai-web-apps` | JS実装はこちら |
 | MCPプロトコル仕様 | → `developing-mcp` | プロトコル詳細・サーバー設計 |
-| Google ADKエージェント | → `building-adk-agents` | ADK固有の実装 |
+| Google ADKエージェント | → 本スキル内のADK実装 | ADKはbuilding-ai-agentsに統合 |
 
 ### LangChain実装の差別化
 

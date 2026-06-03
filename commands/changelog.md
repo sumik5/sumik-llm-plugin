@@ -1,3 +1,9 @@
+---
+description: 前回のgitタグから現在までの変更履歴を分析し、Keep a Changelog形式でCHANGELOG.mdエントリーとプロジェクトファイルのバージョンを自動生成・更新する
+allowed-tools: Bash, Read, Edit, Write, AskUserQuestion
+argument-hint: "<新しいバージョン（例: v1.2.0）>"
+user-invocable: true
+---
 # Changelog Command
 
 このコマンドは、前回のgitタグから現在までの変更履歴を分析し、Keep a Changelog形式でCHANGELOG.mdエントリーを自動生成します。

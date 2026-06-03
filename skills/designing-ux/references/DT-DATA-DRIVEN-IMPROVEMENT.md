@@ -1,5 +1,5 @@
 ---
-description: Data-driven service improvement guide covering quantitative/qualitative data usage, business analysis, prototyping types, and team alignment. Use when improving services with data, running prototype cycles, or aligning teams around KGI/KPI goals. Complements practicing-design-thinking with business-side measurement and validation patterns.
+description: Data-driven service improvement guide covering quantitative/qualitative data usage, business analysis, prototyping types, and team alignment. Use when improving services with data, running prototype cycles, or aligning teams around KGI/KPI goals. Complements this designing-ux skill with business-side measurement and validation patterns.
 ---
 
 # データドリブンサービス改善ガイド

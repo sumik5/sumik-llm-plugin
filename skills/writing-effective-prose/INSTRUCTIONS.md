@@ -647,7 +647,7 @@ UIコピー・マイクロコピー・キャッチフレーズ・ネーミング
 | スキル | 使い分け |
 |--------|---------|
 | **writing-latex** | LaTeX文書作成（upLaTeX+dvipdfmx環境、日本語学術文書のコンパイル） |
-| **creating-presentations** | プレゼンコンテンツ改善・HTMLスライド生成・Google Slides生成 |
+| **creating-slides** | プレゼンコンテンツ改善・HTMLスライド生成・Google Slides生成 |
 
 ---
 

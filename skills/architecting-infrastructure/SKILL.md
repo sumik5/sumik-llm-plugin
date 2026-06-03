@@ -5,15 +5,15 @@ description: >-
   availability (HA, DR, backup), security, performance/scalability, operations, network/storage
   configuration, and cloud. Modernization: socio-technical strategy, domain redesign, trade-off
   analysis (code/API/system/meta levels). Microservices: CQRS, Event Sourcing, Saga, distributed
-  transactions, service granularity, data ownership, resilience, messaging.
-  Use when designing infrastructure, evaluating non-functional requirements, modernizing legacy
-  systems, making architectural trade-offs, or designing microservices.
-  For DevOps (CI/CD, IaC), use practicing-devops.
-  For DDD domain modeling, use applying-domain-driven-design.
-  For Clean Architecture, use applying-clean-architecture.
-  For observability patterns, use implementing-observability instead.
-  For GCP enterprise architecture, use developing-google-cloud instead.
-  For GPU/CUDA performance tuning and AI workload optimization, use designing-genai-patterns instead.
+  transactions, service granularity, data ownership, resilience, messaging. Use when designing
+  infrastructure, evaluating non-functional requirements, modernizing legacy systems, making
+  architectural trade-offs, or designing microservices.
+when_to_use: >-
+  For DevOps (CI/CD, IaC), use practicing-devops. For DDD domain modeling, use
+  applying-clean-architecture. For Clean Architecture, use applying-clean-architecture. For
+  observability patterns, use implementing-observability instead. For GCP enterprise architecture,
+  use developing-google-cloud instead. For GPU/CUDA performance tuning and AI workload
+  optimization, use designing-genai-patterns instead.
 ---
 
 詳細な手順・ガイドラインは [INSTRUCTIONS.md](INSTRUCTIONS.md) を参照してください。

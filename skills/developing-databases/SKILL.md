@@ -5,14 +5,15 @@ description: >-
   PostgreSQL implementation), SQL antipatterns (25 patterns with detection signals and solutions),
   database internals (storage engines B-tree/LSM, distributed systems, consensus algorithms),
   and PostgreSQL operations (server config, extensions, query tuning, MVCC/VACUUM, backup/PITR,
-  replication/HA, monitoring).
-  Use when designing database schemas, writing SQL queries, reviewing data models, choosing storage
-  engines, tuning PostgreSQL performance, managing backup/replication, or debugging distributed
-  system behavior.
-  Replaces: designing-relational-databases, avoiding-sql-antipatterns, understanding-database-internals.
-  For data architecture patterns (CQRS, event sourcing), use architecting-data instead.
-  For GCP managed databases (Cloud SQL, Spanner, Firestore, Bigtable) and BigQuery analytics, use developing-google-cloud instead.
-  For app-layer ORM workflows (Drizzle in Express), use developing-fullstack-javascript.
+  replication/HA, monitoring). Use when designing database schemas, writing SQL queries, reviewing
+  data models, choosing storage engines, tuning PostgreSQL performance, managing backup/replication,
+  or debugging distributed system behavior. Replaces: designing-relational-databases,
+  avoiding-sql-antipatterns, understanding-database-internals.
+when_to_use: >-
+  For data architecture patterns (CQRS, event sourcing), use architecting-data instead. For GCP
+  managed databases (Cloud SQL, Spanner, Firestore, Bigtable) and BigQuery analytics, use
+  developing-google-cloud instead. For app-layer ORM workflows (Drizzle in Express), use
+  developing-fullstack-javascript.
 disable-model-invocation: false
 ---
 

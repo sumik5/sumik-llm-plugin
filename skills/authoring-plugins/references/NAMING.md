@@ -100,8 +100,8 @@ description: "...Covers Playwright MCP (lightweight automation), CLI agent (adva
 |---------------------|---------|---------|
 | Theory ↔ Implementation | "For actual X, use Y instead" | applying-design-guidelines ↔ designing-frontend |
 | Unified Tool | "All-in-one for X" | automating-browser (統合: Playwright MCP + CLIエージェント + E2Eテスト) |
-| General ↔ Specific | "Reference Y for general X" | convert-to-skill → authoring-skills |
-| Parent ↔ Child | "For specific use case, see Y" | authoring-skills → convert-to-skill |
+| General ↔ Specific | "Reference Y for general X" | convert-to-skill → authoring-plugins |
+| Parent ↔ Child | "For specific use case, see Y" | authoring-plugins → convert-to-skill |
 | Language-level ↔ Architecture-level | "Complements X with Y-level focus" | writing-clean-code ↔ architecting-infrastructure |
 | Foundation ↔ Advanced | "For advanced X, use Y" | mastering-typescript (統合済み: 言語機能+実装判断基準) |
 
@@ -129,7 +129,7 @@ description: "Next.js 16 / React 19 development guide covering App Router, Serve
 **Critical Rules:**
 - Do NOT modify existing skills' "What" (Part 1) or "When" (Part 2) — only ADD differentiation text (Part 3)
 - If existing skill already has Part 3, append or replace with more accurate text
-- A single skill may reference multiple similar skills (e.g., `mastering-typescript` references `enforcing-type-safety` for type safety rules)
+- A single skill may reference multiple similar skills (e.g., `mastering-typescript` integrates type safety rules along with TypeScript-specific deep-dive content)
 
 ### Point of View: Always Third Person
 
@@ -201,7 +201,7 @@ description: Generates API documentation from code and OpenAPI specs. Use when c
 ### Infrastructure Skills
 
 ```yaml
-name: managing-containers
+name: practicing-devops
 description: Manages Docker containers and Compose stacks. Use when working with Docker, containers, or containerized deployments.
 ```
 
@@ -315,7 +315,7 @@ Before finalizing your skill name and description:
 | `searching-` | 検索・情報収集 | `searching-web` |
 | `modernizing-` | レガシー刷新 | `modernizing-legacy-systems` |
 | `architecting-` | アーキテクチャ設計 | `architecting-infrastructure` |
-| `authoring-` | スキル・コンテンツ作成 | `authoring-skills` |
+| `authoring-` | スキル・コンテンツ作成 | `authoring-plugins` |
 
 ### 命名規則チェックフロー
 
@@ -336,9 +336,9 @@ Before finalizing your skill name and description:
 |------|------|
 | 1言語 = 1スキル | Go開発ガイド + Goデザインパターン + Go内部構造 → `developing-go/` に統合 |
 | 1ツール = 1スキル | ツール活用 + ツール設定 → `using-[tool]/` に統合 |
-| 1トピック = 1スキル | スキル作成 + スキル変換 + スキルレビュー → `authoring-skills/` に統合 |
+| 1トピック = 1スキル | スキル作成 + スキル変換 + スキルレビュー → `authoring-plugins/` に統合 |
 
-例外: 明確に異なる対象読者・使用タイミングを持つ場合（例: `enforcing-type-safety` は全コード共通、`mastering-typescript` はTS深掘り）
+例外: 明確に異なる対象読者・使用タイミングを持つ場合（例: `mastering-typescript` は型安全ルールを内包しつつTypeScript固有の深掘りに特化）
 
 ### ツール固有コンテンツの抽出ルール
 

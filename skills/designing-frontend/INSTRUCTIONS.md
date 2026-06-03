@@ -236,8 +236,8 @@ UIの構造設計にオブジェクト指向アプローチを適用する手法
 ## 🔗 関連スキル
 
 - **developing-nextjs**: Next.js固有の最適化
-- **enforcing-type-safety**: TypeScript型安全性
-- **developing-storybook**: Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルテスト）
+- **mastering-typescript**: TypeScript型安全性
+- **developing-react**: Storybook開発ガイド（CSF3・インタラクションテスト・a11y・ビジュアルテスト）
 - **本スキル内のSHADCN.md**: shadcn/uiコンポーネント管理（./references/SHADCN.md）
 
 ## 📚 技術スタック別ガイド
@@ -261,7 +261,7 @@ UIの構造設計にオブジェクト指向アプローチを適用する手法
 
 ## Storybook
 
-Storybook開発については **developing-storybook** スキルを参照。CSF3によるStory記述、インタラクションテスト（play関数）、アクセシビリティテスト、ビジュアルリグレッションテスト、Next.js統合、MSWモック等を包括的にカバー。
+Storybook開発については **developing-react** スキルを参照。CSF3によるStory記述、インタラクションテスト（play関数）、アクセシビリティテスト、ビジュアルリグレッションテスト、Next.js統合、MSWモック等を包括的にカバー。
 
 ## shadcn/ui
 

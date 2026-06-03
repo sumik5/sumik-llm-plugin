@@ -139,7 +139,7 @@ A → B → C → A
 | **データ所有権** | 共有データモデル | 独立したデータモデル |
 | **チーム** | 同一チームが管理 | 別チームが管理 |
 
-**詳細**: [applying-domain-driven-design](../applying-domain-driven-design/) スキル参照
+**詳細**: [applying-clean-architecture](../applying-clean-architecture/) スキル参照
 
 ---
 

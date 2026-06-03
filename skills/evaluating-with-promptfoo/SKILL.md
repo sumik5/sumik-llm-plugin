@@ -8,7 +8,7 @@ description: >-
   Use when writing promptfooconfig.yaml, designing LLM test suites, running adversarial
   red team evaluations, or integrating LLM quality gates in CI/CD.
   Detects: promptfooconfig.yaml or promptfoo in package.json.
-  For general LLMOps operations, use practicing-llmops.
+  For general LLMOps operations, use designing-genai-patterns.
   For general test methodology (TDD/AAA), use testing-code.
 context: fork
 agent: general-purpose

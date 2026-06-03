@@ -353,4 +353,4 @@ TypeScript-Only Features の使用を判断
 
 **次章への橋渡し:**
 - mastering-typescript SKILL.md の「Advanced Types」セクションで Conditional Types・Mapped Types の応用
-- `enforcing-type-safety` スキルで `noUncheckedIndexedAccess` 等の設定を実践に落とし込む
+- `mastering-typescript` スキルで `noUncheckedIndexedAccess` 等の設定を実践に落とし込む

@@ -789,7 +789,7 @@ tests/
 ### Clean Architecture 関連
 - **[applying-clean-architecture](../../applying-clean-architecture/SKILL.md)**: Clean Architecture一般原則（依存性ルール・同心円モデル・コンポーネント原則）
 - **[writing-clean-code](../../writing-clean-code/SKILL.md)**: コードレベルSOLID原則・コードスメル・リファクタリング手法
-- **[applying-domain-driven-design](../../applying-domain-driven-design/SKILL.md)**: DDD戦術パターン（Entity/Value Object/Aggregate/Repositoryの詳細設計）
+- **[applying-clean-architecture](../../applying-clean-architecture/SKILL.md)**: DDD戦術パターン（Entity/Value Object/Aggregate/Repositoryの詳細設計）
 
 ### Architecture Patterns 実践系
 - **[AP-DOMAIN-SERVICE.md](./AP-DOMAIN-SERVICE.md)**: ドメインモデリング・Repository Pattern・Service Layer（FakeRepository高速テスト含む）

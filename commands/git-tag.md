@@ -1,3 +1,9 @@
+---
+description: CHANGELOG.mdから指定バージョンのエントリーを抽出し、その内容をメッセージとするannotated tagを自動作成する
+allowed-tools: Bash, Read, AskUserQuestion
+argument-hint: "<タグ名（例: v1.2.0）>"
+user-invocable: true
+---
 # Git Tag Command
 
 このコマンドは、CHANGELOG.mdから該当バージョンのエントリーを抽出し、annotated tagを自動作成します。

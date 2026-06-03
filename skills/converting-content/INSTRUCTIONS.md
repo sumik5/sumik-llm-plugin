@@ -240,7 +240,7 @@ python3 -c "import openai" 2>/dev/null || pip install openai -q
 **モデル一覧取得:**
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/converting-content/scripts/lmstudio-translate.py list-models
+python3 ${CLAUDE_SKILL_DIR}/scripts/lmstudio-translate.py list-models
 ```
 
 出力例:
@@ -255,7 +255,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/converting-content/scripts/lmstudio-transla
 **短文（コマンドライン引数）:**
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/converting-content/scripts/lmstudio-translate.py translate \
+python3 ${CLAUDE_SKILL_DIR}/scripts/lmstudio-translate.py translate \
   --model <選択したモデル名> \
   --text "Text to translate"
 ```
@@ -264,7 +264,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/converting-content/scripts/lmstudio-transla
 
 ```bash
 echo "Long text to translate..." | \
-  python3 ${CLAUDE_PLUGIN_ROOT}/skills/converting-content/scripts/lmstudio-translate.py translate \
+  python3 ${CLAUDE_SKILL_DIR}/scripts/lmstudio-translate.py translate \
     --model <選択したモデル名>
 ```
 
