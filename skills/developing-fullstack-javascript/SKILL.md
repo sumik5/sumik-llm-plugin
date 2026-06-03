@@ -11,6 +11,10 @@ description: >-
   scoping, this binding, Promise patterns, Proxy/Reflect, or iterator protocols.
   For application logging design and structured logging patterns, use implementing-observability.
   For TypeScript type system and advanced type patterns, use mastering-typescript.
+  Also covers V8 engine internals (hidden classes, inline caches, string/number repr),
+  event loop model, JS/Node error model, and Express 5 + Drizzle ORM CRUD APIs.
+  For React data fetching/OpenAPI integration, use developing-react.
+  For DB design/SQL internals/PostgreSQL tuning, use developing-databases.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

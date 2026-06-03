@@ -595,6 +595,7 @@ const dbPassword = process.env.DB_PASSWORD;
 このSKILL.mdはクイックリファレンスです。詳細な実装ガイドは以下を参照してください：
 
 - **[バックエンド戦略](./references/BACKEND-STRATEGIES.md)**: NestJS/Express、API設計、データベース、キャッシュ、認証・認可
+- **[Express 5 + Drizzle API](./references/BACKEND-DRIZZLE-API.md)**: Express 5・Drizzle ORM（スキーマ/マイグレーション/リレーション）・動的CRUD生成・キャッシュ・ページネーション・Zod検証・レート制限
 - **[フロントエンド戦略](./references/FRONTEND-STRATEGIES.md)**: React、コンポーネント設計、状態管理、データフェッチ、パフォーマンス最適化
 - **[デプロイ戦略](./references/DEPLOYMENT-STRATEGIES.md)**: CI/CD、Blue-Green/Canaryデプロイ、ロールバック、監視・ログ
 - **[品質チェックリスト](./references/QUALITY-CHECKLIST.md)**: テスト、セキュリティ、パフォーマンス、デバッグの実践チェックリスト
@@ -650,6 +651,10 @@ const dbPassword = process.env.DB_PASSWORD;
 | **[JS-STDLIB.md](./references/JS-STDLIB.md)** | 数値・日付・文字列・正規表現・配列・コレクション | Number/Math・Date・String・RegExp・Array・Map/Set/WeakMap |
 | **[JS-ASYNC-AND-MODULES.md](./references/JS-ASYNC-AND-MODULES.md)** | 非同期・Promise・モジュール | イベントループ・Promise API・async/await・ESモジュール・動的インポート |
 | **[JS-ADVANCED-PATTERNS.md](./references/JS-ADVANCED-PATTERNS.md)** | メタプログラミング・Proxy・イテレータ | Symbol・プロパティ属性・Proxy/Reflect・イテレータ・ジェネレータ |
+| **[JS-ENGINE-INTERNALS.md](./references/JS-ENGINE-INTERNALS.md)** | V8エンジン内部実装 | 文字列実装(ropes/sliced/internalized/cons)・数値実装(Smi/HeapNumber/NaN-boxing)・hidden classes/shapes・inline caches |
+| **[JS-RUNTIME-MODEL.md](./references/JS-RUNTIME-MODEL.md)** | ランタイム内部機構 | イベントループ多重キュー・マクロ/マイクロタスク・Promise内部状態遷移・非同期スケジューリング制御 |
+| **[JS-ERROR-MODEL.md](./references/JS-ERROR-MODEL.md)** | JS/Nodeエラー機構 | エラーオブジェクト構造・カスタムエラー・error stack/captureStackTrace・Node.jsエラー体系・伝播と制御フロー |
+| **[JS-UNICODE-AND-COERCION.md](./references/JS-UNICODE-AND-COERCION.md)** | Unicode・型強制内部 | UTF-16/サロゲートペア/正規化・書記素クラスタ・ToPrimitive/抽象等価アルゴリズム・Decimals提案 |
 
 ### 8.4 スコープ外トピック
 

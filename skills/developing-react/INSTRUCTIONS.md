@@ -8,6 +8,8 @@ React固有の開発知識を集約したスキル。React Internals、パフォ
 
 ### ⚛️ React 19 新機能
 - **[REACT-GUIDE.md](./references/REACT-GUIDE.md)**: Actions、useActionState、ref as prop、View Transitions
+- **[RD-REACT-19-FEATURES.md](./references/RD-REACT-19-FEATURES.md)**: React 19.2新機能（Activity・useEffectEvent・PPR・batching suspense・web streams SSR・eslint-plugin-react-hooks v6・useId prefix）
+- **[RD-ACTIONS-AND-FORMS.md](./references/RD-ACTIONS-AND-FORMS.md)**: Actions/use server・フォーム送信検証・useOptimistic・useFormStatus・useActionState・React Query統合
 
 ### 🔬 React Internals（内部構造）
 - **[RI-PERFORMANCE.md](./references/RI-PERFORMANCE.md)**: レンダリング原理、メモ化戦略、依存配列
@@ -49,6 +51,14 @@ React固有の開発知識を集約したスキル。React Internals、パフォ
 - **[RD-ERROR-HANDLING.md](./references/RD-ERROR-HANDLING.md)**: ErrorBoundary、react-error-boundary、React 19エラーAPI、配置戦略
 - **[RD-ACCESSIBILITY.md](./references/RD-ACCESSIBILITY.md)**: セマンティックHTML、ARIA、フォーカス管理、キーボードナビゲーション、WCAG 2.1 AAチェックリスト
 - **[RD-MODERN-REACT.md](./references/RD-MODERN-REACT.md)**: React Compiler、Concurrent Features実践、2025年状態管理推奨（nuqs/Jotai）、アンチパターン
+- **[RD-ADVANCED-PERFORMANCE.md](./references/RD-ADVANCED-PERFORMANCE.md)**: hydrationコスト・selective hydration・islands architecture・PPR・Web Vitals/Lighthouse計測・bundle分析/tree shaking
+
+### 🏗️ プロダクションアーキテクチャ（RA-*）
+- **[RA-ROUTING-RENDERING.md](./references/RA-ROUTING-RENDERING.md)**: React Routerルーティング・ナビゲーション・レンダリング戦略（SSR/CSR/hybrid/static）・metaタグ・ネストレイアウト（非Next.js）
+- **[RA-AUTH-SECURITY.md](./references/RA-AUTH-SECURITY.md)**: クライアント認証・認可(RBAC)・route保護・コンテンツサニタイズ(XSS)・セキュリティヘッダ
+- **[RA-I18N.md](./references/RA-I18N.md)**: react-i18next・namespaces・補間・複数形・日付整形・型安全な翻訳キー・言語切替
+- **[RA-API-OPENAPI.md](./references/RA-API-OPENAPI.md)**: APIクライアント設計・OpenAPI型/検証スキーマ生成・React Queryレイヤ構成（query keys/queries/mutations）
+- **[RA-PRODUCTION-ARCHITECTURE.md](./references/RA-PRODUCTION-ARCHITECTURE.md)**: アーキ判断フレーム・feature-based構造・ESLint構造強制・env管理・進化設計（feature flags/A-B/BFF/monorepo/microfrontend/監視）
 
 ## react-doctor CLIの使用
 
