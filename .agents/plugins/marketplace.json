@@ -1,7 +1,7 @@
 {
-  "name": "sumik",
+  "name": "codex-plugin",
   "interface": {
-    "displayName": "Sumik Marketplace"
+    "displayName": "Codex Plugin"
   },
   "plugins": [
     {
