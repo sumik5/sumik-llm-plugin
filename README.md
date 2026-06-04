@@ -34,6 +34,9 @@ sumik-claude-plugin/
 ├── .agents/
 │   └── plugins/
 │       └── marketplace.json # Codex marketplace manifest
+├── .cache/
+│   └── codex-plugin/
+│       └── sumik -> ../.. # Codex marketplace から repo root の plugin を指す symlink
 ├── .claude-plugin/     # Claude Code プラグインマニフェスト
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json
@@ -43,8 +46,6 @@ sumik-claude-plugin/
 ├── agents/             # Agent定義 (28体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str)
 ├── commands/           # スラッシュコマンド (12個)
 ├── hooks/              # イベントフック (4個)
-├── plugins/
-│   └── sumik -> ..     # Codex marketplace から repo root の plugin を指す symlink
 ├── scripts/            # ヘルパースクリプト (3個)
 └── skills/             # ナレッジスキル (70個)
 ```
