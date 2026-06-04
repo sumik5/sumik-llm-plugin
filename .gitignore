@@ -1,2 +1,6 @@
 docs/**
 node_modules/
+.cache/**
+!.cache/
+!.cache/codex-plugin/
+!.cache/codex-plugin/sumik
