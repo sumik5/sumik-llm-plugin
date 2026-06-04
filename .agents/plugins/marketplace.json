@@ -1,0 +1,22 @@
+{
+  "name": "sumik",
+  "interface": {
+    "displayName": "Sumik Marketplace"
+  },
+  "plugins": [
+    {
+      "name": "sumik",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sumik"
+      },
+      "version": "9.36.16",
+      "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・70個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
