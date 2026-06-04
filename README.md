@@ -22,7 +22,7 @@ claude plugin add sumik5/sumik-claude-plugin
 
 ```bash
 codex plugin marketplace add https://github.com/sumik5/sumik-claude-plugin.git --ref main
-codex plugin add sumik@sumik
+codex plugin add sumik@codex-plugin
 ```
 
 ---
