@@ -114,6 +114,8 @@ scripts/pdf-to-markdown <input.pdf> /tmp/flashcard-source.md
 
 JSON形式の場合はMarkdown変換不要。ファイルを読み込み、問題と解答の構造を直接解析する。Step 3のコンテンツ構造分析でJSONスキーマ（フィールド名、ネスト構造）を自動判定し、各問題のフィールドをHTMLフォーマットルールに従ってマッピングする。
 
+> ⚠️ **JSON には2系統ある（構造化Q&A vs ページ単位OCR）**: JSON ソースには (a) 問題・解答がフィールドとして構造化済みの Q&A JSON と、(b) VLM/`recognize` 系 OCR が出力する**ページ単位 JSON**（`[{"index","filename","text"}, ...]` で各ページの生テキストを保持）の2系統がある。(b) は「構造化済み」ではなく、各ページの `text` を Markdown 同様にパースする必要がある（科目見出しページ・問題ページ・解答ページの分類が要る）。実装は **JSON パスを `md_path` として渡し、`parse()` 冒頭で `json.loads(markdown_text)` してページ列を得る**と scaffold の `main()` をそのまま再利用できる。画像主体 EPUB を VLM で逐次OCRしたケースで観測。
+
 > ⚠️ **pandocアーティファクト**: pandocはEPUB変換時にCSSクラスマーカー（`{.class_sXXX}`）、ページマーカー（`[]{#cXXX.xhtml}`）、divマーカー（`:::`）、ゼロ幅スペース付きリストマーカー等を生成する。これらはStep 6で除去する。
 
 > ⚠️ **同一シリーズでも構造が異なる**: 同じ書籍シリーズのVOL.1とVOL.2でも、pandoc変換後のMarkdown構造は大きく異なることがある（例: VOL.1は`質問 1`のプレーンテキスト行、VOL.2は`## 質問1 {.heading_s6F}`のMarkdownヘッダー）。前回のスクリプトをそのまま再利用できない前提でコンテンツ分析を行うこと。
