@@ -29,21 +29,23 @@ rg -n 'agent_key|^\[agent\]|^\[metadata\]|^\[config\]|^\[developer_instructions\
 
 期待値: 何も出ない、または意図した例外だけ。
 
-### 3. skill path実在確認
+### 3. description自動ロード方式の確認
+
+`skills.config` は使わず、developer_instructions内に活用スキルを名前列挙する方式を採用している。以下を確認する。
 
 ```bash
-python - <<'PY'
-from pathlib import Path
-import re
+# skills.config の残存チェック（0件であること）
+rg 'skills\.config' agents/
+```
 
-for path in Path("agents").glob("*.toml"):
-    text = path.read_text()
-    for match in re.finditer(r'path = "~/.codex/skills/([^/]+)/SKILL.md"', text):
-        skill = match.group(1)
-        full = Path.home() / ".codex" / "skills" / skill / "SKILL.md"
-        if not full.exists():
-            print(path.name, "missing", skill)
-PY
+```bash
+# 活用スキル節の存在チェック（各ファイルに「活用スキル」があること）
+rg -l '活用スキル' agents/
+```
+
+```bash
+# 実在しないpathの混入チェック（0件であること）
+rg 'path = "~/.codex/skills/' agents/
 ```
 
 ### 4. Codex実ランタイム確認
@@ -73,23 +75,24 @@ Codex起動時に以下のような警告がないことを確認する:
 - `invalid type: sequence, expected a map`
 
 対策:
-- 不確かな形式では書かない
+- map形式 `[mcp_servers.<id>]` で記述するか、書かずに親セッションから継承させる
 
-### 失敗3: `skills.config` に `enabled = true` を入れ忘れる
-
-症状:
-- skillが無効として扱われうる
-
-対策:
-- すべての `[[skills.config]]` に `enabled = true`
-
-### 失敗4: `~/.codex/skills/...` に存在しないskillを参照する
+### 失敗3: `skills.config` に実在しないpathを書く
 
 症状:
 - 読み込み失敗、または期待したskillが効かない
 
 対策:
-- 事前に `SKILL.md` の存在確認を行う
+- `skills.config` は使わない（description自動ロード方式を採用）
+- どうしても使う場合は実在するpathのみ記述する
+
+### 失敗4: 存在しないagentファイル名をAGENTS.mdに記載する
+
+症状:
+- Codexがagentを見つけられずspawnに失敗する
+
+対策:
+- AGENTS.mdには実在する `.toml` の `name` フィールド値のみ記載する
 
 ### 失敗5: runtime側とrepo側が別物だと思い込む
 
@@ -105,9 +108,11 @@ Codex起動時に以下のような警告がないことを確認する:
 
 - [ ] `agents/*.toml` に `name` / `description` / `developer_instructions` がある
 - [ ] `developer_instructions` は元agent本文ベース
-- [ ] `[[skills.config]]` がskill分だけ並んでいる
-- [ ] 各 `[[skills.config]]` に `enabled = true` がある
-- [ ] skill pathが `~/.codex/skills/<skill>/SKILL.md` 形式
-- [ ] `mcp_servers` を推測で追加していない
+- [ ] `developer_instructions` 末尾に「## 活用スキル」節があり、スキル名が列挙されている
+- [ ] `skills.config` を使っていない（または実在するpathのみ使用）
+- [ ] `rg 'skills\.config' agents/` が0件
+- [ ] `model` と `model_reasoning_effort` がtier-mapに従っている（xhigh: 設計・監査系、high: 実装系）
+- [ ] `mcp_servers` を推測で追加していない（map形式 or 親継承）
+- [ ] 存在しないagentファイル名をAGENTS.md等に書いていない
 - [ ] 全 `.toml` が機械パースできる
 - [ ] Codex起動時に警告が出ない
