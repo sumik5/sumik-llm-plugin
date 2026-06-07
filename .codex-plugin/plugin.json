@@ -1,6 +1,6 @@
 {
   "name": "sumik-codex-plugins",
-  "version": "10.1.1",
+  "version": "10.1.2",
   "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・73個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
   "author": {
     "name": "sumik5"

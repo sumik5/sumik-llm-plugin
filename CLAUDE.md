@@ -13,8 +13,10 @@ hooks/           # イベントフック（.sh）
 scripts/         # ヘルパースクリプト
 skills/          # ナレッジスキル（ディレクトリ/SKILL.md）
 .claude-plugin/  # プラグインマニフェスト（Claude Code 用）
-.codex-plugin/   # プラグインマニフェスト（Codex CLI 用・version は .claude-plugin と同期必須）
-.mcp.json        # MCPサーバー設定
+.codex-plugin/   # プラグインマニフェスト（Codex CLI 用・mcpServers 宣言・version 同期必須）
+.agents/plugins/marketplace.json  # Codex marketplace マニフェスト（name / plugin名 / version）
+.mcp.json        # MCPサーバー設定（Claude Code 用・${CLAUDE_PLUGIN_ROOT} 使用）
+.mcp-codex.json  # MCPサーバー設定（Codex 用・./ 相対パス + cwd "."）
 ```
 
 ---
@@ -38,7 +40,7 @@ skills/          # ナレッジスキル（ディレクトリ/SKILL.md）
 
 #### チェックポイント
 
-- スキル編集後、変更ファイルに対して `grep -nE "『|』|著|出版|TAC|オライリー|オーム社|技術評論|翔泳社|日経BP|インプレス"` で残存固有名を機械チェックする
+- スキル**および `agents/`（Claude `.md`・Codex `.toml`）・README** 編集後、変更ファイルに対して `grep -nE "『|』|著|出版|TAC|オライリー|オーム社|技術評論|翔泳社|日経BP|インプレス|Effective [A-Z]|Programming [A-Z]"` で残存固有名を機械チェックする。**掃討対象は `skills/` だけでなく `agents/`・README も含む**（過去 agents/ 本文に英字書名・「〜著」表記の著者名が残存していた）。`『』` 偏重では**英字書名・著者フルネーム・「〜著」**を取りこぼすため多角的パターンで確認する
 - コミット前にメッセージから書籍名・著者名・出版社名を除去する
 - 既存の過去コミットに固有名が含まれていても、それを参考に新規コミットを書かないこと（過去分は遡及修正しない）
 - 知見の出典が必要な場合は「業界標準」「広く知られたパターン」「公開資料」等の汎用表現に置き換える
@@ -84,7 +86,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョン管理
 
-- バージョンは `.claude-plugin/plugin.json` の `version` フィールドで管理（**両 plugin.json を必ず同期**→下記参照）
+- バージョンは `.claude-plugin/plugin.json` の `version` フィールドで管理（**3ファイル（両 plugin.json + marketplace.json）を必ず同期**→下記参照）
 - Semantic Versioning (semver) に従う:
   - **MAJOR**: 破壊的変更（スキルの大幅な構成変更等）
   - **MINOR**: 新規コンポーネント追加（新スキル、新コマンド等）
@@ -92,22 +94,38 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョンファイルの同期（🔴 重要）
 
-`.claude-plugin/plugin.json` の `version` を更新する際は、必ず `.codex-plugin/plugin.json` の `version` も**同じ値に同期**すること。両ファイルは別のプラグインマネージャー（Claude Code と Codex CLI）から参照されるため、片方だけ更新するとバージョンが乖離し、配布物の整合性が崩れる。
+`.claude-plugin/plugin.json` の `version` を更新する際は、必ず以下 **3ファイルすべてを同じ値に同期**すること。Claude Code / Codex CLI / Codex marketplace カタログがそれぞれ別ファイルを参照するため、一部だけ更新すると配布物の整合性が崩れる（過去 marketplace.json の version が取り残された実績あり）。
 
-| ファイル | バージョン更新時の扱い |
-|---------|---------------------|
-| `.claude-plugin/plugin.json` | 必ず更新（Claude Code の参照ファイル） |
-| `.codex-plugin/plugin.json` | `.claude-plugin/plugin.json` の `version` 更新時は同期必須（Codex CLI の参照ファイル） |
+| ファイル | 役割 |
+|---------|------|
+| `.claude-plugin/plugin.json` の `version` | Claude Code の参照 version |
+| `.codex-plugin/plugin.json` の `version` | Codex CLI の参照 version |
+| `.agents/plugins/marketplace.json` の `plugins[].version` | Codex marketplace カタログ version（**更新漏れしやすい**） |
 
 #### 同期チェック
 
-コミット前に以下のコマンドで両ファイルの version が一致していることを確認すること:
+コミット前に3ファイルの version 一致を確認すること:
 
 ```bash
-diff <(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])") \
-     <(python3 -c "import json; print(json.load(open('.codex-plugin/plugin.json'))['version'])")
-# 出力が空（差分なし）であること
+python3 - <<'PY'
+import json
+v1 = json.load(open('.claude-plugin/plugin.json'))['version']
+v2 = json.load(open('.codex-plugin/plugin.json'))['version']
+v3 = json.load(open('.agents/plugins/marketplace.json'))['plugins'][0]['version']
+print('OK' if v1 == v2 == v3 else f'MISMATCH: {v1} / {v2} / {v3}')
+PY
 ```
+
+### Codex プラグイン配布の注意点
+
+Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
+
+| If X | then Y |
+|------|--------|
+| Codex 用 MCP サーバーを定義する時 | **`${CLAUDE_PLUGIN_ROOT}` を使わない**（Codex は非展開で `os error 2`）。`.mcp-codex.json`（root）に `command: "./bin/..."` の**相対パス + `"cwd": "."`** で記述し、`.codex-plugin/plugin.json` の `"mcpServers": "./.mcp-codex.json"` で宣言する。Claude Code 用 root `.mcp.json`（`${CLAUDE_PLUGIN_ROOT}` 使用）は別ファイルとして温存し両者を混ぜない |
+| `.cache/` 配下のパス（marketplace の source.path symlink 等）をリネームする時 | `.gitignore` の `.cache/**` を打ち消す `!` 例外行も新パスへ更新する。漏れると新パスが黙って ignore され commit されず、git clone に含まれず Codex の `source.path` が壊れる。**commit 後に `git ls-tree -r HEAD --name-only \| grep '^.cache/'` で同梱を必ず検証**（`git check-ignore` は negation でも exit 0 を返すため判定に使わない） |
+| Codex marketplace / plugin の名称 | marketplace = `sumik-marketplace`（`.agents/plugins/marketplace.json` の `name`）／ plugin = `sumik-codex-plugins`（同 `plugins[].name` + `.codex-plugin/plugin.json` の `name`）。インストールは `codex plugin add sumik-codex-plugins@sumik-marketplace` |
+| Codex プラグインを追加/更新する時 | git 方式。**repo 変更を push 後**に `~/dotfiles/codex/install-sumik-codex-plugin.sh` を実行（marketplace add/upgrade → plugin add → agents/・AGENTS.md を `~/.codex/` へ symlink）→ Codex 再起動 |
 
 ---
 
