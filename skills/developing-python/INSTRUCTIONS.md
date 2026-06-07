@@ -249,7 +249,7 @@ class Team:
 
 - **[writing-clean-code](../writing-clean-code/SKILL.md)**: SOLID原則とクリーンコード
 - **[mastering-typescript](../mastering-typescript/SKILL.md)**: TypeScript型安全性（TypeScript開発時）
-- **[testing](../testing/SKILL.md)**: テストファーストアプローチ
+- **[testing-code](../testing-code/SKILL.md)**: テストファーストアプローチ
 - **[securing-code](../securing-code/SKILL.md)**: セキュアコーディング
 - **[writing-effective-prose](../writing-effective-prose/SKILL.md)**: ドキュメント作成
 
@@ -334,7 +334,7 @@ Python向けOOP設計原則とGoFデザインパターン。
 | [SD-STRUCTURAL.md](./references/SD-STRUCTURAL.md) | Adapter, Facade, Composite, Decorator |
 | [SD-ALGORITHMS.md](./references/SD-ALGORITHMS.md) | 再帰/バックトラッキング、マルチスレッド |
 
-## Effective Python
+## Pythonベストプラクティス・イディオム
 
 125項目のPythonicコードベストプラクティス。
 

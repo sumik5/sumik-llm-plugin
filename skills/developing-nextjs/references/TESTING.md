@@ -450,7 +450,7 @@ pnpm test:watch
 
 ## カバレッジ目標
 
-**目標: 100%カバレッジ（`testing`スキル参照）**
+**目標: 100%カバレッジ（`testing-code`スキル参照）**
 
 ```bash
 # カバレッジレポート生成
@@ -831,4 +831,4 @@ npx msw init public/ --save
 
 **関連ドキュメント:**
 - [EXAMPLES.md](./EXAMPLES.md) - テスト実装例
-- **`testing`スキル**: TDD、カバレッジ100%目標
+- **`testing-code`スキル**: TDD、カバレッジ100%目標

@@ -14,7 +14,7 @@
 
 ### UI/UXデザインとの違い
 
-このスキルは**行動心理学に基づくプロダクト設計手法**です。視覚的なUI/UXデザイン原則については `applying-design-guidelines` スキルを参照してください。
+このスキルは**行動心理学に基づくプロダクト設計手法**です。視覚的なUI/UXデザイン原則については `designing-ux` スキルを参照してください。
 
 ---
 
@@ -321,7 +321,7 @@ AskUserQuestion({
 
 ## 関連スキル
 
-- **applying-design-guidelines**: 視覚的なUI/UXデザイン原則
+- **designing-ux**: 視覚的なUI/UXデザイン原則
 - **designing-frontend**: フロントエンドコード生成
 - **testing-code**: A/Bテストと効果測定の実装
 - **securing-code**: 行動データのセキュリティとプライバシー

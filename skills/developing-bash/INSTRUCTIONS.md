@@ -13,8 +13,7 @@
 - ペネトレーションテスト自動化（認可されたセキュリティテスト）
 
 **除外スコープ**:
-- Docker固有のパターン → `managing-docker` スキルを使用
-- DevOps方法論全般 → `practicing-devops` スキルを使用
+- Docker固有のパターン・DevOps方法論全般 → `practicing-devops` スキルを使用
 
 ---
 

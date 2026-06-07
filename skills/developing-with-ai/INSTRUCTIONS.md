@@ -374,6 +374,6 @@ Test-Driven Prompting の詳細方法論と、PO/開発者/アジャイルコー
 
 - `implementing-as-tachikoma`: タチコマ Agent としての実装手法（マルチエージェント並列実行）
 - `using-serena`: Serena MCP によるトークン効率的なコード編集
-- `crafting-ai-copywriting`: AI ライティング技術（マーケティング・コンテンツ制作）
+- `creating-content`: AIコピーライティング・クリエイティブ制作
 - `researching-libraries`: ライブラリ調査（AI支援開発前の事前調査必須）
 - `practicing-product-management`: PM向けClaude Code活用（コードベース調査・フィードバック分析・競合分析・要件生成）

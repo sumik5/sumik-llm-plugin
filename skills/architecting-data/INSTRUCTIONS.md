@@ -28,8 +28,7 @@
 **他スキルとの使い分け**:
 - マイクロサービスのSaga、粒度決定 → `architecting-infrastructure`
 - DDDドメインモデリング → `applying-clean-architecture`
-- データベースエンジン内部構造 → `understanding-database-internals`
-- リレーショナルDBスキーマ設計 → `designing-relational-databases`
+- データベースエンジン内部構造・スキーマ設計 → `developing-databases`
 
 ---
 
@@ -217,7 +216,5 @@ Data WarehouseからData Fabricへの移行パス。
 
 - **architecting-infrastructure**: マイクロサービスの粒度、Saga、CQRS実装
 - **applying-clean-architecture**: 戦略的DDD、ドメインモデリング、境界づけられたコンテキスト
-- **understanding-database-internals**: データベースエンジン内部、インデックス、トランザクション分離レベル
-- **designing-relational-databases**: 正規化、スキーマ設計、PostgreSQL実装
-- **implementing-opentelemetry**: 分散トレーシング、データパイプライン可観測性
-- **designing-monitoring**: SLO設計、監視戦略、データ品質メトリクス
+- **developing-databases**: データベースエンジン内部、インデックス、トランザクション分離レベル、正規化、スキーマ設計、PostgreSQL実装
+- **implementing-observability**: 分散トレーシング、データパイプライン可観測性、SLO設計、監視戦略、データ品質メトリクス

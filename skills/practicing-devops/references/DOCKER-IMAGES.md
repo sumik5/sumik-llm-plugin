@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Docker image management including layers, registries, manifests, multi-architecture, content addressing, and vulnerability scanning.
 ---
 

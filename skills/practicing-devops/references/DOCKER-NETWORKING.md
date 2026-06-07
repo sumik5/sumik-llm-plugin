@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Docker networking guide covering CNM, bridge, overlay, macvlan drivers, and service discovery.
 ---
 

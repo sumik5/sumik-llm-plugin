@@ -24,7 +24,7 @@
 
 | 要求 | 代わりに使うスキル |
 |------|------------------|
-| 個別UIコンポーネントのスタイル調整 | `applying-design-guidelines` |
+| 個別UIコンポーネントのスタイル調整 | `styling-with-tailwind` |
 | FigmaデザインのコードへのHTML/CSS変換 | `implementing-design` |
 | shadcn/uiでのコンポーネント実装 | `designing-frontend` |
 | Tailwind CSS設定・デザイントークン設定 | `styling-with-tailwind` |
@@ -259,7 +259,7 @@ UIが独立した再利用可能な部品に分解できる → Modular
 | 「DS更新を周知したい」 | `building-design-systems` → [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | — |
 | 「DS運用の形骸化を防ぎたい」 | `building-design-systems` → [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | — |
 | 「DS運用を専任担当者と兼任どちらにすべきか」 | `building-design-systems` → [IMPLEMENTATION-OPERATIONS.md](references/IMPLEMENTATION-OPERATIONS.md) | — |
-| 「ボタンの色やスペーシングを調整したい」 | `applying-design-guidelines` | `building-design-systems` |
+| 「ボタンの色やスペーシングを調整したい」 | `styling-with-tailwind` | `building-design-systems` |
 | 「Figmaデザインをコードに変換したい」 | `implementing-design` | `building-design-systems` |
 | 「shadcn/uiでコンポーネントを作りたい」 | `designing-frontend` | `building-design-systems` |
 | 「Tailwindのデザイントークンを設定したい」 | `styling-with-tailwind` | `building-design-systems` |

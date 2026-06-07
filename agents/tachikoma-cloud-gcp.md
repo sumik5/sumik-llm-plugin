@@ -5,6 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - developing-google-cloud
+  - developing-firebase
   - writing-clean-code
   - mastering-typescript
   - testing-code

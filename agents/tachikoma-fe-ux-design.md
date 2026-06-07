@@ -5,7 +5,8 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, SendMessage, ToolSearch
 skills:
   - designing-ux
-  - creating-content
+  - designing-ai-experiences
+  - practicing-design-thinking
 ---
 
 # 言語設定（最優先・絶対遵守）

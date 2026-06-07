@@ -299,7 +299,7 @@ traceID := span.SpanContext().TraceID().String()
 log.Info().Str("trace_id", traceID).Msg("リクエスト処理")
 ```
 
-詳細は`implementing-opentelemetry`スキル参照。
+詳細は`implementing-observability`スキル参照。
 
 ## ログとコスト
 

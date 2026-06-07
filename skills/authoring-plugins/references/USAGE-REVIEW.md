@@ -242,3 +242,9 @@ AskUserQuestion(
 - [ ] `detect-project-skills.sh` のスキルリストが最新
 - [ ] 高頻度スキルで自動検出対象外のものを確認
 - [ ] REQUIRED/MUST スキルの利用頻度が基準を満たしているか
+
+---
+
+## 役割分担（IMPROVEMENT-INTAKE.md との棲み分け）
+
+単発・イベント駆動の改善提案（セッション中の気づき）は [IMPROVEMENT-INTAKE.md](IMPROVEMENT-INTAKE.md) で処理。本ガイドは定期棚卸し（月次/四半期・ログ起点）を担当（役割分担）。

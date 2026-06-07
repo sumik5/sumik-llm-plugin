@@ -4,6 +4,7 @@ description: >-
   Creates Anki flashcards from EPUB/PDF files via Anki MCP Server, covering MCP setup, deck/note-type management, and bulk import with HTML formatting.
   Use when converting textbooks, question banks, or study materials into spaced repetition flashcards, or when managing Anki cards via MCP tools.
   Covers full workflow: MCP setup → file conversion → content analysis → batch card creation. For MCP server/client development, use developing-mcp instead.
+  For EPUB image compression/size reduction use compressing-epub-images; for image-EPUB→text OCR conversion use converting-content.
 argument-hint: "<file-path>"
 context: fork
 agent: general-purpose

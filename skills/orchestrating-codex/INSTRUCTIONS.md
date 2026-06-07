@@ -127,16 +127,9 @@ url = "https://example.com/mcp"
 
 ## 使用タイミング
 
-**🔴 ファイルを読んで判断しない。ユーザーの要求文から以下に該当しそうなら即座にtachikoma-product-manager agentを起動:**
+並列化の判断基準・単体起動条件は `../orchestrating-teams/references/PARALLEL-DECISION-CRITERIA.md` を参照。
 
-1. **複数の機能・コンポーネント** に言及している（例: 「UIとAPIを作って」）
-2. **異なる関心事** が含まれる（例: 「フロントエンドとバックエンドを変更」）
-3. **複数のサブタスク** が明示的または暗示的に含まれる
-4. **「〜を追加して」＋「テストも書いて」** のような複合要求
-
-**以下の場合のみ単体agent起動:**
-- 明らかに1ファイルのみの変更（「このファイルのバグを直して」）
-- 単一の小さなタスク（「typoを修正して」）
+**このスキル固有の起動アクション:** 条件に該当したら即座に **tachikoma-product-manager agent** を起動する。
 
 ---
 
@@ -188,19 +181,13 @@ url = "https://example.com/mcp"
 
 ---
 
-## 🔴 ファイル所有権パターン（必須ルール）
+## ファイル所有権・タスク分解
 
-**Wave内の並列agentが同一ファイルに書き込むと競合する。plannerが排他的所有権を厳密に定義すること。**
+ファイル所有権パターンと依存関係に基づくグループ化の共通基準は `../orchestrating-teams/references/PARALLEL-DECISION-CRITERIA.md` を参照。
 
-plannerが事前にパスベースの所有権を定義（Wave内で重複禁止）:
-```
-frontend agent: src/components/**, src/pages/**
-backend agent: src/api/**, src/services/**, src/models/**
-test agent: tests/e2e/**, tests/integration/**
-architect agent: docs/design/**
-```
-
-**各agentは自身の所有範囲外のファイルを編集しない。** 共有ファイル（型定義・設定ファイル等）はWave分割で先行Waveに配置するか、1つのagentに所有権を集約する。
+**このスキル固有の補足:**
+- 1 agentあたり **3–5タスクが目標**（並列度を上げるためスコープを絞る。6+でコンテキスト過負荷、1でagent起動コスト過大）
+- Wave分割の詳細テクニックは `references/WORKFLOW-GUIDE.md` を参照
 
 ---
 
@@ -240,43 +227,6 @@ Claude Code の subagent_type と Codex agent名の対応表（参照用）:
 - 複数候補がある場合はより専門的な方を優先
 - 汎用 `tachikoma` は専門agentでカバーされない場合のフォールバック
 - ビルトインの `worker`（実装特化）・`explorer`（読み取り重視）はカスタムagentが定義されていない環境で有効
-
----
-
-## タスク分解ルール
-
-### 最適なタスク粒度
-- **1 agentあたり3-5タスクを目標**（並列度を上げるため、agentあたりのスコープを絞る）
-- タスクが多すぎる（6+）→ agentのコンテキスト過負荷、完了まで他Waveをブロック
-- タスクが少なすぎる（1）→ agent起動のオーバーヘッドが相対的に大きい
-
-### Wave分割の原則（🔴 並列度最大化）
-
-**plannerは依存関係グラフを作成し、独立タスクを同一Waveにまとめる。Waveの数を最小化（=並列度を最大化）することが最優先。**
-
-```
-Wave 1: スキーマ設計 (tachikoma-database) ∥ 共通型定義 (tachikoma-typescript)
-  ↓ 全完了待ち
-Wave 2: API実装 (tachikoma-fullstack-js) ∥ UIスケルトン (tachikoma-nextjs)
-  ↓ 全完了待ち
-Wave 3: E2Eテスト (tachikoma-e2e-test) ∥ 統合テスト (tachikoma-test)
-```
-
-#### Wave分割の判断基準
-
-| 条件 | Wave配置 |
-|------|---------|
-| 他タスクへの依存なし | Wave 1（最初に並列起動） |
-| Wave N の成果物を読むだけ（書かない） | Wave N+1 で並列起動可能 |
-| 他agentが作成したファイルを**編集**する必要がある | 別Waveに分離（先行Wave完了後に起動） |
-| 同一ファイルに複数agentが書き込む | **同一Waveに入れてはならない** → 所有権を分離するか、1つのagentに統合 |
-
-#### 並列度を上げるテクニック
-
-1. **共通型定義・インターフェースを先行Wave（Wave 1）に分離** → API/UIが同時に着手可能
-2. **テスト作成は実装と同一Waveに配置可能**（テストagentは実装agentと異なるファイルを所有）
-3. **同一agentを複数起動してスコープ分割**（例: tachikoma-nextjs × 2 で異なるページ群を並列実装）
-4. **ドキュメントagentは実装と並列起動可能**（docsファイルは実装agentの所有外）
 
 ---
 
@@ -338,6 +288,7 @@ codex未インストールの場合: `npm install -g @openai/codex` でインス
 
 | ファイル | 内容 |
 |---------|------|
+| `../orchestrating-teams/references/PARALLEL-DECISION-CRITERIA.md` | **共有正本**: 並列化判断基準・ファイル所有権パターン・依存関係グループ化（orchestrating-teamsと共有） |
 | `references/PLAN-TEMPLATE.md` | `docs/plan-{feature-name}.md` テンプレート・回復手順・実行ログ記録方法 |
 | `references/WORKFLOW-GUIDE.md` | Phase 1-2 詳細ワークフロー（計画策定 → ユーザー確認 → Wave並列実装 → 統合 → 完了） |
 

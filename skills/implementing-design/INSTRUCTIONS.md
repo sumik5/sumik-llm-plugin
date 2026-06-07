@@ -154,7 +154,7 @@ When in doubt, defer to the project's established design system patterns. The de
 
 ## Related Skills
 
-- [`applying-design-guidelines`](../applying-design-guidelines/) — UI/UXデザイン理論と原則
+- [`designing-ux`](../designing-ux/) — UI/UXデザイン理論と原則
 - [`designing-frontend`](../designing-frontend/) — フロントエンドUIコード生成（shadcn/ui・Storybook）
 - [`building-design-systems`](../building-design-systems/) — デザインシステム設計・ガバナンス・Figma変数/トークン実装
 

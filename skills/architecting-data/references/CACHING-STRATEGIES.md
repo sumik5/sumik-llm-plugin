@@ -443,7 +443,7 @@ def get_product(product_id):
 
 ### Aggregate指向モデリング
 
-**定義**: Domain-Driven Design（Eric Evans）のAggregateパターン。関連データを複雑なデータ構造としてまとめて操作。
+**定義**: Domain-Driven Design のAggregateパターン。関連データを複雑なデータ構造としてまとめて操作。
 
 **例**:
 ```json
@@ -577,6 +577,5 @@ Calculated Results: 派生値キャッシュ
 ## Related Skills
 
 - **architecting-infrastructure**: サービス間キャッシュ戦略、分散キャッシュ
-- **understanding-database-internals**: クエリプランナー、インデックス最適化（キャッシュ前の最適化）
-- **implementing-opentelemetry**: キャッシュHit/Miss率監視、レイテンシトレーシング
-- **designing-monitoring**: キャッシュパフォーマンスメトリクス、SLO設計
+- **developing-databases**: クエリプランナー、インデックス最適化（キャッシュ前の最適化）
+- **implementing-observability**: キャッシュHit/Miss率監視、レイテンシトレーシング、キャッシュパフォーマンスメトリクス、SLO設計

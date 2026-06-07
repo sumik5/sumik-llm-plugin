@@ -83,5 +83,5 @@ MAJOR.MINOR.PATCH[-prerelease][+build]
 
 ## 関連スキル
 
-- `analyzing-software-tradeoffs`: APIバージョニング戦略のトレードオフ分析（互換性維持コスト vs 破壊的変更のコスト）
+- `architecting-infrastructure`: APIバージョニング戦略のトレードオフ分析（互換性維持コスト vs 破壊的変更のコスト）
 - `writing-conventional-commits`: コミットメッセージフォーマット（`fix:` → PATCH, `feat:` → MINOR, `BREAKING CHANGE` → MAJOR）

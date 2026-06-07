@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Docker Swarm基礎。クラスタ構築・サービス管理の基本コマンドを解説。Kubernetes主流の現代では基礎知識のみ提供。
 ---
 

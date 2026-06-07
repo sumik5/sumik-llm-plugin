@@ -490,8 +490,8 @@ POST /api/auth/login
 - **using-serena** - コード編集の詳細
 - **using-next-devtools** - Next.js開発の詳細
 - **designing-frontend** - UIコンポーネント管理
-- **managing-docker** - インフラ構築
+- **practicing-devops** - インフラ構築
 - **mcp-browser-auto** - テスト自動化
 - **writing-clean-code** - SOLID原則・コード品質基準
-- **testing** - テスト戦略
+- **testing-code** - テスト戦略
 - **securing-code** - セキュリティ基準

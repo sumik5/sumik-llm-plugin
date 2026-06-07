@@ -194,7 +194,7 @@ Object.keys(obj).length === 0;
 
 - **[writing-clean-code](../writing-clean-code/SKILL.md)**: SOLID原則（依存性逆転の原則含む）
 - **[securing-code](../securing-code/SKILL.md)**: 依存ライブラリのセキュリティ
-- **[testing](../testing/SKILL.md)**: モックとスタブ
+- **[testing-code](../testing-code/SKILL.md)**: モックとスタブ
 
 ## 📖 次のステップ
 

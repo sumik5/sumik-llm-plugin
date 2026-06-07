@@ -2,7 +2,7 @@
 name: developing-python
 description: >-
   Modern Python development guide covering project setup, tooling, Pythonic best practices, OOP design principles, GoF design patterns, SE process, and type safety. MUST load when pyproject.toml or requirements.txt is detected.
-  Covers Python 3.13 + uv + ruff + mypy, FastAPI/FastMCP, pytest, Docker, Effective Python idioms,
+  Covers Python 3.13 + uv + ruff + mypy, FastAPI/FastMCP, pytest, Docker, Pythonic best-practice idioms,
   software design patterns (encapsulation, LSP, Design by Contract), SE practices (SDLC, Scrum/Kanban, CI/CD, deployment),
   type safety rules (Any prohibition, TypedDict, Protocol, dataclass),
   Architecture Patterns (Repository, Unit of Work, Aggregates, Domain Events, CQRS, Event-Driven Architecture),

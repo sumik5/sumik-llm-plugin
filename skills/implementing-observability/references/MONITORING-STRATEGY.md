@@ -377,7 +377,7 @@ async function handleRequest(req, res) {
 - トレーシング、メトリクス、ログを統一的に収集
 - サービスディスカバリ、負荷分散、リトライを自動化
 
-**詳細は implementing-opentelemetry スキルを参照してください。**
+**詳細は本スキルの OTEL-INSTRUMENTATION-API.md / OTEL-COLLECTOR-DEPLOY.md を参照してください。**
 
 ---
 
@@ -728,5 +728,5 @@ sudo systemctl start suricata
 ## 参考情報
 
 - **OPERATIONS.md** — アラート設計、オンコール運用、インシデント管理の詳細
-- **implementing-opentelemetry** — 分散トレーシングの実装方法
+- **OTEL-INSTRUMENTATION-API.md** — 分散トレーシングの実装方法
 - **securing-code** — セキュリティ監視と連携するアプリケーションセキュリティ

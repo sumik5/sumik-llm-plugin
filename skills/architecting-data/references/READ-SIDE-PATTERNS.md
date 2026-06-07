@@ -320,5 +320,4 @@ Phase 4: Analytics Service独立
 
 - **architecting-infrastructure**: CQRS実装、Saga、データ所有権
 - **applying-clean-architecture**: ドメイン境界定義、戦略的DDD
-- **understanding-database-internals**: レプリケーション内部、トランザクション分離レベル
-- **designing-relational-databases**: 正規化、非正規化トレードオフ
+- **developing-databases**: レプリケーション内部、トランザクション分離レベル、正規化、非正規化トレードオフ

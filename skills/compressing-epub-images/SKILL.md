@@ -3,7 +3,7 @@ name: compressing-epub-images
 description: |
   EPUB ファイル内の画像（主にスキャン本の JPEG）を再エンコード・リサイズしてファイルサイズを削減するスキル。AskUserQuestion で圧縮レベル選択フローを提供し、実測サンプリングから予測サイズを提示してからユーザーに選ばせる。
   Use when: EPUB ファイルが大きく画像圧縮で削減したい時、スキャン本（画像ベース EPUB）の容量を減らしたい時、Kindle などの電子書籍リーダーに転送する前にサイズ最適化したい時。
-  画像ベース EPUB（スキャン本）と通常 EPUB の両方に対応。書誌情報・xhtml・css は触らず画像のみ再エンコード。
+  画像ベース EPUB（スキャン本）と通常 EPUB の両方に対応。書誌情報・xhtml・css は触らず画像のみ再エンコード。For OCR text conversion use converting-content; for Anki flashcards use creating-flashcards.
 ---
 
 ## 目的

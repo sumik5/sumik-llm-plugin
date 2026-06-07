@@ -282,9 +282,9 @@ func process(item *Item) error {
 ## 🔗 関連スキル
 
 - **[writing-clean-code](../writing-clean-code/SKILL.md)**: SOLID原則とクリーンコード
-- **[testing](../testing/SKILL.md)**: テストファーストアプローチ
+- **[testing-code](../testing-code/SKILL.md)**: テストファーストアプローチ
 - **[securing-code](../securing-code/SKILL.md)**: セキュアコーディング
-- **[managing-docker](../managing-docker/SKILL.md)**: Goアプリのコンテナ化
+- **[practicing-devops](../practicing-devops/SKILL.md)**: Goアプリのコンテナ化
 
 ## 📖 参考リソース
 

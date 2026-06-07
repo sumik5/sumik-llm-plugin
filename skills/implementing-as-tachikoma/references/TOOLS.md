@@ -89,7 +89,7 @@ Bashツールでコマンドを実行する場合：
 
 #### docker MCP
 **用途**: コンテナ管理、環境構築
-**スキル参照**: `managing-docker`
+**スキル参照**: `practicing-devops`
 
 **主な機能**:
 - コンテナ操作（起動、停止、管理）
@@ -256,7 +256,7 @@ ListMcpResourcesToolで全MCPサーバーの一覧を取得
 - **using-serena** - serena MCP詳細ガイド
 - **using-next-devtools** - Next.js開発ガイド
 - **designing-frontend** - UIコンポーネント管理
-- **managing-docker** - Docker環境管理
+- **practicing-devops** - Docker環境管理
 - **mcp-aws** - AWSインフラ構築
 - **mcp-browser-auto** - ブラウザ自動化
 - **mcp-search** - 情報検索戦略

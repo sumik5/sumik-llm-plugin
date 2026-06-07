@@ -5,6 +5,7 @@ description: >-
   ダイアグラム作成ガイド（Mermaid構文・draw.io MCP・24種類のダイアグラム対応）。
   Use when creating diagrams, charts, or visual documentation with Mermaid or draw.io.
   C4モデル、ER図、シーケンス図、フローチャート、ガントチャート等を含む。
+  For data-visualization design theory (chart selection, color scales), use designing-data-visualizations. For LaTeX/TikZ figures inside .tex documents, use writing-latex.
 context: fork
 agent: general-purpose
 ---

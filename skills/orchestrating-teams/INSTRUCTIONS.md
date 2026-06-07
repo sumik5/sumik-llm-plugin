@@ -52,18 +52,11 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 
 ---
 
-## 使用タイミング（ユーザー要求のテキストから即座に判断）
+## 使用タイミング
 
-**🔴 ファイルを読んで判断しない。ユーザーの要求文から以下に該当しそうなら即座にTeamCreate → planner起動:**
+並列化の判断基準・単体起動条件は `references/PARALLEL-DECISION-CRITERIA.md` を参照。
 
-1. **複数の機能・コンポーネント** に言及している（例: 「UIとAPIを作って」）
-2. **異なる関心事** が含まれる（例: 「フロントエンドとバックエンドを変更」）
-3. **複数のサブタスク** が明示的または暗示的に含まれる
-4. **「〜を追加して」＋「テストも書いて」** のような複合要求
-
-**以下の場合のみ単体タチコマ起動:**
-- 明らかに1ファイルのみの変更（「このファイルのバグを直して」）
-- 単一の小さなタスク（「typoを修正して」）
+**このスキル固有の起動アクション:** 条件に該当したら即座に **TeamCreate → planner（`sumik:tachikoma-str-product-mgr`, model: opus）** を起動する。
 
 ---
 
@@ -82,32 +75,13 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 
 ---
 
-## 🔴 ファイル所有権パターン（必須ルール）
+## ファイル所有権・タスク分解
 
-**同一ファイルへの同時書き込みを絶対に避ける。**
+ファイル所有権パターンと依存関係に基づくグループ化の共通基準は `references/PARALLEL-DECISION-CRITERIA.md` を参照。
 
-パスベースの所有権を事前に定義:
-```
-frontend: src/components/**, src/pages/**
-backend: src/api/**, src/services/**, src/models/**
-tester: tests/e2e/**, tests/integration/**
-architect: docs/design/**
-```
-
-**競合が予想される場合はタスクを順次実行に変更すること。**
-
----
-
-## タスク分解ルール
-
-### 最適なタスク粒度
-- **1メンバーあたり5-6タスクを目標** にする（実証済みの生産性最適値）
-- タスクが多すぎる（8+）→ メンバーのオーバーヘッド増加
-- タスクが少なすぎる（1-2）→ 待機時間の増加
-
-### 依存関係の明示
-- TaskUpdate の `blockedBy` フィールドで前提タスクを指定
-- 例: タスク3「API実装」はタスク1「スキーマ設計」に依存
+**このスキル固有の補足:**
+- 1メンバーあたり **5–6タスクが実証済みの最適値**（8+でオーバーヘッド増、1–2で待機時間増）
+- TaskUpdate の `blockedBy` フィールドで前提タスクを明示する
   ```json
   {"taskId": "3", "addBlockedBy": ["1"]}
   ```
@@ -145,6 +119,7 @@ architect: docs/design/**
 
 | ファイル | 内容 |
 |---------|------|
+| `references/PARALLEL-DECISION-CRITERIA.md` | **共有正本**: 並列化判断基準・ファイル所有権パターン・依存関係グループ化（orchestrating-codexと共有） |
 | `references/TEAM-PATTERNS.md` | チーム編成パターン（4種）・モデル戦略（4種）・既存Agent/スキル統合 |
 | `references/WORKFLOW-GUIDE.md` | Step 1-8 詳細ワークフロー（要件分析 → チーム作成 → スポーン → 進捗管理 → 統合 → クリーンアップ） |
 | `references/PLAN-TEMPLATE.md` | `docs/plan-{feature-name}.md` テンプレート・回復手順・実行ログ記録方法 |

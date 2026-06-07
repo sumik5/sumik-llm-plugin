@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Container lifecycle management including starting, stopping, restart policies, exec sessions, logging, and debugging.
 ---
 

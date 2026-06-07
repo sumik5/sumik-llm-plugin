@@ -490,7 +490,7 @@ find . -name "*.temp" -delete
 **詳細は関連スキルを参照してください:**
 - **SOLID原則**: `writing-clean-code`スキル
 - **型安全性**: `mastering-typescript`スキル
-- **テスト**: `testing`スキル
+- **テスト**: `testing-code`スキル
 - **セキュリティ**: `securing-code`スキル
 
 **要点:**
@@ -524,7 +524,7 @@ find . -name "*.temp" -delete
 - **managing-git-worktrees** - Worktree管理の詳細
 - **writing-clean-code** - SOLID原則・コード品質基準
 - **mastering-typescript** - 型安全性の原則
-- **testing** - テスト戦略
+- **testing-code** - テスト戦略
 - **securing-code** - セキュリティ基準
 - **writing-effective-prose** - ドキュメント作成の原則
 - **using-serena** - 効率的なコード編集

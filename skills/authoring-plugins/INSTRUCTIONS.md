@@ -516,6 +516,26 @@ my-skill/
 
 ---
 
+## 🔄 改善提案INTAKE（自己改善ループの消費側）
+
+global `~/.claude/CLAUDE.md` の捕捉ルールが **CLAUDE.md 内の「## 📥 スキル改善提案 (inbox)」セクション**に蓄積した改善提案を**消費して実際にスキルを改善する**入口。捕捉(C)→消費(D)の閉ループを閉じる。
+
+> ⚠️ inbox は専用ファイルではなく **global CLAUDE.md 内のセクション**である（ユーザー選択）。CLAUDE.md は 300 行以下が原則のため、INTAKE は処理した提案を即ドレイン（done/rejected へ）して inbox を最小に保つ責務も負う。
+
+起動条件: inbox の未処理(status: open)が **3 件以上**、またはユーザーが「スキル改善まわして」と指示した時。
+
+5 ステップで処理する（詳細・コマンド・章ごとの接続は [IMPROVEMENT-INTAKE.md](references/IMPROVEMENT-INTAKE.md) を参照）:
+
+1. **取り込み＆トリアージ**: CLAUDE.md の inbox セクションをパースし `status: open` を抽出。`種別` でグルーピングし `確度=高` を優先。重複（同一 skill×同一種別）はマージ。
+2. **規約検証**: 採否を判定。description 改善は 1,024 字上限・三部構成（[NAMING.md](references/NAMING.md)）、固有名混入は 🔴 絶対ルール（書籍名/著者名/出版社名禁止）に照合。却下は `status: rejected` と理由を inbox に追記。
+3. **編集委譲**: 採用提案を **tachikoma-doc-document** に委譲（本体はオーケストレーターに徹する）。種別→主担当 reference のマッピング表に従い、複数スキル並行時はファイル所有権を分割。
+4. **整合検証**: 種別が 分割/統合/参照修正、または `影響範囲` に「他スキル参照/hook/README/rules」を含む場合は [CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md) の4層スキャン＋ダングリング検出を実行。
+5. **完了ワークフローへ接続**: README 同期（種別マッピングの「README 同期」列）→ 下記「🔴 完了ワークフロー」で version bump（種別→version 列）→ 両 plugin.json 同期→ commit/tag（ユーザー確認必須）。処理済み提案を CLAUDE.md inbox の「## 処理済み」へ退避（or 削除）して open を空に近づける。
+
+> **USAGE-REVIEW.md との棲み分け**: 本INTAKE=単発・イベント駆動の改善（セッション中の気づき）。USAGE-REVIEW.md=定期・俯瞰の棚卸し（月次/四半期・ログ起点）。統合しない。
+
+---
+
 ## AskUserQuestion 埋め込み設計
 
 AskUserQuestion の使い方は2つの文脈で異なる。混同しないこと。
@@ -553,6 +573,8 @@ AskUserQuestion の使い方は2つの文脈で異なる。混同しないこと
 ---
 
 ## 🔴 完了ワークフロー（全作業完了時・必須）
+
+改善提案INTAKE 経由の場合、version 種別は提案の `種別` フィールドから決定する（IMPROVEMENT-INTAKE.md の種別→version表）。
 
 **すべてのワークフロー（新規作成・変更・変換）の最終ステップとして必ず実行する。スキップ不可。**
 
@@ -609,3 +631,4 @@ git tag v{new-version}
 - **[CONTEXT-MANAGEMENT.md](references/CONTEXT-MANAGEMENT.md)**: Context圧迫防止・disable-model-invocationベストプラクティス
 - **[USAGE-REVIEW.md](references/USAGE-REVIEW.md)**: スキル利用状況レビュー・棚卸しガイド
 - **[CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md)**: スキルリネーム・統合・削除時のダングリング参照防止ガイド（4層スキャン・検出スクリプト・捏造禁止原則）
+- **[IMPROVEMENT-INTAKE.md](references/IMPROVEMENT-INTAKE.md)**: 改善提案INTAKE ガイド（global CLAUDE.md inbox 消費・5ステップ処理・種別マッピング・inbox ライフサイクル管理）

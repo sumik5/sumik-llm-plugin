@@ -1,6 +1,6 @@
 # データストア・オブザーバビリティ
 
-データストア選定とオブザーバビリティ（監視・可観測性）のベストプラクティスをカバーします。監視システムの詳細設計は `designing-monitoring` スキルを、データベース内部構造は `understanding-database-internals` スキルを、リレーショナルDB設計は `designing-relational-databases` スキルを、それぞれ参照してください。
+データストア選定とオブザーバビリティ（監視・可観測性）のベストプラクティスをカバーします。監視システムの詳細設計は `implementing-observability` スキルを、データベース内部構造・リレーショナルDB設計は `developing-databases` スキルを、それぞれ参照してください。
 
 ---
 
@@ -247,7 +247,7 @@ X-Trace-Id: abc123
 X-Span-Id: xyz789
 ```
 
-**詳細は `implementing-opentelemetry` スキル参照。**
+**詳細は `implementing-observability` スキル参照。**
 
 ---
 
@@ -305,7 +305,7 @@ X-Span-Id: xyz789
 4. **対処手順**: 実施したアクション
 5. **再発防止策**: 具体的なアクションアイテム（担当者・期限付き）
 
-**詳細は `designing-monitoring` スキル参照。**
+**詳細は `implementing-observability` スキル参照。**
 
 ---
 
@@ -373,10 +373,10 @@ AskUserQuestion:
 
 | トピック | このスキル（practicing-devops） | 詳細スキル |
 |---------|-------------------------------|-----------|
-| **データストア選定** | RDB/NoSQL/NewSQLの比較、CAP定理、選定基準 | `understanding-database-internals`: DB内部構造、分散システム理論 |
-| **リレーショナルDB設計** | スキーママイグレーション戦略 | `designing-relational-databases`: 正規化、インデックス設計、PostgreSQL実装 |
-| **監視システム設計** | Three Pillars、アラート設計の概要 | `designing-monitoring`: 詳細な監視デザインパターン、SLO設計、オンコール運用 |
-| **分散トレーシング** | トレースの概念、ツール比較 | `implementing-opentelemetry`: OpenTelemetry SDK実装、計装詳細 |
+| **データストア選定** | RDB/NoSQL/NewSQLの比較、CAP定理、選定基準 | `developing-databases`: DB内部構造、分散システム理論 |
+| **リレーショナルDB設計** | スキーママイグレーション戦略 | `developing-databases`: 正規化、インデックス設計、PostgreSQL実装 |
+| **監視システム設計** | Three Pillars、アラート設計の概要 | `implementing-observability`: 詳細な監視デザインパターン、SLO設計、オンコール運用 |
+| **分散トレーシング** | トレースの概念、ツール比較 | `implementing-observability`: OpenTelemetry SDK実装、計装詳細 |
 
 ---
 

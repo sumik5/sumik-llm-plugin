@@ -438,7 +438,7 @@ uv run pytest --cov=src        # カバレッジ計測
 - **AP-UOW-AGGREGATES.md** ← Unit of Work パターンのテスト方法
 - **AP-EVENTS-CQRS.md** ← Domain Events のテスト（イベント発行検証）
 - **TESTING.md** ← pytest一般テクニック（parametrize・fixture詳細）
-- **EP-CH13-TESTING.md** ← Effective Python観点のテストイディオム
+- **EP-CH13-TESTING.md** ← Pythonベストプラクティス観点のテストイディオム
 
 ---
 

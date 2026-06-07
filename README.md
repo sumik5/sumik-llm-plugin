@@ -47,7 +47,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (12個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (70個)
+└── skills/             # ナレッジスキル (72個)
 ```
 
 ---
@@ -104,7 +104,7 @@ sumik-claude-plugin/
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
 
-### Skills (70個)
+### Skills (72個)
 
 #### コア開発
 
@@ -112,8 +112,8 @@ sumik-claude-plugin/
 |--------|------|
 | `implementing-as-tachikoma` | タチコマAgent運用ガイド |
 | `using-serena` | Serena MCP活用 |
-| `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・Kent Beck 4 Rules・Uncle Bob 66ヒューリスティクス・ソフトウェアデザインの法則含む27カテゴリのコードスメル検出・リファクタリング・フォーマット・境界管理・20リファレンスファイル） |
-| `testing-code` | テストファースト（Vitest/Playwright）・Khorikovの4本の柱フレームワーク（16リファレンス）。RTL固有は`developing-react`参照 |
+| `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・Simple Designの4ルール・66のコードスメルヒューリスティクス・ソフトウェアデザインの法則含む27カテゴリのコードスメル検出・リファクタリング・フォーマット・境界管理・20リファレンスファイル） |
+| `testing-code` | テストファースト（Vitest/Playwright）・テストの4本の柱フレームワーク（16リファレンス）。RTL固有は`developing-react`参照 |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 | `securing-ai-development` | AI開発セキュリティ戦略（信頼フレームワーク、適応型ガードレール、AI-BOM、AI-SPM、ガバナンス、クロスファンクショナル所有権） |
@@ -152,7 +152,7 @@ sumik-claude-plugin/
 | `developing-firebase` | Firebaseプラットフォーム開発ガイド（Authentication, Firestore, RTDB, Storage, Functions, Hosting, Analytics, FCM, Remote Config等） |
 | `developing-nextjs` | Next.js 16.x開発ガイド（App Router・Server Components・Cache Components・Turbopack・実践パターン集）。Route Segment・Parallel/Intercepting Routes・Prisma・NextAuth.js・Server Actions・4種キャッシュ戦略を含む10リファレンスファイル。React固有は`developing-react`参照 |
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
-| `developing-python` | Python 3.13開発（Effective Python 125項目・実践パターン50問・SEプロセス・Clean Architecture実践・Architecture Patterns: Repository/UoW/Aggregates/Domain Events/CQRS・DDD Tactical Patterns: Entity/Value Object/Aggregate Root） |
+| `developing-python` | Python 3.13開発（Pythonベストプラクティス125項目・実践パターン50問・SEプロセス・Clean Architecture実践・Architecture Patterns: Repository/UoW/Aggregates/Domain Events/CQRS・DDD Tactical Patterns: Entity/Value Object/Aggregate Root） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
 | `developing-fullstack-javascript` | フルスタックJS開発（NestJS/Express・React・CI/CD・品質）＋JavaScript言語基礎（型・クロージャ・プロトタイプ・async/await・モジュール・メタプログラミング）を包括カバー。SOLID原則・セキュリティ・テスト戦略に加え、JS言語仕様の6リファレンスファイルを含む |
 | `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド + Total TypeScript: satisfies・余剰プロパティ・コンパイラ振る舞い + TS5デコレータ完全ガイド + 型関係論・型推論パターン・型安全テクニック） |
@@ -165,7 +165,9 @@ sumik-claude-plugin/
 | スキル | 説明 |
 |--------|------|
 | `building-design-systems` | デザインシステム構築・運用・立ち上げ・浸透・Figma実装方法論（DS基礎・パターン分類・組織戦略・UIパターンカタログ20+・Figmaバリアブル/デザイントークン3層階層・カラーシステム・タイポグラフィ・Style Dictionary/Storybook連携・立ち上げ3ステップ・浸透3ステップ・コンテンツ策定ガイド・多組織パターン集） |
-| `designing-ux` | UI/UX・グラフィックデザイン・インターフェイス哲学・認知心理学基盤・UXエレメント5段階モデルを統合したデザイン総合スキル（UIデザインガイドライン101ルール・認知心理学基盤: 知覚バイアス/ゲシュタルト/色覚/記憶/フィッツの法則/応答性・グラフィック基礎: 造形/色彩/タイポグラフィ/レイアウト・Fluid Interfaces・モーション理論・Experiencability・5段階フレームワーク: Strategy→Scope→Structure→Skeleton→Surface・Webデザイン機能性7軸・情緒性6軸イコライザーモデル・8要素×機能性/情緒性マトリクス・デザインコンセプト立案4プロセス・レイアウト実践パターン・イメージワードシステム・クリエイティブプロセスパターン） |
+| `designing-ux` | UI/UX・グラフィックデザイン・インターフェイス哲学・認知心理学基盤・UXエレメント5段階モデルを統合したデザイン総合スキル（UIデザインガイドライン101ルール・認知心理学基盤: 知覚バイアス/ゲシュタルト/色覚/記憶/フィッツの法則・グラフィック基礎: 造形/色彩/タイポグラフィ/レイアウト・Fluid Interfaces・モーション理論・5段階フレームワーク: Strategy→Scope→Structure→Skeleton→Surface・Webデザイン機能性7軸・情緒性6軸・デザインコンセプト立案・レイアウト実践パターン・イメージワードシステム）。デザイン思考プロセスは`practicing-design-thinking`、AI体験設計は`designing-ai-experiences`参照 |
+| `designing-ai-experiences` | AI体験（AIX）設計ガイド（Agentic UX・Copilotパターン・メンタルモデル・AIファーストインターフェース・Input/Computation/Output設計・フレーミング手法・倫理）。AI駆動プロダクトのUX・人間-AIインタラクション設計に使用。`designing-ux`から分離 |
+| `practicing-design-thinking` | デザイン思考プロセス・UXリサーチ方法論（共感/定義/発想/プロトタイプ/テスト・ユーザーリサーチ・カスタマージャーニーマップ・ユーザビリティ評価・構造化シナリオ法・組織導入戦略・クリエイティブプロセスパターン）。`designing-ux`から分離 |
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合・オブジェクト指向UI設計（OOUI）：オブジェクト抽出・ビュー/ナビゲーション・レイアウトパターン） |
 | `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証） |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
@@ -211,11 +213,13 @@ sumik-claude-plugin/
 | `creating-content` | コンテンツ制作統合スキル（AIコピーライティング: 15テクニック・心理的トリガー ＋ AIデザインクリエイティブ: バナー/SNS/ポスター） |
 | `creating-slides` | HTMLスライド作成（slides repo 3層分離モデル: Engine/Theme/Content、16:9デッキ、テーマカスタマイズ・ソース素材変換をガイド。認知科学・ロジック構築・ストーリーテリング・聴衆分析・スライドデザイン・ビジュアルデザイン実践・提案書構成術・デリバリー・準備プロセスの9リファレンスで品質担保。国際学会・学術プレゼン対応（ACADEMIC-*/ENGLISH-* 系6リファレンス追加）） |
 
-### Scripts (1個)
+### Scripts (3個)
 
 | スクリプト | 説明 |
 |----------|------|
-| `convert-markdown-to-skill.sh` | Markdown→スキル変換スクリプト |
+| `file-suggestion.sh` | ファイル候補検索ヘルパー（ripgrep + fzf でクエリにマッチするファイルを提示） |
+| `zip-skills.sh` | `skills/` 配下の各スキルフォルダを個別にzipアーカイブ化 |
+| `pdf-to-markdown` | PDF→Markdown変換バイナリ（`authoring-plugins` のPDF入力変換で使用） |
 
 ### Hooks (4個)
 

@@ -19,8 +19,7 @@
 
 | スキル | 対象領域 |
 |--------|---------|
-| 本スキル（designing-genai-patterns） | フレームワーク非依存のパターン選択・アーキテクチャ設計判断・LLMの運用・監視 |
-| `building-rag-systems` | RAGの実装詳細（チャンキング・ベクトルDB設定・埋め込み） |
+| 本スキル（designing-genai-patterns） | フレームワーク非依存のパターン選択・アーキテクチャ設計判断・LLMの運用・監視。RAGの実装詳細（チャンキング・ベクトルDB設定・埋め込み）は本スキルの RAG リファレンス（RAG-FUNDAMENTALS.md / RAG-ADVANCED.md / RAG-DATA-LOADING.md / RAG-DATA-PREPARATION.md）を参照 |
 | `integrating-ai-web-apps` | WebアプリへのAI統合（Vercel AI SDK・LangChain.js） |
 
 ---

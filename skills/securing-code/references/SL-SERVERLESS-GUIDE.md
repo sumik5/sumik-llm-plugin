@@ -133,7 +133,7 @@ DATABASE_PASSWORD = secret['SecretString']
 
 **分散トレーシング推奨:**
 
-OpenTelemetry実装は `implementing-opentelemetry` スキル参照。
+OpenTelemetry実装は `implementing-observability` スキル参照。
 
 ### 5. Infrastructure as Code（IaC）によるセキュリティ管理
 
@@ -281,8 +281,7 @@ IAM権限の範囲を確認してください:
 | **securing-code** | OWASP Top 10、CodeGuard実行、コードレベルセキュリティ |
 | **developing-aws** | AWSサーバーレス開発パターン、IAM設計、CDK/SAM |
 | **developing-google-cloud** | Google Cloud開発、Cloud Run、Service Account設計 |
-| **implementing-opentelemetry** | 分散トレーシング、セキュリティログ統合 |
-| **designing-monitoring** | SLO設計、アラート設計、インシデント検知 |
+| **implementing-observability** | 分散トレーシング、セキュリティログ統合、SLO設計、アラート設計、インシデント検知 |
 | **implementing-dynamic-authorization** | ABAC/ReBAC/Cedar、動的認可システム |
 | **practicing-devops** | IaC、CI/CDセキュリティ、Secret管理 |
 

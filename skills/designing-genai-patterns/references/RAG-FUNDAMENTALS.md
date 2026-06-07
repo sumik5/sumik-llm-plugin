@@ -1,6 +1,6 @@
 # RAG基礎パターン（P6–P8）
 
-> RAG（Retrieval-Augmented Generation）の基本原理から大規模運用まで。「知識をいつ・どこで統合するか」の設計判断を扱う。実装詳細（チャンキング・ベクトルDB設定）は `building-rag-systems` スキルを参照。
+> RAG（Retrieval-Augmented Generation）の基本原理から大規模運用まで。「知識をいつ・どこで統合するか」の設計判断を扱う。実装詳細（チャンキング・ベクトルDB設定）は本スキルの RAG-ADVANCED.md / RAG-DATA-LOADING.md / RAG-DATA-PREPARATION.md を参照。
 
 ---
 
@@ -612,4 +612,4 @@ Advanced RAG（P9-P12）: Index-Aware Retrieval, Node Postprocessing等
 4. メタデータフィルタリングの導入
 5. Result Reranking
 
-> **`building-rag-systems`スキルとの差別化**: 本パターンは「どのRAGアーキテクチャを選ぶか」の設計判断に焦点。チャンキング戦略の詳細・ベクトルDB設定・embedding次元数の選択などの実装詳細は `building-rag-systems` を参照。
+> **設計判断と実装詳細の切り分け**: 本パターンは「どのRAGアーキテクチャを選ぶか」の設計判断に焦点。チャンキング戦略の詳細・ベクトルDB設定・embedding次元数の選択などの実装詳細は本スキルの RAG-ADVANCED.md / RAG-DATA-LOADING.md / RAG-DATA-PREPARATION.md を参照。

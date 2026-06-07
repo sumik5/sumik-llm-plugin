@@ -1,6 +1,6 @@
 ---
 name: researching-libraries
-description: Researches existing libraries before implementation to prevent reinventing the wheel. REQUIRED before writing any new functionality. Use when evaluating npm packages, pip packages, Go modules, or any third-party libraries to find and evaluate existing solutions.
+description: Researches existing libraries before implementation to prevent reinventing the wheel. REQUIRED before writing any new functionality. Use when evaluating npm packages, pip packages, Go modules, or any third-party libraries to find and evaluate existing solutions. For generic web/company/people/paper search and search-tool routing, use searching-web instead.
 context: fork
 agent: Explore
 ---

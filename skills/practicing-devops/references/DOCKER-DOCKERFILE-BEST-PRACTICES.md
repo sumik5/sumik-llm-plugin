@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Guides Dockerfile creation and optimization. Use when Dockerfile or Docker Compose is detected. Supports multi-stage builds, cache optimization, security hardening, and image size minimization.
 ---
 

@@ -145,4 +145,4 @@ Developer Agentは並列実行時に4つの専門性を持ちます：
 - **securing-code**: CodeGuard実行の詳細
 - **writing-clean-code**: SOLID原則・コード品質基準
 - **mastering-typescript**: 型安全性の遵守
-- **testing**: テストファーストアプローチ
+- **testing-code**: テストファーストアプローチ

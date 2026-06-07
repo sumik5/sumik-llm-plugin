@@ -730,6 +730,6 @@ else:
 
 ## 次のステップ
 
-- `implementing-opentelemetry` スキルでサンプリングを実装
+- `OTEL-COLLECTOR-DEPLOY.md` でサンプリングを実装
 - `SLO-RELIABILITY.md` でイベントベースSLOとサンプリングを統合
 - テレメトリーパイプラインでサンプリング戦略を一元管理

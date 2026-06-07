@@ -6,6 +6,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - integrating-ai-web-apps
   - designing-genai-patterns
+  - evaluating-with-promptfoo
   - developing-mcp
   - developing-with-ai
   - writing-clean-code

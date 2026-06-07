@@ -154,7 +154,7 @@ pnpm add -D vitest @vitejs/plugin-react vite-tsconfig-paths jsdom
 
 ### 3. コード品質
 - **SOLID原則遵守**: `writing-clean-code`スキル参照
-- **テストファースト**: `testing`スキル参照
+- **テストファースト**: `testing-code`スキル参照
 - **セキュアコーディング**: `securing-code`スキル参照（実装完了後にCodeGuard必須実行）
 
 ### 4. パフォーマンス最適化

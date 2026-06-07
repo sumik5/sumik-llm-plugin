@@ -1,7 +1,7 @@
 # RAG パイプライン実装ガイド
 
 LangChain + ChromaDB による RAG システムの実装（インジェスト → 検索 → 生成）を網羅する。
-汎用RAG理論の詳細は `building-rag-systems` を参照。ここではLangChain固有の実装パターンに特化する。
+汎用RAG理論の詳細は `designing-genai-patterns` を参照。ここではLangChain固有の実装パターンに特化する。
 
 ---
 
@@ -696,6 +696,6 @@ hybrid_retriever = EnsembleRetriever(
 ---
 
 **関連ファイル:**
-- → 汎用RAG理論・データローディング・チャンキング戦略は `building-rag-systems` 参照
+- → 汎用RAG理論・データローディング・チャンキング戦略は `designing-genai-patterns` 参照
 - → LangGraphエージェント統合は `LANGGRAPH-AGENTS.md` 参照
 - → 本番化・メモリ・ガードレールは `PRODUCTION.md` 参照

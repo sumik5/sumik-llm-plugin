@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Dockerセキュリティ。Linuxカーネルセキュリティ技術（namespaces、cgroups、capabilities、seccomp）とDocker固有技術（Scout、DCT、secrets）を網羅。
 ---
 

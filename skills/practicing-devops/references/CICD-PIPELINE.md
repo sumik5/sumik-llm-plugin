@@ -259,7 +259,7 @@ jobs:
 |---------|-------------------------------|-----------|
 | **テスト戦略** | テストピラミッド概要、Shift-Left Testingの原則 | `testing-code`: テストコード実装、Vitest/Playwright詳細 |
 | **セキュリティスキャン** | CI/CDパイプラインへの統合方法、ツール選定 | `securing-code`: 脆弱性対策、コードレビュー詳細 |
-| **デプロイ戦略** | Blue-Green/Canary/Rolling比較、選定基準 | `developing-terraform`, `managing-docker`: IaC実装、コンテナオーケストレーション |
+| **デプロイ戦略** | Blue-Green/Canary/Rolling比較、選定基準 | `developing-terraform`, `practicing-devops`: IaC実装、コンテナオーケストレーション |
 
 ---
 

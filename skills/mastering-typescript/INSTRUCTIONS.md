@@ -207,7 +207,7 @@ if (isUser(data)) {
 
 ---
 
-## Effective TypeScript
+## 型実装の実践判断基準
 
 83項目のTypeScript実装判断基準。
 
@@ -225,7 +225,7 @@ if (isUser(data)) {
 
 ---
 
-## Programming TypeScript
+## 型システム実践パターン
 
 TypeScriptの型システム・関数・クラス・非同期処理・モジュール・ビルドの包括的ガイド。
 

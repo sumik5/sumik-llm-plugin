@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Docker Compose guide for deploying and managing multi-container microservices applications with declarative YAML configuration.
 ---
 

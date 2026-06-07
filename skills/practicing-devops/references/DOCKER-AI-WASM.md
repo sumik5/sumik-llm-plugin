@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Docker AI/Wasm統合。Docker Model Runner (DMR) によるローカルAI実行とWebAssemblyコンテナ化を解説。
 ---
 

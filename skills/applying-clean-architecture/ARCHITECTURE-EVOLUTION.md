@@ -306,4 +306,4 @@ Bounded Context境界は明確か？
 | マイクロサービスのインフラパターン（CQRS・Saga等） | `architecting-infrastructure` スキル |
 | レガシーシステムへのCA段階的導入 | `writing-clean-code` スキル（CHANGEABLE-CODE.md） |
 | Clean Architectureの静的構造（依存性ルール・レイヤー設計） | [INSTRUCTIONS.md](INSTRUCTIONS.md) |
-| アーキテクチャトレードオフ分析 | `analyzing-software-tradeoffs` スキル |
+| アーキテクチャトレードオフ分析 | `architecting-infrastructure` スキル |

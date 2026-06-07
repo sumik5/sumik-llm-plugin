@@ -87,12 +87,12 @@
 | 17 | 高結合 | シングルトン乱用、グローバル依存 | 依存性注入、インターフェース分離 | [ARCHITECTURE.md](./references/ARCHITECTURE.md) |
 | 18 | グローバル状態 | グローバル変数、静的可変状態 | コンテキストオブジェクト、依存性注入 | [ARCHITECTURE.md](./references/ARCHITECTURE.md) |
 | 19 | 深い継承 | 継承階層が深すぎる、振る舞いの重複 | コンポジション優先、フラット化 | [ARCHITECTURE.md](./references/ARCHITECTURE.md) |
-| 20 | テスト不足 | カバレッジ不足、テスタビリティ欠如 | TDD、AAAパターン、テストダブル | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
-| 21 | 技術的負債放置 | TODO放置、リファクタリング先送り | 負債の可視化、定期的な返済 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
-| 22 | 例外処理不備 | 例外の握りつぶし、エラー情報の欠如 | 適切な例外設計、エンドユーザー向けエラー | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
-| 23 | メタプログラミング乱用 | 過度なリフレクション、eval多用 | 明示的コード優先、最小限の使用 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
-| 24 | 型の誤用 | any/Any乱用、型安全性の欠如 | 厳密な型定義、ジェネリクス活用 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
-| 25 | セキュリティ脆弱性 | 入力検証不足、SQLインジェクション | セキュリティファースト設計 | [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) |
+| 20 | テスト不足 | カバレッジ不足、テスタビリティ欠如 | TDD、AAAパターン、テストダブル | [QUALITY-CHECKLIST.md](./references/QUALITY-CHECKLIST.md) |
+| 21 | 技術的負債放置 | TODO放置、リファクタリング先送り | 負債の可視化、定期的な返済 | [QUALITY-CHECKLIST.md](./references/QUALITY-CHECKLIST.md) |
+| 22 | 例外処理不備 | 例外の握りつぶし、エラー情報の欠如 | 適切な例外設計、エンドユーザー向けエラー | [QUALITY-CHECKLIST.md](./references/QUALITY-CHECKLIST.md) |
+| 23 | メタプログラミング乱用 | 過度なリフレクション、eval多用 | 明示的コード優先、最小限の使用 | [QUALITY-CHECKLIST.md](./references/QUALITY-CHECKLIST.md) |
+| 24 | 型の誤用 | any/Any乱用、型安全性の欠如 | 厳密な型定義、ジェネリクス活用 | [QUALITY-CHECKLIST.md](./references/QUALITY-CHECKLIST.md) |
+| 25 | セキュリティ脆弱性 | 入力検証不足、SQLインジェクション | セキュリティファースト設計 | [QUALITY-CHECKLIST.md](./references/QUALITY-CHECKLIST.md) |
 | 26 | フォーマット不統一 | 視覚的構造が不明確、スタイルがバラバラ | 新聞記事メタファ、垂直/水平フォーマット適用 | [FORMATTING.md](./references/FORMATTING.md) |
 | 27 | 境界管理の欠如 | サードパーティへの直接依存、テスト困難 | 学習テスト、ラッパー/アダプターパターン | [BOUNDARIES.md](./references/BOUNDARIES.md) |
 
@@ -318,7 +318,7 @@
 
 ---
 
-### [QUALITY-ASSURANCE.md](./references/QUALITY-ASSURANCE.md) - 品質保証（Ch.20-25）
+### [QUALITY-CHECKLIST.md](./references/QUALITY-CHECKLIST.md) - 品質保証（Ch.20-25）
 **カバー内容**: テスト、技術的負債、例外、メタプログラミング、型、セキュリティ
 
 - テスト戦略
@@ -518,9 +518,9 @@
 **mastering-typescript**: 型安全性に特化
 **writing-clean-code**: 型の誤用（Ch.24）を含む包括的品質
 
-### testing との関係
+### testing-code との関係
 
-**testing**: テスト戦略全般
+**testing-code**: テスト戦略全般
 **writing-clean-code**: テスト不足（Ch.20）の検出とリファクタリング
 
 ---

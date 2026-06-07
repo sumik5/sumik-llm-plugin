@@ -300,7 +300,7 @@ AskUserQuestion(
 - **modernizing-architecture**: 組織・移行戦略レベルのアーキテクチャモダナイゼーション
 - **designing-web-apis**: APIエンドポイント設計、RESTful原則
 - **building-multi-tenant-saas**: SaaSマルチテナントアーキテクチャ
-- **implementing-opentelemetry**: 分散トレーシング、可観測性
+- **implementing-observability**: 分散トレーシング、可観測性
 
 ---
 

@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Docker volumes guide for persistent data management, covering volume lifecycle, mounting strategies, and best practices.
 ---
 

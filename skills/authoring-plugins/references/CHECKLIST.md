@@ -106,6 +106,9 @@ USAGE REVIEW (if reviewing skill portfolio)
 - [ ] Unused skills triaged (deprecate/improve/hold)
 - [ ] Description improvements applied (three-part formula)
 - [ ] Hook-based auto-triggering reviewed
+
+IMPROVEMENT INTAKE (if processing proposals from CLAUDE.md inbox)
+- [ ] 改善提案INTAKE 採用時もこのチェックリストを通す（IMPROVEMENT-INTAKE.md の Step 2 で規約検証済みであること）
 ```
 
 ## Detailed Requirements

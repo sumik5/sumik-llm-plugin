@@ -1,5 +1,4 @@
 ---
-name: managing-docker
 description: Docker Engine architecture and internals. Reference for containerd, runc, and shim components.
 ---
 

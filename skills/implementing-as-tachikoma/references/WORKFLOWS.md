@@ -229,7 +229,7 @@ npm run lint
 npm run type-check
 ```
 
-詳細は`testing`スキルを参照してください。
+詳細は`testing-code`スキルを参照してください。
 
 #### ステップ7: CodeGuard実行（必須）
 ```
@@ -384,7 +384,7 @@ mcp__nextjs_docs__search(query="Server Components")
 
 ### テストファーストアプローチ
 
-**詳細は`testing`スキルを参照してください。**
+**詳細は`testing-code`スキルを参照してください。**
 
 **実装フロー:**
 1. テストケースの作成
@@ -423,7 +423,7 @@ Skill tool: /codeguard-security:software-security
 
 ### Docker環境構築
 
-**詳細は`managing-docker`スキルを参照してください。**
+**詳細は`practicing-devops`スキルを参照してください。**
 
 **標準フロー:**
 1. Dockerfileの作成
@@ -476,8 +476,8 @@ Skill tool: /codeguard-security:software-security
 - **mcp-search** - 情報検索戦略
 - **writing-clean-code** - SOLID原則とクリーンコード
 - **mastering-typescript** - 型安全性の徹底
-- **testing** - テストファーストアプローチ
+- **testing-code** - テストファーストアプローチ
 - **securing-code** - セキュアコーディング
-- **managing-docker** - Docker環境構築
+- **practicing-devops** - Docker環境構築
 - **mcp-aws** - AWSインフラ構築
 - **mcp-browser-auto** - ブラウザ自動化
