@@ -513,7 +513,7 @@ description: >-
 
 ```
 # developing-fullstack-javascript（トピック別分割）
-skills/developing-fullstack-javascript/
+plugins/devkit/skills/developing-fullstack-javascript/
 ├── SKILL.md
 └── references/
     ├── BACKEND-STRATEGIES.md
@@ -522,7 +522,7 @@ skills/developing-fullstack-javascript/
     └── QUALITY-CHECKLIST.md
 
 # authoring-plugins（深度別分割）
-skills/authoring-plugins/
+plugins/devkit/skills/authoring-plugins/
 ├── SKILL.md
 ├── references/
 │   ├── NAMING.md

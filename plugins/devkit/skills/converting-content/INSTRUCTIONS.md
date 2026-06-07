@@ -157,7 +157,7 @@ AskUserQuestion:
 スキル内の `scripts/recognize-image.py` を使用して各画像をOCR変換する。
 
 ```bash
-SCRIPT_DIR="skills/converting-content/scripts"
+SCRIPT_DIR="${CLAUDE_SKILL_DIR}/scripts"
 
 OUTPUT_FILE="$HOME/Desktop/${EPUB_BASENAME}.md"
 > "$OUTPUT_FILE"

@@ -1,27 +1,27 @@
 {
   "mcpServers": {
     "serena": {
-      "command": "./bin/uvx-mise.sh",
+      "command": "./plugins/devkit/bin/uvx-mise.sh",
       "args": ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant"],
       "cwd": "."
     },
     "puppeteer": {
-      "command": "./bin/npx-mise.sh",
+      "command": "./plugins/devkit/bin/npx-mise.sh",
       "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
       "cwd": "."
     },
     "chrome-devtools": {
-      "command": "./bin/npx-mise.sh",
+      "command": "./plugins/devkit/bin/npx-mise.sh",
       "args": ["chrome-devtools-mcp@latest", "--isolated"],
       "cwd": "."
     },
     "sequentialthinking": {
-      "command": "./bin/npx-mise.sh",
+      "command": "./plugins/devkit/bin/npx-mise.sh",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
       "cwd": "."
     },
     "drawio": {
-      "command": "./bin/npx-mise.sh",
+      "command": "./plugins/devkit/bin/npx-mise.sh",
       "args": ["@drawio/mcp"],
       "cwd": "."
     }

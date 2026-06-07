@@ -39,7 +39,7 @@ For X, use old-skill-name.
 
 **検出コマンド:**
 ```bash
-/usr/bin/grep -rn "old-skill-name" skills/*/SKILL.md
+/usr/bin/grep -rn "old-skill-name" plugins/devkit/skills/*/SKILL.md
 ```
 
 ### Layer 2: 他スキルの本文（INSTRUCTIONS.md / references/*.md）
@@ -52,13 +52,13 @@ use old-skill-name
 see old-skill-name
 
 # パス参照
-skills/old-skill-name/
+plugins/devkit/skills/old-skill-name/
 ${CLAUDE_PLUGIN_ROOT}/skills/old-skill-name/
 ```
 
 **検出コマンド:**
 ```bash
-/usr/bin/grep -rn "old-skill-name" skills/*/INSTRUCTIONS.md skills/*/references/
+/usr/bin/grep -rn "old-skill-name" plugins/devkit/skills/*/INSTRUCTIONS.md plugins/devkit/skills/*/references/
 ```
 
 ### Layer 3: hook（hooks/detect-project-skills.sh 等）
@@ -75,7 +75,7 @@ esac
 
 **検出コマンド:**
 ```bash
-/usr/bin/grep -n "old-skill-name" hooks/*.sh
+/usr/bin/grep -n "old-skill-name" plugins/devkit/hooks/*.sh
 ```
 
 ### Layer 4: README.md / rules/ ＋ 自スキル内の自己参照
@@ -85,7 +85,7 @@ esac
 - **自スキル内の自己参照**（統合先スキルの本文が旧名を参照するケース）
 
 ```bash
-/usr/bin/grep -rn "old-skill-name" README.md rules/ skills/new-skill-name/
+/usr/bin/grep -rn "old-skill-name" README.md rules/ plugins/devkit/skills/new-skill-name/
 ```
 
 ---
@@ -100,7 +100,7 @@ esac
 | `see old-name` | 参照ポインタ |
 | `→ old-name` / `→old-name` | 矢印記法（全角・半角） |
 | `old-name instead` | 代替案として言及 |
-| `skills/old-name` | パス参照 |
+| `plugins/devkit/skills/old-name` | パス参照 |
 | `"old-name"` | hookのシェル配列・ダブルクォート |
 | `'old-name'` | シングルクォート（shスクリプト） |
 
@@ -120,7 +120,7 @@ esac
 # 使用法: bash check-dangling-refs.sh [repo-root]
 
 REPO="${1:-.}"
-SKILLS_DIR="$REPO/skills"
+SKILLS_DIR="$REPO/plugins/devkit/skills"
 
 # 実在スキルのセット
 existing_skills=$(ls -d "$SKILLS_DIR"/*/  2>/dev/null | xargs -I{} basename {} | sort)
@@ -178,7 +178,7 @@ while IFS= read -r hookfile; do
       found_dangling=1
     fi
   done
-done < <(find "$REPO/hooks" -name "*.sh" 2>/dev/null | sort)
+done < <(find "$REPO/plugins/devkit/hooks" -name "*.sh" 2>/dev/null | sort)
 
 if [[ $found_dangling -eq 0 ]]; then
   echo "✅ ダングリング参照なし"
@@ -194,7 +194,7 @@ import os, re, sys
 from pathlib import Path
 
 repo = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
-skills_dir = repo / "skills"
+skills_dir = repo / "plugins" / "devkit" / "skills"
 
 # 実在スキルのセット
 existing = {p.name for p in skills_dir.iterdir() if p.is_dir()} if skills_dir.exists() else set()
@@ -265,7 +265,7 @@ else:
 
 ```bash
 # 本文内の references/X 参照を抽出して実在チェック
-skill_dir="skills/your-skill"
+skill_dir="plugins/devkit/skills/your-skill"
 /usr/bin/grep -oE '\[.*?\]\(references/[^)]+\)' "$skill_dir/INSTRUCTIONS.md" \
   | /usr/bin/grep -oE 'references/[^)]+' \
   | while read -r ref; do
@@ -296,7 +296,7 @@ skill_dir="skills/your-skill"
 # 特定スキル名が残っていないことを全体確認
 OLD_NAME="old-skill-name"
 /usr/bin/grep -rn "$OLD_NAME" \
-  skills/ agents/ hooks/ README.md rules/ \
+  plugins/devkit/skills/ plugins/devkit/agents/ plugins/devkit/hooks/ README.md rules/ \
   --include="*.md" --include="*.sh" \
   | /usr/bin/grep -v "^Binary"
 # 出力がゼロ行であることを確認
@@ -306,7 +306,7 @@ OLD_NAME="old-skill-name"
 
 ```bash
 # 全スキルの INSTRUCTIONS.md が参照する scripts/* の実在チェック
-for skill_dir in skills/*/; do
+for skill_dir in plugins/devkit/skills/*/; do
   instr="$skill_dir/INSTRUCTIONS.md"
   [[ -f "$instr" ]] || continue
   /usr/bin/grep -oE 'scripts/[a-zA-Z0-9_.-]+' "$instr" | sort -u | while read -r ref; do
@@ -319,7 +319,7 @@ done
 
 ```bash
 # シェルスクリプトの構文エラー検出
-for hook in hooks/*.sh; do
+for hook in plugins/devkit/hooks/*.sh; do
   bash -n "$hook" && echo "✅ $hook" || echo "❌ $hook: 構文エラー"
 done
 ```
@@ -328,9 +328,9 @@ done
 
 ```bash
 /usr/bin/grep -nE "『|』|著者|出版社" \
-  skills/authoring-plugins/INSTRUCTIONS.md \
-  skills/authoring-plugins/SKILL.md \
-  skills/authoring-plugins/references/*.md
+  plugins/devkit/skills/authoring-plugins/INSTRUCTIONS.md \
+  plugins/devkit/skills/authoring-plugins/SKILL.md \
+  plugins/devkit/skills/authoring-plugins/references/*.md
 # 出力がゼロ行であることを確認
 ```
 
@@ -362,7 +362,7 @@ done
 【事前スキャン】
 - [ ] Layer 1: 他スキル frontmatter に旧名参照がないか確認
 - [ ] Layer 2: 他スキル本文（INSTRUCTIONS.md / references/）に旧名参照がないか確認
-- [ ] Layer 3: hooks/*.sh の配列・case文に旧名がないか確認
+- [ ] Layer 3: plugins/devkit/hooks/*.sh の配列・case文に旧名がないか確認
 - [ ] Layer 4: README.md / rules/ / 自スキル内に旧名参照がないか確認
 
 【更新実施】
@@ -372,6 +372,6 @@ done
 
 【事後検証】
 - [ ] `/usr/bin/grep -rn "旧名"` でゼロ件確認
-- [ ] `bash -n hooks/*.sh` で構文エラーなし
+- [ ] `bash -n plugins/devkit/hooks/*.sh` で構文エラーなし
 - [ ] ダングリング検出スクリプトを実行してゼロ件確認
 ```

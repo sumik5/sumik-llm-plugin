@@ -3,4 +3,4 @@ node_modules/
 .cache/**
 !.cache/
 !.cache/sumik-marketplace/
-!.cache/sumik-marketplace/sumik-codex-plugins
+!.cache/sumik-marketplace/devkit
