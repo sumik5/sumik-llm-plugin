@@ -65,7 +65,7 @@ curl http://127.0.0.1:3141/
 
 ### 投入インフラの利用（毎回の作業の前提）
 
-このスキルは `skills/creating-flashcards/scripts/` に**2層構成の Python**を常備している。投入・整形・冪等性のインフラは毎回 /tmp に書き起こさず、これらを再利用する。
+このスキルは `${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/`（= `plugins/devkit/skills/creating-flashcards/scripts/`）に**2層構成の Python**を常備している。投入・整形・冪等性のインフラは毎回 /tmp に書き起こさず、これらを再利用する。
 
 | ファイル | 性質 | 役割 |
 |---------|------|------|
@@ -74,7 +74,7 @@ curl http://127.0.0.1:3141/
 
 **毎回の作業フロー:**
 
-1. `parser_scaffold.py` を /tmp にソース固有名でコピーする（例: `cp skills/creating-flashcards/scripts/parser_scaffold.py /tmp/parse-<descriptive-name>.py`）
+1. `parser_scaffold.py` を /tmp にソース固有名でコピーする（例: `cp "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/parser_scaffold.py" /tmp/parse-<descriptive-name>.py`）
 2. ソース Markdown を目視し、Step 3 のコンテンツ構造分析を実施する（過去のパーサーを再利用しない前提）
 3. scaffold の共通ヘルパは必要なものだけ呼び、regex をソースに合わせて差し替える
 4. `parse()` の TODO ブロックにソース固有の抽出ロジックを手書きし `list[QAPair]` を返す
@@ -489,10 +489,10 @@ scaffold が `extract_images()` で返した `[{"filename","data_b64"}]` を `QA
 **作業中に発見した新たな知見（パーサーのバグ修正、新しいpandocアーティファクトパターン、構造の変異等）があった場合、完了報告後に以下を実施する。**
 
 1. 現在のスキルファイルを読み込む:
-   - `skills/creating-flashcards/SKILL.md`
-   - `skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
-   - `skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
-   - `skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
+   - `plugins/devkit/skills/creating-flashcards/SKILL.md`
+   - `plugins/devkit/skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
+   - `plugins/devkit/skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
+   - `plugins/devkit/skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
 2. 今回の作業で発見した知見を整理する:
    - 新しいpandocアーティファクトパターン
    - パーサーで発生したバグとその修正方法
@@ -539,7 +539,7 @@ scaffold が `extract_images()` で返した `[{"filename","data_b64"}]` を `QA
 
 ## scripts ディレクトリ（投入インフラの契約）
 
-`skills/creating-flashcards/scripts/` の2層構成（[投入インフラの利用](#投入インフラの利用毎回の作業の前提)節の概説を参照）の**契約定義**をここに集約する。`anki_toolkit.py` の実コード・`parser_scaffold.py` の雛形・本節の3者で、`QAPair` フィールド名と公開API名は**完全一致**させる（ズレると投入が壊れる）。
+`${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/` の2層構成（[投入インフラの利用](#投入インフラの利用毎回の作業の前提)節の概説を参照）の**契約定義**をここに集約する。`anki_toolkit.py` の実コード・`parser_scaffold.py` の雛形・本節の3者で、`QAPair` フィールド名と公開API名は**完全一致**させる（ズレると投入が壊れる）。
 
 ### `QAPair` 中間表現（IR）スキーマ
 

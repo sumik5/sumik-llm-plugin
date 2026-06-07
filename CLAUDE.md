@@ -6,17 +6,24 @@ sumik Claude Code Plugin のプロジェクト固有開発ルール。
 
 ## ディレクトリ構成
 
+Claude Code プラグイン本体は `plugins/devkit/` へ隔離している（claude.ai の marketplace 同期が repo 丸ごとを取り込む際に Codex 異物が混入しないようにするため）。ルートには claude.ai / Codex が最初に読む marketplace 定義と Codex 用マニフェストのみを残す。
+
 ```
-agents/          # Agent定義（.md）
-commands/        # スラッシュコマンド（.md）
-hooks/           # イベントフック（.sh）
-scripts/         # ヘルパースクリプト
-skills/          # ナレッジスキル（ディレクトリ/SKILL.md）
-.claude-plugin/  # プラグインマニフェスト（Claude Code 用）
-.codex-plugin/   # プラグインマニフェスト（Codex CLI 用・mcpServers 宣言・version 同期必須）
-.agents/plugins/marketplace.json  # Codex marketplace マニフェスト（name / plugin名 / version）
-.mcp.json        # MCPサーバー設定（Claude Code 用・${CLAUDE_PLUGIN_ROOT} 使用）
-.mcp-codex.json  # MCPサーバー設定（Codex 用・./ 相対パス + cwd "."）
+plugins/devkit/              # ★ Claude Code プラグイン本体（claude.ai が取り込む清潔な範囲・${CLAUDE_PLUGIN_ROOT}）
+├── agents/                  # Agent定義（.md）
+├── commands/                # スラッシュコマンド（.md）
+├── hooks/                   # イベントフック（.sh）
+├── bin/                     # MCPサーバー起動ラッパー（Claude/Codex 双方が参照）
+├── scripts/                 # ヘルパースクリプト
+├── skills/                  # ナレッジスキル（ディレクトリ/SKILL.md）
+├── .claude-plugin/plugin.json  # プラグインマニフェスト（Claude Code 用・plugin名 devkit・version 同期必須）
+└── .mcp.json                # MCPサーバー設定（Claude Code 用・${CLAUDE_PLUGIN_ROOT}/bin/... 使用）
+
+.claude-plugin/marketplace.json   # claude.ai が読む marketplace（marketplace名 sumik・plugin名 devkit・source "./plugins/devkit"）
+.codex-plugin/plugin.json         # プラグインマニフェスト（Codex CLI 用・plugin名 devkit・skills ./plugins/devkit/skills/・version 同期必須）
+.agents/plugins/marketplace.json  # Codex marketplace マニフェスト（marketplace名 sumik-marketplace・plugin名 devkit・version）
+.cache/sumik-marketplace/devkit -> ../..  # Codex の source.path symlink（repo root を指す・mode 120000・git 同梱）
+.mcp-codex.json                   # MCPサーバー設定（Codex 用・command "./plugins/devkit/bin/..." + cwd "."）
 ```
 
 ---
@@ -86,7 +93,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョン管理
 
-- バージョンは `.claude-plugin/plugin.json` の `version` フィールドで管理（**3ファイル（両 plugin.json + marketplace.json）を必ず同期**→下記参照）
+- バージョンは `plugins/devkit/.claude-plugin/plugin.json` の `version` フィールドで管理（**3ファイル（両 plugin.json + marketplace.json）を必ず同期**→下記参照）
 - Semantic Versioning (semver) に従う:
   - **MAJOR**: 破壊的変更（スキルの大幅な構成変更等）
   - **MINOR**: 新規コンポーネント追加（新スキル、新コマンド等）
@@ -94,11 +101,11 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョンファイルの同期（🔴 重要）
 
-`.claude-plugin/plugin.json` の `version` を更新する際は、必ず以下 **3ファイルすべてを同じ値に同期**すること。Claude Code / Codex CLI / Codex marketplace カタログがそれぞれ別ファイルを参照するため、一部だけ更新すると配布物の整合性が崩れる（過去 marketplace.json の version が取り残された実績あり）。
+`plugins/devkit/.claude-plugin/plugin.json` の `version` を更新する際は、必ず以下 **3ファイルすべてを同じ値に同期**すること。Claude Code / Codex CLI / Codex marketplace カタログがそれぞれ別ファイルを参照するため、一部だけ更新すると配布物の整合性が崩れる（過去 marketplace.json の version が取り残された実績あり）。
 
 | ファイル | 役割 |
 |---------|------|
-| `.claude-plugin/plugin.json` の `version` | Claude Code の参照 version |
+| `plugins/devkit/.claude-plugin/plugin.json` の `version` | Claude Code の参照 version |
 | `.codex-plugin/plugin.json` の `version` | Codex CLI の参照 version |
 | `.agents/plugins/marketplace.json` の `plugins[].version` | Codex marketplace カタログ version（**更新漏れしやすい**） |
 
@@ -109,7 +116,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 ```bash
 python3 - <<'PY'
 import json
-v1 = json.load(open('.claude-plugin/plugin.json'))['version']
+v1 = json.load(open('plugins/devkit/.claude-plugin/plugin.json'))['version']
 v2 = json.load(open('.codex-plugin/plugin.json'))['version']
 v3 = json.load(open('.agents/plugins/marketplace.json'))['plugins'][0]['version']
 print('OK' if v1 == v2 == v3 else f'MISMATCH: {v1} / {v2} / {v3}')
@@ -120,12 +127,15 @@ PY
 
 Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 
+> **配布方式①（確定）**: Claude プラグイン本体を `plugins/devkit/` へ隔離後も、Codex の plugin root は **repo root のまま**にする。`.cache/sumik-marketplace/devkit` symlink のターゲットは `../..`（= repo root）を**据え置く**。これにより Codex は git clone した repo root を plugin ディレクトリとして読み、ルートの `.codex-plugin/plugin.json`・`.mcp-codex.json` が確実に解決される。実体（skills/bin/scripts）は `plugins/devkit/` の1箇所に集約し、Codex はルートのマニフェストから `./plugins/devkit/...` で共有参照する（重複コピーを作らない）。
+
 | If X | then Y |
 |------|--------|
-| Codex 用 MCP サーバーを定義する時 | **`${CLAUDE_PLUGIN_ROOT}` を使わない**（Codex は非展開で `os error 2`）。`.mcp-codex.json`（root）に `command: "./bin/..."` の**相対パス + `"cwd": "."`** で記述し、`.codex-plugin/plugin.json` の `"mcpServers": "./.mcp-codex.json"` で宣言する。Claude Code 用 root `.mcp.json`（`${CLAUDE_PLUGIN_ROOT}` 使用）は別ファイルとして温存し両者を混ぜない |
-| `.cache/` 配下のパス（marketplace の source.path symlink 等）をリネームする時 | `.gitignore` の `.cache/**` を打ち消す `!` 例外行も新パスへ更新する。漏れると新パスが黙って ignore され commit されず、git clone に含まれず Codex の `source.path` が壊れる。**commit 後に `git ls-tree -r HEAD --name-only \| grep '^.cache/'` で同梱を必ず検証**（`git check-ignore` は negation でも exit 0 を返すため判定に使わない） |
-| Codex marketplace / plugin の名称 | marketplace = `sumik-marketplace`（`.agents/plugins/marketplace.json` の `name`）／ plugin = `sumik-codex-plugins`（同 `plugins[].name` + `.codex-plugin/plugin.json` の `name`）。インストールは `codex plugin add sumik-codex-plugins@sumik-marketplace` |
-| Codex プラグインを追加/更新する時 | git 方式。**repo 変更を push 後**に `~/dotfiles/codex/install-sumik-codex-plugin.sh` を実行（marketplace add/upgrade → plugin add → agents/・AGENTS.md を `~/.codex/` へ symlink）→ Codex 再起動 |
+| Codex 用 MCP サーバーを定義する時 | **`${CLAUDE_PLUGIN_ROOT}` を使わない**（Codex は非展開で `os error 2`）。`.mcp-codex.json`（root）に `command: "./plugins/devkit/bin/..."` の**相対パス + `"cwd": "."`**（= repo root 基準）で記述し、`.codex-plugin/plugin.json` の `"mcpServers": "./.mcp-codex.json"` で宣言する。Claude Code 用 `plugins/devkit/.mcp.json`（`${CLAUDE_PLUGIN_ROOT}/bin/...` 使用）は別ファイルとして温存し両者を混ぜない |
+| Codex 用 `.codex-plugin/plugin.json` の skills パス | Codex plugin root = repo root のため、移動後の実体を `"skills": "./plugins/devkit/skills/"` で参照する（`mcpServers` は `"./.mcp-codex.json"` 据え置き） |
+| `.cache/` 配下のパス（marketplace の source.path symlink 等）をリネームする時 | `.gitignore` の `.cache/**` を打ち消す `!` 例外行も新パスへ更新する（現状は `!.cache/sumik-marketplace/devkit`）。漏れると新パスが黙って ignore され commit されず、git clone に含まれず Codex の `source.path` が壊れる。**commit 後に `git ls-tree -r HEAD --name-only \| grep '^.cache/'` で同梱を必ず検証**（`git check-ignore` は negation でも exit 0 を返すため判定に使わない） |
+| Codex marketplace / plugin の名称 | marketplace = `sumik-marketplace`（`.agents/plugins/marketplace.json` の `name`）／ plugin = `devkit`（同 `plugins[].name` + `.codex-plugin/plugin.json` の `name`）。インストールは `codex plugin add devkit@sumik-marketplace` |
+| Codex プラグインを追加/更新する時 | git 方式。**repo 変更を push 後**に `~/dotfiles/codex/install-sumik-codex-plugin.sh` を実行（marketplace add/upgrade → plugin add → agents/・AGENTS.md を `~/.codex/` へ symlink）→ Codex 再起動。**plugin 名 devkit への改名に伴い、同スクリプトの `PLUGIN_NAME` を `devkit` に更新する必要がある（repo 外・dotfiles 側で対応）** |
 
 ---
 
@@ -133,14 +143,14 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 
 ### Agent (.md)
 
-- 配置: `agents/<name>.md`
+- 配置: `plugins/devkit/agents/<name>.md`
 - フロントマター必須: `---` で囲んだYAMLヘッダー
 - 必須フィールド: model, description
 - 命名: ケバブケース（例: `serena-expert.md`）
 
 ### Command (.md)
 
-- 配置: `commands/<name>.md`
+- 配置: `plugins/devkit/commands/<name>.md`
 - フロントマター必須: `---` で囲んだYAMLヘッダー
 - 必須フィールド: description, allowed-tools
 - user-invocable: true で `/name` として呼び出し可能
@@ -148,7 +158,7 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 
 ### Skill (ディレクトリ)
 
-- 配置: `skills/<skill-name>/SKILL.md`
+- 配置: `plugins/devkit/skills/<skill-name>/SKILL.md`
 - ディレクトリ名: 動名詞形（verb + -ing）
   - ✅ `developing-nextjs`, `writing-clean-code`
   - ❌ `nextjs-development`, `solid-principles`
@@ -162,14 +172,14 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 
 ### Hook (.sh)
 
-- 配置: `hooks/<name>.sh`
+- 配置: `plugins/devkit/hooks/<name>.sh`
 - 実行可能権限必須: `chmod +x`
 - イベント: PreToolUse, PostToolUse, Stop 等
 - plugin.json の hooks セクションで登録
 
 ### MCP Server
 
-- 設定: `.mcp.json` に定義
+- 設定: `plugins/devkit/.mcp.json`（Claude Code 用）／ `.mcp-codex.json`（Codex 用・root）に定義
 - 新規追加時は動作確認を実施
 - 環境変数の依存を明記
 
@@ -202,4 +212,4 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 - このリポジトリはClaude Code Pluginの定義ファイル群であり、ランタイムコードは含まない
 - スキルの記述言語は日本語を基本とする
 - フロントマターのフィールドはClaude Codeの仕様に従うこと
-- `.mcp.json` の変更はClaude Codeの再起動が必要
+- `plugins/devkit/.mcp.json` の変更はClaude Codeの再起動が必要

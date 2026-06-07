@@ -36,7 +36,7 @@
 このスキルの構成ファイル:
 
 ```
-skills/building-design-systems/
+plugins/devkit/skills/building-design-systems/
 ├── SKILL.md                        # エントリポイント
 ├── INSTRUCTIONS.md                 # このファイル（メインガイド）
 └── references/
