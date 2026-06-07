@@ -47,7 +47,7 @@ sumik-claude-plugin/
 ├── commands/           # スラッシュコマンド (12個)
 ├── hooks/              # イベントフック (4個)
 ├── scripts/            # ヘルパースクリプト (3個)
-└── skills/             # ナレッジスキル (72個)
+└── skills/             # ナレッジスキル (73個)
 ```
 
 ---
@@ -104,7 +104,7 @@ sumik-claude-plugin/
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
 
-### Skills (72個)
+### Skills (73個)
 
 #### コア開発
 
@@ -212,6 +212,7 @@ sumik-claude-plugin/
 | `creating-diagrams` | ダイアグラム作成ガイド（Mermaid: 24種類・C4モデル/ER図/シーケンス図/フローチャート ＋ draw.io MCP統合） |
 | `creating-content` | コンテンツ制作統合スキル（AIコピーライティング: 15テクニック・心理的トリガー ＋ AIデザインクリエイティブ: バナー/SNS/ポスター） |
 | `creating-slides` | HTMLスライド作成（slides repo 3層分離モデル: Engine/Theme/Content、16:9デッキ、テーマカスタマイズ・ソース素材変換をガイド。認知科学・ロジック構築・ストーリーテリング・聴衆分析・スライドデザイン・ビジュアルデザイン実践・提案書構成術・デリバリー・準備プロセスの9リファレンスで品質担保。国際学会・学術プレゼン対応（ACADEMIC-*/ENGLISH-* 系6リファレンス追加）） |
+| `creating-pptx` | 箇条書き・メモ・素朴なスライドを「6つの構造」で組み直し、So What まで届くコンサル品質の1枚スライドを編集可能な PowerPoint（.pptx）とプレビュー画像（.png）のハイブリッドで生成するスキル。情報を足すのではなく削り、余白と構造で意思決定を一目で促す（手動呼び出し専用） |
 
 ### Scripts (3個)
 
