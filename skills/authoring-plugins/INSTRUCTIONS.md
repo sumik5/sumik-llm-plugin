@@ -518,9 +518,9 @@ my-skill/
 
 ## 🔄 改善提案INTAKE（自己改善ループの消費側）
 
-global `~/.claude/CLAUDE.md` の捕捉ルールが **CLAUDE.md 内の「## 📥 スキル改善提案 (inbox)」セクション**に蓄積した改善提案を**消費して実際にスキルを改善する**入口。捕捉(C)→消費(D)の閉ループを閉じる。
+実行ツールの捕捉ルール（Claude Code は `~/.claude/CLAUDE.md`、Codex は `~/dotfiles/codex/AGENTS.md`）が **エージェント設定内の「## 📥 スキル改善提案 (inbox)」セクション**に蓄積した改善提案を**消費して実際にスキルを改善する**入口。捕捉(C)→消費(D)の閉ループを閉じる（INTAKE は両ツールの inbox を走査する）。
 
-> ⚠️ inbox は専用ファイルではなく **global CLAUDE.md 内のセクション**である（ユーザー選択）。CLAUDE.md は 300 行以下が原則のため、INTAKE は処理した提案を即ドレイン（done/rejected へ）して inbox を最小に保つ責務も負う。
+> ⚠️ inbox は専用ファイルではなく **エージェント設定内のセクション**である（Claude Code=`~/.claude/CLAUDE.md` / Codex=`~/dotfiles/codex/AGENTS.md`・ユーザー選択）。設定ファイルは小さく保つ原則のため、INTAKE は処理した提案を即ドレイン（done/rejected へ）して inbox を最小に保つ責務も負う。
 
 起動条件: inbox の未処理(status: open)が **3 件以上**、またはユーザーが「スキル改善まわして」と指示した時。
 
