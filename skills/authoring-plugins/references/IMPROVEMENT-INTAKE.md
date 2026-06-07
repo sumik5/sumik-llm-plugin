@@ -1,6 +1,6 @@
 # 改善提案INTAKE ガイド（スキル自己改善ループの消費側）
 
-スキル改善提案を global `~/.claude/CLAUDE.md` の inbox セクションから取り込み、実際のスキル編集まで通す 5 ステップの実践ガイド。各章にコピペ可能なコマンドを収録する。
+スキル改善提案を実行ツールの inbox セクション（Claude Code は `~/.claude/CLAUDE.md`、Codex は `dotfiles/codex/AGENTS.md`）から取り込み、実際のスキル編集まで通す 5 ステップの実践ガイド。各章にコピペ可能なコマンドを収録する。INTAKE は両ツールの inbox を走査する。
 
 ---
 
@@ -10,10 +10,10 @@
 
 | 役割 | 担当 | 場所 |
 |------|------|------|
-| **捕捉(C)** | global CLAUDE.md の「🔄メンテナンス」捕捉ルールがセッション中の気づきを拾い上げ inbox へ append | `~/.claude/CLAUDE.md` 内「## 📥 スキル改善提案 (inbox)」セクション |
+| **捕捉(C)** | 実行ツールの捕捉ルールがセッション中の気づきを拾い上げ inbox へ append | Claude Code: `~/.claude/CLAUDE.md` ／ Codex: `dotfiles/codex/AGENTS.md` の「## 📥 スキル改善提案 (inbox)」セクション |
 | **消費(D)** | 本ガイドが inbox を読み込んでスキルを実際に改善する | `skills/` 配下の各スキルファイル |
 
-> **inbox の場所**: `~/.claude/CLAUDE.md` 内のセクション（専用ファイルではない・ユーザー選択）。ファイルパスではなくセクション見出しで識別する。
+> **inbox の場所**: 実行ツールのエージェント設定内セクション（専用ファイルではない・ユーザー選択）— Claude Code は `~/.claude/CLAUDE.md`、Codex は `dotfiles/codex/AGENTS.md` の「## 📥 スキル改善提案 (inbox)」。**INTAKE は両方を走査する**。ファイルパスではなくセクション見出しで識別する。
 
 ### USAGE-REVIEW.md との棲み分け
 
@@ -51,7 +51,7 @@
 
 ### エントリ構造
 
-各提案は `~/.claude/CLAUDE.md` 内の「## 📥 スキル改善提案 (inbox)」セクションに以下の形式で記述する。
+各提案は実行ツールの inbox（Claude Code=`~/.claude/CLAUDE.md` / Codex=`~/dotfiles/codex/AGENTS.md`）の「## 📥 スキル改善提案 (inbox)」セクションに以下の形式で記述する。
 
 ```markdown
 ## [PROPOSAL] <skill-name> / <種別> / <YYYY-MM-DD>
@@ -92,8 +92,10 @@
 
 ### inbox からの見出し抽出
 
+> 以下のコマンドの `~/.claude/CLAUDE.md` は **実行ツールの inbox** を指す。Codex 環境では `~/dotfiles/codex/AGENTS.md` に読み替える。INTAKE は両ツールの inbox を対象に走査・ドレインする（両方に open があれば双方を処理）。
+
 ```bash
-# open 件数確認（起動条件チェック）
+# open 件数確認（起動条件チェック）。Codex は AGENTS.md に読み替え
 grep -c "status: open" ~/.claude/CLAUDE.md
 
 # 全提案見出しを一覧表示
