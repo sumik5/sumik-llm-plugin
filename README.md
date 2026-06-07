@@ -199,7 +199,7 @@ sumik-claude-plugin/
 | `chronicle` | スクリーン録画・履歴参照スキル（Rolling Bufferで過去数時間の作業コンテキストを取得・OCR解析・作業の曖昧さ解消） |
 | `gws-slides` | Google Slides 読み書き（gws CLI経由でプレゼンテーション作成・編集・batchUpdate） |
 | `orchestrating-codex` | Codex CLI統合スキル（基本操作・プランレビュー・Agentオーケストレーション・Wave並列実行・max_threads制御） |
-| `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodex subagent定義（.toml）に変換するガイド（フィールドマッピング・developer_instructions変換・スキル展開・検証） |
+| `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodex subagent定義（.toml）に変換するガイド（フィールドマッピング・developer_instructions変換・モデルtier-map・skills description自動ロード・起動メカニズム・検証）。最新Codex仕様(developers.openai.com/codex)準拠 |
 
 #### ドキュメント・品質
 

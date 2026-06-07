@@ -7,7 +7,7 @@ Claude Code Agent定義ファイル（`.md`）をCodexのsubagent定義（`agent
 ## 最重要原則
 
 1. **Claude Code agentの本文を `developer_instructions` の主ソースとする**（短く要約しない）
-2. **frontmatterの `skills:` は Codexの `[[skills.config]]` に展開する**
+2. **frontmatterの `skills:` は developer_instructions 内に「活用スキル」として名前列挙する**（`skills.config` は使わず、Codexのdescription自動ロードに委ねる）
 3. **Codexで未確認のフィールドを推測で追加しない**
 4. **変換後にTOMLとランタイムの両方で検証する**
 
@@ -23,42 +23,39 @@ Claude Code Agent定義ファイル（`.md`）をCodexのsubagent定義（`agent
 
 ## Codex Agent定義の基本構造
 
-カスタムagentは `~/.codex/agents/<name>.toml` または `.codex/agents/<name>.toml` に配置する。**`config.toml`への登録は不要。**
+カスタムagentは `~/.codex/agents/<name>.toml` または `.codex/agents/<name>.toml` に配置する。**`config.toml`への登録は不要**（`~/.codex/agents/` 配下のファイルは自動検出される）。
+
+`name` フィールドが source of truth。ファイル名との一致は推奨慣例だが必須ではない。ハイフン・アンダースコアどちらも使用可。
 
 ```toml
 name = "tachikoma-nextjs"
 description = "Next.js/React specialized Tachikoma execution agent. ..."
+model = "gpt-5.5"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 nickname_candidates = ["Route", "Server", "Cache"]
 
 developer_instructions = """
 <元agent本文をベースにしたinstructions>
+
+## 活用スキル
+本エージェントは次のスキル群を活用する（Codexがdescriptionで自動ロード）:
+developing-nextjs, testing-code, securing-code
 """
-
-[skills]
-
-[[skills.config]]
-path = "~/.codex/skills/developing-nextjs/SKILL.md"
-enabled = true
-
-[[skills.config]]
-path = "~/.codex/skills/testing-code/SKILL.md"
-enabled = true
 ```
 
 ### フィールド一覧
 
 | フィールド | 必須 | 説明 |
 |-----------|------|------|
-| `name` | 必須 | ASCII安定名を推奨 |
-| `description` | 必須 | 元agent descriptionを基にする |
-| `developer_instructions` | 必須 | 元agent本文を主ソースとする |
-| `model` | 任意 | 運用方針に合わせて固定可 |
-| `model_reasoning_effort` | 任意 | `"high"` / `"medium"` / `"low"` |
-| `sandbox_mode` | 任意 | `"workspace-write"` / `"read-only"` |
-| `nickname_candidates` | 任意 | 複数起動時の識別に有用 |
-| `[[skills.config]]` | 任意 | 複数定義可能 |
+| `name` | 必須 | source of truth。ハイフン/アンダースコア可 |
+| `description` | 必須 | 元agent descriptionを基にする。Codexがagent選択判断に使用 |
+| `developer_instructions` | 必須 | 元agent本文を主ソースとする。末尾に活用スキル名を列挙 |
+| `model` | 任意 | 運用方針に合わせて固定可（下記tier-map参照） |
+| `model_reasoning_effort` | 任意 | `"minimal"` / `"low"` / `"medium"` / `"high"` / `"xhigh"` |
+| `sandbox_mode` | 任意 | `"read-only"` / `"workspace-write"` / `"danger-full-access"` |
+| `nickname_candidates` | 任意 | 表示専用（presentation-only）。識別には使われない |
+| `[[skills.config]]` | 任意 | 実在するローカルpathがある場合のみ。既定では使わない |
 
 ---
 
@@ -68,7 +65,7 @@ enabled = true
 |-------------------|-------------|
 | frontmatter `name` | `name`（ASCII安定名へ正規化推奨） |
 | frontmatter `description` | `description` |
-| frontmatter `skills:` | `[[skills.config]]` 群 |
+| frontmatter `skills:` | `developer_instructions` 末尾の「活用スキル」名前列挙 |
 | Markdown body | `developer_instructions` |
 | frontmatter `tools` / `permissionMode` | 直接対応なし（`sandbox_mode`で制御） |
 
@@ -83,11 +80,24 @@ enabled = true
 - `Claude Code本体` → `Codex本体` に置換
 - 明らかに存在しないツール名だけ実情に合わせて補正
 - 変換後も元agentの専門性・チェックリスト・報告フォーマットを維持
+- 末尾に「## 活用スキル」節を追加し、元frontmatterの `skills:` 一覧をスキル名で列挙
 
 やってはいけないこと:
 - 4行程度の短い一般文に要約する
 - 専門領域、品質基準、報告フォーマットを消す
 - skills情報を本文から完全に失わせる
+
+### 活用スキル節の形式
+
+```toml
+developer_instructions = """
+（本文）
+
+## 活用スキル
+本エージェントは次のスキル群を活用する（Codexがdescriptionで自動ロード）:
+developing-nextjs, testing-code, securing-code
+"""
+```
 
 ### `AskUserQuestion` の扱い
 
@@ -109,92 +119,125 @@ developer_instructions = """
 
 ---
 
-## `skills.config` の変換ルール
+## モデル・推論effortのマッピング
 
-Claude Code agentのfrontmatter:
+元Claude Code agentの `model` フィールドから変換する際は以下のtier-mapに従う。
 
-```yaml
-skills:
-  - developing-nextjs
-  - testing-code
-  - securing-code
-```
+| 元Claude model | Codex model | model_reasoning_effort |
+|---|---|---|
+| opus / opus[1m]（設計・読取専用・高度推論ロール） | gpt-5.5 | xhigh |
+| sonnet（実装・標準ロール） | gpt-5.5 | high |
+| haiku（軽量ロール） | gpt-5.5 | low または medium |
 
-Codexでは:
+現行モデル名の例: `gpt-5.5` / `gpt-5.4` / `gpt-5.1-codex-max`
+
+`xhigh` はResponses APIをサポートするモデルのみ有効。対応モデルで使うこと。
+
+---
+
+## サブエージェント起動メカニズム
+
+Codexのsubagent spawnは**明示的依頼時のみ**動作する。自動的にサブエージェントが選ばれることはない。
+
+| 要素 | 説明 |
+|------|------|
+| `description` | Codexがagentを選択する判断基準。充実したdescriptionが重要 |
+| `nickname_candidates` | **表示専用（presentation-only）**。識別・ルーティングには使われない |
+| `[features] multi_agent = true` | spawn_agent / send_input / resume_agent / wait_agent / close_agent を有効化（既定で有効・安定） |
+
+spawn_agent等のCodexツールはCodex本体が呼び出す。agent定義ファイルに記述するものではない。
+
+---
+
+## config.toml セットアップ
+
+agent定義ファイル自体は `~/.codex/agents/` から自動検出されるため `config.toml` への登録は不要。`config.toml` には動作制御パラメータのみ設定する。
 
 ```toml
-[skills]
+[features]
+multi_agent = true  # subagent spawnを有効化（既定で有効）
 
-[[skills.config]]
-path = "~/.codex/skills/developing-nextjs/SKILL.md"
-enabled = true
+[agents]
+max_threads = 6               # 同時実行agent数（既定: 6）
+max_depth = 1                 # subagentのネスト深さ（既定: 1）
+job_max_runtime_seconds = 1800  # 1jobの最大実行時間（既定: 1800秒）
 
-[[skills.config]]
-path = "~/.codex/skills/testing-code/SKILL.md"
-enabled = true
-
-[[skills.config]]
-path = "~/.codex/skills/securing-code/SKILL.md"
-enabled = true
+[shell_environment_policy]
+inherit = "all"  # 親環境変数を継承
 ```
 
-**重要事項:**
-- `[[skills.config]]` は**複数定義できる**
-- `enabled = true` を**毎回明示する**
-- `path` は **`~/.codex/skills/<skill>/SKILL.md` 形式**に統一する
-- 参照先skillが存在しない場合は、そのskillだけ除外して理由を報告する
-
-### 変換前にやる確認
-
-```bash
-test -f ~/.codex/skills/<skill>/SKILL.md
-```
-
-**推測で存在しないpathを書かない。**
+sandbox_modeはagent定義ファイル側で指定する（`read-only` / `workspace-write` / `danger-full-access`）。
 
 ---
 
 ## `mcp_servers` の扱い
 
-**このフィールドは慎重に扱う。**
+`mcp_servers` は **map形式** で記述する。記述しない場合は親セッションの設定を継承する（推奨デフォルト）。
+
+```toml
+[mcp_servers.my_server]
+command = "npx"
+args = ["-y", "@some/mcp-server"]
+enabled = true
+
+[mcp_servers.my_server.tools.some_tool]
+approval_mode = "auto"
+```
 
 | ルール | 理由 |
 |--------|------|
-| 公式docsと実ランタイムの両方で形式を確認できない限り書かない | 形式誤りでagentが無視される |
-| 配列形式で入れない | `invalid type: sequence, expected a map` エラー |
-| 不確かな場合は親セッションのMCP設定継承に任せる | 安全なデフォルト |
+| map形式 `[mcp_servers.<id>]` で記述する | 配列形式は `invalid type: sequence, expected a map` エラー |
+| 不確かな場合は書かずに親継承に任せる | 安全なデフォルト |
 
 ---
 
 ## Agent マッピング表
 
-Claude Code subagent_type → Codex agent名の対応（変換時の参照用）:
+Claude Code subagent_type → Codex agent名 と モデルtier の対応（変換時の参照用）:
 
-| Claude Code subagent_type | Codex agent名 | 用途 |
-|--------------------------|--------------|------|
-| `sumik:tachikoma-str-product-mgr` | `tachikoma-product-manager` | 要件分析・計画策定 |
-| `sumik:tachikoma-fw-nextjs` | `tachikoma-nextjs` | Next.js/React |
-| `sumik:tachikoma-fe-frontend` | `tachikoma-frontend` | UI/UX・shadcn |
-| `sumik:tachikoma-fw-fullstack-js` | `tachikoma-fullstack-js` | NestJS/Express |
-| `sumik:tachikoma-lang-typescript` | `tachikoma-typescript` | TypeScript型設計 |
-| `sumik:tachikoma-lang-python` | `tachikoma-python` | Python・ADK |
-| `sumik:tachikoma-lang-go` | `tachikoma-go` | Go開発 |
-| `sumik:tachikoma-lang-bash` | `tachikoma-bash` | シェルスクリプト |
-| `sumik:tachikoma-cloud-infra` | `tachikoma-infra` | Docker/CI-CD |
-| `sumik:tachikoma-cloud-terraform` | `tachikoma-terraform` | Terraform IaC |
-| `sumik:tachikoma-cloud-aws` | `tachikoma-aws` | AWS全般 |
-| `sumik:tachikoma-cloud-gcp` | `tachikoma-google-cloud` | GCP全般 |
-| `sumik:tachikoma-qa-security` | `tachikoma-security` | セキュリティ監査 |
-| `sumik:tachikoma-data-database` | `tachikoma-database` | DB設計・SQL |
-| `sumik:tachikoma-data-ai-ml` | `tachikoma-ai-ml` | AI/RAG/MCP |
-| `sumik:tachikoma-qa-test` | `tachikoma-test` | ユニット/統合テスト |
-| `sumik:tachikoma-qa-e2e-test` | `tachikoma-e2e-test` | Playwright E2E |
-| `sumik:tachikoma-qa-observability` | `tachikoma-observability` | 監視・OTel |
-| `sumik:tachikoma-doc-document` | `tachikoma-document` | 技術文書 |
-| `sumik:tachikoma-fe-figma-impl` | `tachikoma-design` | Figma→コード |
-| `sumik:tachikoma-doc-training` | `tachikoma-training-presenter` | 研修・プレゼン |
-| `sumik:tachikoma` | `tachikoma` | 汎用フォールバック |
-| `sumik:serena-expert` | `serena-expert` | トークン効率化開発 |
+| Claude Code subagent_type | Codex agent名（=ファイル名） | tier |
+|--------------------------|--------------------------|------|
+| `sumik:serena-expert` | `serena-expert` | high |
+| `sumik:tachikoma` | `tachikoma` | high |
+| `sumik:tachikoma-lang-python` | `tachikoma-python` | high |
+| `sumik:tachikoma-lang-go` | `tachikoma-go` | high |
+| `sumik:tachikoma-lang-bash` | `tachikoma-bash` | high |
+| `sumik:tachikoma-lang-typescript` | `tachikoma-typescript` | high |
+| `sumik:tachikoma-fw-nextjs` | `tachikoma-nextjs` | high |
+| `sumik:tachikoma-fw-fullstack-js` | `tachikoma-fullstack-js` | high |
+| `sumik:tachikoma-fe-frontend` | `tachikoma-frontend` | high |
+| `sumik:tachikoma-fe-figma-impl` | `tachikoma-figma-impl` | high |
+| `sumik:tachikoma-fe-design-system` | `tachikoma-design-system` | high |
+| `sumik:tachikoma-fe-ux-design` | `tachikoma-ux-design` | high |
+| `sumik:tachikoma-cloud-aws` | `tachikoma-aws` | high |
+| `sumik:tachikoma-cloud-gcp` | `tachikoma-google-cloud` | high |
+| `sumik:tachikoma-cloud-infra` | `tachikoma-infra` | high |
+| `sumik:tachikoma-cloud-terraform` | `tachikoma-terraform` | high |
+| `sumik:tachikoma-data-database` | `tachikoma-database` | high |
+| `sumik:tachikoma-data-ai-ml` | `tachikoma-ai-ml` | high |
+| `sumik:tachikoma-qa-test` | `tachikoma-test` | high |
+| `sumik:tachikoma-qa-e2e-test` | `tachikoma-e2e-test` | high |
+| `sumik:tachikoma-qa-observability` | `tachikoma-observability` | high |
+| `sumik:tachikoma-qa-security` | `tachikoma-security` | **xhigh** |
+| `sumik:tachikoma-qa-code-reviewer` | `tachikoma-code-reviewer` | **xhigh** |
+| `sumik:tachikoma-str-architecture` | `tachikoma-architecture` | **xhigh** |
+| `sumik:tachikoma-str-product-mgr` | `tachikoma-product-manager` | **xhigh** |
+| `sumik:tachikoma-doc-document` | `tachikoma-document` | high |
+| `sumik:tachikoma-doc-slide` | `tachikoma-slide` | **xhigh** |
+| `sumik:tachikoma-doc-training` | `tachikoma-training-presenter` | high |
+
+xhigh対象: 設計・監査・高度推論ロール（architecture / security / code-reviewer / product-manager / slide）
+
+---
+
+## AGENTS.md ルーティング統合
+
+CodexプロジェクトにAGENTS.mdを置く場合、またはconfig.toml参照のガイドを整備する場合は以下を守る。
+
+- 実在するagentファイル名（`.toml`のnameフィールド値）のみ列挙する
+- 存在しないファイル名を載せない
+- 各エントリに「ファイル名・検出条件・専門領域・description要約」を記述する
+- Codexはdescriptionでagentを選択するため、descriptionの充実が重要
 
 ---
 
@@ -205,9 +248,10 @@ Claude Code subagent_type → Codex agent名の対応（変換時の参照用）
 1. 元 `.md` のfrontmatterと本文を読む
 2. `agents/<name>.toml` を作る
 3. `developer_instructions` に本文を戻す
-4. `skills:` を `[[skills.config]]` に展開する
-5. TOMLパース確認
-6. Codex再起動で警告有無を確認
+4. 末尾に「## 活用スキル」節を追加し、元 `skills:` を名前列挙する
+5. tier-mapでmodelとmodel_reasoning_effortを決める
+6. TOMLパース確認
+7. Codex再起動で警告有無を確認
 
 ### 複数agent一括変換
 
@@ -223,23 +267,18 @@ Claude Code subagent_type → Codex agent名の対応（変換時の参照用）
 ```toml
 name = "<ascii_agent_name>"
 description = "<元frontmatterのdescription>"
-model_reasoning_effort = "high"
+model = "gpt-5.5"
+model_reasoning_effort = "high"   # xhigh: 設計・監査系。high: 実装系。low/medium: 軽量系
 sandbox_mode = "workspace-write"
 nickname_candidates = ["Alpha", "Beta", "Gamma"]
 
 developer_instructions = """
 <元Markdown bodyをCodex向けに軽微補正したもの>
+
+## 活用スキル
+本エージェントは次のスキル群を活用する（Codexがdescriptionで自動ロード）:
+<skill-1>, <skill-2>, <skill-3>
 """
-
-[skills]
-
-[[skills.config]]
-path = "~/.codex/skills/<skill-1>/SKILL.md"
-enabled = true
-
-[[skills.config]]
-path = "~/.codex/skills/<skill-2>/SKILL.md"
-enabled = true
 ```
 
 ---
