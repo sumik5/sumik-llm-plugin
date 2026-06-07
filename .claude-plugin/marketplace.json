@@ -3,10 +3,14 @@
   "owner": {
     "name": "sumik5"
   },
+  "description": "sumik's Claude Code plugin marketplace",
   "plugins": [
     {
       "name": "sumik-claude-plugin",
-      "source": "./",
+      "source": {
+        "source": "github",
+        "repo": "sumik5/sumik-claude-plugin"
+      },
       "description": "sumik Claude Code Plugin"
     }
   ]
