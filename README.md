@@ -22,7 +22,7 @@ claude plugin add sumik5/sumik-claude-plugin
 
 ```bash
 codex plugin marketplace add https://github.com/sumik5/sumik-claude-plugin.git --ref main
-codex plugin add sumik@codex-plugin
+codex plugin add sumik-codex-plugins@sumik-marketplace
 ```
 
 ---
@@ -35,8 +35,8 @@ sumik-claude-plugin/
 │   └── plugins/
 │       └── marketplace.json # Codex marketplace manifest
 ├── .cache/
-│   └── codex-plugin/
-│       └── sumik -> ../.. # Codex marketplace から repo root の plugin を指す symlink
+│   └── sumik-marketplace/
+│       └── sumik-codex-plugins -> ../.. # Codex marketplace から repo root の plugin を指す symlink
 ├── .claude-plugin/     # Claude Code プラグインマニフェスト
 │   ├── plugin.json     # プラグインメタデータ
 │   └── marketplace.json

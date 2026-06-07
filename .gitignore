@@ -2,5 +2,5 @@ docs/**
 node_modules/
 .cache/**
 !.cache/
-!.cache/codex-plugin/
-!.cache/codex-plugin/sumik
+!.cache/sumik-marketplace/
+!.cache/sumik-marketplace/sumik-codex-plugins
