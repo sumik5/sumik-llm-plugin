@@ -1,0 +1,1996 @@
+#!/usr/bin/env python3
+"""画像ベース EPUB / 画像ディレクトリ / PDF → Markdown 変換ツール
+
+LM Studio のローカル VLM (OCR) を使い、画像ベースの EPUB または画像
+ディレクトリを日本語テキスト (Markdown) に変換する。
+PDF ファイルはテキスト埋め込み型であれば pdftotext で直接変換（OCR不要）、
+スキャン画像ベース型であれば pdftoppm でラスタライズして OCR にフォールバックする。
+
+使用例:
+  recognize-image-to-markdown book.epub
+  recognize-image-to-markdown book.epub -o ~/Desktop/book.md
+  recognize-image-to-markdown ./epub-folder/          # フォルダ内の全EPUBを処理
+  recognize-image-to-markdown ./scanned-pages/        # 画像のみのフォルダ
+  recognize-image-to-markdown book.epub --no-resume   # 最初からやり直し
+  recognize-image-to-markdown book.pdf                # テキストPDF → 直接Markdown化
+  recognize-image-to-markdown scanned.pdf --pdf-force-ocr  # スキャンPDF強制OCR
+  recognize-image-to-markdown ./pdf-folder/           # フォルダ内の全PDFを処理
+
+前提:
+  - テキストPDF変換: poppler (pdftotext) が必要（brew install poppler）
+  - スキャンPDF・画像変換: LM Studio が起動し VLM モデルがロードされていること
+  - pandoc 推奨（無い／失敗時は純Pythonフォールバックで継続） (EPUB 入力時)
+  - Python 3.10+
+"""
+
+import argparse
+from dataclasses import dataclass
+import os
+import posixpath
+import re
+import select
+import signal
+import shutil
+import subprocess
+import sys
+import termios
+import tempfile
+import time
+import tty
+import zipfile
+from pathlib import Path
+from typing import TextIO
+
+SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+DEFAULT_BLANK_THRESHOLD = 15360  # 15KB
+DEFAULT_RECOGNITION_TIMEOUT = 240  # 4分
+DEFAULT_MAX_REPEAT = 4  # OCR反復崩壊検出: 同一行がこの回数以上連続したら崩壊とみなす
+DEFAULT_CONTAMINATION_THRESHOLD = 0.30  # 思考ログ汚染スコアがこの値以上なら再OCR
+
+
+class RecognitionTimeoutError(Exception):
+    """1ページの認識処理がタイムアウトした場合の例外。"""
+
+
+def _timeout_handler(signum: int, frame: object) -> None:
+    raise RecognitionTimeoutError("認識処理が2分を超えたため中断しました")
+
+RECOGNITION_PROMPT = (
+    "添付の画像を、書かれている文字だけを忠実に Markdown に書き起こしてください。"
+    "次のルールを厳守してください。\n"
+    "1. 画像の内容のみを出力する。思考・推論・自己説明・前置き・後書きは一切書かない。\n"
+    "2. 画像に無い文字や内容を創作・補完しない。\n"
+    "3. 読み取れない文字は推測を繰り返さず、伏字「□」1文字に置き換える。\n"
+    "4. カタカナ「ア・イ・ウ・エ・オ」を漢字（工・才 等）に変換しない。カタカナはカタカナのまま書く。\n"
+    "5. 「○」「×」などの記号は画像のとおり正確に書き写す。\n"
+    "6. 表は Markdown のテーブル記法で書く。"
+)
+PAGE_SEPARATOR = "\n\n---\n\n"
+
+
+@dataclass(frozen=True)
+class LmStudioModelChoice:
+    model_key: str
+    display_name: str
+    params_string: str
+    size_bytes: int | None
+    is_loaded: bool
+
+
+# ---------------------------------------------------------------------------
+# Utilities
+# ---------------------------------------------------------------------------
+
+def log(msg: str) -> None:
+    print(msg, file=sys.stderr)
+
+
+def ensure_lmstudio() -> None:
+    try:
+        import lmstudio  # noqa: F401
+    except ImportError:
+        log("lmstudio パッケージをインストールしています...")
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "lmstudio", "-q"]
+        )
+
+
+def ensure_pillow() -> None:
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        log("Pillow パッケージをインストールしています...")
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "Pillow", "-q"]
+        )
+
+
+def check_lmstudio_connection(model_name: str, context_length: int = 0) -> None:
+    """LM Studio に接続できるか事前チェックする。"""
+    try:
+        import lmstudio as lms
+        lms.llm(model_name)
+    except Exception as exc:
+        log(f"接続失敗 ({exc}), リロード中...")
+        try:
+            reload_model(model_name, context_length=context_length)
+            log("リロード成功。")
+        except Exception as reload_exc:
+            log(f"エラー: LM Studio に接続できません ({reload_exc})")
+            sys.exit(1)
+
+
+def _model_info_value(model: object, attr: str) -> object | None:
+    info = getattr(model, "info", None)
+    if info is not None:
+        value = getattr(info, attr, None)
+        if value is not None:
+            return value
+    return getattr(model, attr, None)
+
+
+def _format_size(size_bytes: int | None) -> str:
+    if size_bytes is None:
+        return ""
+    gib = size_bytes / 1024 / 1024 / 1024
+    return f"{gib:.1f}GB"
+
+
+def list_lmstudio_vision_models() -> list[LmStudioModelChoice]:
+    """LM Studio からダウンロード済みの画像対応 LLM を取得する。"""
+    import lmstudio as lms
+
+    try:
+        loaded_keys = {
+            str(getattr(handle.get_info(), "model_key", "") or handle.identifier)
+            for handle in lms.list_loaded_models()
+        }
+        downloaded_models = lms.list_downloaded_models()
+    except Exception as exc:
+        log(f"エラー: LM Studio に接続できません ({exc})")
+        sys.exit(1)
+
+    choices: list[LmStudioModelChoice] = []
+    for model in downloaded_models:
+        if _model_info_value(model, "type") != "llm":
+            continue
+        if _model_info_value(model, "vision") is not True:
+            continue
+
+        model_key = str(_model_info_value(model, "model_key") or "")
+        if not model_key:
+            continue
+
+        display_name = str(_model_info_value(model, "display_name") or model_key)
+        params_string = str(_model_info_value(model, "params_string") or "")
+        size_value = _model_info_value(model, "size_bytes")
+        size_bytes = size_value if isinstance(size_value, int) else None
+        choices.append(
+            LmStudioModelChoice(
+                model_key=model_key,
+                display_name=display_name,
+                params_string=params_string,
+                size_bytes=size_bytes,
+                is_loaded=model_key in loaded_keys,
+            )
+        )
+
+    if not choices:
+        log("エラー: LM Studio に画像対応のダウンロード済み LLM が見つかりません。")
+        sys.exit(1)
+
+    return choices
+
+
+def _format_model_choice(index: int, choice: LmStudioModelChoice) -> str:
+    details = [choice.params_string, _format_size(choice.size_bytes)]
+    detail_text = ", ".join(d for d in details if d)
+    loaded = " [loaded]" if choice.is_loaded else ""
+    suffix = f" ({detail_text})" if detail_text else ""
+    return f"  {index}. {choice.display_name}{suffix}{loaded}\n     {choice.model_key}"
+
+
+def _render_model_menu(
+    choices: list[LmStudioModelChoice],
+    selected_index: int,
+) -> list[str]:
+    lines = [
+        "LM Studio の画像対応モデル (↑/↓で選択, Enterで決定, qで中止):"
+    ]
+    for idx, choice in enumerate(choices):
+        details = [choice.params_string, _format_size(choice.size_bytes)]
+        detail_text = ", ".join(d for d in details if d)
+        loaded = " [loaded]" if choice.is_loaded else ""
+        suffix = f" ({detail_text})" if detail_text else ""
+        marker = ">" if idx == selected_index else " "
+        lines.append(
+            f"{marker} {idx + 1:2}. {choice.display_name}{suffix}{loaded}"
+        )
+        lines.append(f"     {choice.model_key}")
+    return lines
+
+
+def _redraw_model_menu(lines: list[str], previous_line_count: int) -> int:
+    if previous_line_count > 0:
+        print(f"\033[{previous_line_count}A", end="", file=sys.stderr)
+    for line in lines:
+        print(f"\033[2K\r{line}", file=sys.stderr)
+    return len(lines)
+
+
+def _read_key() -> str:
+    char = sys.stdin.read(1)
+    if char == "\x1b":
+        sequence = char
+        while select.select([sys.stdin], [], [], 0.02)[0]:
+            sequence += sys.stdin.read(1)
+            if len(sequence) >= 3:
+                break
+        return sequence
+    return char
+
+
+def _choose_model_with_arrow_keys(
+    choices: list[LmStudioModelChoice],
+    default_index: int,
+) -> str:
+    selected_index = default_index
+    previous_line_count = 0
+    escape_prefix = False
+    bracket_prefix = False
+    old_settings = termios.tcgetattr(sys.stdin.fileno())
+    try:
+        tty.setcbreak(sys.stdin.fileno())
+        print("\033[?25l", end="", file=sys.stderr)  # カーソル非表示
+        while True:
+            previous_line_count = _redraw_model_menu(
+                _render_model_menu(choices, selected_index),
+                previous_line_count,
+            )
+            key = _read_key()
+            if key == "\x1b":
+                escape_prefix = True
+                bracket_prefix = False
+                continue
+            if escape_prefix and key == "[":
+                escape_prefix = False
+                bracket_prefix = True
+                continue
+            if bracket_prefix:
+                bracket_prefix = False
+                if key == "A":
+                    selected_index = (selected_index - 1) % len(choices)
+                elif key == "B":
+                    selected_index = (selected_index + 1) % len(choices)
+                continue
+            escape_prefix = False
+
+            if key in ("\r", "\n"):
+                break
+            if key in ("q", "Q", "\x03", "\x04"):
+                print(file=sys.stderr)
+                log("中止しました。")
+                sys.exit(130)
+            if key in ("\x1b[A", "k"):
+                selected_index = (selected_index - 1) % len(choices)
+            elif key in ("\x1b[B", "j"):
+                selected_index = (selected_index + 1) % len(choices)
+    finally:
+        print("\033[?25h", end="", file=sys.stderr)  # カーソル再表示
+        termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old_settings)
+
+    choice = choices[selected_index]
+    log(f"選択モデル: {choice.model_key}")
+    return choice.model_key
+
+
+def _choose_model_with_number_prompt(
+    choices: list[LmStudioModelChoice],
+    default_index: int,
+) -> str:
+    log("LM Studio の画像対応モデル:")
+    for idx, choice in enumerate(choices, 1):
+        log(_format_model_choice(idx, choice))
+
+    while True:
+        default_choice = choices[default_index]
+        print(
+            f"使用するモデル番号を選択してください "
+            f"[Enter={default_index + 1}: {default_choice.model_key}]: ",
+            end="",
+            file=sys.stderr,
+            flush=True,
+        )
+        selected = sys.stdin.readline().strip()
+        if not selected:
+            choice = default_choice
+            break
+        if selected.isdecimal():
+            selected_index = int(selected) - 1
+            if 0 <= selected_index < len(choices):
+                choice = choices[selected_index]
+                break
+        for candidate in choices:
+            if selected == candidate.model_key:
+                choice = candidate
+                break
+        else:
+            log("番号または model_key を入力してください。")
+            continue
+        break
+
+    log(f"選択モデル: {choice.model_key}")
+    return choice.model_key
+
+
+def choose_lmstudio_model() -> str:
+    """起動時に一度だけ LM Studio の画像対応モデルを選択する。"""
+    choices = list_lmstudio_vision_models()
+    default_index = next(
+        (idx for idx, choice in enumerate(choices) if choice.is_loaded),
+        0,
+    )
+
+    if not sys.stdin.isatty():
+        log("エラー: --model が未指定ですが、対話入力できません。--model でモデル名を指定してください。")
+        sys.exit(1)
+
+    try:
+        return _choose_model_with_arrow_keys(choices, default_index)
+    except (termios.error, OSError):
+        return _choose_model_with_number_prompt(choices, default_index)
+
+
+def resolve_model_name(model_arg: str | None) -> str:
+    if model_arg:
+        return model_arg
+    return choose_lmstudio_model()
+
+
+def check_pandoc() -> None:
+    if shutil.which("pandoc") is None:
+        log("エラー: pandoc が見つかりません。brew install pandoc でインストールしてください。")
+        sys.exit(1)
+
+
+def check_poppler(require_rasterize: bool = False) -> None:
+    """poppler ツール群の存在チェックを行う。
+
+    Args:
+        require_rasterize: True の場合は pdftoppm も必須チェックする（スキャンPDF時）
+    """
+    if shutil.which("pdftotext") is None:
+        log("エラー: pdftotext が見つかりません。brew install poppler でインストールしてください。")
+        sys.exit(1)
+    if require_rasterize and shutil.which("pdftoppm") is None:
+        log("エラー: pdftoppm が見つかりません。brew install poppler でインストールしてください。")
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------------------
+# PDF handling
+# ---------------------------------------------------------------------------
+
+def classify_pdf(
+    pdf_path: Path,
+    text_threshold: int = 50,
+) -> tuple[bool, int, int]:
+    """PDF がテキスト埋め込み型か画像ベース型かを判定する。
+
+    pdftotext で全文を抽出し、1 ページあたりの平均非空白文字数で判定する。
+    form feed (\\f) がページ区切りとして使われる。
+
+    Args:
+        pdf_path: 対象 PDF ファイルのパス
+        text_threshold: テキストベース判定の平均文字数閾値（デフォルト: 50）
+
+    Returns:
+        (is_text_based, page_count, total_text_chars)
+        - is_text_based: 1ページあたり平均文字数 >= 閾値なら True
+        - page_count: ページ数（\\f の個数 + 1）
+        - total_text_chars: 非空白文字数の合計
+    """
+    result = subprocess.run(
+        ["pdftotext", str(pdf_path), "-"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        log(
+            f"PDF分析: pdftotext 失敗 (exit {result.returncode}): "
+            f"{result.stderr.strip() or '(詳細なし)'}"
+        )
+        log("→ 画像ベースとして扱います")
+        return False, 0, 0
+
+    raw_text = result.stdout
+    # ページ数: form feed (\f) でページ区切り → ページ数 = \f の数 + 1
+    page_count = raw_text.count("\f") + 1
+    # 非空白文字数をカウント
+    total_text_chars = sum(1 for c in raw_text if not c.isspace())
+
+    avg_chars_per_page = total_text_chars / max(page_count, 1)
+    is_text_based = avg_chars_per_page >= text_threshold
+
+    log(
+        f"PDF分析: ページ数={page_count}, 総文字数={total_text_chars:,}, "
+        f"平均文字数/ページ={avg_chars_per_page:.1f}, 閾値={text_threshold} "
+        f"→ {'テキストベース' if is_text_based else '画像ベース'}"
+    )
+    return is_text_based, page_count, total_text_chars
+
+
+def convert_text_pdf(
+    pdf_path: Path,
+    output_path: Path,
+) -> int:
+    """テキスト埋め込み PDF を pdftotext で直接 Markdown 化する。
+
+    LM Studio / lmstudio パッケージ / Pillow を一切使用しない。
+    pdftotext の出力を form feed (\\f) でページ分割し、完全な空ページを除去した後
+    PAGE_SEPARATOR で結合して書き出す。
+
+    Args:
+        pdf_path: 入力 PDF ファイルのパス
+        output_path: 出力 Markdown ファイルのパス
+
+    Returns:
+        出力 Markdown の文字数
+    """
+    result = subprocess.run(
+        ["pdftotext", str(pdf_path), "-"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        log(
+            f"エラー: pdftotext 失敗 (exit {result.returncode}): "
+            f"{result.stderr.strip() or '(詳細なし)'}"
+        )
+        sys.exit(1)
+
+    raw_text = result.stdout
+    # form feed (\f) でページ分割 → strip → 完全な空ページは捨てる
+    pages = [page.strip() for page in raw_text.split("\f")]
+    non_empty_pages = [page for page in pages if page]
+
+    if not non_empty_pages:
+        log("警告: pdftotext でテキストが抽出されませんでした。空のファイルを出力します。")
+        non_empty_pages = [""]
+
+    markdown_text = PAGE_SEPARATOR.join(non_empty_pages)
+
+    write_text_atomic(output_path, markdown_text)
+    char_count = len(markdown_text)
+    mark_conversion_complete(output_path, len(non_empty_pages), char_count)
+
+    log(f"完了: {output_path}")
+    log(f"  ページ数: {len(non_empty_pages)}, 文字数: {char_count:,}")
+    return char_count
+
+
+def rasterize_and_convert_pdf(
+    pdf_path: Path,
+    output_path: Path,
+    model_name: str,
+    skip_blank: bool,
+    resume: bool,
+    dpi: int = 200,
+    blank_threshold: int = DEFAULT_BLANK_THRESHOLD,
+    max_image_size: int = 1280,
+    context_length: int = 0,
+    ocr_cleanup: bool = True,
+    max_repeat: int = DEFAULT_MAX_REPEAT,
+    contamination_threshold: float = DEFAULT_CONTAMINATION_THRESHOLD,
+) -> int:
+    """スキャン PDF を pdftoppm でラスタライズし、既存 OCR パイプラインに渡す。
+
+    tempfile.mkdtemp() に PNG を出力し、collect_ordered_images() で自然順に
+    並べた後 convert() に委譲する。temp ディレクトリは finally で必ず削除する。
+
+    Args:
+        pdf_path: 入力 PDF ファイルのパス
+        output_path: 出力 Markdown ファイルのパス
+        model_name: LM Studio モデル名
+        skip_blank: 空白ページスキップ
+        resume: 中断再開モード
+        dpi: ラスタライズ解像度（デフォルト: 200）
+        blank_threshold: 空白ページ判定バイト数閾値
+        max_image_size: VLM 送信前リサイズの長辺最大ピクセル数
+        context_length: モデルリロード時コンテキスト長
+        ocr_cleanup: OCR後処理（反復崩壊・思考ログ検出）の有効/無効
+        max_repeat: 反復崩壊判定の連続行数
+        contamination_threshold: 思考ログ汚染スコア再OCR閾値
+
+    Returns:
+        出力 Markdown の文字数
+    """
+    tmp_dir = Path(tempfile.mkdtemp(prefix="pdf-ocr-"))
+    try:
+        log(f"PDF ラスタライズ中 (DPI={dpi})...")
+        result = subprocess.run(
+            [
+                "pdftoppm",
+                "-png",
+                "-r", str(dpi),
+                str(pdf_path),
+                str(tmp_dir / "page"),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            log(
+                f"エラー: pdftoppm 失敗 (exit {result.returncode}): "
+                f"{result.stderr.strip() or '(詳細なし)'}"
+            )
+            sys.exit(1)
+
+        image_files = collect_ordered_images(tmp_dir, None)
+        if not image_files:
+            log("エラー: pdftoppm が PNG ファイルを生成しませんでした。")
+            sys.exit(1)
+
+        log(f"ラスタライズ完了: {len(image_files)} ページ → OCR 開始")
+        return convert(
+            image_files=image_files,
+            output_path=output_path,
+            model_name=model_name,
+            skip_blank=skip_blank,
+            resume=resume,
+            blank_threshold=blank_threshold,
+            max_image_size=max_image_size,
+            context_length=context_length,
+            ocr_cleanup=ocr_cleanup,
+            max_repeat=max_repeat,
+            contamination_threshold=contamination_threshold,
+        )
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+
+def strip_think_tags(text: str) -> str:
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
+    if "</think>" in text:
+        text = text.split("</think>", 1)[1]
+    return text.strip()
+
+
+# ---------------------------------------------------------------------------
+# OCR 後処理: 反復崩壊・思考ログ汚染の検出（純粋関数・予防/一次治療）
+#   VLM が出力に混入させる思考ログ・無限ループ崩壊を「発生源に最も近い場所」で
+#   検出し、呼び出し側が再OCR(リトライ)を判断できるようシグナルを返す。
+#   ⚠️ CJK/カタカナ字形混同(エ→工 等)の機械置換はここで行わない。本文中の正規の
+#      「工」「才」を破壊する誤爆リスクが高く、文脈依存の正規化は消費側の責務とする。
+# ---------------------------------------------------------------------------
+
+# 思考ログの行頭アンカー（明確なメタ専用行のみ除去対象にする）
+_THINK_ANCHORS = [
+    # 英語メタ・システムプロンプト復唱
+    r"^\s*\d*\.?\s*\*{0,2}(?:Analyze the Request|Scan the Image|Transcribe Section|"
+    r"Final Formatting|Self-Correction|Mental Draft)",
+    r"^The user wants the text",
+    # 英語仮説検証ループ
+    r"^\s*\*{0,2}Hypothesis\s*\d*\s*[:：]",
+    r"^Let'?s look at (?:the|this) character",
+    r"^Testing the hypothesis",
+    r"^Confirming the reading",
+    # 日本語自問自答ループ
+    r"^(?:画像の(?:分析|文字)|いや、待て|よし、「.+?」|もう一度)",
+    # 三人称セルフ説明
+    r"^(?:ユーザーは.+画像|これは.+問題だと|実際には.+(?:右から|左から)|画像を拡大して)",
+]
+_THINK_RE = re.compile("|".join(_THINK_ANCHORS))
+# 簡体字トークン: 崩壊の補助シグナル（出現で加点。単独では除去しない）
+_SIMPLIFIED_RE = re.compile(r"一组|组")
+# ○×判定マーカー単独行: メタ除去から保護する
+_OXMARK_ONLY_RE = re.compile(r"^\s*[○×✕〇◯❌☓OXＯＸ]\s*$")
+
+
+def collapse_repeated_lines(
+    text: str, max_repeat: int = DEFAULT_MAX_REPEAT
+) -> tuple[str, bool]:
+    """同一（正規化）行が max_repeat 回以上連続する反復崩壊を 1 回に畳む。
+
+    正規化は strip + 連続空白の単一空白化で行い、末尾空白や全角・半角空白の
+    揺れで反復を取り逃さないようにする。崩壊を 1 箇所でも検出すれば collapsed=True。
+    検出した反復は破棄せず 1 回だけ残す（再OCR上限到達時も消費側がサルベージできる
+    余地を保つため）。空行は反復カウントの対象外。
+    """
+    lines = text.split("\n")
+    out: list[str] = []
+    collapsed = False
+    i = 0
+    n = len(lines)
+    while i < n:
+        norm = " ".join(lines[i].split())
+        j = i + 1
+        while j < n and " ".join(lines[j].split()) == norm:
+            j += 1
+        run = j - i
+        if norm != "" and run >= max_repeat:
+            collapsed = True
+            out.append(lines[i])  # 1 回だけ残す（破棄しない）
+        else:
+            out.extend(lines[i:j])
+        i = j
+    return "\n".join(out), collapsed
+
+
+def detect_thinking_contamination(text: str) -> tuple[str, float]:
+    """思考ログ混入を検出し、明確なメタ専用行のみ除去して汚染スコアを返す。
+
+    本文を巻き込む危険な除去はしない（アンカーに明確一致した行だけ削る）。
+    ○×判定マーカー単独行は除去対象から保護する。スコアはメタ行比率に簡体字
+    出現の加点を加えた 0.0〜1.0 の値で、呼び出し側が再OCR判断に使う。
+    """
+    lines = text.split("\n")
+    kept: list[str] = []
+    meta_hits = 0
+    nonblank = 0
+    for ln in lines:
+        if ln.strip() == "":
+            kept.append(ln)
+            continue
+        nonblank += 1
+        if _OXMARK_ONLY_RE.match(ln):  # 判定マーカーは保護（先に判定）
+            kept.append(ln)
+            continue
+        if _THINK_RE.search(ln):
+            meta_hits += 1
+            continue  # メタ専用行のみ除去
+        kept.append(ln)
+    base = (meta_hits / nonblank) if nonblank else 0.0
+    bonus = 0.15 if _SIMPLIFIED_RE.search(text) else 0.0
+    score = min(1.0, base + bonus)
+    return "\n".join(kept), score
+
+
+def postprocess_ocr_page(
+    text: str, max_repeat: int = DEFAULT_MAX_REPEAT
+) -> tuple[str, bool, float]:
+    """反復崩壊の圧縮 → 思考ログ検出 を順に適用する。
+
+    Returns:
+        (cleaned_text, collapsed, contamination_score)
+    """
+    text, collapsed = collapse_repeated_lines(text, max_repeat=max_repeat)
+    text, score = detect_thinking_contamination(text)
+    return text, collapsed, score
+
+
+def is_blank_image(path: Path, threshold: int = DEFAULT_BLANK_THRESHOLD) -> bool:
+    return path.stat().st_size <= threshold
+
+
+def resize_image_if_needed(image_path: Path, max_size: int) -> tuple[Path, bool]:
+    """画像の長辺が max_size を超える場合にリサイズする。
+
+    Args:
+        image_path: 元の画像パス
+        max_size: 長辺の最大ピクセル数（0 の場合はリサイズ無効）
+
+    Returns:
+        (処理後の画像パス, リサイズされたか否か)
+        リサイズした場合は tempfile に保存したパスを返す。
+        呼び出し側は is_resized が True の場合にファイルを削除する責任を持つ。
+    """
+    if max_size <= 0:
+        return image_path, False
+
+    from PIL import Image
+
+    with Image.open(image_path) as img:
+        w, h = img.size
+        long_side = max(w, h)
+
+        if long_side <= max_size:
+            return image_path, False
+
+        # アスペクト比を維持してリサイズ
+        ratio = max_size / long_side
+        new_w = int(w * ratio)
+        new_h = int(h * ratio)
+        resized = img.resize((new_w, new_h), Image.LANCZOS)
+
+        # 拡張子を保持したまま tempfile に保存
+        suffix = image_path.suffix or ".jpg"
+        tmp = tempfile.NamedTemporaryFile(
+            suffix=suffix, delete=False, prefix="recognize-resize-"
+        )
+        tmp.close()
+        resized_path = Path(tmp.name)
+        resized.save(resized_path)
+
+    return resized_path, True
+
+
+# ---------------------------------------------------------------------------
+# EPUB handling
+# ---------------------------------------------------------------------------
+
+def extract_epub_images(epub_path: Path, work_dir: Path) -> Path:
+    """EPUB から画像を抽出し、画像ディレクトリのパスを返す。"""
+    img_dir = work_dir / "images"
+    img_dir.mkdir(parents=True, exist_ok=True)
+
+    with zipfile.ZipFile(epub_path, "r") as zf:
+        for member in zf.namelist():
+            suffix = Path(member).suffix.lower()
+            if suffix in SUPPORTED_EXTENSIONS:
+                data = zf.read(member)
+                dest = img_dir / Path(member).name
+                dest.write_bytes(data)
+
+    count = sum(1 for f in img_dir.iterdir() if f.suffix.lower() in SUPPORTED_EXTENSIONS)
+    if count == 0:
+        log(f"エラー: EPUB 内に画像ファイルが見つかりません。")
+        sys.exit(1)
+    return img_dir
+
+
+def _fallback_image_scan(epub_path: Path, md_path: Path) -> tuple[bool, Path, list[str]]:
+    """zipfile で画像エントリを直接走査し、自然順 basename リストを返す保険処理。
+
+    spine 解析に失敗したときの最終フォールバック。クラッシュせず合理的な値を返す。
+    """
+    page_order: list[str] = []
+    try:
+        with zipfile.ZipFile(epub_path, "r") as zf:
+            seen: set[str] = set()
+            for name in sorted(zf.namelist()):
+                basename = Path(name).name
+                ext = Path(name).suffix.lower()
+                if ext in SUPPORTED_EXTENSIONS and basename not in seen:
+                    seen.add(basename)
+                    page_order.append(basename)
+    except Exception as exc:
+        log(f"EPUB分析(画像直接走査): 例外発生 ({exc})。空リストで継続します。")
+
+    is_image = len(page_order) >= 10
+    log(
+        f"EPUB分析(画像直接走査フォールバック): 画像数={len(page_order)} "
+        f"→ {'画像ベース' if is_image else 'テキストベース'}"
+    )
+    return is_image, md_path, page_order
+
+
+def _analyze_epub_via_spine(epub_path: Path, work_dir: Path) -> tuple[bool, Path, list[str]]:
+    """純Pythonで EPUB の spine を解析し、読み順の画像リストと画像ベース判定を返す。
+
+    pandoc が Zip64 形式のアーカイブ（version-needed=45 等）で失敗した場合のフォールバック。
+    Python 標準ライブラリの zipfile を使用するため、該当エントリも正常に読める。
+    spine 解析が失敗した場合は _fallback_image_scan に委譲してクラッシュを防ぐ。
+
+    Returns:
+        (is_image_based, md_path, page_order)
+        - is_image_based: spineの大半ページが画像を参照していれば True
+        - md_path: 下流未使用だが型契約維持のための仮パス
+        - page_order: spine 読み順の画像 basename リスト（重複除去・順序維持）
+    """
+    md_path = work_dir / "pandoc-output.md"  # 下流未使用だが is_image_based_epub との型契約維持
+
+    try:
+        with zipfile.ZipFile(epub_path, "r") as zf:
+            # ① META-INF/container.xml から OPF パスを取得
+            try:
+                container_xml = zf.read("META-INF/container.xml").decode("utf-8", errors="replace")
+            except KeyError:
+                log("EPUB分析(Pythonフォールバック): META-INF/container.xml が見つかりません。画像直接走査に切り替えます。")
+                return _fallback_image_scan(epub_path, md_path)
+
+            opf_match = re.search(r'<rootfile\b[^>]+\bfull-path=["\']([^"\']+)["\']', container_xml)
+            if not opf_match:
+                log("EPUB分析(Pythonフォールバック): OPF パスが取得できません。画像直接走査に切り替えます。")
+                return _fallback_image_scan(epub_path, md_path)
+
+            opf_zip_path = opf_match.group(1)
+            opf_dir = posixpath.dirname(opf_zip_path)
+
+            # ② OPF を読み、manifest の id → href マップを構築
+            try:
+                opf_text = zf.read(opf_zip_path).decode("utf-8", errors="replace")
+            except KeyError:
+                log(f"EPUB分析(Pythonフォールバック): OPF ファイル {opf_zip_path!r} が見つかりません。画像直接走査に切り替えます。")
+                return _fallback_image_scan(epub_path, md_path)
+
+            # id/href の属性順序に依存しない堅牢な抽出
+            # <item href="..." id="..."/> の順序でも正しく動作する
+            manifest: dict[str, str] = {}
+            for item_tag in re.finditer(r'<item\b[^>]*>', opf_text, re.DOTALL):
+                tag = item_tag.group(0)
+                id_m = re.search(r'\bid=["\']([^"\']+)["\']', tag)
+                href_m = re.search(r'\bhref=["\']([^"\']+)["\']', tag)
+                if id_m and href_m:
+                    manifest[id_m.group(1)] = href_m.group(1)
+
+            # ③ spine の itemref を出現順に取得（= 読み順）
+            spine_match = re.search(r'<spine\b[^>]*>(.*?)</spine>', opf_text, re.DOTALL)
+            if not spine_match:
+                log("EPUB分析(Pythonフォールバック): spine が見つかりません。画像直接走査に切り替えます。")
+                return _fallback_image_scan(epub_path, md_path)
+
+            idrefs = re.findall(
+                r'<itemref\b[^>]*\bidref=["\']([^"\']+)["\']',
+                spine_match.group(1),
+            )
+            if not idrefs:
+                log("EPUB分析(Pythonフォールバック): spine に itemref がありません。画像直接走査に切り替えます。")
+                return _fallback_image_scan(epub_path, md_path)
+
+            # ④⑤ 各 xhtml を読み、画像参照を抽出
+            seen: set[str] = set()
+            page_order: list[str] = []
+            pages_total = 0
+            pages_with_image = 0
+
+            for idref in idrefs:
+                href = manifest.get(idref)
+                if href is None:
+                    continue
+                xhtml_zip_path = posixpath.normpath(posixpath.join(opf_dir, href))
+                try:
+                    xhtml_text = zf.read(xhtml_zip_path).decode("utf-8", errors="replace")
+                except KeyError:
+                    continue
+
+                pages_total += 1
+
+                # <img src="..."> を優先し、
+                # 固定レイアウト SVG 用の <image xlink:href="...">/<image href="..."> をフォールバックに使用
+                img_srcs: list[str] = re.findall(
+                    r'<img\b[^>]*\bsrc=["\']([^"\']+)["\']',
+                    xhtml_text,
+                    re.IGNORECASE,
+                )
+                if not img_srcs:
+                    img_srcs = re.findall(
+                        r'<image\b[^>]*\b(?:xlink:href|href)=["\']([^"\']+)["\']',
+                        xhtml_text,
+                        re.IGNORECASE,
+                    )
+
+                page_has_image = False
+                for src in img_srcs:
+                    basename = posixpath.basename(src)
+                    ext = Path(basename).suffix.lower()
+                    if ext in SUPPORTED_EXTENSIONS:
+                        if basename not in seen:
+                            seen.add(basename)
+                            page_order.append(basename)
+                        page_has_image = True
+
+                if page_has_image:
+                    pages_with_image += 1
+
+            # ⑥ 画像ベース判定
+            # 固定レイアウト EPUB には visibility:hidden の透明テキストレイヤーが存在するため
+            # テキスト量ではなく「spineの大半ページが画像を1枚以上参照しているか」で判定する
+            is_image = (
+                pages_total > 0
+                and pages_with_image / pages_total >= 0.5
+                and len(page_order) >= 10
+            )
+
+            log(
+                f"EPUB分析(Pythonフォールバック): spineページ={pages_total}, "
+                f"画像ありページ={pages_with_image}, 画像数={len(page_order)} "
+                f"→ {'画像ベース' if is_image else 'テキストベース'}"
+            )
+            return is_image, md_path, page_order
+
+    except Exception as exc:
+        log(f"EPUB分析(Pythonフォールバック): 例外発生 ({exc})。画像直接走査に切り替えます。")
+        return _fallback_image_scan(epub_path, md_path)
+
+
+def is_image_based_epub(epub_path: Path, work_dir: Path) -> tuple[bool, Path, list[str]]:
+    """pandoc で EPUB → Markdown 変換し、画像ベースかどうか判定する。
+
+    pandoc が失敗した場合（Zip64 形式のアーカイブ等）は _analyze_epub_via_spine
+    による純Pythonフォールバックで処理を継続する。
+
+    Returns:
+        (is_image_based, md_path, page_order)
+        - is_image_based: 画像ベースなら True
+        - md_path: pandoc 変換済み Markdown のパス
+        - page_order: 画像参照順のファイル名リスト
+    """
+    md_path = work_dir / "pandoc-output.md"
+    result = subprocess.run(
+        ["pandoc", "-t", "markdown", "-o", str(md_path), str(epub_path)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        log(f"pandoc 変換失敗 (exit {result.returncode}): "
+            f"{result.stderr.strip() or '(詳細なし)'}")
+        log("→ 純PythonでEPUBを解析します（pandocフォールバック / Zip64対応）")
+        return _analyze_epub_via_spine(epub_path, work_dir)
+
+    md_text = md_path.read_text(errors="replace")
+    lines = md_text.splitlines()
+    total_lines = len(lines)
+
+    # 画像参照行と非空テキスト行をカウント
+    img_line_count = sum(1 for l in lines if "![" in l)
+    # 空行・HTMLタグ行・divブロック(:::)を除いた実質テキスト行数
+    text_lines = [
+        l for l in lines
+        if l.strip()
+        and "![" not in l
+        and not l.strip().startswith(":::")
+        and not l.strip().startswith("{")
+        and not re.match(r'^\[?\]\{', l.strip())
+    ]
+    text_line_count = len(text_lines)
+
+    # 画像ファイル名を参照順に抽出（重複除去、順序維持）
+    pattern = re.compile(r'([\w./-]+\.(?:jpg|jpeg|png|webp))', re.IGNORECASE)
+    seen: set[str] = set()
+    order: list[str] = []
+    for m in pattern.finditer(md_text):
+        name = Path(m.group(1)).name
+        if name not in seen:
+            seen.add(name)
+            order.append(name)
+
+    # 判定: テキスト行が少なく画像参照が多ければ画像ベース
+    # 閾値: テキスト行が全体の20%未満、または実質テキスト50行未満かつ画像10枚以上
+    is_image = (
+        (total_lines > 0 and text_line_count / max(total_lines, 1) < 0.2)
+        or (text_line_count < 50 and len(order) >= 10)
+    )
+
+    log(f"EPUB分析: 総行数={total_lines}, テキスト行={text_line_count}, "
+        f"画像参照={img_line_count}, 画像数={len(order)} "
+        f"→ {'画像ベース' if is_image else 'テキストベース'}")
+
+    return is_image, md_path, order
+
+
+def natural_sort_key(path: Path) -> list[int | str]:
+    """ファイル名を数値部分で自然順ソートするためのキーを生成する。
+
+    辞書順では "1.jpg", "10.jpg", "100.jpg", "2.jpg" の順になってしまうため、
+    ファイル名を「非数字／数字」の交互トークンに分解し、数字トークンを int 化
+    することで "1, 2, ..., 10, ..., 100" の数値順に並べる。
+    """
+    return [
+        int(token) if token.isdigit() else token.lower()
+        for token in re.split(r"(\d+)", path.name)
+    ]
+
+
+def collect_ordered_images(
+    img_dir: Path,
+    page_order: list[str] | None,
+) -> list[Path]:
+    """ページ順リストに基づいて画像ファイルを収集する。
+
+    page_order が None の場合（ディレクトリ直接入力）はファイル名の自然順ソート。
+    """
+    if page_order:
+        files = []
+        for name in page_order:
+            candidate = img_dir / name
+            if candidate.is_file():
+                files.append(candidate)
+        if files:
+            return files
+
+    # フォールバック: ファイル名の自然順ソート（数値を数値として比較）
+    return sorted(
+        (
+            f for f in img_dir.iterdir()
+            if f.is_file() and f.suffix.lower() in SUPPORTED_EXTENSIONS
+        ),
+        key=natural_sort_key,
+    )
+
+
+def collect_image_subdirectories(parent: Path) -> list[Path]:
+    """親ディレクトリ直下の、画像を含むサブディレクトリを自然順で返す。"""
+    subdirs: list[Path] = []
+    for entry in parent.iterdir():
+        if not entry.is_dir():
+            continue
+        if entry.name.startswith("."):
+            continue
+        has_image = any(
+            child.is_file() and child.suffix.lower() in SUPPORTED_EXTENSIONS
+            for child in entry.iterdir()
+        )
+        if has_image:
+            subdirs.append(entry)
+    return sorted(subdirs, key=natural_sort_key)
+
+
+# ---------------------------------------------------------------------------
+# OCR
+# ---------------------------------------------------------------------------
+
+MAX_RETRIES = 5
+
+
+def reload_model(model_name: str, context_length: int = 0) -> None:
+    """LM Studio のモデルをアンロードして再ロードする。
+
+    Args:
+        model_name: モデル名
+        context_length: コンテキスト長（0 の場合はデフォルトを使用）
+    """
+    import lmstudio as lms
+
+    # Step 1: アンロード
+    try:
+        model = lms.llm(model_name)
+        model.unload()
+    except Exception:
+        pass
+
+    # Step 2: 少し待つ
+    time.sleep(10)
+
+    # Step 3: ダウンロード済みモデルから探して再ロード
+    downloaded_models = lms.list_downloaded_models()
+    target = next(
+        (m for m in downloaded_models if m.model_key == model_name),
+        None,
+    )
+    if target is None:
+        raise RuntimeError(
+            f"ダウンロード済みモデルに '{model_name}' が見つかりません。"
+        )
+
+    load_config: dict | None = None
+    if context_length > 0:
+        load_config = {"contextLength": context_length}
+
+    target.load_new_instance(ttl=3600, config=load_config)
+
+    # Step 4: 接続確認
+    lms.llm(model_name)
+
+
+def recognize_single_image(
+    model_name: str,
+    image_path: Path,
+    max_retries: int = MAX_RETRIES,
+    max_image_size: int = 1280,
+    context_length: int = 0,
+    timeout: int = DEFAULT_RECOGNITION_TIMEOUT,
+    ocr_cleanup: bool = True,
+    max_repeat: int = DEFAULT_MAX_REPEAT,
+    contamination_threshold: float = DEFAULT_CONTAMINATION_THRESHOLD,
+) -> str:
+    import lmstudio as lms
+
+    # リサイズが必要な場合は tempfile に保存し、処理後に削除
+    actual_path, is_resized = resize_image_if_needed(image_path, max_image_size)
+    try:
+        retryable = (
+            lms.LMStudioPredictionError,
+            lms.LMStudioChannelClosedError,
+            lms.LMStudioServerError,
+            RecognitionTimeoutError,
+        )
+
+        for attempt in range(max_retries + 1):
+            try:
+                # タイムアウト設定: 1ページの認識が制限時間を超えたら異常とみなす
+                old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+                signal.alarm(timeout)
+                try:
+                    image_handle = lms.prepare_image(str(actual_path))
+                    model = lms.llm(model_name)
+                    chat = lms.Chat()
+                    chat.add_user_message(RECOGNITION_PROMPT, images=[image_handle])
+                    result = model.respond(chat)
+                    text = strip_think_tags(result.content)
+                finally:
+                    signal.alarm(0)
+                    signal.signal(signal.SIGALRM, old_handler)
+            except retryable as exc:
+                if attempt >= max_retries:
+                    raise
+                is_timeout = isinstance(exc, RecognitionTimeoutError)
+                label = "timeout" if is_timeout else "error"
+                reason = str(exc).split("\n", 1)[0][:60]
+                # プログレスバー行を上書きしてリロード状況を表示
+                print(
+                    f"\033[2K\r  reload {attempt + 1}/{max_retries} "
+                    f"({label}: {reason})",
+                    end="", file=sys.stderr, flush=True,
+                )
+                reload_model(model_name, context_length=context_length)
+                continue
+
+            # --- OCR 後処理: 反復崩壊・思考ログ検出 → 必要なら再OCR ---
+            if not ocr_cleanup:
+                return text
+            text, collapsed, score = postprocess_ocr_page(text, max_repeat=max_repeat)
+            contaminated = collapsed or score >= contamination_threshold
+            if contaminated and attempt < max_retries:
+                # 同一プロンプトで再OCR（VLMはサンプリングで毎回出力が変わるため、
+                # reload せず再試行する方が軽量。接続エラーのみ reload で対処する）
+                print(
+                    f"\033[2K\r  [ocr-cleanup] re-ocr {attempt + 1}/{max_retries} "
+                    f"(collapsed={collapsed}, score={score:.2f})",
+                    end="", file=sys.stderr, flush=True,
+                )
+                continue
+            if contaminated:
+                # 最終試行でも崩壊 → 圧縮済み本文を残して確定（破棄しない）
+                log(
+                    f"[ocr-cleanup] page UNRECOVERED after {max_retries} retries "
+                    f"(collapsed={collapsed}, score={score:.2f}); keeping compressed text"
+                )
+            return text
+
+        # ここには到達しないが型チェッカーのために
+        raise RuntimeError("予期しない状態: リトライループを抜けました")
+    finally:
+        # リサイズした一時ファイルを削除
+        if is_resized and actual_path.exists():
+            actual_path.unlink()
+
+
+# ---------------------------------------------------------------------------
+# Resume support
+# ---------------------------------------------------------------------------
+
+def load_progress(progress_file: Path) -> set[str]:
+    """処理済みファイル名のセットを返す。"""
+    if not progress_file.exists():
+        return set()
+    return {line for line in progress_file.read_text().splitlines() if line}
+
+
+def save_progress(progress_file: Path, filename: str) -> None:
+    with open(progress_file, "a") as f:
+        f.write(filename + "\n")
+        f.flush()
+        os.fsync(f.fileno())
+
+
+def page_cache_dir_for(output_path: Path) -> Path:
+    return output_path.with_suffix(".progress.d")
+
+
+def completion_marker_for(output_path: Path) -> Path:
+    return output_path.with_suffix(".complete")
+
+
+def is_conversion_complete(output_path: Path) -> bool:
+    return output_path.exists() and completion_marker_for(output_path).exists()
+
+
+def remove_completion_marker(output_path: Path) -> None:
+    marker = completion_marker_for(output_path)
+    if marker.exists():
+        marker.unlink()
+
+
+def mark_conversion_complete(output_path: Path, total_pages: int, char_count: int) -> None:
+    marker_text = (
+        f"output={output_path.name}\n"
+        f"pages={total_pages}\n"
+        f"chars={char_count}\n"
+        f"completed_at={time.strftime('%Y-%m-%dT%H:%M:%S%z')}\n"
+    )
+    write_text_atomic(completion_marker_for(output_path), marker_text)
+
+
+def backup_incomplete_output(output_path: Path) -> Path:
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    candidate = output_path.with_name(
+        f"{output_path.stem}.partial-{timestamp}{output_path.suffix}"
+    )
+    counter = 1
+    while candidate.exists():
+        candidate = output_path.with_name(
+            f"{output_path.stem}.partial-{timestamp}-{counter}{output_path.suffix}"
+        )
+        counter += 1
+    output_path.replace(candidate)
+    return candidate
+
+
+def cache_page_filename(index: int, image_file: Path) -> str:
+    safe_name = re.sub(r"[^A-Za-z0-9._-]+", "_", image_file.name).strip("._")
+    if not safe_name:
+        safe_name = "page"
+    return f"{index:05d}-{safe_name}.md"
+
+
+def cache_page_path(progress_dir: Path, index: int, image_file: Path) -> Path:
+    return progress_dir / cache_page_filename(index, image_file)
+
+
+def load_cached_pages(progress_dir: Path, image_files: list[Path]) -> set[str]:
+    if not progress_dir.exists():
+        return set()
+    return {
+        image_file.name
+        for index, image_file in enumerate(image_files, 1)
+        if cache_page_path(progress_dir, index, image_file).exists()
+    }
+
+
+def write_text_atomic(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.tmp")
+    with open(tmp, "w") as f:
+        f.write(text)
+        f.flush()
+        os.fsync(f.fileno())
+    tmp.replace(path)
+
+
+def append_markdown_page(out: TextIO, text: str, needs_separator: bool) -> None:
+    if needs_separator:
+        out.write(PAGE_SEPARATOR)
+    out.write(text)
+    out.flush()
+    os.fsync(out.fileno())
+
+
+def has_markdown_content(output_path: Path) -> bool:
+    return output_path.exists() and output_path.stat().st_size > 0
+
+
+def rebuild_output_from_cache(
+    image_files: list[Path],
+    output_path: Path,
+    processed: set[str],
+    progress_dir: Path,
+) -> int:
+    """途中保存されたページ断片から出力 Markdown を復元する。"""
+    if has_markdown_content(output_path) or not processed or not progress_dir.exists():
+        return 0
+
+    restored = 0
+    with open(output_path, "w") as out:
+        for index, image_file in enumerate(image_files, 1):
+            if image_file.name not in processed:
+                continue
+            page_path = cache_page_path(progress_dir, index, image_file)
+            if not page_path.exists():
+                continue
+            text = page_path.read_text(errors="replace")
+            if not text:
+                continue
+            if restored > 0:
+                out.write(PAGE_SEPARATOR)
+            out.write(text)
+            restored += 1
+
+        if restored > 0:
+            out.flush()
+            os.fsync(out.fileno())
+
+    if restored == 0 and output_path.exists() and output_path.stat().st_size == 0:
+        output_path.unlink()
+    if restored > 0:
+        log(f"resume: 途中保存された Markdown から {restored} ページを復元しました。")
+    return restored
+
+
+# ---------------------------------------------------------------------------
+# Progress bar
+# ---------------------------------------------------------------------------
+
+def format_time(seconds: float) -> str:
+    if seconds < 60:
+        return f"{seconds:.0f}s"
+    m, s = divmod(int(seconds), 60)
+    if m < 60:
+        return f"{m}m{s:02d}s"
+    h, m = divmod(m, 60)
+    return f"{h}h{m:02d}m"
+
+
+def render_progress(
+    current: int,
+    total: int,
+    filename: str,
+    elapsed: float,
+    status: str = "",
+    bar_width: int = 30,
+) -> None:
+    """ターミナル幅に収まるプログレスバーを stderr に描画する。"""
+    pct = current / max(total, 1)
+    filled = int(bar_width * pct)
+    bar = "█" * filled + "░" * (bar_width - filled)
+
+    # ETA 計算
+    if current > 0 and pct < 1.0:
+        eta = elapsed / current * (total - current)
+        eta_str = f"ETA {format_time(eta)}"
+    elif pct >= 1.0:
+        eta_str = f"done {format_time(elapsed)}"
+    else:
+        eta_str = "..."
+
+    # ステータス（空白スキップ等）があれば短く表示
+    info = f" {status}" if status else ""
+
+    line = f"  {bar} {current}/{total} ({pct:.0%}) {eta_str}{info}"
+
+    # ターミナル幅を取得して切り詰め
+    try:
+        cols = os.get_terminal_size().columns
+        line = line[:cols]
+    except OSError:
+        pass
+
+    # 行クリア + 行頭復帰で同じ行を上書き
+    print(f"\033[2K\r{line}", end="", file=sys.stderr, flush=True)
+
+
+# ---------------------------------------------------------------------------
+# Main conversion
+# ---------------------------------------------------------------------------
+
+def convert(
+    image_files: list[Path],
+    output_path: Path,
+    model_name: str,
+    skip_blank: bool,
+    resume: bool,
+    blank_threshold: int = DEFAULT_BLANK_THRESHOLD,
+    max_image_size: int = 1280,
+    context_length: int = 0,
+    ocr_cleanup: bool = True,
+    max_repeat: int = DEFAULT_MAX_REPEAT,
+    contamination_threshold: float = DEFAULT_CONTAMINATION_THRESHOLD,
+) -> int:
+    total = len(image_files)
+    if total == 0:
+        log("エラー: 処理対象の画像がありません。")
+        sys.exit(1)
+
+    progress_file = output_path.with_suffix(".progress")
+    progress_dir = page_cache_dir_for(output_path)
+
+    if resume and is_conversion_complete(output_path):
+        char_count = len(output_path.read_text(errors="replace"))
+        log(f"スキップ: 変換済み ({output_path.name}, {char_count:,} 文字)")
+        return char_count
+
+    remove_completion_marker(output_path)
+
+    if resume:
+        progress_pages = load_progress(progress_file)
+        cached_pages = load_cached_pages(progress_dir, image_files)
+        processed = progress_pages | cached_pages
+        rebuild_output_from_cache(
+            image_files=image_files,
+            output_path=output_path,
+            processed=processed,
+            progress_dir=progress_dir,
+        )
+        if progress_pages and not has_markdown_content(output_path) and not cached_pages:
+            log("resume: .progress はありますが Markdown 本文がないため、最初から処理します。")
+            processed = set()
+            progress_file.unlink()
+        if output_path.exists() and not processed and not is_conversion_complete(output_path):
+            backup_path = backup_incomplete_output(output_path)
+            log(f"resume: 完了マーカーのない既存 Markdown を退避しました: {backup_path.name}")
+    else:
+        processed = set()
+        if progress_file.exists():
+            progress_file.unlink()
+        if progress_dir.exists():
+            shutil.rmtree(progress_dir)
+        remove_completion_marker(output_path)
+
+    # resume 時は既存ファイルに追記、それ以外は新規作成
+    mode = "a" if resume and output_path.exists() else "w"
+    has_output_content = resume and has_markdown_content(output_path)
+
+    skipped_blank = 0
+    skipped_done = 0
+    written = 0
+    start_time = time.time()
+
+    with open(output_path, mode) as out:
+        for i, image_file in enumerate(image_files, 1):
+            elapsed = time.time() - start_time
+
+            # Resume: 処理済みスキップ
+            if image_file.name in processed:
+                skipped_done += 1
+                render_progress(i, total, image_file.name, elapsed, "skip:resume")
+                continue
+
+            # 空白ページスキップ
+            if skip_blank and is_blank_image(image_file, threshold=blank_threshold):
+                skipped_blank += 1
+                save_progress(progress_file, image_file.name)
+                render_progress(i, total, image_file.name, elapsed, "skip:blank")
+                continue
+
+            render_progress(i, total, image_file.name, elapsed, image_file.name)
+
+            try:
+                text = recognize_single_image(
+                    model_name, image_file,
+                    max_image_size=max_image_size,
+                    context_length=context_length,
+                    ocr_cleanup=ocr_cleanup,
+                    max_repeat=max_repeat,
+                    contamination_threshold=contamination_threshold,
+                )
+            except Exception as exc:
+                print(file=sys.stderr)  # プログレスバー行を確定
+                log(f"エラー [{i}/{total}] {image_file.name}: リトライ後も失敗しました。{exc}")
+                log("中断します。再実行で続きから自動再開します（--no-resume で最初から）。")
+                sys.exit(1)
+
+            write_text_atomic(cache_page_path(progress_dir, i, image_file), text)
+            append_markdown_page(out, text, needs_separator=has_output_content)
+            has_output_content = True
+            written += 1
+            save_progress(progress_file, image_file.name)
+
+    # プログレスバーを完了表示で確定
+    elapsed = time.time() - start_time
+    render_progress(total, total, "", elapsed)
+    print(file=sys.stderr)  # 改行
+
+    # 完了時にプログレスファイルを削除
+    if progress_file.exists():
+        progress_file.unlink()
+    if progress_dir.exists():
+        shutil.rmtree(progress_dir)
+
+    log(f"完了: {output_path}")
+    log(f"  処理: {written}, 空白スキップ: {skipped_blank}, "
+        f"resume スキップ: {skipped_done}, "
+        f"所要時間: {format_time(elapsed)} "
+        f"({elapsed / max(written, 1):.1f}s/page)")
+
+    char_count = len(output_path.read_text(errors="replace"))
+    mark_conversion_complete(output_path, total, char_count)
+    return char_count
+
+
+# ---------------------------------------------------------------------------
+# Single EPUB processing
+# ---------------------------------------------------------------------------
+
+def process_single_epub(
+    epub_path: Path,
+    output_path: Path,
+    model_name: str,
+    skip_blank: bool,
+    resume: bool,
+    blank_threshold: int,
+    max_image_size: int = 1280,
+    context_length: int = 0,
+    ocr_cleanup: bool = True,
+    max_repeat: int = DEFAULT_MAX_REPEAT,
+    contamination_threshold: float = DEFAULT_CONTAMINATION_THRESHOLD,
+) -> int | None:
+    """1つのEPUBファイルを画像抽出→ページ順解析→OCR→Markdown保存する。
+
+    Returns:
+        int: 処理した場合の出力Markdownの文字数
+        None: テキストベースのためスキップした場合
+    """
+    work_dir = Path(tempfile.mkdtemp(prefix="epub-ocr-"))
+    is_image, md_path, page_order = is_image_based_epub(epub_path, work_dir)
+
+    if not is_image:
+        log(f"スキップ: {epub_path.name} はテキストベースのEPUBです（OCR不要）")
+        return None
+
+    img_dir = extract_epub_images(epub_path, work_dir)
+    image_files = collect_ordered_images(img_dir, page_order)
+
+    char_count = convert(
+        image_files=image_files,
+        output_path=output_path,
+        model_name=model_name,
+        skip_blank=skip_blank,
+        resume=resume,
+        blank_threshold=blank_threshold,
+        max_image_size=max_image_size,
+        context_length=context_length,
+        ocr_cleanup=ocr_cleanup,
+        max_repeat=max_repeat,
+        contamination_threshold=contamination_threshold,
+    )
+    return char_count
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def resolve_output_path(input_path: Path, output_arg: str | None) -> Path:
+    if output_arg:
+        return Path(output_arg).expanduser().resolve()
+    return input_path.with_suffix(".md")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="画像ベース EPUB / 画像ディレクトリ / PDF → Markdown 変換",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "使用例:\n"
+            "  %(prog)s book.epub                         # 単一EPUB\n"
+            "  %(prog)s book.epub -o ~/Desktop/book.md    # 出力先指定\n"
+            "  %(prog)s ./epub-folder/                    # フォルダ内の全EPUB\n"
+            "  %(prog)s ./scanned-pages/                  # 画像ディレクトリ\n"
+            "  %(prog)s ./parent-folder/                  # サブフォルダ毎に.md化\n"
+            "  %(prog)s book.epub --no-resume              # 最初からやり直し\n"
+            "  %(prog)s book.pdf                          # テキストPDF → 直接Markdown化\n"
+            "  %(prog)s scanned.pdf --pdf-force-ocr       # スキャンPDF強制OCR\n"
+            "  %(prog)s ./pdf-folder/                     # フォルダ内の全PDFを処理\n"
+        ),
+    )
+    parser.add_argument(
+        "input",
+        help="EPUB / PDF ファイルまたは画像・PDFを含むディレクトリ",
+    )
+    parser.add_argument(
+        "-o", "--output",
+        default=None,
+        help="出力 Markdown ファイルパス (デフォルト: 入力と同じ場所に .md)",
+    )
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="LM Studio モデル名 (未指定時は起動時に画像対応モデルから選択)",
+    )
+    parser.add_argument(
+        "--no-skip-blank",
+        action="store_true",
+        default=False,
+        help="空白ページスキップを無効化",
+    )
+    parser.add_argument(
+        "--blank-threshold",
+        type=int,
+        default=DEFAULT_BLANK_THRESHOLD,
+        help=f"空白ページ判定の閾値バイト数 (デフォルト: {DEFAULT_BLANK_THRESHOLD})",
+    )
+    parser.add_argument(
+        "--no-resume",
+        action="store_true",
+        default=False,
+        help="中断再開を無効化し最初から処理する (デフォルト: resume ON)",
+    )
+    parser.add_argument(
+        "--max-image-size",
+        type=int,
+        default=1280,
+        help="VLMに送る前に画像の長辺をこのピクセル数にリサイズする (デフォルト: 1280, 0で無効)",
+    )
+    parser.add_argument(
+        "--context-length",
+        type=int,
+        default=4096,
+        help="モデルリロード時のコンテキスト長を指定する (デフォルト: 4096, 0で指定なし)",
+    )
+    parser.add_argument(
+        "--no-ocr-cleanup",
+        action="store_true",
+        default=False,
+        help="OCR後処理(反復崩壊・思考ログ検出・自動再OCR)を無効化する",
+    )
+    parser.add_argument(
+        "--max-repeat",
+        type=int,
+        default=DEFAULT_MAX_REPEAT,
+        help=f"反復崩壊と判定する同一行の連続回数 (デフォルト: {DEFAULT_MAX_REPEAT})",
+    )
+    parser.add_argument(
+        "--contamination-threshold",
+        type=float,
+        default=DEFAULT_CONTAMINATION_THRESHOLD,
+        help=f"思考ログ汚染スコアの再OCR閾値 (デフォルト: {DEFAULT_CONTAMINATION_THRESHOLD})",
+    )
+    parser.add_argument(
+        "--pdf-force-ocr",
+        action="store_true",
+        default=False,
+        help="テキスト埋め込みPDFでもOCRを強制する（デフォルト: テキストベースは直接変換）",
+    )
+    parser.add_argument(
+        "--pdf-dpi",
+        type=int,
+        default=200,
+        help="スキャンPDFのラスタライズ解像度 (デフォルト: 200)",
+    )
+    parser.add_argument(
+        "--pdf-text-threshold",
+        type=int,
+        default=50,
+        help="テキストベース判定の1ページあたり平均文字数閾値 (デフォルト: 50)",
+    )
+    args = parser.parse_args()
+
+    input_path = Path(args.input).expanduser().resolve()
+    if not input_path.exists():
+        log(f"エラー: '{input_path}' が見つかりません。")
+        sys.exit(1)
+
+    resume = not args.no_resume
+    skip_blank = not args.no_skip_blank
+    ocr_cleanup = not args.no_ocr_cleanup
+
+    is_epub = input_path.is_file() and input_path.suffix.lower() == ".epub"
+    is_pdf = input_path.is_file() and input_path.suffix.lower() == ".pdf"
+    is_dir = input_path.is_dir()
+
+    if is_pdf:
+        # 単一 PDF ファイルの処理
+        output_path = resolve_output_path(input_path, args.output)
+
+        if is_conversion_complete(output_path) and resume:
+            char_count = len(output_path.read_text(errors="replace"))
+            log(f"スキップ: {input_path.name} は変換済みです ({output_path.name}, {char_count:,} 文字)")
+            return
+
+        check_poppler()
+        is_text_based, _page_count, _total_chars = classify_pdf(
+            input_path, args.pdf_text_threshold
+        )
+
+        if is_text_based and not args.pdf_force_ocr:
+            # テキスト埋め込みPDF → LM Studio 不要で直接変換
+            char_count = convert_text_pdf(input_path, output_path)
+        else:
+            # スキャンPDF or --pdf-force-ocr → ラスタライズ + OCR
+            ensure_lmstudio()
+            if args.max_image_size > 0:
+                ensure_pillow()
+            check_poppler(require_rasterize=True)
+            model_name = resolve_model_name(args.model)
+            log(f"LM Studio 接続チェック (モデル: {model_name})...")
+            check_lmstudio_connection(model_name, context_length=args.context_length)
+            char_count = rasterize_and_convert_pdf(
+                pdf_path=input_path,
+                output_path=output_path,
+                model_name=model_name,
+                skip_blank=skip_blank,
+                resume=resume,
+                dpi=args.pdf_dpi,
+                blank_threshold=args.blank_threshold,
+                max_image_size=args.max_image_size,
+                context_length=args.context_length,
+                ocr_cleanup=ocr_cleanup,
+                max_repeat=args.max_repeat,
+                contamination_threshold=args.contamination_threshold,
+            )
+
+        log("\n変換結果:")
+        log(f"  {input_path.name} → {output_path.name} ({char_count:,} 文字)")
+        return
+
+    if not is_epub and not is_dir:
+        # 単一画像ファイルの場合
+        if input_path.suffix.lower() in SUPPORTED_EXTENSIONS:
+            output_path = resolve_output_path(input_path, args.output)
+            ensure_lmstudio()
+            if args.max_image_size > 0:
+                ensure_pillow()
+            model_name = resolve_model_name(args.model)
+            check_lmstudio_connection(model_name, context_length=args.context_length)
+            text = recognize_single_image(
+                model_name,
+                input_path,
+                max_image_size=args.max_image_size,
+                context_length=args.context_length,
+                ocr_cleanup=ocr_cleanup,
+                max_repeat=args.max_repeat,
+                contamination_threshold=args.contamination_threshold,
+            )
+            write_text_atomic(output_path, text)
+            log(f"完了: {output_path}")
+            char_count = len(output_path.read_text(errors="replace"))
+            log("\n変換結果:")
+            log(f"  {input_path.name} → {output_path.name} ({char_count:,} 文字)")
+            return
+        log(f"エラー: '{input_path}' は対応していない形式です。EPUB / 画像ディレクトリ / 画像ファイルを指定してください。")
+        sys.exit(1)
+
+    # ディレクトリ指定時: EPUB が含まれていれば各EPUBを個別処理
+    if is_dir:
+        epub_files = sorted(input_path.glob("*.epub"))
+        image_subdirs = collect_image_subdirectories(input_path)
+        has_images = any(
+            f.suffix.lower() in SUPPORTED_EXTENSIONS
+            for f in input_path.iterdir() if f.is_file()
+        )
+
+        if epub_files:
+            # EPUB が1つ以上ある → 各EPUBを個別処理
+            check_pandoc()
+            ensure_lmstudio()
+            if args.max_image_size > 0:
+                ensure_pillow()
+            model_name = resolve_model_name(args.model)
+            log(f"LM Studio 接続チェック (モデル: {model_name})...")
+            check_lmstudio_connection(model_name, context_length=args.context_length)
+
+            log(f"フォルダ内に {len(epub_files)} 件の EPUB を検出")
+            processed_count = 0
+            skipped_text = 0
+            skipped_done = 0
+            skipped_error = 0
+            results: list[tuple[str, str, int]] = []  # (epub名, md名, 文字数)
+            for idx, epub in enumerate(epub_files, 1):
+                log(f"\n{'='*60}")
+                log(f"[{idx}/{len(epub_files)}] {epub.name}")
+                # -o 指定がある場合は無視（各EPUBの出力先は自動決定）
+                out = epub.with_suffix(".md")
+                if args.output and len(epub_files) == 1:
+                    out = Path(args.output).expanduser().resolve()
+
+                # 変換済みスキップ: 完了マーカーがある場合のみ完了済みとみなす
+                if is_conversion_complete(out) and resume:
+                    char_count = len(out.read_text(errors="replace"))
+                    log(f"スキップ: 変換済み ({out.name}, {char_count:,} 文字)")
+                    log(f"{'='*60}")
+                    skipped_done += 1
+                    results.append((epub.name, out.name, char_count))
+                    continue
+
+                try:
+                    char_count = process_single_epub(
+                        epub_path=epub,
+                        output_path=out,
+                        model_name=model_name,
+                        skip_blank=skip_blank,
+                        resume=resume,
+                        blank_threshold=args.blank_threshold,
+                        max_image_size=args.max_image_size,
+                        context_length=args.context_length,
+                        ocr_cleanup=ocr_cleanup,
+                        max_repeat=args.max_repeat,
+                        contamination_threshold=args.contamination_threshold,
+                    )
+                except Exception as exc:
+                    log(f"エラー: {exc}")
+                    log(f"{'='*60}")
+                    skipped_error += 1
+                    continue
+                log(f"{'='*60}")
+                if char_count is not None:
+                    processed_count += 1
+                    results.append((epub.name, out.name, char_count))
+                else:
+                    skipped_text += 1
+            log(f"\n全 {len(epub_files)} 件完了 "
+                f"(OCR処理: {processed_count}, 変換済みスキップ: {skipped_done}, "
+                f"テキストベーススキップ: {skipped_text}, エラースキップ: {skipped_error})")
+            if results:
+                log("\n変換結果:")
+                for epub_name, md_name, chars in results:
+                    log(f"  {epub_name} → {md_name} ({chars:,} 文字)")
+            return
+
+        if image_subdirs:
+            ensure_lmstudio()
+            if args.max_image_size > 0:
+                ensure_pillow()
+            model_name = resolve_model_name(args.model)
+            log(f"LM Studio 接続チェック (モデル: {model_name})...")
+            check_lmstudio_connection(model_name, context_length=args.context_length)
+
+            log(f"フォルダ内に {len(image_subdirs)} 件の画像サブフォルダを検出")
+            processed_count = 0
+            skipped_done = 0
+            skipped_error = 0
+            skipped_no_image = 0
+            subdir_results: list[tuple[str, str, int]] = []
+
+            for idx, subdir in enumerate(image_subdirs, 1):
+                log(f"\n{'='*60}")
+                log(f"[{idx}/{len(image_subdirs)}] {subdir.name}")
+
+                out = input_path / f"{subdir.name}.md"
+
+                if is_conversion_complete(out) and resume:
+                    char_count = len(out.read_text(errors="replace"))
+                    log(f"スキップ: 変換済み ({out.name}, {char_count:,} 文字)")
+                    log(f"{'='*60}")
+                    skipped_done += 1
+                    subdir_results.append((subdir.name, out.name, char_count))
+                    continue
+
+                image_files = collect_ordered_images(subdir, None)
+                if not image_files:
+                    log(f"スキップ: {subdir.name} に画像がありません")
+                    log(f"{'='*60}")
+                    skipped_no_image += 1
+                    continue
+
+                try:
+                    char_count = convert(
+                        image_files=image_files,
+                        output_path=out,
+                        model_name=model_name,
+                        skip_blank=skip_blank,
+                        resume=resume,
+                        blank_threshold=args.blank_threshold,
+                        max_image_size=args.max_image_size,
+                        context_length=args.context_length,
+                        ocr_cleanup=ocr_cleanup,
+                        max_repeat=args.max_repeat,
+                        contamination_threshold=args.contamination_threshold,
+                    )
+                except Exception as exc:
+                    log(f"エラー: {exc}")
+                    log(f"{'='*60}")
+                    skipped_error += 1
+                    continue
+
+                log(f"{'='*60}")
+                processed_count += 1
+                subdir_results.append((subdir.name, out.name, char_count))
+
+            log(f"\n全 {len(image_subdirs)} 件完了 "
+                f"(OCR処理: {processed_count}, 変換済みスキップ: {skipped_done}, "
+                f"画像なしスキップ: {skipped_no_image}, エラースキップ: {skipped_error})")
+            if subdir_results:
+                log("\n変換結果:")
+                for subdir_name, md_name, chars in subdir_results:
+                    log(f"  {subdir_name}/ → {md_name} ({chars:,} 文字)")
+            return
+
+        if has_images:
+            # 画像のみのディレクトリ → 従来通りOCR
+            output_path = resolve_output_path(input_path, args.output)
+            ensure_lmstudio()
+            if args.max_image_size > 0:
+                ensure_pillow()
+            model_name = resolve_model_name(args.model)
+            log(f"LM Studio 接続チェック (モデル: {model_name})...")
+            check_lmstudio_connection(model_name, context_length=args.context_length)
+            image_files = collect_ordered_images(input_path, None)
+            char_count = convert(
+                image_files=image_files,
+                output_path=output_path,
+                model_name=model_name,
+                skip_blank=skip_blank,
+                resume=resume,
+                blank_threshold=args.blank_threshold,
+                max_image_size=args.max_image_size,
+                context_length=args.context_length,
+                ocr_cleanup=ocr_cleanup,
+                max_repeat=args.max_repeat,
+                contamination_threshold=args.contamination_threshold,
+            )
+            log("\n変換結果:")
+            log(f"  {input_path.name} → {output_path.name} ({char_count:,} 文字)")
+            return
+
+        # PDF ファイルが含まれていれば各PDFを個別処理
+        pdf_files = sorted(input_path.glob("*.pdf"))
+        if pdf_files:
+            check_poppler()
+            log(f"フォルダ内に {len(pdf_files)} 件の PDF を検出")
+            processed_count = 0
+            skipped_text = 0
+            skipped_done = 0
+            skipped_error = 0
+            pdf_results: list[tuple[str, str, int]] = []
+            pdf_ocr_model: str | None = None  # スキャンPDF用モデル名（初回のみ解決）
+
+            for idx, pdf in enumerate(pdf_files, 1):
+                log(f"\n{'='*60}")
+                log(f"[{idx}/{len(pdf_files)}] {pdf.name}")
+                out = pdf.with_suffix(".md")
+                if args.output and len(pdf_files) == 1:
+                    out = Path(args.output).expanduser().resolve()
+
+                if is_conversion_complete(out) and resume:
+                    char_count = len(out.read_text(errors="replace"))
+                    log(f"スキップ: 変換済み ({out.name}, {char_count:,} 文字)")
+                    log(f"{'='*60}")
+                    skipped_done += 1
+                    pdf_results.append((pdf.name, out.name, char_count))
+                    continue
+
+                is_text_based, _page_count, _total_chars = classify_pdf(
+                    pdf, args.pdf_text_threshold
+                )
+
+                try:
+                    if is_text_based and not args.pdf_force_ocr:
+                        # テキスト埋め込みPDF → 直接変換
+                        char_count = convert_text_pdf(pdf, out)
+                        processed_count += 1
+                        pdf_results.append((pdf.name, out.name, char_count))
+                    else:
+                        # スキャンPDF or --pdf-force-ocr → ラスタライズ + OCR
+                        if pdf_ocr_model is None:
+                            ensure_lmstudio()
+                            if args.max_image_size > 0:
+                                ensure_pillow()
+                            check_poppler(require_rasterize=True)
+                            pdf_ocr_model = resolve_model_name(args.model)
+                            log(f"LM Studio 接続チェック (モデル: {pdf_ocr_model})...")
+                            check_lmstudio_connection(
+                                pdf_ocr_model, context_length=args.context_length
+                            )
+                        char_count = rasterize_and_convert_pdf(
+                            pdf_path=pdf,
+                            output_path=out,
+                            model_name=pdf_ocr_model,
+                            skip_blank=skip_blank,
+                            resume=resume,
+                            dpi=args.pdf_dpi,
+                            blank_threshold=args.blank_threshold,
+                            max_image_size=args.max_image_size,
+                            context_length=args.context_length,
+                            ocr_cleanup=ocr_cleanup,
+                            max_repeat=args.max_repeat,
+                            contamination_threshold=args.contamination_threshold,
+                        )
+                        processed_count += 1
+                        pdf_results.append((pdf.name, out.name, char_count))
+                except Exception as exc:
+                    log(f"エラー: {exc}")
+                    log(f"{'='*60}")
+                    skipped_error += 1
+                    continue
+                log(f"{'='*60}")
+
+            log(
+                f"\n全 {len(pdf_files)} 件完了 "
+                f"(処理: {processed_count}, 変換済みスキップ: {skipped_done}, "
+                f"テキストベーススキップ: {skipped_text}, エラースキップ: {skipped_error})"
+            )
+            if pdf_results:
+                log("\n変換結果:")
+                for pdf_name, md_name, chars in pdf_results:
+                    log(f"  {pdf_name} → {md_name} ({chars:,} 文字)")
+            return
+
+        log(f"エラー: '{input_path}' に EPUB も画像も PDF も見つかりません。")
+        sys.exit(1)
+
+    # 単一 EPUB ファイル
+    output_path = resolve_output_path(input_path, args.output)
+
+    # 変換済みスキップ: 完了マーカーがある場合のみ完了済みとみなす
+    if is_conversion_complete(output_path) and resume:
+        char_count = len(output_path.read_text(errors="replace"))
+        log(f"スキップ: {input_path.name} は変換済みです ({output_path.name}, {char_count:,} 文字)")
+        return
+
+    check_pandoc()
+    ensure_lmstudio()
+    if args.max_image_size > 0:
+        ensure_pillow()
+    model_name = resolve_model_name(args.model)
+    log(f"LM Studio 接続チェック (モデル: {model_name})...")
+    check_lmstudio_connection(model_name, context_length=args.context_length)
+    char_count = process_single_epub(
+        epub_path=input_path,
+        output_path=output_path,
+        model_name=model_name,
+        skip_blank=skip_blank,
+        resume=resume,
+        blank_threshold=args.blank_threshold,
+        max_image_size=args.max_image_size,
+        context_length=args.context_length,
+        ocr_cleanup=ocr_cleanup,
+        max_repeat=args.max_repeat,
+        contamination_threshold=args.contamination_threshold,
+    )
+    if char_count is not None:
+        log("\n変換結果:")
+        log(f"  {input_path.name} → {output_path.name} ({char_count:,} 文字)")
+
+
+if __name__ == "__main__":
+    main()
