@@ -50,6 +50,7 @@ _VERDICT_NORMALIZE = {
     "〇": "○",   # U+3007 IDEOGRAPHIC NUMBER ZERO → U+25CB
     "◯": "○",   # U+25EF LARGE CIRCLE → U+25CB
     "O": "○",   # ASCII O → U+25CB
+    "0": "○",   # ASCII DIGIT ZERO → U+25CB（OCRが ○ を 0 と誤読する頻出アーティファクト）
 }
 
 

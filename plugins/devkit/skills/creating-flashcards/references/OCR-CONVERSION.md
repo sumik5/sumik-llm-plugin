@@ -201,3 +201,24 @@ cat /tmp/smoke/page-45.md
 
 - 🔴 **巨大OCR Markdown を `Read` で全文読みしない**（[INSTRUCTIONS.md](../INSTRUCTIONS.md) Step 1 のトークン予算注意参照）。`wc`/`grep -n`/`sed -n` で構造把握 → 抽出は `parse()` に委譲。
 - OCR残存汚染（思考ログ・反復崩壊）のサルベージは `parser_scaffold.py` の `strip_thinking_logs` / `collapse_repeated_lines`、高度サルベージは [CONTENT-BY-TYPE.md](CONTENT-BY-TYPE.md) の「OCR汚染対策」。
+
+---
+
+## 8. Apple Vision の弱点と VLM 併用（実観測）
+
+Apple Vision は高速だがレイアウトを理解しない純OCR。以下の弱点はパーサー側の対処か、該当ページだけ VLM 併用で補う。
+
+### サイドバートピック名の本文混入
+
+段組ページの欄外トピック名（「物質の三態」等の短い名詞句）や用語/重要ボックスが、列再構成後も本文行間に注入されることがある（右サイドバー検出が拾えない左欄・狭い欄）。パーサーの設問クリーニングで「7字以下・句読点/括弧/。なし・かな漢字のみの独立行」を除去する（[CONTENT-BY-TYPE.md](CONTENT-BY-TYPE.md) の〇✕テスト型 手順5）。
+
+### 🔴 表・2D図の崩壊 → 該当ページのみ VLM 再OCR（ハイブリッド）
+
+表（比較表・データ表）や樹形図など2D構造は、Vision では行・列が分解されて意味が崩れる。**全書を遅い VLM で再OCRするのは非効率**。表を含むページ（多くは章末まとめ問題・巻末模擬試験のMCQ）だけを VLM で再OCRし、表をテキスト化する:
+
+1. **対象PDFページの逆算**: Vision出力Markdownはページ境界 `---` で区切られる。対象セクション先頭行までの `^---$` 個数 ≒ markdownページindex。Vision は空白ページをスキップする（例: 529→524）ため、**PDFページ ≈ markdownページindex + 先行スキップ分**。前後にマージンを取って範囲を決める。印刷ページ番号アンカー（本文中の `^\d{3}$` 行）も併用して範囲を裏取りする。
+2. **範囲をラスタライズして VLM 再OCR**: `pdftoppm -png -r 200 -f <開始> -l <終了> <pdf> <dir>/page` で画像化 → `recognize-image-to-markdown <dir> -o <out>.md --model "<vision-model-key>"`（ディレクトリ入力モード）。例: 模擬試験 問題編28ページのみVLM再OCR＝約10分。
+3. **解答編は Vision のままでよい**: 解答・解説はテキスト主体（`問題N 解答（X）` ＋〔解説〕）で Vision でもクリーンなことが多い。問題編（表入り）だけ VLM 再OCRし、解答は Vision 出力と番号照合する（問題編VLM＋解答編Visionのハイブリッド）。
+4. **VLM と Vision の併走**: VLM(LM Studio/Metal GPU) と Apple Vision(Neural Engine/CPU) は実行ユニットが異なり、メモリに余裕があれば並行実行できる（Vision連鎖で他冊をOCRしながら特定冊のMCQページをVLM再OCR、等）。
+
+> 代替: 表を含む設問を `needs_fix` タグ付きで投入し（toolkitが⚠️要手修正div＋`_要手修正`タグを自動付与）、後でまとめて VLM 補完する運用も可。

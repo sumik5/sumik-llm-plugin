@@ -309,6 +309,13 @@ class TestVerdictAndQtype(BaseToolkitTest):
         self.assertIn("○", html)            # U+25CB
         self.assertNotIn("〇", html)         # U+3007 は残らない
 
+    def test_verdict_zero_normalized(self):
+        # OCRが ○ を数字 0 と誤読するケース（解答キー "1.0 2.✕" 等）
+        qa = QAPair(front="記述", qtype="truefalse", verdict="0", back="解説")
+        html = build_back_html(qa)
+        self.assertIn("○", html)            # U+25CB
+        self.assertNotIn(">0<", html)       # 生の数字0は判定表示に残らない
+
     def test_invalid_qtype_raises_in_build_front(self):
         qa = QAPair(front="Q", qtype="multiple")
         with self.assertRaises(ValueError):
