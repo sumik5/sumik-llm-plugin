@@ -1,6 +1,57 @@
 # OCR変換ガイド（画像ベースPDF/EPUB → Markdown）
 
-スキャン本（本文がページ画像のPDF/EPUB）をローカルVLMでOCRして Markdown 化する手順。Step 1 の変換フェーズで、テキスト抽出が本文を取れない場合に使う。ツールは `${CLAUDE_SKILL_DIR}/scripts/recognize-image-to-markdown`（同梱）。
+スキャン本（本文がページ画像のPDF/EPUB）をローカルOCRして Markdown 化する手順。Step 1 の変換フェーズで、テキスト抽出が本文を取れない場合に使う。OCRエンジンは2系統を同梱する。
+
+## 0. エンジンの選択（🔴 第一選択は Apple Vision）
+
+| エンジン | スクリプト | 速度 | 特性 | 使う場面 |
+|---------|-----------|------|------|---------|
+| **Apple Vision（既定）** | `${CLAUDE_SKILL_DIR}/scripts/ocr-apple-vision` | **約1〜2秒/ページ** | Neural Engine のネイティブOCR。LLMでないため思考ログ漏洩・反復崩壊が皆無。テキスト＋座標を返し列再構成で読み順回復。表・2D図は構造化されず生テキスト | **まずこれ**。Q&A中心・単段組・本文＋右サイドバー構成のスキャン本 |
+| VLM（フォールバック） | `${CLAUDE_SKILL_DIR}/scripts/recognize-image-to-markdown` | 約22秒/ページ | ローカルVLM。低速だがMarkdownテーブル・見出しを文脈理解で再現 | 表・複雑レイアウトの**忠実な構造再現が品質に直結**するソースのみ |
+
+> 実測比較（同一ページ・危険物テキスト）: Apple Vision 1.77秒 vs VLM 約22秒（**約12倍速**）。全2,380ページ規模ではVLM約15時間に対しVision約1〜1.5時間（OCR）＋ラスタライズ。Visionは脱字が軽微に出る・2D図は断片化するが、Q&A抽出に必要なテキストは取れる。
+
+---
+
+## Apple Vision OCR（既定・高速）
+
+ツール: `${CLAUDE_SKILL_DIR}/scripts/ocr-apple-vision`（同梱・`ocrmac` 経由で `VNRecognizeTextRequest` を呼ぶ）。
+
+```bash
+# スキャンPDF（自動でpdftoppmラスタライズ→Vision OCR→列再構成→Markdown・resume内蔵）
+${CLAUDE_SKILL_DIR}/scripts/ocr-apple-vision <input.pdf> -o /tmp/<name>.md
+# 画像ディレクトリ / 単一画像も可
+${CLAUDE_SKILL_DIR}/scripts/ocr-apple-vision ./scanned-pages/ -o /tmp/<name>.md
+```
+
+| オプション | 用途 |
+|-----------|------|
+| `--lang ja-JP,en-US` | 認識言語（ロケール完全形。`ja`/`en` 不可） |
+| `--level accurate\|fast` | 精度（既定 accurate） |
+| `--pdf-dpi N` | ラスタライズ解像度（既定200。下げると速いが小字が落ちやすい） |
+| `--col-gap F` | 右サイドバー検出のxギャップ閾値（既定0.08）。`0` で単段組固定 |
+| `--min-confidence F` | 信頼度未満ブロックを捨てる（既定0.0=全採用） |
+| `--no-resume` | キャッシュ無視で最初から |
+
+### 🔴 列再構成（多段組の読み順回復・Vision品質の鍵）
+
+Vision は「テキスト＋バウンディングボックス(x,y,w,h・正規化・左下原点)」を返すだけでレイアウトを理解しない。素朴にy降順で並べると、本文と右サイドバー（用語/重要ボックス）が**行単位で交互混入して崩れる**。
+
+スクリプトは **右サイドバー検出**で対処する: 右領域（x ≥ 0.5）で最大のxギャップを探し、閾値以上ならそこを本文／サイドバー境界として2列に分け、各列を上→下（y降順）に整列して左→右に連結する。右領域に独立塊が無ければ単段組（1列）として扱う。
+
+> ⚠️ 汎用N列クラスタリング（x-startのギャップ分割）は**2D図が中間xを埋めると1列に collapse して破綻**する（実観測）。対象書籍は「単段組Q&A」か「本文＋右サイドバー」の二択がほぼ全てなので、右サイドバー検出に特化する方が堅牢。左サイドバーや3列以上の特殊レイアウトでVision出力が崩れたら、そのソースだけVLM(recognize-image-to-markdown)へ切り替える。
+
+### 前提
+
+- macOS 12+（日本語Vision対応）／Apple Silicon推奨
+- `poppler`（`pdftoppm`）: PDFラスタライズ時
+- `ocrmac` Pythonパッケージ（無ければスクリプトが自動pip導入）
+
+---
+
+## VLM OCR（フォールバック・高忠実）
+
+以下は表・複雑レイアウトの忠実再現が要る場合のVLM方式。ツールは `${CLAUDE_SKILL_DIR}/scripts/recognize-image-to-markdown`（同梱）。
 
 ---
 

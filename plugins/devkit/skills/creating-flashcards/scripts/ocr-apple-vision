@@ -1,0 +1,379 @@
+#!/usr/bin/env python3
+"""ocr-apple-vision — Apple Vision (VNRecognizeTextRequest) による高速ローカルOCR。
+
+画像ベースの PDF / 画像ディレクトリ / 画像ファイルを Apple Vision で日本語OCRし、
+Markdown に書き起こす。LM Studio/VLM を使わず Neural Engine で実行するため
+VLM 方式（recognize-image-to-markdown）より桁違いに速い（実測 約1〜2秒/ページ）。
+
+VLM との違い・使い分け:
+  - 速い・LLMでないので思考ログ漏洩や反復崩壊が原理的に起きない。
+  - 反面、レイアウト理解はしない（テキスト＋座標を返すだけ）。表は生テキストになり、
+    2D図は断片化する。多段組ページは座標による「列再構成」で読み順を回復する。
+  - 構造（Markdownテーブル・見出し）の忠実な再現が要るソースは VLM 方式を使う。
+
+使用例:
+  ocr-apple-vision book.pdf -o /tmp/book.md
+  ocr-apple-vision book.pdf -o /tmp/book.md --pdf-dpi 200 --lang ja-JP,en-US
+  ocr-apple-vision ./scanned-pages/ -o /tmp/out.md      # 画像ディレクトリ
+  ocr-apple-vision page.png                              # 単一画像（-o 省略時は .md 併置）
+  ocr-apple-vision book.pdf -o /tmp/book.md --no-resume  # 最初からやり直し
+
+前提:
+  - macOS 12+（日本語 Vision 対応）／Apple Silicon 推奨
+  - poppler（pdftoppm）: PDF ラスタライズ時に必要
+  - ocrmac パッケージ（無ければ自動 pip 導入を試みる）
+  - Python 3.10+
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".tiff", ".tif"}
+PAGE_SEPARATOR = "\n\n---\n\n"
+DEFAULT_LANGS = ["ja-JP", "en-US"]
+DEFAULT_LEVEL = "accurate"          # "accurate" | "fast"
+DEFAULT_DPI = 200
+# 右サイドバー検出の x ギャップ閾値（正規化座標）。右領域（x>SIDEBAR_REGION）で
+# この値以上のギャップが空いたらそこを本文／サイドバーの列境界とみなす。
+# 単段組ページ（右領域に独立ブロック塊が無い）は1列に収束する（過分割しない）。
+DEFAULT_COL_GAP = 0.08
+# サイドバー候補とみなす右領域の x-start 下限（正規化）。
+SIDEBAR_REGION = 0.5
+
+
+def log(msg: str) -> None:
+    print(msg, file=sys.stderr)
+
+
+def ensure_ocrmac() -> None:
+    try:
+        import ocrmac  # noqa: F401
+    except ImportError:
+        log("ocrmac パッケージをインストールしています...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "ocrmac", "-q"])
+
+
+def check_poppler() -> None:
+    if shutil.which("pdftoppm") is None:
+        log("エラー: pdftoppm が見つかりません。brew install poppler でインストールしてください。")
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------------------
+# 読み順再構成（多段組対応）
+# ---------------------------------------------------------------------------
+
+def _detect_columns(x_starts: list[float], col_gap: float) -> list[float]:
+    """x-start 群から列の左端境界リストを返す（本文＋右サイドバーの2列 or 単段組）。
+
+    汎用N列クラスタリングは2D図（中間xにブロックが散る）で破綻するため、対象書籍に
+    多い「本文（左）＋右サイドバー（用語/重要ボックス）」に特化する。右領域
+    （x ≥ SIDEBAR_REGION）で最大のギャップを探し、それが col_gap 以上ならそこを
+    本文／サイドバーの境界とする。右領域に独立した塊が無ければ単段組（1列）。
+    """
+    if len(x_starts) < 2:
+        return [min(x_starts)] if x_starts else [0.0]
+    ordered = sorted(x_starts)
+    best_gap, best_split = 0.0, None
+    for left, right in zip(ordered, ordered[1:]):
+        gap = right - left
+        if right >= SIDEBAR_REGION and gap > best_gap:
+            best_gap, best_split = gap, right
+    if best_split is not None and best_gap >= col_gap:
+        return [ordered[0], best_split]
+    return [ordered[0]]
+
+
+def _column_index(x: float, bounds: list[float]) -> int:
+    """x-start が属する列インデックス（最も近い左端境界以下の最大）を返す。"""
+    idx = 0
+    for i, b in enumerate(bounds):
+        if x >= b - 1e-9:
+            idx = i
+    return idx
+
+
+def reconstruct_reading_order(
+    blocks: list[tuple[str, float, tuple[float, float, float, float]]],
+    col_gap: float,
+    min_confidence: float,
+) -> str:
+    """Vision の認識ブロック（text, confidence, bbox）から読み順 Markdown を組み立てる。
+
+    bbox = (x, y, w, h) 正規化座標・左下原点。列クラスタリング（x-start のギャップ分割）→
+    各列を上→下（y降順）→左→右（x昇順）で整列し、列を左→右に連結する。
+    """
+    kept = [b for b in blocks if b[1] >= min_confidence and b[0].strip()]
+    if not kept:
+        return ""
+    bounds = _detect_columns([b[2][0] for b in kept], col_gap)
+    ordered = sorted(
+        kept,
+        key=lambda r: (_column_index(r[2][0], bounds), -r[2][1], r[2][0]),
+    )
+    return "\n".join(text for text, _, _ in ordered)
+
+
+def recognize_page(
+    image_path: Path,
+    langs: list[str],
+    level: str,
+    col_gap: float,
+    min_confidence: float,
+) -> str:
+    """1枚の画像を Apple Vision でOCRし、読み順再構成済みテキストを返す。"""
+    from ocrmac import ocrmac
+
+    annotations = ocrmac.OCR(
+        str(image_path),
+        language_preference=langs,
+        recognition_level=level,
+    ).recognize()
+    # annotations: list[(text, confidence, (x, y, w, h))]
+    return reconstruct_reading_order(annotations, col_gap, min_confidence)
+
+
+# ---------------------------------------------------------------------------
+# 入力収集（PDF ラスタライズ / 画像ディレクトリ）
+# ---------------------------------------------------------------------------
+
+def natural_sort_key(path: Path) -> list[object]:
+    return [
+        int(tok) if tok.isdigit() else tok.lower()
+        for tok in re.split(r"(\d+)", path.name)
+    ]
+
+
+def collect_images(directory: Path) -> list[Path]:
+    return sorted(
+        (
+            f for f in directory.iterdir()
+            if f.is_file() and f.suffix.lower() in SUPPORTED_EXTENSIONS
+        ),
+        key=natural_sort_key,
+    )
+
+
+def rasterize_pdf(pdf_path: Path, dpi: int, dest_dir: Path) -> list[Path]:
+    """pdftoppm で PDF を PNG 群にラスタライズし、自然順の画像リストを返す。"""
+    log(f"PDF ラスタライズ中 (DPI={dpi})...")
+    result = subprocess.run(
+        ["pdftoppm", "-png", "-r", str(dpi), str(pdf_path), str(dest_dir / "page")],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        log(f"エラー: pdftoppm 失敗 (exit {result.returncode}): "
+            f"{result.stderr.strip() or '(詳細なし)'}")
+        sys.exit(1)
+    images = collect_images(dest_dir)
+    if not images:
+        log("エラー: pdftoppm が PNG を生成しませんでした。")
+        sys.exit(1)
+    log(f"ラスタライズ完了: {len(images)} ページ → OCR 開始")
+    return images
+
+
+# ---------------------------------------------------------------------------
+# Resume / 出力（atomic write + per-page cache + completion marker）
+# ---------------------------------------------------------------------------
+
+def progress_dir_for(output: Path) -> Path:
+    return output.with_suffix(".progress.d")
+
+
+def completion_marker_for(output: Path) -> Path:
+    return output.with_suffix(".complete")
+
+
+def cache_page_path(progress_dir: Path, index: int) -> Path:
+    return progress_dir / f"{index:05d}.md"
+
+
+def write_text_atomic(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(text)
+        f.flush()
+        os.fsync(f.fileno())
+    tmp.replace(path)
+
+
+def format_time(seconds: float) -> str:
+    if seconds < 60:
+        return f"{seconds:.0f}s"
+    m, s = divmod(int(seconds), 60)
+    if m < 60:
+        return f"{m}m{s:02d}s"
+    h, m = divmod(m, 60)
+    return f"{h}h{m:02d}m"
+
+
+def render_progress(current: int, total: int, elapsed: float) -> None:
+    pct = current / max(total, 1)
+    bar = "█" * int(30 * pct) + "░" * (30 - int(30 * pct))
+    if 0 < current < total:
+        eta = f"ETA {format_time(elapsed / current * (total - current))}"
+    elif current >= total:
+        eta = f"done {format_time(elapsed)}"
+    else:
+        eta = "..."
+    line = f"  {bar} {current}/{total} ({pct:.0%}) {eta}"
+    try:
+        line = line[:os.get_terminal_size().columns]
+    except OSError:
+        pass
+    print(f"\033[2K\r{line}", end="", file=sys.stderr, flush=True)
+
+
+def convert(
+    images: list[Path],
+    output: Path,
+    langs: list[str],
+    level: str,
+    col_gap: float,
+    min_confidence: float,
+    resume: bool,
+) -> int:
+    total = len(images)
+    progress_dir = progress_dir_for(output)
+    marker = completion_marker_for(output)
+
+    if resume and output.exists() and marker.exists():
+        chars = len(output.read_text(encoding="utf-8", errors="replace"))
+        log(f"スキップ: 変換済み ({output.name}, {chars:,} 文字)")
+        return chars
+
+    if not resume:
+        if progress_dir.exists():
+            shutil.rmtree(progress_dir)
+        if marker.exists():
+            marker.unlink()
+        if output.exists():
+            output.unlink()
+    if marker.exists():
+        marker.unlink()
+    progress_dir.mkdir(parents=True, exist_ok=True)
+
+    start = time.time()
+    done = 0
+    for i, image in enumerate(images, 1):
+        cache = cache_page_path(progress_dir, i)
+        if resume and cache.exists():
+            done += 1
+            render_progress(i, total, time.time() - start)
+            continue
+        try:
+            text = recognize_page(image, langs, level, col_gap, min_confidence)
+        except Exception as exc:  # noqa: BLE001 — 1ページ失敗で全体を止めない
+            log(f"\n警告 [{i}/{total}] {image.name}: 認識失敗 ({exc})。空ページとして継続。")
+            text = ""
+        write_text_atomic(cache, text)
+        done += 1
+        render_progress(i, total, time.time() - start)
+
+    # キャッシュ断片を結合して出力（順序保証）
+    pages = [
+        cache_page_path(progress_dir, i).read_text(encoding="utf-8", errors="replace")
+        for i in range(1, total + 1)
+        if cache_page_path(progress_dir, i).exists()
+    ]
+    markdown = PAGE_SEPARATOR.join(p for p in pages if p.strip())
+    write_text_atomic(output, markdown)
+    write_text_atomic(
+        marker,
+        f"output={output.name}\npages={total}\nchars={len(markdown)}\n"
+        f"completed_at={time.strftime('%Y-%m-%dT%H:%M:%S%z')}\n",
+    )
+    shutil.rmtree(progress_dir, ignore_errors=True)
+
+    elapsed = time.time() - start
+    print(file=sys.stderr)
+    log(f"完了: {output} ({len(markdown):,} 文字, {format_time(elapsed)}, "
+        f"{elapsed / max(done, 1):.2f}s/page)")
+    return len(markdown)
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Apple Vision による高速ローカルOCR（PDF / 画像 → Markdown）",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("input", help="PDF / 画像ディレクトリ / 画像ファイル")
+    parser.add_argument("-o", "--output", default=None,
+                        help="出力 Markdown パス（省略時は入力と同じ場所に .md）")
+    parser.add_argument("--lang", default=",".join(DEFAULT_LANGS),
+                        help=f"認識言語（カンマ区切り・ロケール形）既定: {','.join(DEFAULT_LANGS)}")
+    parser.add_argument("--level", default=DEFAULT_LEVEL, choices=["accurate", "fast"],
+                        help=f"認識精度（既定: {DEFAULT_LEVEL}）")
+    parser.add_argument("--pdf-dpi", type=int, default=DEFAULT_DPI,
+                        help=f"PDF ラスタライズ解像度（既定: {DEFAULT_DPI}）")
+    parser.add_argument("--col-gap", type=float, default=DEFAULT_COL_GAP,
+                        help=f"列分割の x ギャップ閾値・正規化（既定: {DEFAULT_COL_GAP}・0で単段組固定）")
+    parser.add_argument("--min-confidence", type=float, default=0.0,
+                        help="この信頼度未満のブロックを捨てる（既定: 0.0=全採用）")
+    parser.add_argument("--no-resume", action="store_true", default=False,
+                        help="中断再開を無効化し最初から処理する")
+    args = parser.parse_args()
+
+    input_path = Path(args.input).expanduser().resolve()
+    if not input_path.exists():
+        log(f"エラー: '{input_path}' が見つかりません。")
+        sys.exit(1)
+
+    langs = [s.strip() for s in args.lang.split(",") if s.strip()]
+    resume = not args.no_resume
+    ensure_ocrmac()
+
+    if input_path.is_file() and input_path.suffix.lower() == ".pdf":
+        output = (Path(args.output).expanduser().resolve()
+                  if args.output else input_path.with_suffix(".md"))
+        check_poppler()
+        tmp_dir = Path(tempfile.mkdtemp(prefix="vision-ocr-"))
+        try:
+            images = rasterize_pdf(input_path, args.pdf_dpi, tmp_dir)
+            chars = convert(images, output, langs, args.level,
+                            args.col_gap, args.min_confidence, resume)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+    elif input_path.is_dir():
+        output = (Path(args.output).expanduser().resolve()
+                  if args.output else input_path.with_suffix(".md"))
+        images = collect_images(input_path)
+        if not images:
+            log(f"エラー: '{input_path}' に画像が見つかりません。")
+            sys.exit(1)
+        chars = convert(images, output, langs, args.level,
+                        args.col_gap, args.min_confidence, resume)
+    elif input_path.suffix.lower() in SUPPORTED_EXTENSIONS:
+        output = (Path(args.output).expanduser().resolve()
+                  if args.output else input_path.with_suffix(".md"))
+        text = recognize_page(input_path, langs, args.level,
+                              args.col_gap, args.min_confidence)
+        write_text_atomic(output, text)
+        chars = len(text)
+        log(f"完了: {output} ({chars:,} 文字)")
+    else:
+        log(f"エラー: 対応していない入力形式です: {input_path.suffix}")
+        sys.exit(1)
+
+    log("\n変換結果:")
+    log(f"  {input_path.name} → {output.name} ({chars:,} 文字)")
+
+
+if __name__ == "__main__":
+    main()
