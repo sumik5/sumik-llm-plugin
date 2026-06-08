@@ -225,6 +225,21 @@ class TestHtmlGolden(BaseToolkitTest):
         self.assertNotIn("<li>", html)
         self.assertIn("A. 選択肢1<br>B. 選択肢2", html)
 
+    def test_choice_numeric_label_correct_mapping(self):
+        # 数字ラベル選択肢（1. 〜）でも correct=["1"] で正解本文がマップされる
+        qa = QAPair(front="問題文", qtype="choice",
+                    choices=["1. 選択肢1", "2. 選択肢2", "3. 選択肢3"], correct=["2"])
+        html = build_back_html(qa)
+        self.assertIn("2. 選択肢2", html)   # ラベルだけでなく本文も表示
+
+    def test_choice_circled_label_correct_mapping(self):
+        # 丸数字ラベル（① 〜）でも correct=["①"] でマップされる
+        qa = QAPair(front="問題文", qtype="choice",
+                    choices=["① 選択肢1", "② 選択肢2"], correct=["①"])
+        html = build_back_html(qa)
+        self.assertIn("①", html)
+        self.assertIn("選択肢1", html)   # ラベルに紐づく本文がマップされる
+
     def test_truefalse_judgement_instruction(self):
         qa = QAPair(front="この記述は正しい", qtype="truefalse", verdict="○")
         html = build_front_html(qa)

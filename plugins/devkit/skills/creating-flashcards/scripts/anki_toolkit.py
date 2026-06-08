@@ -419,10 +419,16 @@ def _format_wrong_explanations(qa: "QAPair") -> str:
 
 
 def _choices_by_letter(choices: list[str]) -> dict[str, str]:
-    """["A. テキスト", ...] を {"A": "テキスト", ...} に分解する。"""
+    """["A. テキスト", ...] を {"A": "テキスト", ...} に分解する。
+
+    ラベルはレター（A-I/a-i/ア-ン）に加え、数字（1-9/０-９）・丸数字（①-⑩）も許容する
+    （五肢択一問題集は `1. 〜` `(1) 〜` `① 〜` 等の数字系ラベルが多く、correct=["1"]/["①"]
+    でも正解本文がマップされるようにするため）。区切り（. ． ： : 、 ） 空白）は任意。
+    """
     result: dict[str, str] = {}
     for c in choices:
-        m = re.match(r"^\s*([A-Ia-iア-ン])[.．：:、]\s*(.*)$", c, re.DOTALL)
+        m = re.match(r"^\s*([A-Ia-iア-ン0-9０-９①-⑩])\s*[.．：:、)）]?\s*(.*)$",
+                     c, re.DOTALL)
         if m:
             result[m.group(1)] = m.group(2).strip()
     return result
