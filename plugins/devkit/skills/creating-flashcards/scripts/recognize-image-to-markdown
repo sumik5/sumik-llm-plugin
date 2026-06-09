@@ -575,6 +575,13 @@ _THINK_ANCHORS = [
     r"^Let'?s look at (?:the|this) character",
     r"^Testing the hypothesis",
     r"^Confirming the reading",
+    # 英語メタ思考・整形計画・構造説明（日本語アンカーをすり抜けた英語変種。試験本文に出にくい語）
+    r"(?:Refine|Final|Initial|Self)[- ]?(?:Formatting|Scan|Correction|Draft)",
+    r"^\s*\d+\.\s*\*{0,2}(?:Refine|Identify|Analyze|Scan|Structure|Transcribe|Assemble|Body Text|Header|Footer)",
+    r"The (?:checkbox|checkboxes|sidebar|header|footer|image|main section|table|symbol)\b[^\n]{0,40}(?:look|appear|seem|is |are |shows?)",
+    r"\bI (?:will|'ll|should|need to|am going to)\s+(?:use|place|write|transcribe|output|describe|format|represent|structure|skip|include)\b",
+    r"(?:Let me|Let's)\s+(?:assemble|reconsider|structure|format|look at the|check the)",
+    r"\bProblem\s*\d+\s*[:：]",
     # 日本語自問自答ループ
     r"^(?:画像の(?:分析|文字)|いや、待て|よし、「.+?」|もう一度)",
     # 三人称セルフ説明
