@@ -10,12 +10,16 @@
 #       既定では Calibre の ebook-meta で Title をファイル名から付与する(lossless・本文不変)。
 #
 #       --pdf-to-epub 指定時は、PDF を「1ページ=1画像=1画面」の reflowable EPUB へ
-#       再構成する。Kindle の PDF ビューアは PDF を固定サイズで描画するため、E-Ink の
-#       小画面ではページが収まらず「見開きにならない/下にスクロールしないと全体が
-#       見えない」状態になる。各ページを画像化し画面フィット(max-width/height:100%)の
-#       XHTML 1 枚ずつに収めた EPUB にすると、各ページが画面にフィットしページ送りで
-#       読め、1 ページ目が表紙として宣言される。スキャン画像書籍(画像 PDF・OCR 付き
-#       スキャン PDF)の Kindle 最適化に有効。
+#       再構成する(OCR は行わず、pdftoppm で各ページを画像化するだけ。大判スキャンや
+#       低速な外部ボリュームでの遅さは OCR ではなく画像化の I/O による)。Kindle の PDF
+#       ビューアは PDF を固定サイズで描画するため、E-Ink の小画面ではページが収まらず
+#       「見開きにならない/下にスクロールしないと全体が見えない」状態になる。各ページを
+#       画像化し画面フィット(max-width/height:100%)の XHTML 1 枚ずつに収めた EPUB に
+#       すると、各ページが画面にフィットしページ送りで読める。表紙は Kindle/KFX が確実に
+#       認識できるよう4機構を併用して宣言する: (1)metadata の <meta name="cover">、
+#       (2)カバー画像の properties="cover-image"、(3)専用 cover.xhtml(SVG 全画面ラップ・
+#       epub:type="cover")、(4)EPUB2 <guide><reference type="cover">。スキャン画像書籍の
+#       Kindle 最適化に有効。
 #
 # 注意(PDF): Send to Kindle で送った個人ドキュメント(PDOC)は、E-Ink 端末では仕様上
 #       "ダウンロード前" のライブラリ一覧に表紙を出さない(ロック画面/スマホアプリでは出る)。
@@ -200,31 +204,44 @@ for i, src in enumerate(imgs, 1):
         '<link rel="stylesheet" type="text/css" href="style.css"/></head>\n'
         '<body><div class="page"><img class="full" src="%s" alt="page %d"/></div></body>\n'
         '</html>\n' % (i, w, h, img_name, i))
+z.writestr("OEBPS/cover.xhtml",
+    '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n'
+    '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="ja">\n'
+    '<head><meta charset="utf-8"/><title>Cover</title>\n'
+    '<meta name="viewport" content="width=%d, height=%d"/>\n'
+    '<style type="text/css">html,body{margin:0;padding:0;height:100%%;}svg{display:block;width:100%%;height:100%%;}</style></head>\n'
+    '<body epub:type="cover"><svg xmlns="http://www.w3.org/2000/svg" '
+    'xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" '
+    'width="100%%" height="100%%" viewBox="0 0 %d %d" preserveAspectRatio="xMidYMid meet">\n'
+    '<image width="%d" height="%d" xlink:href="images/p0001.jpg"/>\n'
+    '</svg></body></html>\n' % (w, h, w, h, w, h))
 z.writestr("OEBPS/nav.xhtml",
     '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n'
     '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="ja">\n'
     '<head><meta charset="utf-8"/><title>目次</title></head>\n<body>\n'
     '<nav epub:type="toc" id="toc"><h1>目次</h1><ol><li><a href="p0001.xhtml">先頭</a></li></ol></nav>\n'
     '</body></html>\n')
+manifest.append('<item id="coverpage" href="cover.xhtml" media-type="application/xhtml+xml" properties="svg"/>')
 manifest.append('<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>')
 manifest.append('<item id="css" href="style.css" media-type="text/css"/>')
+spine_xml = '<itemref idref="coverpage" linear="no"/>\n' + "\n".join(spine)
 z.writestr("OEBPS/content.opf",
     '<?xml version="1.0" encoding="UTF-8"?>\n'
     '<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid">\n'
     '<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n'
     '<dc:identifier id="bookid">%s</dc:identifier>\n<dc:title>%s</dc:title>\n<dc:language>ja</dc:language>\n%s'
     '<meta property="dcterms:modified">%s</meta>\n<meta name="cover" content="img0001"/>\n</metadata>\n'
-    '<manifest>\n%s\n</manifest>\n<spine>\n%s\n</spine>\n</package>\n'
+    '<manifest>\n%s\n</manifest>\n<spine>\n%s\n</spine>\n<guide>\n<reference type="cover" title="Cover" href="cover.xhtml"/>\n</guide>\n</package>\n'
     % (book_id, html.escape(title),
        ('<dc:creator>%s</dc:creator>\n' % html.escape(author)) if author else "",
-       mod, "\n".join(manifest), "\n".join(spine)))
+       mod, "\n".join(manifest), spine_xml))
 z.close()
 print("OK pages=%d" % len(imgs))
 PYEOF
 )"
 
 # ---- カウンタ ----
-processed=0; skipped=0; broken=0; failed=0; total=0
+processed=0; skipped=0; broken=0; failed=0; total=0; backups=0
 
 # ---- EPUB 1冊処理 ----
 process_epub() {
@@ -250,7 +267,7 @@ process_epub() {
     echo "⚠️  検証失敗(原本保持): $name (img: ${orig_imgs}→${new_imgs})"
     rm -rf "$tmp"; failed=$((failed+1)); return
   fi
-  if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then cp "$f" "$f.bak"; fi
+  if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then cp "$f" "$f.bak"; backups=$((backups+1)); fi
   mv "$out" "$f"; rm -rf "$tmp"
   echo "✅ EPUB変換: $name (img: ${new_imgs}枚, 固定レイアウト除去)"
   processed=$((processed+1))
@@ -268,7 +285,7 @@ process_pdf() {
     echo "🔧 メタ付与対象(dry-run): $name"; processed=$((processed+1)); return
   fi
   local pages_before; pages_before="$(pdf_pages "$f")"
-  if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then cp "$f" "$f.bak"; fi
+  if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then cp "$f" "$f.bak"; backups=$((backups+1)); fi
   local title="${name%.*}"
   if ! ebook-meta "$f" --title "$title" >/dev/null 2>&1; then
     echo "⚠️  メタ付与失敗: $name"; failed=$((failed+1)); return
@@ -323,7 +340,7 @@ process_pdf_to_epub() {
   fi
   mv "$tmp/out.epub" "$dst"; rm -rf "$tmp"
   if [ "$REPLACE_PDF" = "1" ]; then
-    if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then cp "$f" "$f.bak"; fi
+    if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then cp "$f" "$f.bak"; backups=$((backups+1)); fi
     rm -f "$f"
     echo "✅ PDF→EPUB変換: $name (${epub_pages}ページ, 元PDF削除${NO_BACKUP:+/}$([ "$NO_BACKUP" = "0" ] && echo ".bak退避済"))"
   else
@@ -366,5 +383,5 @@ if [ "$DRY_RUN" = "1" ]; then
 else
   echo "  処理: $processed 冊 / スキップ(設定済): $skipped 冊"
   echo "  破損(要再取得): $broken 冊 / 失敗: $failed 冊"
-  [ "$NO_BACKUP" = "0" ] && echo "  原本は各 .bak に退避済み(不要なら削除可)"
+  [ "$backups" -gt 0 ] && echo "  原本 $backups 件を .bak に退避済み(不要なら削除可)"
 fi

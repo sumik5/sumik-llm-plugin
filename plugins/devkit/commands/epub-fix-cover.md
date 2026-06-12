@@ -12,7 +12,7 @@ argument-hint: "<folder|file> [--pdf-to-epub] [--replace-pdf] [--pdf-epub-dpi N]
 
 - **EPUB**: 固定レイアウト(fixed-layout / pre-paginated / comic)の EPUB は Kindle のカバー生成や macOS QuickLook がサムネイルを作れず表紙が真っ黒になる。`ebook-convert` で reflowable に再生成し表紙宣言を正規化する。
 - **PDF(既定)**: PDF には EPUB のような「表紙メタの枠」が無く、Kindle はサムネを 1 ページ目の描画から生成する。Title メタが空だとカタログ登録/サムネ生成が不安定なため、`ebook-meta` で Title をファイル名から付与する(lossless・本文不変)。
-- **PDF(`--pdf-to-epub`)**: Kindle の PDF ビューアは PDF を固定サイズで描画するため、E-Ink の小画面では**ページが画面に収まらず「見開きにならない/下にスクロールしないと全体が見えない」**状態になる。各ページを画像化し、画面フィット(`max-width/height:100%`)の XHTML 1 枚ずつに収めた**「1ページ=1画像=1画面」の reflowable EPUB(同名 .epub)**へ再構成すると、各ページが画面にフィットしページ送りで読め、1 ページ目が表紙として宣言される。**スキャン画像書籍(画像 PDF・OCR 付きスキャン PDF)の Kindle 最適化に有効**。
+- **PDF(`--pdf-to-epub`)**: Kindle の PDF ビューアは PDF を固定サイズで描画するため、E-Ink の小画面では**ページが画面に収まらず「見開きにならない/下にスクロールしないと全体が見えない」**状態になる。各ページを画像化し、画面フィット(`max-width/height:100%`)の XHTML 1 枚ずつに収めた**「1ページ=1画像=1画面」の reflowable EPUB(同名 .epub)**へ再構成すると、各ページが画面にフィットしページ送りで読める。表紙は Kindle/KFX が確実に認識できるよう**4機構を併用**して宣言する: (1)metadata の `<meta name="cover">`、(2)カバー画像の `properties="cover-image"`、(3)専用 `cover.xhtml`(SVG 全画面ラップ・`epub:type="cover"`)、(4)EPUB2 `<guide><reference type="cover">`。なお **OCR は行わず** `pdftoppm` でページを画像化するだけで、大判スキャンや低速ボリュームでの遅さは画像化の I/O による(OCR ではない)。**スキャン画像書籍の Kindle 最適化に有効**。
 
 ## 使い方
 
@@ -38,6 +38,8 @@ argument-hint: "<folder|file> [--pdf-to-epub] [--replace-pdf] [--pdf-epub-dpi N]
 - 原本は同じ場所に `<name>.bak` として退避(`--no-backup` で無効化)。`--pdf-to-epub` は既定で元 PDF を残し(`.bak` は作らず)、`--replace-pdf` 指定時のみ `.bak` 退避＋PDF 削除。
 - EPUB の reflowable 化、および `--pdf-to-epub` 変換により**見開き表示は1ページずつのページ送りに変わる**(全ページ・全画像は保全)。
 - **PDF の制約**: Send to Kindle で送った個人ドキュメント(PDOC)は、E-Ink 端末では仕様上「ダウンロード前」のライブラリ一覧に表紙を出さない(ロック画面/スマホアプリでは出る)。これは Kindle 側の制約でファイル側では解消できない。**`--pdf-to-epub` で生成した EPUB は PDOC ではなく電子書籍として扱われるため、この制約と「ページが画面に収まらない」問題の両方を回避できる**(=ユーザーの「カバー＋見開き/スクロール」問題の根本解決)。
+- **`--pdf-to-epub` は OCR を行わない**(pdftoppm でページを画像化するのみ)。大判スキャンや低速な外部ボリュームでの変換の遅さは、OCR ではなく画像化の I/O によるもの。裏で別の OCR タスクが同じボリュームを使っていると競合してさらに遅くなる点に注意。
+- **カバーがそれでも出ない時は Kindle 側キャッシュを疑う**: `--pdf-to-epub` で生成した EPUB は4機構でカバーを宣言済みのため、Send to Kindle してもライブラリに表紙が出ない場合はファイル側ではなく Kindle がカバーをキャッシュしている可能性が高い。端末/アプリから一旦そのタイトルを削除し、再送信すれば反映される。
 - 依存: **Calibre (`ebook-convert` / `ebook-meta`)**。PDF のスキップ判定に `pdfinfo`(poppler) があれば使用(無くても動作)。`--pdf-to-epub` には **`pdftoppm`(poppler) と `python3`** が必須(画像フィット判定に Pillow があれば使用、無くても動作)。未導入なら `brew install --cask calibre` / `brew install poppler` 等で導入し PATH を通すこと(macOS 例: `/Applications/calibre.app/Contents/MacOS`)。
 
 ## 実行
