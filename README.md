@@ -110,7 +110,7 @@ sumik-claude-plugin/                      # GitHub repo（Codex はここを git
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
-| `/epub-fix-cover` | フォルダ配下のEPUBを走査し、表紙サムネイルが出ない固定レイアウトEPUBをreflowableに変換して表紙を正規化（Calibre使用、表紙設定済みはスキップ） |
+| `/epub-fix-cover` | フォルダ配下のEPUB/PDFを走査し、表紙サムネイルが出ない原因を是正（EPUB:固定レイアウトをreflowable化＋表紙正規化／PDF:Titleメタ付与、Calibre使用、是正済みはスキップ） |
 
 ### Skills (73個)
 

@@ -1,41 +1,48 @@
 #!/usr/bin/env bash
-# 指定フォルダ配下の EPUB を走査し、Kindle / Finder で表紙サムネイルが
-# 生成されない「固定レイアウト(pre-paginated)」EPUB を reflowable に変換して
-# 表紙を正規化するスクリプト。
+# 指定フォルダ配下の EPUB / PDF を走査し、Kindle / Finder で表紙サムネイルが
+# 出ない原因を是正するスクリプト。
 #
-# 背景: 固定レイアウト(fixed-layout / pre-paginated / comic)の EPUB は、
-#       Kindle のカバー生成や macOS QuickLook がサムネイルを作れず、表紙が
-#       真っ黒(タイトルのみ)になることがある。Calibre の ebook-convert で
-#       reflowable に再生成すると、表紙宣言が正規化されサムネイルが出るようになる。
+# EPUB: 固定レイアウト(fixed-layout / pre-paginated / comic)の EPUB は Kindle の
+#       カバー生成や macOS QuickLook がサムネイルを作れず表紙が真っ黒になる。
+#       Calibre の ebook-convert で reflowable に再生成し表紙宣言を正規化する。
+# PDF : PDF には EPUB のような「表紙メタの枠」が無く、Kindle はサムネを 1 ページ目の
+#       描画から生成する。Title メタが空だとカタログ登録/サムネ生成が不安定なため、
+#       Calibre の ebook-meta で Title をファイル名から付与する(lossless・本文不変)。
 #
-# 依存: Calibre (ebook-convert)。未導入時はエラー終了する。
+# 注意(PDF): Send to Kindle で送った個人ドキュメント(PDOC)は、E-Ink 端末では仕様上
+#       "ダウンロード前" のライブラリ一覧に表紙を出さない(ロック画面/スマホアプリでは出る)。
+#       これは Kindle 側の制約で、ファイル側では解消できない。
+#
+# 依存: Calibre (ebook-convert / ebook-meta)。PDF のスキップ判定に pdfinfo(poppler)
+#       があれば使用する(無くても動作)。
 set -euo pipefail
 
 usage() {
   cat << 'EOF'
 Usage: epub-fix-cover.sh [OPTIONS] <FOLDER>
 
-<FOLDER> 配下(再帰)のすべての .epub を走査し、表紙サムネイルが生成されない
-固定レイアウト EPUB を reflowable に変換して表紙を正規化します。
+<FOLDER> 配下(再帰)のすべての .epub / .pdf を走査し、Kindle/Finder で表紙
+サムネイルが出ない原因を是正します。
 
-スキップ条件:
-  既に「表紙が出る状態」(= 固定レイアウトでない かつ cover 宣言あり)の EPUB は
-  変換せずスキップします。固定レイアウトの EPUB は cover 宣言の有無に関わらず
-  変換対象になります(固定レイアウトはサムネ生成自体が壊れるため)。
+EPUB:
+  固定レイアウト(pre-paginated)EPUB を reflowable に変換し表紙宣言を正規化。
+  スキップ条件: 固定レイアウトでない かつ cover 宣言あり(= 既に表紙が出る状態)。
+PDF:
+  Title メタが空の PDF にファイル名由来の Title を付与(lossless・本文不変)。
+  スキップ条件: 既に Title メタが設定済み。
 
 Arguments:
   FOLDER          走査するフォルダ(必須)
 
 Options:
   --no-backup     原本の .bak バックアップを作成しない
-  --dry-run       変換せず、対象/スキップの判定だけ表示する
+  --dry-run       変換/付与せず、対象/スキップの判定だけ表示する
   -h, --help      このヘルプを表示
 
-変換時の挙動:
-  - 原本は同じ場所に "<name>.epub.bak" として退避(--no-backup で無効化)
-  - reflowable 化により見開き表示は1ページずつのスクロール表示に変わります
-    (全ページ・全画像は保全されます)
-  - 破損 EPUB(zip として開けないもの)は警告を出してスキップします
+挙動:
+  - 原本は同じ場所に "<name>.bak" として退避(--no-backup で無効化)
+  - EPUB の reflowable 化により見開き表示は1ページずつになります(全ページ・画像は保全)
+  - 破損して開けないファイルは警告を出してスキップします
 EOF
 }
 
@@ -64,106 +71,126 @@ if [ ! -d "$FOLDER" ]; then
 fi
 
 # ---- 依存チェック ----
-if ! command -v ebook-convert >/dev/null 2>&1; then
-  echo "エラー: Calibre の ebook-convert が見つかりません。" >&2
+if ! command -v ebook-convert >/dev/null 2>&1 || ! command -v ebook-meta >/dev/null 2>&1; then
+  echo "エラー: Calibre の ebook-convert / ebook-meta が見つかりません。" >&2
   echo "  Calibre をインストールしてください (例: brew install --cask calibre)" >&2
-  echo "  インストール済みなら ebook-convert に PATH を通してください" >&2
+  echo "  インストール済みなら PATH を通してください" >&2
   echo "  (macOS 例: /Applications/calibre.app/Contents/MacOS)" >&2
   exit 1
 fi
 
-# ---- OPF パス取得 ----
+# ---- EPUB 用ヘルパ ----
 opf_path() {
   unzip -p "$1" META-INF/container.xml 2>/dev/null \
     | grep -o 'full-path="[^"]*"' | head -1 | sed 's/full-path="//;s/"//'
 }
-
-# ---- 判定: 固定レイアウトか ----
 is_fixed_layout() {
   local opf; opf="$(opf_path "$1")"
   [ -z "$opf" ] && return 1
   unzip -p "$1" "$opf" 2>/dev/null | grep -qiE 'pre-paginated|fixed-layout'
 }
-
-# ---- 判定: cover 宣言があるか ----
 has_cover() {
   local opf; opf="$(opf_path "$1")"
   [ -z "$opf" ] && return 1
   unzip -p "$1" "$opf" 2>/dev/null | grep -qiE 'name="cover"|cover-image'
 }
-
-# ---- 画像枚数 ----
 image_count() {
   local n
   n="$(unzip -l "$1" 2>/dev/null | grep -ciE '\.(jpg|jpeg|png|gif)' || true)"
   echo "${n:-0}"
 }
 
-# ---- メイン処理 ----
-converted=0; skipped=0; broken=0; failed=0; total=0
+# ---- PDF 用ヘルパ ----
+# pdfinfo があれば /Title を返す(無ければ空)。pdfinfo 非導入時は空扱い。
+pdf_title() {
+  command -v pdfinfo >/dev/null 2>&1 || { echo ""; return; }
+  pdfinfo "$1" 2>/dev/null | sed -n 's/^Title:[[:space:]]*//p'
+}
+pdf_pages() {
+  command -v pdfinfo >/dev/null 2>&1 || { echo ""; return; }
+  pdfinfo "$1" 2>/dev/null | awk '/^Pages:/{print $2}'
+}
 
-# null 区切りで安全に再帰列挙(スペース/日本語ファイル名対応)
-while IFS= read -r -d '' f; do
-  total=$((total+1))
-  name="$(basename "$f")"
+# ---- カウンタ ----
+processed=0; skipped=0; broken=0; failed=0; total=0
 
-  # 破損チェック
+# ---- EPUB 1冊処理 ----
+process_epub() {
+  local f="$1" name="$2"
   if ! unzip -t "$f" >/dev/null 2>&1; then
-    echo "🔴 破損(スキップ): $name"
-    broken=$((broken+1))
-    continue
+    echo "🔴 破損(スキップ): $name"; broken=$((broken+1)); return
   fi
-
-  # スキップ判定: 固定レイアウトでない かつ cover 宣言あり → 既に表紙が出る
+  # スキップ: 固定レイアウトでない かつ cover 宣言あり
   if ! is_fixed_layout "$f" && has_cover "$f"; then
-    echo "⏭️  スキップ(表紙設定済): $name"
-    skipped=$((skipped+1))
-    continue
+    echo "⏭️  スキップ(表紙設定済): $name"; skipped=$((skipped+1)); return
   fi
-
   if [ "$DRY_RUN" = "1" ]; then
-    echo "🔧 変換対象(dry-run): $name"
-    converted=$((converted+1))
-    continue
+    echo "🔧 変換対象(dry-run): $name"; processed=$((processed+1)); return
   fi
-
-  # 変換
-  tmp="$(mktemp -d)"
-  out="$tmp/out.epub"
+  local tmp out; tmp="$(mktemp -d)"; out="$tmp/out.epub"
   if ! ebook-convert "$f" "$out" >/dev/null 2>&1; then
-    echo "⚠️  変換失敗(スキップ): $name"
-    rm -rf "$tmp"; failed=$((failed+1)); continue
+    echo "⚠️  変換失敗(スキップ): $name"; rm -rf "$tmp"; failed=$((failed+1)); return
   fi
-
-  # 検証: zip 健全 / 固定レイアウト除去 / 画像枚数の保全(誤差3枚まで許容)
-  orig_imgs="$(image_count "$f")"
-  new_imgs="$(image_count "$out")"
+  local orig_imgs new_imgs; orig_imgs="$(image_count "$f")"; new_imgs="$(image_count "$out")"
   if ! unzip -t "$out" >/dev/null 2>&1 \
      || is_fixed_layout "$out" \
      || [ "$new_imgs" -lt $((orig_imgs - 3)) ]; then
     echo "⚠️  検証失敗(原本保持): $name (img: ${orig_imgs}→${new_imgs})"
-    rm -rf "$tmp"; failed=$((failed+1)); continue
+    rm -rf "$tmp"; failed=$((failed+1)); return
   fi
+  if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then cp "$f" "$f.bak"; fi
+  mv "$out" "$f"; rm -rf "$tmp"
+  echo "✅ EPUB変換: $name (img: ${new_imgs}枚, 固定レイアウト除去)"
+  processed=$((processed+1))
+}
 
-  # バックアップ → 置換
-  if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then
-    cp "$f" "$f.bak"
+# ---- PDF 1冊処理 ----
+process_pdf() {
+  local f="$1" name="$2"
+  # スキップ: 既に Title メタ設定済み
+  local cur_title; cur_title="$(pdf_title "$f")"
+  if [ -n "$cur_title" ]; then
+    echo "⏭️  スキップ(メタ設定済): $name"; skipped=$((skipped+1)); return
   fi
-  mv "$out" "$f"
-  rm -rf "$tmp"
-  echo "✅ 変換完了: $name (img: ${new_imgs}枚, 固定レイアウト除去)"
-  converted=$((converted+1))
-done < <(find "$FOLDER" -type f -iname '*.epub' ! -iname '*.bak' -print0)
+  if [ "$DRY_RUN" = "1" ]; then
+    echo "🔧 メタ付与対象(dry-run): $name"; processed=$((processed+1)); return
+  fi
+  local pages_before; pages_before="$(pdf_pages "$f")"
+  if [ "$NO_BACKUP" = "0" ] && [ ! -f "$f.bak" ]; then cp "$f" "$f.bak"; fi
+  local title="${name%.*}"
+  if ! ebook-meta "$f" --title "$title" >/dev/null 2>&1; then
+    echo "⚠️  メタ付与失敗: $name"; failed=$((failed+1)); return
+  fi
+  # 検証: ページ数が保たれているか(pdfinfo がある場合のみ)
+  local pages_after; pages_after="$(pdf_pages "$f")"
+  if [ -n "$pages_before" ] && [ -n "$pages_after" ] && [ "$pages_before" != "$pages_after" ]; then
+    echo "⚠️  ページ数変化 検証失敗(原本復元): $name (${pages_before}→${pages_after})"
+    [ -f "$f.bak" ] && cp "$f.bak" "$f"
+    failed=$((failed+1)); return
+  fi
+  echo "✅ PDFメタ付与: $name (Title設定${pages_after:+, ${pages_after}ページ})"
+  processed=$((processed+1))
+}
+
+# ---- メイン: null 区切りで再帰列挙(スペース/日本語ファイル名対応) ----
+while IFS= read -r -d '' f; do
+  total=$((total+1))
+  name="$(basename "$f")"
+  case "$(printf '%s' "$f" | tr 'A-Z' 'a-z')" in
+    *.epub) process_epub "$f" "$name" ;;
+    *.pdf)  process_pdf  "$f" "$name" ;;
+  esac
+done < <(find "$FOLDER" -type f \( -iname '*.epub' -o -iname '*.pdf' \) ! -iname '*.bak' -print0)
 
 # ---- サマリ ----
 echo ""
 echo "===== 完了 ====="
 echo "  走査: $total 冊"
 if [ "$DRY_RUN" = "1" ]; then
-  echo "  変換対象: $converted 冊 / スキップ: $skipped 冊 / 破損: $broken 冊"
-  echo "  (dry-run のため実変換は行っていません)"
+  echo "  対象: $processed 冊 / スキップ: $skipped 冊 / 破損: $broken 冊"
+  echo "  (dry-run のため実処理は行っていません)"
 else
-  echo "  変換: $converted 冊 / スキップ(表紙設定済): $skipped 冊"
+  echo "  処理: $processed 冊 / スキップ(設定済): $skipped 冊"
   echo "  破損(要再取得): $broken 冊 / 失敗: $failed 冊"
-  [ "$NO_BACKUP" = "0" ] && echo "  原本は各 .epub.bak に退避済み(不要なら削除可)"
+  [ "$NO_BACKUP" = "0" ] && echo "  原本は各 .bak に退避済み(不要なら削除可)"
 fi
