@@ -50,7 +50,7 @@ sumik-claude-plugin/                      # GitHub repo（Codex はここを git
         │   └── plugin.json               # プラグインメタデータ（plugin 名 devkit / .codex-plugin/ と version 同期必須）
         ├── .mcp.json                     # Claude 用 MCPサーバー設定（${CLAUDE_PLUGIN_ROOT}/bin/...）
         ├── agents/                       # Agent定義 (28体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str)
-        ├── commands/                     # スラッシュコマンド (12個)
+        ├── commands/                     # スラッシュコマンド (13個)
         ├── hooks/                        # イベントフック (4個)
         ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
         ├── scripts/                      # ヘルパースクリプト (3個)
@@ -94,7 +94,7 @@ sumik-claude-plugin/                      # GitHub repo（Codex はここを git
 | **タチコマ（アーキテクチャ）** (tachikoma-str-architecture) | Opus | アーキテクチャ設計専門（読み取り専用）。DDD・マイクロサービス・トレードオフ分析。設計ドキュメント作成のみ |
 | **タチコマ（プロダクトマネジメント）** (tachikoma-str-product-mgr) | Opus | プロダクトマネジメント専門（読み取り専用）。PRD作成・ロードマップ策定・優先順位付け・A/Bテスト設計・成長メトリクス分析・AIプロダクト成熟度評価・技術トレードオフ分析。ドキュメント作成のみ |
 
-### Commands (12個)
+### Commands (13個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -110,6 +110,7 @@ sumik-claude-plugin/                      # GitHub repo（Codex はここを git
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
+| `/epub-fix-cover` | フォルダ配下のEPUBを走査し、表紙サムネイルが出ない固定レイアウトEPUBをreflowableに変換して表紙を正規化（Calibre使用、表紙設定済みはスキップ） |
 
 ### Skills (73個)
 
