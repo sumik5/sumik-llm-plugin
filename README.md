@@ -50,11 +50,11 @@ sumik-claude-plugin/                      # GitHub repo（Codex はここを git
         │   └── plugin.json               # プラグインメタデータ（plugin 名 devkit / .codex-plugin/ と version 同期必須）
         ├── .mcp.json                     # Claude 用 MCPサーバー設定（${CLAUDE_PLUGIN_ROOT}/bin/...）
         ├── agents/                       # Agent定義 (28体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str)
-        ├── commands/                     # スラッシュコマンド (13個)
+        ├── commands/                     # スラッシュコマンド (14個)
         ├── hooks/                        # イベントフック (4個)
         ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
         ├── scripts/                      # ヘルパースクリプト (3個)
-        └── skills/                       # ナレッジスキル (73個)
+        └── skills/                       # ナレッジスキル (74個)
 ```
 
 ---
@@ -94,7 +94,7 @@ sumik-claude-plugin/                      # GitHub repo（Codex はここを git
 | **タチコマ（アーキテクチャ）** (tachikoma-str-architecture) | Opus | アーキテクチャ設計専門（読み取り専用）。DDD・マイクロサービス・トレードオフ分析。設計ドキュメント作成のみ |
 | **タチコマ（プロダクトマネジメント）** (tachikoma-str-product-mgr) | Opus | プロダクトマネジメント専門（読み取り専用）。PRD作成・ロードマップ策定・優先順位付け・A/Bテスト設計・成長メトリクス分析・AIプロダクト成熟度評価・技術トレードオフ分析。ドキュメント作成のみ |
 
-### Commands (13個)
+### Commands (14個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -111,8 +111,9 @@ sumik-claude-plugin/                      # GitHub repo（Codex はここを git
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
 | `/epub-fix-cover` | フォルダ配下のEPUB/PDFを走査し、表紙サムネイルが出ない原因を是正（EPUB:固定レイアウトをreflowable化＋表紙正規化／PDF:Titleメタ付与、Calibre使用、是正済みはスキップ） |
+| `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
-### Skills (73個)
+### Skills (74個)
 
 #### コア開発
 
@@ -124,6 +125,7 @@ sumik-claude-plugin/                      # GitHub repo（Codex はここを git
 | `testing-code` | テストファースト（Vitest/Playwright）・テストの4本の柱フレームワーク（16リファレンス）。RTL固有は`developing-react`参照 |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
+| `software-security` | Project CodeGuard ベースのセキュアバイデフォルト・コーディングルール集（日本語訳・全23ルール: インジェクション/認証MFA/暗号/シークレット/認可/セッション/クラウド・K8s/IaC/サプライチェーン/MCP/モバイル/ロギング/プライバシー、25+言語対応のタグ・言語別ルーティング）。cosai-oasis/project-codeguard (CC-BY-4.0) の日本語翻案 |
 | `securing-ai-development` | AI開発セキュリティ戦略（信頼フレームワーク、適応型ガードレール、AI-BOM、AI-SPM、ガバナンス、クロスファンクショナル所有権） |
 | `developing-with-ai` | AI支援開発メソドロジー（プロンプトエンジニアリング・コンテキストエンジニアリング・コード生成・QA・デバッグ・エージェント協調） |
 | `practicing-product-management` | プロダクトマネジメント実践ガイド（PM定義・アジャイルケイデンス・AARRR・PMF/GTM・収益モデル・ロードマップ・優先順位付け・PM-UX協働・AI時代PM進化・AI成熟度評価・AIケーススタディ・AI/ML基礎リテラシー・AI PM専門化ロール×3・AI機会評価/ROI算出・MLOps・責任あるAI・GPM/PLG: PLGモデル4戦略・freemium比較・B2B/B2Cペルソナ・ペインポイント分析・PLG文化・バリュープロポジション・カスタマーサクセス・オンボーディング・CS組織スケーリング・9つのリテンション戦略・CRR/NPS/CLV・拡張収益・ARPU/ARR/NRR・価格戦略・GPMの未来と倫理・失敗ケーススタディ・キャリアパス・7リファレンスファイル） |
