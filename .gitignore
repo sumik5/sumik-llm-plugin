@@ -9,3 +9,4 @@ node_modules/
 !.cache/sumik-marketplace/cloud
 !.cache/sumik-marketplace/ai
 !.cache/sumik-marketplace/design
+!.cache/sumik-marketplace/exam
