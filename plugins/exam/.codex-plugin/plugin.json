@@ -1,0 +1,35 @@
+{
+  "name": "exam",
+  "version": "1.0.0",
+  "description": "生成AI活用試験の問題画像を解くスキルを提供するプラグイン。1個のスキル（answering-genai-exam: 見開き問題画像から各小問の対話の要点と回答提出物を生成）を含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "exam",
+    "genai"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sumik Exam",
+    "shortDescription": "生成AI活用試験の問題を解くスキルを提供するプラグイン",
+    "longDescription": "生成AI活用試験の問題画像（見開きスクリーンショット）から、各小問の対話の要点と回答提出物（markdown回答・図の画像生成指示・コード）を生成するスキルを提供します。複数画像は並列で求解します。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash"
+    ],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "answering-genai-exam で試験問題画像を解いて回答を生成"
+    ],
+    "brandColor": "#6E56CF"
+  }
+}

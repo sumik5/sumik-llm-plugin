@@ -34,6 +34,11 @@
       "name": "design",
       "source": "./plugins/design",
       "description": "sumik Claude Code Plugin (design) — UX/デザイン思考/AI体験/データ可視化/デザインシステムスキル群"
+    },
+    {
+      "name": "exam",
+      "source": "./plugins/exam",
+      "description": "sumik Claude Code Plugin (exam) — 生成AI活用試験の問題画像から対話の要点と回答提出物を生成するスキル群"
     }
   ]
 }
