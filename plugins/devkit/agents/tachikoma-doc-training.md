@@ -8,7 +8,7 @@ skills:
   - studio:creating-content
   - writing-effective-prose
   - studio:designing-training
-  - applying-behavior-design
+  - design:applying-behavior-design
 ---
 
 # 言語設定（最優先・絶対遵守）

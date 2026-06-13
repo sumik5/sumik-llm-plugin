@@ -4,9 +4,9 @@ description: "Next.js/React specialized Tachikoma execution agent. Handles Next.
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-nextjs
-  - developing-react
-  - using-next-devtools
+  - lang:developing-nextjs
+  - lang:developing-react
+  - lang:using-next-devtools
   - writing-clean-code
   - mastering-typescript
   - testing-code

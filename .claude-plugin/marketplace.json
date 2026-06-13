@@ -14,6 +14,26 @@
       "name": "studio",
       "source": "./plugins/studio",
       "description": "sumik Claude Code Plugin (studio) — スライド・図表・フラッシュカード・LaTeX 等のコンテンツ制作スキル群"
+    },
+    {
+      "name": "lang",
+      "source": "./plugins/lang",
+      "description": "sumik Claude Code Plugin (lang) — 言語/フレームワーク/フロントエンド実装スキル群"
+    },
+    {
+      "name": "cloud",
+      "source": "./plugins/cloud",
+      "description": "sumik Claude Code Plugin (cloud) — クラウド/インフラ/IaC/認可スキル群"
+    },
+    {
+      "name": "ai",
+      "source": "./plugins/ai",
+      "description": "sumik Claude Code Plugin (ai) — GenAI設計/AIエージェント/Web AI統合/LLM評価スキル群"
+    },
+    {
+      "name": "design",
+      "source": "./plugins/design",
+      "description": "sumik Claude Code Plugin (design) — UX/デザイン思考/AI体験/データ可視化/デザインシステムスキル群"
     }
   ]
 }

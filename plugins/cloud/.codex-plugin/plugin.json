@@ -1,0 +1,33 @@
+{
+  "name": "cloud",
+  "version": "1.0.0",
+  "description": "クラウド・インフラ・アーキテクチャスキル群を提供するプラグイン。11個のスキル（AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ設計・データ設計・マルチテナントSaaS）を含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "cloud",
+    "infrastructure",
+    "architecture"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sumik Cloud",
+    "shortDescription": "クラウド・インフラ・アーキテクチャスキルを提供するプラグイン",
+    "longDescription": "11個のクラウド・インフラ・アーキテクチャスキルを提供。AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ/データ設計・マルチテナントSaaSをカバーします。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write", "Edit", "Bash"],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "developing-aws でサーバーレス構成を設計",
+      "practicing-devops でCI/CDを構築",
+      "architecting-infrastructure で可用性を設計"
+    ],
+    "brandColor": "#FF9900"
+  }
+}

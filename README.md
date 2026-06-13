@@ -18,6 +18,10 @@ LLMの開発効率を最大化するためのプラグイン。Agent、コマン
 ```bash
 /plugin install devkit@sumik
 /plugin install studio@sumik
+/plugin install lang@sumik
+/plugin install cloud@sumik
+/plugin install ai@sumik
+/plugin install design@sumik
 ```
 
 ### Codex
@@ -26,6 +30,10 @@ LLMの開発効率を最大化するためのプラグイン。Agent、コマン
 codex plugin marketplace add https://github.com/sumik5/sumik-llm-plugin.git --ref main
 codex plugin add devkit@sumik-marketplace
 codex plugin add studio@sumik-marketplace
+codex plugin add lang@sumik-marketplace
+codex plugin add cloud@sumik-marketplace
+codex plugin add ai@sumik-marketplace
+codex plugin add design@sumik-marketplace
 ```
 
 ---
@@ -36,13 +44,17 @@ codex plugin add studio@sumik-marketplace
 sumik-llm-plugin/                      # GitHub repo（Codex はここを git clone）
 ├── .agents/
 │   └── plugins/
-│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio）
+│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + cloud + ai + design）
 ├── .cache/
 │   └── sumik-marketplace/
 │       ├── devkit -> ../..               # Codex marketplace から repo root の plugin を指す symlink
-│       └── studio -> ../../plugins/studio  # Codex marketplace から studio plugin を指す symlink
+│       ├── studio -> ../../plugins/studio  # Codex marketplace から studio plugin を指す symlink
+│       ├── lang -> ../../plugins/lang      # Codex marketplace から lang plugin を指す symlink
+│       ├── cloud -> ../../plugins/cloud    # Codex marketplace から cloud plugin を指す symlink
+│       ├── ai -> ../../plugins/ai          # Codex marketplace から ai plugin を指す symlink
+│       └── design -> ../../plugins/design  # Codex marketplace から design plugin を指す symlink
 ├── .claude-plugin/
-│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio / source ./plugins/devkit + ./plugins/studio）
+│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + cloud + ai + design / source ./plugins/<p>）
 ├── .codex-plugin/
 │   └── plugin.json                       # Codex CLI プラグインマニフェスト（plugin 名 devkit / skills ./plugins/devkit/skills/ / version 同期必須）
 ├── .mcp-codex.json                       # Codex 用 MCPサーバー設定（command ./plugins/devkit/bin/... / cwd "."）
@@ -58,19 +70,47 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── hooks/                        # イベントフック (4個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (3個)
-    │   └── skills/                       # ナレッジスキル (63個)
-    └── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
+    │   └── skills/                       # ナレッジスキル (28個)
+    ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
+    │   ├── .mcp.json                     # Claude 用 MCPサーバー設定（drawio・${CLAUDE_PLUGIN_ROOT}/bin/...）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 studio / skills ./skills/）
+    │   ├── .mcp-codex.json               # Codex 用 MCPサーバー設定（drawio・command ./bin/... / cwd "."）
+    │   ├── README.md
+    │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh)
+    │   ├── commands/                     # スラッシュコマンド (2個)
+    │   ├── scripts/                      # ヘルパースクリプト (pdf-to-markdown, epub-fix-cover.sh)
+    │   └── skills/                       # ナレッジスキル (11個)
+    ├── lang/                             # 言語・フレームワーク・フロントエンド実装プラグイン（skills-only）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 lang / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 lang / skills ./skills/ / mcpServers なし）
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (14個)
+    ├── cloud/                            # クラウド・インフラ・アーキテクチャプラグイン（skills-only）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 cloud / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 cloud / skills ./skills/ / mcpServers なし）
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (11個)
+    ├── ai/                               # AI/LLM/エージェント開発プラグイン（skills-only）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 ai / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 ai / skills ./skills/ / mcpServers なし）
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (4個)
+    └── design/                           # UX/デザイン戦略プラグイン（skills-only）
         ├── .claude-plugin/
-        │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
-        ├── .mcp.json                     # Claude 用 MCPサーバー設定（drawio・${CLAUDE_PLUGIN_ROOT}/bin/...）
+        │   └── plugin.json               # プラグインメタデータ（plugin 名 design / version 同期必須）
         ├── .codex-plugin/
-        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 studio / skills ./skills/）
-        ├── .mcp-codex.json               # Codex 用 MCPサーバー設定（drawio・command ./bin/... / cwd "."）
+        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 design / skills ./skills/ / mcpServers なし）
         ├── README.md
-        ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh)
-        ├── commands/                     # スラッシュコマンド (2個)
-        ├── scripts/                      # ヘルパースクリプト (pdf-to-markdown, epub-fix-cover.sh)
-        └── skills/                       # ナレッジスキル (11個)
+        └── skills/                       # ナレッジスキル (6個)
 ```
 
 ---
@@ -127,7 +167,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
-### Skills (63個)
+### Skills (28個)
 
 #### コア開発
 
@@ -136,7 +176,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `implementing-as-tachikoma` | タチコマAgent運用ガイド |
 | `using-serena` | Serena MCP活用 |
 | `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・Simple Designの4ルール・66のコードスメルヒューリスティクス・ソフトウェアデザインの法則含む27カテゴリのコードスメル検出・リファクタリング・フォーマット・境界管理・20リファレンスファイル） |
-| `testing-code` | テストファースト（Vitest/Playwright）・テストの4本の柱フレームワーク（16リファレンス）。RTL固有は`developing-react`参照 |
+| `testing-code` | テストファースト（Vitest/Playwright）・テストの4本の柱フレームワーク（16リファレンス）。RTL固有は`lang:developing-react`参照 |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 | `software-security` | Project CodeGuard ベースのセキュアバイデフォルト・コーディングルール集（日本語訳・全23ルール: インジェクション/認証MFA/暗号/シークレット/認可/セッション/クラウド・K8s/IaC/サプライチェーン/MCP/モバイル/ロギング/プライバシー、25+言語対応のタグ・言語別ルーティング）。cosai-oasis/project-codeguard (CC-BY-4.0) の日本語翻案 |
@@ -147,7 +187,6 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `writing-conventional-commits` | Conventional Commits 1.0.0準拠コミットメッセージガイド（type/scope/BREAKING CHANGE判定・SemVer連携） |
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
 | `reviewing-code` | コードレビュー方法論（PRの構成・効果的なコメント技法・TWA・アンチパターン対策） |
-| `developing-databases` | DB設計・SQLアンチパターン・DB内部構造・PostgreSQL実践運用を統合した包括的データベース開発ガイド（リレーショナルDB設計・正規化・PostgreSQL・25のSQLアンチパターン・Bツリー/LSMストレージエンジン・分散システム・合意アルゴリズム・クエリチューニング・MVCC/VACUUM・バックアップ/PITR・レプリケーション/HA・監視） |
 | `authoring-plugins` | Claude Code Plugin開発ガイド（Agent・Skill・コマンド定義の作成・最適化・フロントマター仕様・Progressive Disclosure・ツール制限）。Agent Skills標準 vs Claude Code拡張の分離原則・fork判定5軸マトリクス・FORK-GUIDE.md含む |
 | `practicing-software-engineering` | SW開発プラクティス包括ガイド（プロジェクト基盤: Fast Feedback・DORA計測 ＋ チーム組織: Team Topologies・4チームタイプ ＋ ペアプログラミング: 4パターン ＋ 開発者習慣: GREAT Habits ＋ IC効果性マインドセット: アウトカム思考・戦略的優先順位付け ＋ キャリア成長: Junior→Staff・IC/Management パス ＋ 影響力: PM/デザイナー協働・権限なきリーダーシップ ＋ 20アンチパターン: 個人15+チーム5 ＋ 持続可能パフォーマンス: バーンアウト防止・リモートワーク ＋ AI活用ワークフロー: 日常AI統合・90日チーム採用計画、10リファレンスファイル） |
 | `writing-user-stories` | ユーザーストーリー作成ガイド（テンプレート・よくある間違い・技術要件変換・受入条件・分割テクニック） |
@@ -158,63 +197,24 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 
 | スキル | 説明 |
 |--------|------|
-| `developing-web-apis` | Web API開発統合ガイド（API設計ベストプラクティス・Spec First開発方法論・APIテスト戦略）。エンドポイント設計・HTTPスペック・バージョニング・セキュリティ・コントラクトテスト・自動化を網羅 |
-| `building-multi-tenant-saas` | マルチテナントSaaSアーキテクチャ設計ガイド |
-| `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
-| `applying-behavior-design` | 行動変容デザイン（CREATEファネル、3戦略）|
 | `applying-clean-architecture` | Clean Architecture原則（依存性ルール・同心円モデル・コンポーネント原則・境界設計・アンチパターン） |
-| `architecting-infrastructure` | インフラデザインパターン127種 + アーキテクチャモダナイゼーション（トレードオフ分析） + マイクロサービスパターン（CQRS・Saga・粒度決定・データ所有権）。ベンダー非依存の設計方式選定・非機能要求分析 |
-| `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
-| `evaluating-with-promptfoo` | promptfooによるLLM評価・レッドチーミング（promptfooconfig.yaml設定・40+アサーション・プロバイダー・134+レッドチームプラグイン・CI/CD統合） |
-| `designing-genai-patterns` | 32のGenAIデザインパターン（コンテンツ制御・RAG・モデル能力拡張・信頼性・エージェント・デプロイ最適化・安全ガードレール）＋RAGシステム実装（11種データソース・5種チャンキング戦略）＋AIシステム性能最適化（GPU/CUDA・分散訓練・LLM推論、175+項目チェックリスト） |
 
 #### フレームワーク
 
 | スキル | 説明 |
 |--------|------|
-| `developing-react` | React 19.x 開発ガイド（Internals・パフォーマンスルール47+・デザインパターン（Container/Presenter・HOC・Render Props・Headless等）・エラーハンドリング（ErrorBoundary・react-error-boundary・React 19 error APIs）・アクセシビリティ（ARIA・フォーカス管理・キーボードナビゲーション）・2025年状態管理推奨（nuqs・Jotai・React Compiler）・アニメーション・RTLテスト・8リファレンスファイル） |
-| `developing-firebase` | Firebaseプラットフォーム開発ガイド（Authentication, Firestore, RTDB, Storage, Functions, Hosting, Analytics, FCM, Remote Config等） |
-| `developing-nextjs` | Next.js 16.x開発ガイド（App Router・Server Components・Cache Components・Turbopack・実践パターン集）。Route Segment・Parallel/Intercepting Routes・Prisma・NextAuth.js・Server Actions・4種キャッシュ戦略を含む10リファレンスファイル。React固有は`developing-react`参照 |
-| `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
-| `developing-python` | Python 3.13開発（Pythonベストプラクティス125項目・実践パターン50問・SEプロセス・Clean Architecture実践・Architecture Patterns: Repository/UoW/Aggregates/Domain Events/CQRS・DDD Tactical Patterns: Entity/Value Object/Aggregate Root） |
-| `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
-| `developing-fullstack-javascript` | フルスタックJS開発（NestJS/Express・React・CI/CD・品質）＋JavaScript言語基礎（型・クロージャ・プロトタイプ・async/await・モジュール・メタプログラミング）を包括カバー。SOLID原則・セキュリティ・テスト戦略に加え、JS言語仕様の6リファレンスファイルを含む |
 | `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド + Total TypeScript: satisfies・余剰プロパティ・コンパイラ振る舞い + TS5デコレータ完全ガイド + 型関係論・型推論パターン・型安全テクニック） |
-| `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・コード硬化・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |
-| `integrating-ai-web-apps` | Vercel AI SDK + LangChain.js + MCPによるWebアプリAI統合 |
-| `building-ai-agents` | AIエージェント構築統合ガイド（LangChain/LangGraph: LCEL・ReAct・マルチエージェント・MCP統合・LangSmith評価 ＋ Google ADK: Agent分類・ツール設計・A2A・RAG・セキュリティ ＋ リアルタイムマルチモーダル: WebSocket・Web Audio API・Gemini Live API） |
-
-#### フロントエンド・デザイン
-
-| スキル | 説明 |
-|--------|------|
-| `building-design-systems` | デザインシステム構築・運用・立ち上げ・浸透・Figma実装方法論（DS基礎・パターン分類・組織戦略・UIパターンカタログ20+・Figmaバリアブル/デザイントークン3層階層・カラーシステム・タイポグラフィ・Style Dictionary/Storybook連携・立ち上げ3ステップ・浸透3ステップ・コンテンツ策定ガイド・多組織パターン集） |
-| `designing-ux` | UI/UX・グラフィックデザイン・インターフェイス哲学・認知心理学基盤・UXエレメント5段階モデルを統合したデザイン総合スキル（UIデザインガイドライン101ルール・認知心理学基盤: 知覚バイアス/ゲシュタルト/色覚/記憶/フィッツの法則・グラフィック基礎: 造形/色彩/タイポグラフィ/レイアウト・Fluid Interfaces・モーション理論・5段階フレームワーク: Strategy→Scope→Structure→Skeleton→Surface・Webデザイン機能性7軸・情緒性6軸・デザインコンセプト立案・レイアウト実践パターン・イメージワードシステム）。デザイン思考プロセスは`practicing-design-thinking`、AI体験設計は`designing-ai-experiences`参照 |
-| `designing-ai-experiences` | AI体験（AIX）設計ガイド（Agentic UX・Copilotパターン・メンタルモデル・AIファーストインターフェース・Input/Computation/Output設計・フレーミング手法・倫理）。AI駆動プロダクトのUX・人間-AIインタラクション設計に使用。`designing-ux`から分離 |
-| `practicing-design-thinking` | デザイン思考プロセス・UXリサーチ方法論（共感/定義/発想/プロトタイプ/テスト・ユーザーリサーチ・カスタマージャーニーマップ・ユーザビリティ評価・構造化シナリオ法・組織導入戦略・クリエイティブプロセスパターン）。`designing-ux`から分離 |
-| `designing-frontend` | フロントエンド実装（shadcn/ui統合・オブジェクト指向UI設計（OOUI）：オブジェクト抽出・ビュー/ナビゲーション・レイアウトパターン） |
-| `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証） |
-| `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
-| `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
 
 #### ブラウザ自動化・E2Eテスト
 
 | スキル | 説明 |
 |--------|------|
-| `automating-browser` | Browser Agent CLIによるブラウザ操作自動化（セマンティックロケーター、状態永続化、ネットワーク傍受） |
 | `testing-e2e-with-playwright` | Playwright Testによる包括的E2Eテスト（ロケーター戦略・フィクスチャ/POM・モッキング・エミュレーション・信頼性・CI/CD・拡張・アクセシビリティ・ビジュアルリグレッション・認証・フォーム・AI生成・実践パターン） |
 
 #### インフラ・ツール
 
 | スキル | 説明 |
 |--------|------|
-| `implementing-observability` | オブザーバビリティ統合ガイド（監視設計: アンチパターン・6層戦略・SLO・テレメトリーパイプライン・成熟度モデル ＋ OpenTelemetry実装: トレース/メトリクス/ログAPI・Collector・セマンティック規則 ＋ ログ設計: 構造化ログ・収集パイプライン・AI/ML分析・セキュリティ ＋ オブザーバビリティエンジニアリング実践: コア分析ループ・ファーストプリンシプルデバッグ・ROI分析・CI/CDパイプライン計装・高カーディナリティデータストア設計・サンプリング実装パターン） |
-| `developing-aws` | AWS開発包括ガイド（システム設計・CDP57パターン・VPCアーキテクチャ（Transit Gateway/VPCピアリング/Site-to-Site VPN/PrivateLink/ENI）・エンタープライズ基盤・14業務システム・移行戦略・サーバーレス・CDK・EKS・ECS/Fargate（コンテナ設計/Well-Architected/Blue-Green/FireLens/Trivy）・SRE運用・FinOps/CCoE・セキュリティ（IAM/VPC/KMS/GuardDuty/セキュリティガバナンス/NIST CSF/ISO27001/リスクアセスメント/インシデントレスポンス/フォレンジック/Detective）・Bedrock GenAI（Embedding・セマンティック検索）・Cognito認証・cloud-nativeパターン・インフラ自動化・HA/耐障害性・51リファレンスファイル） |
-| `developing-google-cloud` | Google Cloud 開発・セキュリティ・データエンジニアリング・ネットワーク・キャッシング・エンタープライズアーキテクチャ包括ガイド（Cloud Runデプロイ + GCPプラットフォームセキュリティ深掘り: IAM・VPC・KMS・DLP・SCC・DevSecOps CI/CD・Zero Trust/BeyondCorp・Anthos・Incident Response + データエンジニアリング + ネットワークエンジニアリング: VPC設計・ハイブリッド接続・LB/CDN・ネットワーク監視・Traffic Director/Service Mesh + Memorystore: マネージドRedis/Memcachedキャッシング・パフォーマンスエンジニアリング・レジリエンス + エンタープライズアーキテクチャ: アカウント設計・組織階層・移行戦略・モダナイゼーション + コンピューティング選択: GCE/GKE/GAE/Cloud Run/Functions比較 + GKEコンテナオーケストレーション + 監視・運用設計: SLO/SLI・Cloud Operations Suite + BigQuery分析: KPI計算・SQL実践・fluentdパイプライン + BigQuery高度運用: エディション・HA/DR・スロット管理・チューニング + レイクハウス: BigLake・Dataplex・データカタログ・品質チェック + ワークフロー管理: Cloud Composer・Data Fusion・Dataform + BI・データ可視化: Looker・Looker Studio・BI Engine + データ集約: BigQuery DTS・Datastream CDC・GA4/Firebase + リアルタイム分析: Pub/Sub・Dataflowストリーミング + ML高度分析: BigQuery ML・Vertex AI・GIS・Gemini・50リファレンスファイル） |
-| `using-next-devtools` | Next.js DevTools |
-| `developing-terraform` | Terraform/Terragrunt IaC開発（HCL・モジュール・ステート・Terragrunt・mise・AWS/GCP） |
-| `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
-| `practicing-devops` | DevOps方法論・IaCツール選定・オーケストレーション比較・CI/CD・プラットフォームエンジニアリング |
 | `orchestrating-teams` | Agent Teamオーケストレーション（チーム編成・タチコマ並列起動・進捗管理・docs先行開発） |
 | `chronicle` | スクリーン録画・履歴参照スキル（Rolling Bufferで過去数時間の作業コンテキストを取得・OCR解析・作業の曖昧さ解消） |
 | `orchestrating-codex` | Codex CLI統合スキル（基本操作・プランレビュー・Agentオーケストレーション・Wave並列実行・max_threads制御） |

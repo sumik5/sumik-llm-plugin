@@ -455,6 +455,14 @@ my-skill/
 | **name変更** | 🔴 subagent_type列更新 | 🔴 subagent_type列更新 | 🔴 name列更新 |
 | **削除** | 🔴 行削除 | 🔴 行削除 | 🔴 行削除 |
 
+### マルチプラグイン操作時の追加同期対象
+
+Agent の追加・削除に加え、以下のマルチプラグイン操作でも外部設定の同期が必要になる:
+
+- **コンポーネントをプラグイン間で移動**（スキル・Agent・Command が別プラグインへ）: 参照を 4 層（他スキル frontmatter・本文・hook・README/rules）で `plugin:skill` へ修飾 **＋ 外部 dotfiles** 内の bare 参照も同様に修飾（下記）。
+- **新規プラグイン追加**: Claude marketplace（`.claude-plugin/marketplace.json`）+ Codex marketplace（`.agents/plugins/marketplace.json`）の 2 エントリ追加 ＋ `.cache/<marketplace>/<plugin>` symlink ＋ `.gitignore` の negation 行（symlink ごと 1 行）＋ プラグインの version を 3 ファイル同期。
+- **外部 dotfiles を同期対象に含める（🔴 見落としやすい）**: スキル・Agent・Command の**移動・リネーム**時、リポジトリ外の `~/.claude/CLAUDE.md`・`~/.claude/rules`（配下 `*.md`）も同期対象。いずれも**ユーザー dotfiles へのシンボリックリンク**（編集 = ソース編集・独立コピーではない）で、本文・ルーティング表・型安全/品質ルール内の bare スキル参照を `plugin:skill` へ修飾する。ただし **`subagent_type` ルーティング行は Agent が自プラグインに残る限り不変**。詳細は [CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md) の Layer 5 と [MANAGING-MULTI-PLUGIN.md](references/MANAGING-MULTI-PLUGIN.md)。
+
 ---
 
 ## スキル変更時のエージェント影響分析
@@ -513,6 +521,15 @@ my-skill/
 **検出は多角的パターンで行う**: `use X` だけ追うと hook のシェル配列や `see X` / `→X` を取りこぼす（実例あり）。
 
 詳細な検出スクリプト・検証コマンド・捏造禁止原則は [CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md) を参照。
+
+---
+
+## マルチプラグイン構成の管理（分割・追加）
+
+1 リポジトリから**複数プラグイン**を 1 つの marketplace 経由で配布する場合、本ガイド本文の単一プラグイン前提を超えた管理が必要になる。分割判断（結合度ティア）・順序付き分割/追加レシピ・クロスプラグイン preload・Codex 配布・プラグインごとの version 同期・検証ゲートの完全手順は [MANAGING-MULTI-PLUGIN.md](references/MANAGING-MULTI-PLUGIN.md) を参照。要点:
+
+- **結合度で分割対象を選ぶ**: 多数エージェントが preload するユニバーサルコアはエージェントと同一プラグインに留め、単一エージェント結合のドメインスキル・エージェント結合ゼロのメタスキルから安価に切り出す。
+- **クロスプラグイン preload は `plugin:skill` 修飾名**（エージェント `skills:` と hook advisory text の両方・検証済み）。**version 同期はプラグインごと**（各プラグインが自分の 3 ファイルを独立に揃える）。レシピ順: scaffold → `mv` 移動 → preload 修飾 → marketplace 追加(x2) → `.cache` symlink + gitignore negation → version 3 ファイル同期 → README/CLAUDE.md → 外部 dotfiles → 検証 → commit。
 
 ---
 
@@ -600,6 +617,8 @@ Conventional Commits 形式でコミットする:
 git add <変更ファイル> .claude-plugin/plugin.json
 git commit -m "feat(skill-name): 変更内容の要約"
 ```
+
+> **マルチプラグイン・dotfiles 同期チェック（プラグイン間移動・新規プラグイン追加時のみ）**: commit 前に、(1) 移動コンポーネント参照を 4 層 ＋ 外部 dotfiles（`~/.claude/CLAUDE.md`・`~/.claude/rules`）で `plugin:skill` 修飾済み、(2) 新規プラグインは marketplace 2 ファイル・`.cache` symlink・`.gitignore` negation・**プラグインごと version 3 ファイル同期**完了、(3) クロスプラグイン preload・symlink git 追跡を検証ゲートで確認、を満たすこと。詳細は [MANAGING-MULTI-PLUGIN.md](references/MANAGING-MULTI-PLUGIN.md)。
 
 ### 3. タグ付与
 

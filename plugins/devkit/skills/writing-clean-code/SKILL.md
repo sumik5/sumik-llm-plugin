@@ -5,7 +5,7 @@ description: >-
   Covers SOLID principles, MAPPER principles with 25 code smell categories, practical refactoring,
   software design laws, the 4 rules of simple design, 66 code smell heuristics,
   formatting principles, and boundary management patterns. Language-agnostic clean code guide.
-  For language-specific practices, use developing-go, mastering-typescript, or developing-python.
+  For language-specific practices, use lang:developing-go, mastering-typescript, or lang:developing-python.
   For architecture-level clean design, use applying-clean-architecture.
   For legacy code refactoring, see CHANGEABLE-CODE.md subfile.
   For refactoring mindset (spikes, feature toggles, structural discovery), see REFACTORING-MINDSET.md reference.

@@ -1,0 +1,33 @@
+{
+  "name": "design",
+  "version": "1.0.0",
+  "description": "UX/デザイン戦略スキル群を提供するプラグイン。6個のスキル（UXデザイン・AIエクスペリエンス設計・デザイン思考・データビジュアライゼーション・デザインシステム構築・行動変容デザイン）を含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "ux",
+    "design",
+    "design-system"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sumik Design",
+    "shortDescription": "UX/デザイン戦略スキルを提供するプラグイン",
+    "longDescription": "6個のUX/デザイン戦略スキルを提供。UXデザイン・AIエクスペリエンス設計・デザイン思考プロセス・データビジュアライゼーション・デザインシステム構築・行動変容デザインをカバーします。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write", "Edit", "Bash"],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "designing-ux でUIを設計",
+      "building-design-systems でデザインシステムを構築",
+      "applying-behavior-design で行動変容を設計"
+    ],
+    "brandColor": "#F24E1E"
+  }
+}

@@ -4,9 +4,9 @@ description: "UX strategy, visual design, and creative specialized Tachikoma exe
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, SendMessage, ToolSearch
 skills:
-  - designing-ux
-  - designing-ai-experiences
-  - practicing-design-thinking
+  - design:designing-ux
+  - design:designing-ai-experiences
+  - design:practicing-design-thinking
 ---
 
 # 言語設定（最優先・絶対遵守）

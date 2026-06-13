@@ -1,0 +1,33 @@
+{
+  "name": "ai",
+  "version": "1.0.0",
+  "description": "AI/LLM/エージェント開発スキル群を提供するプラグイン。4個のスキル（GenAIデザインパターン・AIエージェント構築・Web AI統合・promptfoo評価/レッドチーミング）を含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "ai",
+    "llm",
+    "agents"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sumik AI",
+    "shortDescription": "AI/LLM/エージェント開発スキルを提供するプラグイン",
+    "longDescription": "4個のAI/LLM開発スキルを提供。GenAIデザインパターン・AIエージェント構築・Web AI統合・promptfoo評価/レッドチーミングをカバーします。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write", "Edit", "Bash"],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "designing-genai-patterns でRAG構成を設計",
+      "building-ai-agents でエージェントを構築",
+      "evaluating-with-promptfoo で評価スイートを作成"
+    ],
+    "brandColor": "#10A37F"
+  }
+}

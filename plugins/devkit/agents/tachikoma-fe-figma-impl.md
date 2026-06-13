@@ -4,8 +4,8 @@ description: "Figma-to-code implementation specialized Tachikoma execution agent
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - implementing-design
-  - styling-with-tailwind
+  - lang:implementing-design
+  - lang:styling-with-tailwind
   - writing-clean-code
   - mastering-typescript
   - testing-code

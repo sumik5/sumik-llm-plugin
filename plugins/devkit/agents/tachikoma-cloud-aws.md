@@ -4,7 +4,7 @@ description: "AWS cloud specialized Tachikoma execution agent. Handles Lambda, A
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-aws
+  - cloud:developing-aws
   - writing-clean-code
   - mastering-typescript
   - testing-code

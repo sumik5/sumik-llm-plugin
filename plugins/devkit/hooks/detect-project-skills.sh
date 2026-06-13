@@ -22,8 +22,8 @@ ALWAYS_SKILLS=(
 # 共通開発スキル（言語プロジェクト検出時に適用）
 COMMON_DEV_SKILLS=(
     "researching-libraries"
-    "architecting-infrastructure"
-    "implementing-observability"
+    "cloud:architecting-infrastructure"
+    "cloud:implementing-observability"
 )
 
 # ライティングスキル（.tex検出時に適用）
@@ -35,24 +35,24 @@ WRITING_SKILLS=(
 
 # デザインスキル（フロントエンド/デザイン検出時に適用）
 DESIGN_SKILLS=(
-    "designing-ux"
-    "applying-behavior-design"
-    "implementing-design"
+    "design:designing-ux"
+    "design:applying-behavior-design"
+    "lang:implementing-design"
 )
 
 # データベーススキル（DB関連検出時に適用）
 DATABASE_SKILLS=(
-    "developing-databases"
+    "lang:developing-databases"
 )
 
 # オブザーバビリティスキル（監視・可観測性検出時に適用）
 OBSERVABILITY_SKILLS=(
-    "implementing-observability"
+    "cloud:implementing-observability"
 )
 
 # MCP開発スキル（MCP開発検出時に適用）
 MCP_DEV_SKILLS=(
-    "developing-mcp"
+    "lang:developing-mcp"
 )
 
 # 言語プロジェクトが検出されたかのフラグ
@@ -71,41 +71,41 @@ get_skill_description() {
     local skill="$1"
     case "$skill" in
         "writing-clean-code") echo "コード実装前に必ずロード" ;;
-        "evaluating-with-promptfoo") echo "promptfooによるLLM評価・レッドチーミング" ;;
+        "ai:evaluating-with-promptfoo") echo "promptfooによるLLM評価・レッドチーミング" ;;
         "testing-code") echo "テスト作成・修正時にロード" ;;
         "securing-code") echo "実装完了後に必ずロード" ;;
         "writing-effective-prose") echo "効果的な文章術（論理構成・文レベル技術・表現・推敲・AI臭除去・技術文書・学術文書）" ;;
         "applying-semantic-versioning") echo "SemVer 2.0.0仕様に基づくバージョン判断（MAJOR/MINOR/PATCH判定・プレリリース・範囲指定）" ;;
         "writing-conventional-commits") echo "Conventional Commits 1.0.0準拠のコミットメッセージフォーマット（type/scope/BREAKING CHANGE・SemVer連携）" ;;
         "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
-        "architecting-infrastructure") echo "インフラパターン127種＋マイクロサービス（CQRS/Saga/粒度決定）＋モダナイゼーション・トレードオフ分析" ;;
-        "implementing-observability") echo "監視・オブザーバビリティ設計（ログ・トレース・メトリクス・OpenTelemetry）" ;;
-        "developing-react") echo "React 19.x 開発（Internals・パフォーマンス・アニメーション・RTL）" ;;
-        "developing-nextjs") echo "Next.js 16 / React 19開発" ;;
-        "using-next-devtools") echo "Next.js DevTools MCP活用" ;;
+        "cloud:architecting-infrastructure") echo "インフラパターン127種＋マイクロサービス（CQRS/Saga/粒度決定）＋モダナイゼーション・トレードオフ分析" ;;
+        "cloud:implementing-observability") echo "監視・オブザーバビリティ設計（ログ・トレース・メトリクス・OpenTelemetry）" ;;
+        "lang:developing-react") echo "React 19.x 開発（Internals・パフォーマンス・アニメーション・RTL）" ;;
+        "lang:developing-nextjs") echo "Next.js 16 / React 19開発" ;;
+        "lang:using-next-devtools") echo "Next.js DevTools MCP活用" ;;
         "mastering-typescript") echo "TypeScript型システム・パターン" ;;
-        "designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
-        "developing-go") echo "Go開発ガイド" ;;
-        "developing-python") echo "Python開発ガイド" ;;
-        "developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
-        "developing-terraform") echo "Terraform IaC開発" ;;
-        "practicing-devops") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
+        "lang:designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
+        "lang:developing-go") echo "Go開発ガイド" ;;
+        "lang:developing-python") echo "Python開発ガイド" ;;
+        "lang:developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
+        "cloud:developing-terraform") echo "Terraform IaC開発" ;;
+        "cloud:practicing-devops") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
         "studio:writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
-        "developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
-        "automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
+        "lang:developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
+        "lang:automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
         "testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
-        "building-ai-agents") echo "LangChain/LangGraph・Google ADK AIエージェント開発" ;;
-        "implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
+        "ai:building-ai-agents") echo "LangChain/LangGraph・Google ADK AIエージェント開発" ;;
+        "cloud:implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
         "searching-web") echo "gemini CLI によるWeb検索" ;;
-        "designing-ux") echo "UX戦略・デザイン思考・グラフィックデザイン・AIエクスペリエンス設計" ;;
-        "applying-behavior-design") echo "行動変容デザイン（CREATEファネル）" ;;
-        "implementing-design") echo "Figmaデザイン→コード変換（Code Connect・デザイントークン同期）" ;;
-        "developing-databases") echo "DB設計・SQLアンチパターン・内部構造・リレーショナル設計（正規化・最適化・PostgreSQL）" ;;
-        "developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
-        "developing-google-cloud") echo "Google Cloud 開発・セキュリティ（Cloud Run + IAM/VPC/KMS/DLP/SCC）" ;;
-        "developing-aws") echo "AWS開発（システム設計・サーバーレス・CDK・EKS・SRE・コスト最適化・Bedrock）" ;;
-        "integrating-ai-web-apps") echo "AI web app integration with Vercel AI SDK, LangChain.js, and MCP (streaming, RAG, tool calling, structured data)" ;;
-        "styling-with-tailwind") echo "Tailwind CSSスタイリング方法論（v4プライマリ）" ;;
+        "design:designing-ux") echo "UX戦略・デザイン思考・グラフィックデザイン・AIエクスペリエンス設計" ;;
+        "design:applying-behavior-design") echo "行動変容デザイン（CREATEファネル）" ;;
+        "lang:implementing-design") echo "Figmaデザイン→コード変換（Code Connect・デザイントークン同期）" ;;
+        "lang:developing-databases") echo "DB設計・SQLアンチパターン・内部構造・リレーショナル設計（正規化・最適化・PostgreSQL）" ;;
+        "lang:developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
+        "cloud:developing-google-cloud") echo "Google Cloud 開発・セキュリティ（Cloud Run + IAM/VPC/KMS/DLP/SCC）" ;;
+        "cloud:developing-aws") echo "AWS開発（システム設計・サーバーレス・CDK・EKS・SRE・コスト最適化・Bedrock）" ;;
+        "ai:integrating-ai-web-apps") echo "AI web app integration with Vercel AI SDK, LangChain.js, and MCP (streaming, RAG, tool calling, structured data)" ;;
+        "lang:styling-with-tailwind") echo "Tailwind CSSスタイリング方法論（v4プライマリ）" ;;
         *) echo "" ;;
     esac
 }
@@ -130,11 +130,11 @@ check_package_json() {
     if echo "$deps" | grep -qx "next"; then
         has_next=true
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("developing-nextjs" "using-next-devtools" "developing-react")
+        PROJECT_SKILLS+=("lang:developing-nextjs" "lang:using-next-devtools" "lang:developing-react")
 
         # Next.js SaaS チェック（stripe / next-auth / @auth/core / @clerk/nextjs）
         if echo "$deps" | grep -qE '^(stripe|next-auth|@auth/core|@clerk/nextjs)$'; then
-            PROJECT_SKILLS+=("developing-nextjs")
+            PROJECT_SKILLS+=("lang:developing-nextjs")
         fi
     fi
 
@@ -142,13 +142,13 @@ check_package_json() {
     if [[ "$has_next" == "false" ]] && echo "$deps" | grep -qx "react"; then
         has_react=true
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("developing-react")
+        PROJECT_SKILLS+=("lang:developing-react")
     fi
 
     # フルスタックJS チェック（express / @nestjs/core / fastify / koa / @hapi/hapi）
     if echo "$deps" | grep -qE '^(express|@nestjs/core|fastify|koa|@hapi/hapi)$'; then
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("developing-fullstack-javascript")
+        PROJECT_SKILLS+=("lang:developing-fullstack-javascript")
     fi
 
     # Playwright チェック（package.json内）
@@ -158,18 +158,18 @@ check_package_json() {
 
     # OpenTelemetry チェック（JS）
     if echo "$deps" | grep -q "^@opentelemetry/"; then
-        PROJECT_SKILLS+=("implementing-observability")
+        PROJECT_SKILLS+=("cloud:implementing-observability")
     fi
 
     # AI Web App チェック（Vercel AI SDK / LangChain.js）
     if echo "$deps" | grep -qx "ai" || echo "$deps" | grep -q "^@langchain/"; then
-        PROJECT_SKILLS+=("integrating-ai-web-apps")
+        PROJECT_SKILLS+=("ai:integrating-ai-web-apps")
     fi
 
     # Tailwind CSS チェック（v4: package.json tailwindcss依存）
     if echo "$deps" | grep -qx "tailwindcss"; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("styling-with-tailwind")
+        PROJECT_SKILLS+=("lang:styling-with-tailwind")
     fi
 }
 
@@ -186,19 +186,19 @@ check_design() {
     # components.json（shadcn/ui）
     if [[ -f "$WORK_DIR/components.json" ]]; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("designing-frontend")
+        PROJECT_SKILLS+=("lang:designing-frontend")
     fi
 
     # Storybook
     if find "$WORK_DIR" -maxdepth 3 -name "*.stories.tsx" -o -name "*.stories.ts" 2>/dev/null | grep -q .; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("developing-react")
+        PROJECT_SKILLS+=("lang:developing-react")
     fi
 
     # Tailwind CSS（v3: tailwind.config.*, v4: package.json tailwindcss依存）
     if find "$WORK_DIR" -maxdepth 2 -name "tailwind.config.*" 2>/dev/null | grep -q .; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("styling-with-tailwind")
+        PROJECT_SKILLS+=("lang:styling-with-tailwind")
     fi
 
     # .pen ファイル（Pencil MCP）
@@ -211,11 +211,11 @@ check_design() {
 check_go() {
     if [[ -f "$WORK_DIR/go.mod" ]]; then
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("developing-go")
+        PROJECT_SKILLS+=("lang:developing-go")
 
         # Terraform provider/plugin 開発チェック
         if grep -q "hashicorp/terraform" "$WORK_DIR/go.mod"; then
-            PROJECT_SKILLS+=("developing-terraform")
+            PROJECT_SKILLS+=("cloud:developing-terraform")
         fi
     fi
 }
@@ -224,7 +224,7 @@ check_go() {
 check_python() {
     if [[ -f "$WORK_DIR/pyproject.toml" ]] || [[ -f "$WORK_DIR/requirements.txt" ]]; then
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("developing-python")
+        PROJECT_SKILLS+=("lang:developing-python")
     fi
 }
 
@@ -233,21 +233,21 @@ check_bash() {
     # .sh ファイルを検出（hooks/ ディレクトリは除外）
     if find "$WORK_DIR" -maxdepth 3 -name "*.sh" ! -path "*/hooks/*" 2>/dev/null | grep -q .; then
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("developing-bash")
+        PROJECT_SKILLS+=("lang:developing-bash")
     fi
 }
 
 # Terraform チェック
 check_terraform() {
     if find "$WORK_DIR" -maxdepth 3 -name "*.tf" 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("developing-terraform")
+        PROJECT_SKILLS+=("cloud:developing-terraform")
     fi
 }
 
 # Docker チェック
 check_docker() {
     if [[ -f "$WORK_DIR/Dockerfile" ]] || find "$WORK_DIR" -maxdepth 3 -name "docker-compose.*" 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("practicing-devops")
+        PROJECT_SKILLS+=("cloud:practicing-devops")
     fi
 }
 
@@ -256,7 +256,7 @@ check_podman() {
     if find "$WORK_DIR" -maxdepth 3 -name "Containerfile" 2>/dev/null | grep -q . \
         || find "$WORK_DIR" -maxdepth 3 -name "podman-compose.*" 2>/dev/null | grep -q . \
         || [[ -d "$WORK_DIR/.containers" ]]; then
-        PROJECT_SKILLS+=("practicing-devops")
+        PROJECT_SKILLS+=("cloud:practicing-devops")
     fi
 }
 
@@ -264,13 +264,13 @@ check_podman() {
 check_cloud_run() {
     # cloudbuild.yaml
     if [[ -f "$WORK_DIR/cloudbuild.yaml" ]] || [[ -f "$WORK_DIR/cloudbuild.json" ]]; then
-        PROJECT_SKILLS+=("developing-google-cloud")
+        PROJECT_SKILLS+=("cloud:developing-google-cloud")
         return
     fi
 
     # .gcloudignore
     if [[ -f "$WORK_DIR/.gcloudignore" ]]; then
-        PROJECT_SKILLS+=("developing-google-cloud")
+        PROJECT_SKILLS+=("cloud:developing-google-cloud")
         return
     fi
 
@@ -280,7 +280,7 @@ check_cloud_run() {
         local deps
         deps=$(jq -r '(.dependencies // {} | keys[]) , (.devDependencies // {} | keys[])' "$package_json" 2>/dev/null) || return
         if echo "$deps" | grep -q "^@google-cloud/"; then
-            PROJECT_SKILLS+=("developing-google-cloud")
+            PROJECT_SKILLS+=("cloud:developing-google-cloud")
         fi
     fi
 }
@@ -317,17 +317,17 @@ check_python_deps() {
 
     # Google ADK チェック
     if echo "$deps_content" | grep -q "google-adk"; then
-        PROJECT_SKILLS+=("building-ai-agents")
+        PROJECT_SKILLS+=("ai:building-ai-agents")
     fi
 
     # LangChain / LangGraph チェック
     if echo "$deps_content" | grep -qE "(langchain|langgraph)"; then
-        PROJECT_SKILLS+=("building-ai-agents")
+        PROJECT_SKILLS+=("ai:building-ai-agents")
     fi
 
     # OpenTelemetry チェック（Python）
     if echo "$deps_content" | grep -q "opentelemetry-"; then
-        PROJECT_SKILLS+=("implementing-observability")
+        PROJECT_SKILLS+=("cloud:implementing-observability")
     fi
 }
 
@@ -335,25 +335,25 @@ check_python_deps() {
 check_aws() {
     # CDK プロジェクト
     if [[ -f "$WORK_DIR/cdk.json" ]]; then
-        PROJECT_SKILLS+=("developing-aws")
+        PROJECT_SKILLS+=("cloud:developing-aws")
         return
     fi
 
     # SAM プロジェクト
     if [[ -f "$WORK_DIR/samconfig.toml" ]] || [[ -f "$WORK_DIR/template.yaml" ]] || [[ -f "$WORK_DIR/template.yml" ]]; then
-        PROJECT_SKILLS+=("developing-aws")
+        PROJECT_SKILLS+=("cloud:developing-aws")
         return
     fi
 
     # Serverless Framework
     if [[ -f "$WORK_DIR/serverless.yml" ]] || [[ -f "$WORK_DIR/serverless.yaml" ]]; then
-        PROJECT_SKILLS+=("developing-aws")
+        PROJECT_SKILLS+=("cloud:developing-aws")
         return
     fi
 
     # CodeBuild
     if [[ -f "$WORK_DIR/buildspec.yml" ]]; then
-        PROJECT_SKILLS+=("developing-aws")
+        PROJECT_SKILLS+=("cloud:developing-aws")
         return
     fi
 
@@ -363,7 +363,7 @@ check_aws() {
         local deps
         deps=$(jq -r '(.dependencies // {} | keys[]) , (.devDependencies // {} | keys[])' "$package_json" 2>/dev/null) || return
         if echo "$deps" | grep -qE '^(@aws-sdk/|aws-cdk|@aws-cdk/)'; then
-            PROJECT_SKILLS+=("developing-aws")
+            PROJECT_SKILLS+=("cloud:developing-aws")
             return
         fi
     fi
@@ -377,14 +377,14 @@ check_aws() {
         deps_content+=$(cat "$WORK_DIR/requirements.txt" 2>/dev/null)
     fi
     if [[ -n "$deps_content" ]] && echo "$deps_content" | grep -qE "(boto3|aws-cdk-lib|aws-lambda-powertools)"; then
-        PROJECT_SKILLS+=("developing-aws")
+        PROJECT_SKILLS+=("cloud:developing-aws")
     fi
 }
 
 # Cedar ポリシーファイルチェック
 check_cedar() {
     if find "$WORK_DIR" -maxdepth 3 -name "*.cedar" 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("implementing-dynamic-authorization")
+        PROJECT_SKILLS+=("cloud:implementing-dynamic-authorization")
     fi
 }
 
@@ -480,7 +480,7 @@ check_mcp_dev() {
 check_promptfoo() {
     # promptfooconfig.yaml
     if [[ -f "$WORK_DIR/promptfooconfig.yaml" ]] || [[ -f "$WORK_DIR/promptfooconfig.yml" ]] || [[ -f "$WORK_DIR/promptfooconfig.json" ]]; then
-        PROJECT_SKILLS+=("evaluating-with-promptfoo")
+        PROJECT_SKILLS+=("ai:evaluating-with-promptfoo")
         return
     fi
 
@@ -490,7 +490,7 @@ check_promptfoo() {
         local deps
         deps=$(jq -r '(.dependencies // {} | keys[]) , (.devDependencies // {} | keys[])' "$package_json" 2>/dev/null) || return
         if echo "$deps" | grep -qx "promptfoo"; then
-            PROJECT_SKILLS+=("evaluating-with-promptfoo")
+            PROJECT_SKILLS+=("ai:evaluating-with-promptfoo")
         fi
     fi
 }
