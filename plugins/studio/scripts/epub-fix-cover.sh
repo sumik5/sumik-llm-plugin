@@ -23,8 +23,8 @@
 #
 #       --pdf-spread 指定時は、PDF を EPUB3 fixed-layout(pre-paginated)として再構成
 #       し、ノンブル左右判定(OCR不使用・インク密度ヒューリスティック)と綴じ方向自動推定
-#       により各ページを左/右に配置した「見開き対応 EPUB」を生成する。各ページは余白
-#       自動トリミング(既定ON)後の実寸でビューポートを設定し小画面でも紙面が大きく見える。
+#       により各ページを左/右に配置した「見開き対応 EPUB」を生成する。各ページは
+#       スキャン画像を無加工のまま、その画像の実寸でビューポートを設定する(余白を足さない)。
 #       Kindle/KFX の横画面で見開き表示・縦画面で単ページ表示(端末/アプリ依存)。
 #       表紙は p0001.jpg を cover-image 専用にし本文 xhtml(spine)は p0002 から開始。
 #       これにより Kindle が cover-image を単独表示後、先頭ペア(002左,003右)からペアリング
@@ -42,7 +42,7 @@
 #       があれば使用する(無くても動作)。--pdf-to-epub には pdftoppm(poppler) と
 #       python3 が必須(画像フィット判定に Pillow があれば使用、無くても動作)。
 #       --pdf-spread には pdftoppm(poppler) と python3 が必須。Pillow があれば
-#       ノンブル左右判定・余白トリミングを実施(無くても動作・奇偶フォールバック)。
+#       ノンブル左右判定を実施(無くても動作・奇偶フォールバック)。画像は常に無加工で格納。
 set -euo pipefail
 
 usage() {
@@ -67,7 +67,7 @@ PDF (--pdf-spread 指定時):
   PDF を EPUB3 fixed-layout(見開き・pre-paginated)の .epub へ再構成。
   ノンブル下部インク密度でページ物理左右を判定し、Kindle/KFX の横画面で
   見開き表示・縦画面で単ページ表示(端末/アプリ/OS依存)。
-  余白自動トリミング既定ON(--no-trim で無効化)。
+  各ページ画像は無加工でそのまま格納(トリミング/余白付与を行わない)。
   p0001.jpg を cover-image 専用にし spine は p0002 から開始。
   先頭ペアは (002左,003右) となり表紙の二重表示を解消する。
   スキップ条件: 同名 .epub が既存(--pdf-to-epub と同じ冪等スキップ)。
@@ -82,7 +82,7 @@ Options:
   --pdf-epub-dpi N       --pdf-to-epub / --pdf-spread のページ画像解像度(既定 200)
   --replace-pdf          --pdf-to-epub / --pdf-spread 成功時に元 PDF を .bak 退避して削除する
   --pdf-spread           PDF を EPUB3 fixed-layout 見開き EPUB へ変換する(上記参照)
-  --no-trim              --pdf-spread の余白自動トリミングを無効化する(既定 ON)
+  --no-trim              (廃止)画像は常に無加工で格納。後方互換のため受理のみ(無視される)
   --page-direction DIR   見開き綴じ方向を ltr / rtl / auto から指定(既定 auto=画像から推定)
                          縦書き本(和書)は rtl の明示を推奨
   --spread-mode MODE     rendition:spread 値を landscape / both から指定(既定 landscape)
@@ -104,7 +104,6 @@ PDF_TO_EPUB=0
 REPLACE_PDF=0
 PDF_EPUB_DPI=200
 PDF_SPREAD=0
-NO_TRIM=0
 PAGE_DIRECTION="auto"
 SPREAD_MODE="landscape"
 FOLDER=""
@@ -116,7 +115,8 @@ while [ $# -gt 0 ]; do
     --replace-pdf)      REPLACE_PDF=1; shift ;;
     --pdf-epub-dpi)     PDF_EPUB_DPI="${2:-200}"; shift 2 ;;
     --pdf-spread)       PDF_SPREAD=1; shift ;;
-    --no-trim)          NO_TRIM=1; shift ;;
+    --no-trim)          shift ;;   # (廃止)画像は常に無加工で格納。後方互換のため受理のみ(無視)
+
     --page-direction)
       PAGE_DIRECTION="${2:-auto}"
       case "$PAGE_DIRECTION" in ltr|rtl|auto) ;; *)
@@ -297,8 +297,8 @@ PYEOF
 
 # ---- 見開き fixed-layout EPUB ビルダ(python3 へ heredoc で渡す) ----
 # スキャン PDF を EPUB3 fixed-layout(pre-paginated)として再構成する。
-# 処理順序: (1)原画像でノンブル左右判定 → (2)綴じ方向推定 → (3)余白トリミング
-#            → (4)fixed-layout EPUB 組立。
+# 処理順序: (1)原画像でノンブル左右判定 → (2)綴じ方向推定
+#            → (3)各ページ画像を無加工のまま fixed-layout EPUB 組立。
 # 4機構カバー宣言(meta name=cover・cover-image・cover.xhtml・guide)を厳守。
 #
 # 注意(bash 3.2 互換): 旧実装は BUILD_SPREAD_EPUB_PY="$(cat << 'PYEOF' ... PYEOF)" の
@@ -322,7 +322,6 @@ title        = sys.argv[3]   # 書籍タイトル
 author       = sys.argv[4] if len(sys.argv) > 4 else ""
 page_dir_arg = sys.argv[5] if len(sys.argv) > 5 else "auto"   # ltr / rtl / auto
 spread_mode  = sys.argv[6] if len(sys.argv) > 6 else "landscape"
-do_trim      = (sys.argv[7] if len(sys.argv) > 7 else "1") == "1"
 
 # ---- Pillow ロード(なければフォールバック) ----
 try:
@@ -330,7 +329,7 @@ try:
     HAS_PILLOW = True
 except ImportError:
     HAS_PILLOW = False
-    print("WARNING: Pillow が見つかりません。ノンブル左右判定は奇偶フォールバック、余白トリミングは無効になります。", file=sys.stderr)
+    print("WARNING: Pillow が見つかりません。ノンブル左右判定は奇偶フォールバックになります(画像は無加工で格納するため余白には影響しません)。", file=sys.stderr)
 
 # ---- ページ画像リスト ----
 imgs = sorted(glob.glob(os.path.join(img_dir, "page-*.jpg")))
@@ -561,157 +560,85 @@ for j in range(1, len(body_sides)):
     else:
         consecutive = 1
 
-# ---- 余白トリミング(Pillowあり・do_trim ON 時) ----
-# 【均一サイズ化方針】
-# 全ページを厳密に同一サイズにすることで Kindle が見開きを画面いっぱいに拡大できるようにする。
-# (1) pdftoppm native サイズを調べ最頻(dominant)サイズ (w0, h0) を決定する。
-#     ※p0001(表紙)も含む全画像を計測対象にする(表紙も均一サイズにする)。
-# (2) do_trim=True 時: dominant ページ群の各内容 bbox の和集合を
-#       [min(left), min(top), max(right), max(bottom)] で算出し共通クロップ矩形とする。
-#       和集合なのでどのページの内容も切り落とさない。共通外周余白だけが除去される。
-# (3) uniform サイズ = 共通クロップ矩形の幅・高さ(do_trim=False 時は w0×h0)。
-# (4) dominant 以外の native サイズのページ(折込等): uniform に収まるよう
-#       aspect 保持リサイズ → 白でパディングし uniform ちょうどにする。
-# (5) 全ページ XHTML viewport・original-resolution を uniform に統一する。
+# ---- ページ画像をそのまま使用(無加工: トリミング/均一化/パディングを行わない) ----
+# 【方針】PDF 各ページ(pdftoppm 出力)を一切加工せず EPUB に格納する。
+#   トリミング・リサイズ・白パディング・均一サイズ化はいずれも行わない
+#   (これらはどれも上下左右に余計な白マージンを生む原因になるため)。
+#   各ページの fixed-layout viewport を「その画像のネイティブ寸法」に設定し、
+#   CSS(object-fit:fill)で viewport を隙間なく充填する。viewport=実寸なので歪まない。
+#   結果として画像はスキャンされたままの寸法・アスペクトで表示され、
+#   スクリプトが画像の前後左右にマージンを足すことは一切ない。
+#   元 PDF のページが同寸なら左右ページも同寸で並ぶ(元が異寸ならそのまま反映)。
 
-def native_size(img_path):
-    """画像の native サイズを返す。失敗時は None。"""
+def jpeg_size(path):
+    """Pillow 不在時のフォールバック: JPEG の SOF マーカーから (幅, 高さ) を読む。失敗時 None。"""
     try:
-        return Image.open(img_path).size
+        with open(path, "rb") as fh:
+            if fh.read(2) != b"\xff\xd8":  # SOI でなければ JPEG ではない
+                return None
+            while True:
+                bb = fh.read(1)
+                if not bb:
+                    return None
+                if bb != b"\xff":
+                    continue
+                marker = fh.read(1)
+                while marker == b"\xff":   # フィルバイトを読み飛ばす
+                    marker = fh.read(1)
+                if not marker:
+                    return None
+                m = marker[0]
+                # SOF0..SOF15(0xC0..0xCF)から DHT/DNL/DAC(0xC4/0xC8/0xCC)を除く
+                if 0xC0 <= m <= 0xCF and m not in (0xC4, 0xC8, 0xCC):
+                    fh.read(3)  # segment length(2) + sample precision(1)
+                    h = int.from_bytes(fh.read(2), "big")
+                    w = int.from_bytes(fh.read(2), "big")
+                    return (w, h)
+                seg = fh.read(2)
+                if len(seg) < 2:
+                    return None
+                fh.seek(int.from_bytes(seg, "big") - 2, 1)  # 次のマーカーまでスキップ
     except Exception:
         return None
 
-def autotrim_box_single(img,
-        bg_threshold=24, downscale=4,
-        margin_frac=0.01, tiny_frac=0.05):
-    """
-    1枚の画像から白縁を除去した crop ボックスを返す。
-    全白・極小内容・getbbox=None 時は None を返し元寸維持。
-    """
-    w, h = img.size
-    small = img.resize((max(1, w // downscale), max(1, h // downscale)),
-                       Image.BILINEAR).convert("L")
-    cut = 255 - bg_threshold
-    mask = small.point(lambda p: 255 if p < cut else 0, mode="L")
-    bb = mask.getbbox()
-    if bb is None:
-        return None
-    # 縮小座標 → 原寸復元(content を切らないよう安全側へ丸める)
-    l = max(0, bb[0] * downscale - (downscale - 1))
-    u = max(0, bb[1] * downscale - (downscale - 1))
-    r = min(w, bb[2] * downscale + (downscale - 1))
-    b = min(h, bb[3] * downscale + (downscale - 1))
-    if (r - l) < w * tiny_frac and (b - u) < h * tiny_frac:
-        return None
-    ml = max(0, int(w * margin_frac))
-    mt = max(0, int(h * margin_frac))
-    return (
-        max(0, l - ml),
-        max(0, u - mt),
-        min(w, r + ml),
-        min(h, b + mt)
-    )
-
-# ---- 1) native サイズ収集 → dominant サイズ決定(p0001含む全画像) ----
-native_sizes = []
-for src in imgs:
-    sz = native_size(src) if HAS_PILLOW else None
-    native_sizes.append(sz if sz is not None else (1200, 1700))
-
-from collections import Counter
-size_counter = Counter(native_sizes)
-dominant_size = size_counter.most_common(1)[0][0]  # (w0, h0)
-w0, h0 = dominant_size
-
-# ---- 2) dominant ページの bbox 和集合 → 共通クロップ矩形 ----
-# do_trim=False または Pillow なし の場合は dominant サイズそのままを uniform にする。
-if HAS_PILLOW and do_trim:
-    union_box = None  # (min_left, min_top, max_right, max_bottom)
-    for src, nsz in zip(imgs, native_sizes):
-        if nsz != dominant_size:
-            continue  # dominant 以外はスキップ
-        try:
-            img = Image.open(src)
-            box = autotrim_box_single(img)
-            if box is None:
-                # 全白ページなど: bbox なし → dominant サイズ全体を bbox として使う
-                box = (0, 0, w0, h0)
-            if union_box is None:
-                union_box = list(box)
-            else:
-                union_box[0] = min(union_box[0], box[0])  # left
-                union_box[1] = min(union_box[1], box[1])  # top
-                union_box[2] = max(union_box[2], box[2])  # right
-                union_box[3] = max(union_box[3], box[3])  # bottom
-        except Exception:
-            pass
-    if union_box is None:
-        # dominant ページが1枚も処理できなかった場合はクロップなし
-        common_crop = None
-    else:
-        # (0, 0, w0, h0) にクランプ
-        common_crop = (
-            max(0, union_box[0]),
-            max(0, union_box[1]),
-            min(w0, union_box[2]),
-            min(h0, union_box[3]),
-        )
-    if common_crop is not None:
-        uniform_w = common_crop[2] - common_crop[0]
-        uniform_h = common_crop[3] - common_crop[1]
-    else:
-        uniform_w, uniform_h = w0, h0
-else:
-    common_crop = None
-    uniform_w, uniform_h = w0, h0
-
-# ---- 3) 各ページを uniform サイズに合わせて書き出し(p0001含む全画像) ----
-# dominant: common_crop でクロップ(クロップなし時はそのまま)
-# 非dominant: aspect 保持リサイズ → 白パディング
-page_sizes    = []   # 最終的な (w, h) = 全て (uniform_w, uniform_h)
-trimmed_paths = []
-
-def make_uniform(src, nsz, common_crop, uniform_w, uniform_h, dominant_size, out_path):
-    """
-    1ページを uniform_w × uniform_h の JPEG として out_path に書き出す。
-    dominant サイズのページは common_crop でクロップ、それ以外は
-    aspect 保持リサイズ後に白パディングする。
-    """
-    img = Image.open(src).convert("RGB")
-    w, h = nsz
-    if nsz == dominant_size:
-        if common_crop is not None:
-            img = img.crop(common_crop)
-    else:
-        # 非dominant: uniform に収まるよう aspect 保持リサイズ
-        scale = min(uniform_w / max(w, 1), uniform_h / max(h, 1))
-        new_w = max(1, int(w * scale))
-        new_h = max(1, int(h * scale))
-        img = img.resize((new_w, new_h), Image.LANCZOS)
-        # 白背景の uniform サイズキャンバスに中央配置
-        canvas = Image.new("RGB", (uniform_w, uniform_h), (255, 255, 255))
-        x_off = (uniform_w - new_w) // 2
-        y_off = (uniform_h - new_h) // 2
-        canvas.paste(img, (x_off, y_off))
-        img = canvas
-    img.save(out_path, "JPEG", quality=92)
-
-for i, src in enumerate(imgs):
-    nsz = native_sizes[i]
+def native_size(img_path):
+    """画像の native サイズ(幅, 高さ)を返す。Pillow があれば使用し、無ければ JPEG ヘッダから読む。"""
     if HAS_PILLOW:
         try:
-            out_path = src + ".uniform.jpg"
-            make_uniform(src, nsz, common_crop, uniform_w, uniform_h, dominant_size, out_path)
-            trimmed_paths.append(out_path)
+            return Image.open(img_path).size
         except Exception:
-            trimmed_paths.append(src)
-    else:
-        trimmed_paths.append(src)
-    page_sizes.append((uniform_w, uniform_h))
+            pass
+    sz = jpeg_size(img_path)
+    return sz if sz is not None else (1200, 1700)
 
-# ---- 4) original-resolution: uniform サイズを使用(全ページ同一・kindlegen E34002 対策) ----
+# ---- 各ページ寸法収集(p0001 表紙含む全画像) ----
+# 画像は無加工で格納するため trimmed_paths は pdftoppm 出力パスをそのまま指す。
+native_sizes  = [native_size(src) for src in imgs]
+page_sizes    = list(native_sizes)   # 各ページ viewport = その画像のネイティブ寸法
+trimmed_paths = list(imgs)           # 無加工: pdftoppm 出力をバイトそのまま格納
+
+# ---- original-resolution 用の代表寸法: 最頻(dominant)ネイティブ寸法 ----
 # kindlegen は rendition:layout=pre-paginated 時にこのメタが無いと E34002 で失敗する。
-max_w, max_h = uniform_w, uniform_h
+# fixed-layout は各ページ個別 viewport(各 XHTML の meta viewport)を持つため、
+# book 単位の original-resolution メタは最頻寸法で代表させる(各ページ表示は viewport が支配)。
+from collections import Counter
+dominant_size = Counter(native_sizes).most_common(1)[0][0]
+repr_w, repr_h = dominant_size  # representative(最頻)寸法。最大値ではない点に注意
+
+# ---- 異寸ページ検出 → WARNING(無加工方針のためサイズは変更しない) ----
+# 全ページ同寸なら左右ページは必ず同サイズで並ぶ。異寸が混在すると見開きで
+# 左右の高さ/幅が不揃いになり得る(元 PDF のページ寸法差がそのまま反映される)。
+# 画像は無加工で格納する方針のためスクリプト側でリサイズ/パディングはしない。
+# 利用者が実機確認・元 PDF の寸法正規化を判断できるよう件数を通知する。
+distinct_sizes = len(set(native_sizes))
+if distinct_sizes > 1:
+    non_repr = sum(1 for s in native_sizes if s != dominant_size)
+    print(
+        "WARNING: ページ寸法が %d 種類混在しています(代表 %dx%d と異なるページ %d/%d 枚)。"
+        " 無加工方針のためサイズは変更しません。見開きで左右が不揃いになる場合や"
+        " Kindle Previewer で表示が崩れる場合は実機で確認してください。"
+        % (distinct_sizes, repr_w, repr_h, non_repr, len(native_sizes)),
+        file=sys.stderr)
 
 # ---- primary-writing-mode: 綴じ方向から決定 ----
 # RTL(縦書き/右綴じ和書等) → "horizontal-rl"、LTR → "horizontal-lr"
@@ -733,8 +660,9 @@ z.writestr("META-INF/container.xml",
     '</container>\n')
 
 # CSS: 画面端まで充填(シングルクォート使用: bash の $() heredoc 内ダブルクォート崩れを回避)
-# 均一サイズ化により画像アスペクト=viewportアスペクトが保証されるため
-# object-fit: fill で viewport を隙間なく充填しても歪まない。
+# 各ページの viewport をその画像のネイティブ寸法に一致させているため、
+# 画像アスペクト=viewportアスペクトが常に成立し、object-fit: fill で viewport を
+# 隙間なく充填しても歪まない(=スクリプトが画像の前後左右に余白を足さない)。
 # 画面拡大時も img が 100% を維持するため追従して拡大する。
 z.writestr('OEBPS/style.css',
     '@page { margin: 0; padding: 0; }\n'
@@ -862,14 +790,15 @@ z.writestr("OEBPS/content.opf",
     # Amazon fixed-layout 必須メタ(kindlegen E34002 解消)
     # epubcheck は要求しないが kindlegen / KFX 変換に必須。
     # rendition:* property メタと同一 <metadata> ブロックに共存可。
-    # 注意: book-type=comic と region-mag は削除済み。
-    #   comic を指定すると Kindle KFX がコミック自動ペアリングで
-    #   spine の page-spread 宣言を無視し先頭から (1,2)(3,4) で見開きを組むため、
-    #   表紙が単独にならず左右が逆になる問題が発生する。
-    #   これらを除去することで EPUB3 標準の rendition:spread +
-    #   spine の page-spread-center/left/right が尊重される。
+    #
+    # 🔴 book-type=comic / zero-gutter / zero-margin / region-mag / ke-border-* は付けない。
+    #   2026-06-13 実機検証: これらの KF8 時代コミックメタを付けると、ローカル
+    #   kindlegen(Kindle Previewer 同梱・旧コンバータ)は通過するが、Send to Kindle の
+    #   クラウド KFX コンバータが「互換性のない要素(E013)」として配信を拒否する。
+    #   (KCC は自前の .azw3 を生成するため通るが、Send to Kindle の EPUB 取込は別系統)。
+    #   よって Send to Kindle 経路では rendition:* + fixed-layout 名前メタのみに留める。
     '<meta name="fixed-layout" content="true"/>\n'
-    '<meta name="original-resolution" content="%dx%d"/>\n'   # 全ページ uniform 幅×高さ
+    '<meta name="original-resolution" content="%dx%d"/>\n'   # 代表(最頻)ネイティブ幅×高さ
     '<meta name="orientation-lock" content="none"/>\n'
     '<meta name="primary-writing-mode" content="%s"/>\n'     # rtl→horizontal-rl / ltr→horizontal-lr
     '<meta name="cover" content="img0001"/>\n'               # cover-image サムネ用(manifest id 参照)
@@ -879,16 +808,11 @@ z.writestr("OEBPS/content.opf",
     '</package>\n'
     % (book_id, html.escape(title), opf_author, mod,
        spread_mode,
-       max_w, max_h, primary_writing_mode,
+       repr_w, repr_h, primary_writing_mode,
        "\n".join(manifest_items),
        page_direction, spine_xml))
 
 z.close()
-
-# uniform 変換の一時ファイルを削除
-for tp in trimmed_paths:
-    if tp.endswith(".uniform.jpg") and os.path.exists(tp):
-        os.remove(tp)
 
 # 出力: 本文 xhtml 数を報告(cover-image 1枚 + 本文 xhtml N-1 枚 = PDF N ページ)
 print("OK pages=%d body_xhtml=%d direction=%s" % (len(imgs), len(body_imgs), page_direction))
@@ -1014,7 +938,7 @@ process_pdf_to_epub() {
 
 # ---- PDF → 見開き fixed-layout EPUB 変換(--pdf-spread) ----
 # PDF を EPUB3 fixed-layout(pre-paginated)として再構成する。
-# ノンブル左右判定・綴じ方向自動推定・余白トリミングを埋込 Python で実施。
+# ノンブル左右判定・綴じ方向自動推定を埋込 Python で実施(画像は無加工で格納)。
 process_pdf_spread() {
   local f="$1" name="$2"
   local dst="${f%.*}.epub"
@@ -1042,16 +966,16 @@ process_pdf_spread() {
   title="$(pdf_title "$f")"; [ -z "$title" ] && title="${name%.*}"
   author="$(pdf_author "$f")"
   # 埋込 Python ビルダ呼び出し
-  # 引数: img_dir out_epub title author page_direction spread_mode do_trim
+  # 引数: img_dir out_epub title author page_direction spread_mode
+  # 画像は無加工で格納するためトリミング系引数は渡さない。
   # bash 3.2 互換のため Python 本文は一時ファイルへ書き出してから実行する
   # (詳細は write_spread_epub_py 定義近傍のコメント参照)。
-  local trim_flag; trim_flag="$( [ "$NO_TRIM" = "1" ] && echo "0" || echo "1" )"
   local py_script; py_script="$tmp/build_spread.py"
   write_spread_epub_py "$py_script"
   local py_out
   py_out="$(python3 "$py_script" \
     "$tmp" "$tmp/out.epub" "$title" "$author" \
-    "$PAGE_DIRECTION" "$SPREAD_MODE" "$trim_flag" 2>&1)" || {
+    "$PAGE_DIRECTION" "$SPREAD_MODE" 2>&1)" || {
     echo "⚠️  EPUB生成失敗(スキップ): $name"; failed=$((failed+1)); return
   }
   # WARNING 行があれば表示(致命扱いにはしない)
