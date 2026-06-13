@@ -1,7 +1,7 @@
 {
   "name": "exam",
   "description": "sumik Claude Code Plugin (exam) — 生成AI活用試験の問題画像から各小問の対話の要点と回答提出物を生成するスキル群と並列求解 agent",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "sumik5"
   }

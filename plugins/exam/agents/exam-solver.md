@@ -30,6 +30,8 @@ skills:
 - preload 済みの `answering-genai-exam` スキルの仕様に従って求解します。
 - 完了報告は Claude Code 本体に送信します。
 
+> **位置づけ**: 本 agent は `answering-genai-exam` スキルの **経路B（background-Agent 手動起動・Workflow 不可時の代替）** で使われます。第一推奨の **経路A（Workflow 並列）** では標準 agent に求解契約（`references/WORKFLOW-SCRIPT.md` §3）をプロンプト埋め込みする方式を採るため本 agent は起動されません（`agentType` 解決失敗がワークフロー全体を落とすリスク回避のため）。本 agent の求解仕様は経路A のプロンプト埋め込みと同一基準であり、`OUTPUT-FORMAT.md` を単一の真実源として共有します。
+
 ## 受領インターフェース（本体から渡される情報）
 
 本体は背景処理として私を起動し、プロンプトに以下を**全文埋め込んで**渡します。私は Desktop など作業ディレクトリ外の画像を読めない前提なので、テキスト情報だけで完結させます。

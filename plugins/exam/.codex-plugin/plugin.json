@@ -1,6 +1,6 @@
 {
   "name": "exam",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "生成AI活用試験の問題画像を解くスキルを提供するプラグイン。1個のスキル（answering-genai-exam: 見開き問題画像から各小問の対話の要点と回答提出物を生成）を含む。",
   "author": {
     "name": "sumik5"
