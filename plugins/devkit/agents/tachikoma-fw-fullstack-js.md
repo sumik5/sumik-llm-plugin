@@ -4,9 +4,9 @@ description: "Full-stack JavaScript specialized Tachikoma execution agent. Handl
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-fullstack-javascript
-  - developing-web-apis
-  - implementing-observability
+  - lang:developing-fullstack-javascript
+  - lang:developing-web-apis
+  - cloud:implementing-observability
   - writing-clean-code
   - mastering-typescript
   - testing-code

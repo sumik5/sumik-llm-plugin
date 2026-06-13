@@ -4,8 +4,8 @@ description: "Go specialized Tachikoma execution agent. Handles Go development i
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-go
-  - developing-web-apis
+  - lang:developing-go
+  - lang:developing-web-apis
   - writing-clean-code
   - testing-code
   - securing-code

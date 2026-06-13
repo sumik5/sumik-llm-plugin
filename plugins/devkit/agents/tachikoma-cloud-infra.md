@@ -4,7 +4,7 @@ description: "Infrastructure/DevOps specialized Tachikoma execution agent. Handl
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - practicing-devops
+  - cloud:practicing-devops
   - writing-clean-code
   - securing-code
 ---

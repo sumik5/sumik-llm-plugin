@@ -5,7 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - testing-e2e-with-playwright
-  - automating-browser
+  - lang:automating-browser
   - writing-clean-code
   - mastering-typescript
   - securing-code

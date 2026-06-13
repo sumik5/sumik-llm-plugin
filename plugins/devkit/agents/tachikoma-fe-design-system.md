@@ -4,7 +4,7 @@ description: "Design system construction and governance specialized Tachikoma ex
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - building-design-systems
+  - design:building-design-systems
   - writing-clean-code
   - mastering-typescript
   - testing-code

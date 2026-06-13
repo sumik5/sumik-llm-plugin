@@ -21,9 +21,9 @@
 
 ---
 
-## 参照が潜む4層（取りこぼし防止の核心）
+## 参照が潜む層（取りこぼし防止の核心）
 
-操作前に必ず以下の4層すべてをスキャンする。
+操作前に必ず以下の層すべてをスキャンする。**同一 repo 内のリネーム・統合・削除は Layer 1〜4**、**プラグイン間移動はこれに Layer 5（外部 dotfiles）が加わる**。
 
 ### Layer 1: 他スキルの frontmatter（description / when_to_use）
 
@@ -87,6 +87,31 @@ esac
 ```bash
 /usr/bin/grep -rn "old-skill-name" README.md rules/ plugins/devkit/skills/new-skill-name/
 ```
+
+### Layer 5: 外部 dotfiles（プラグイン間移動時に追加で発生）
+
+スキルを**別プラグインへ移動**すると、リポジトリ外のユーザー dotfiles にある参照も「古いプラグイン配置を前提とした bare 参照」になる。これらは dotfiles へのシンボリックリンク（編集 = ソース編集・独立コピーではない）:
+
+- `~/.claude/CLAUDE.md`（dotfiles へのシンボリックリンク）— 本文内の bare スキル名参照
+- `~/.claude/rules/*.md`（dotfiles ディレクトリへのシンボリックリンク）— ルーティング表・品質/型安全ルール等の bare スキル名参照
+
+**プラグイン間移動の参照書き換えルール:**
+
+| 参照種別 | 移動前 | 移動後 |
+|---------|--------|--------|
+| 移動スキルへの routing hint / 本文参照 | `use old-skill` | `use <plugin>:old-skill`（`plugin:skill` へ修飾） |
+| **`subagent_type` ルーティング行**（`~/.claude/rules/skill-triggers.md` 等） | `sumik:tachikoma-...` | **不変**（Agent が自プラグインに残る限り変わらない） |
+| 同一プラグインに残るスキルへの参照 | `use other-skill` | `use other-skill`（bare 維持） |
+
+> 🔴 重要: スキルが別プラグインへ移っても、そのスキルを preload する**エージェント自体が移動しない**なら、`subagent_type` 行（ルーティング表のエージェント名）は変えない。変わるのは「スキルへの参照」だけで、これが `plugin:skill` 修飾になる。
+
+**検出コマンド:**
+```bash
+/usr/bin/grep -n "old-skill-name" ~/.claude/CLAUDE.md
+/usr/bin/grep -rn "old-skill-name" ~/.claude/rules/
+```
+
+> ⚠️ `~/.claude/rules` がディレクトリ symlink の場合、`-r` は実体（dotfiles ソース）を辿る。どちらのパスを編集してもソース 1 つを編集する＝各ファイル 1 編集で足りる。プラグイン構成全体の分割/追加レシピは [MANAGING-MULTI-PLUGIN.md](MANAGING-MULTI-PLUGIN.md) を参照。
 
 ---
 

@@ -11,8 +11,8 @@ description: >-
   career growth, or team AI culture.
 when_to_use: >-
   For TDD/BDD/ATDD, use testing-code instead. For SOLID/refactoring, use writing-clean-code
-  instead. For CI/CD, use practicing-devops instead. For DDD/Clean Architecture, use
-  applying-clean-architecture instead. For ODD/debugging, use implementing-observability instead.
+  instead. For CI/CD, use cloud:practicing-devops instead. For DDD/Clean Architecture, use
+  applying-clean-architecture instead. For ODD/debugging, use cloud:implementing-observability instead.
   For prompt engineering techniques, use developing-with-ai instead.
 ---
 
@@ -47,7 +47,7 @@ when_to_use: >-
 | **本スキル** | プロジェクト基盤・チーム組織・ペアプロ・開発者習慣・IC効果性・キャリア・影響力・アンチパターン・持続可能性・AI活用 |
 | `testing-code` | TDD/BDD/ATDD の具体的手法・テスト設計 |
 | `writing-clean-code` | SOLID原則・コードスメル・リファクタリング手法 |
-| `practicing-devops` | Deployment Pipeline設定・CI/CD具体構成 |
+| `cloud:practicing-devops` | Deployment Pipeline設定・CI/CD具体構成 |
 | `applying-clean-architecture` | DDD・Clean Architecture・マイクロサービス |
 | `developing-with-ai` | AIコーディングツール活用・プロンプトエンジニアリング・LLM対話設計 |
 

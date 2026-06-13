@@ -10,7 +10,7 @@ description: >-
   logic from frameworks/UI/databases, modeling complex domains with DDD patterns, or mapping
   Bounded Contexts to Clean Architecture layers.
   For code-level clean practices, use writing-clean-code. For distributed/infrastructure patterns,
-  use architecting-infrastructure. For evolutionary architecture and microservices intro, see
+  use cloud:architecting-infrastructure. For evolutionary architecture and microservices intro, see
   ARCHITECTURE-EVOLUTION.md. For project foundations and team practices, use practicing-software-engineering.
 ---
 

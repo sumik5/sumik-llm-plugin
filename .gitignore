@@ -5,3 +5,7 @@ node_modules/
 !.cache/sumik-marketplace/
 !.cache/sumik-marketplace/devkit
 !.cache/sumik-marketplace/studio
+!.cache/sumik-marketplace/lang
+!.cache/sumik-marketplace/cloud
+!.cache/sumik-marketplace/ai
+!.cache/sumik-marketplace/design

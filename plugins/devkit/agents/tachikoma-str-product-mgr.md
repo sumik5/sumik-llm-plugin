@@ -17,11 +17,11 @@ tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 permissionMode: default
 skills:
   - practicing-product-management
-  - designing-ux
-  - architecting-infrastructure
+  - design:designing-ux
+  - cloud:architecting-infrastructure
   - writing-effective-prose
   - writing-user-stories
-  - applying-behavior-design
+  - design:applying-behavior-design
 ---
 
 # 言語設定（最優先・絶対遵守）

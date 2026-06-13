@@ -5,7 +5,7 @@ model: sonnet
 color: cyan
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - implementing-observability
+  - cloud:implementing-observability
   - writing-clean-code
   - mastering-typescript
   - testing-code

@@ -12,7 +12,7 @@ when_to_use: >-
   For AI copywriting, use studio:creating-content. For testing-specific AI techniques, use testing-code.
   For AI dev security (trust frameworks, governance, AI-SPM), use securing-ai-development. For
   PM-specific Claude Code workflows, use practicing-product-management. For LLM production
-  operations, use designing-genai-patterns. For AI-enhanced workflows and team AI adoption, use
+  operations, use ai:designing-genai-patterns. For AI-enhanced workflows and team AI adoption, use
   practicing-software-engineering instead.
 ---
 

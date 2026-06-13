@@ -4,9 +4,9 @@ description: "Frontend component implementation specialized Tachikoma execution 
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - designing-frontend
-  - developing-react
-  - designing-data-visualizations
+  - lang:designing-frontend
+  - lang:developing-react
+  - design:designing-data-visualizations
   - writing-clean-code
   - mastering-typescript
   - testing-code

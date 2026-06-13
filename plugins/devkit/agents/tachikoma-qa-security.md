@@ -7,8 +7,8 @@ permissionMode: plan
 skills:
   - securing-code
   - securing-ai-development
-  - implementing-dynamic-authorization
-  - managing-keycloak
+  - cloud:implementing-dynamic-authorization
+  - cloud:managing-keycloak
 ---
 
 # 言語設定（最優先・絶対遵守）

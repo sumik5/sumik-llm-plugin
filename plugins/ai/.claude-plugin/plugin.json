@@ -1,0 +1,8 @@
+{
+  "name": "ai",
+  "description": "sumik Claude Code Plugin (ai) — AI/LLM/エージェント開発スキル群（GenAIデザインパターン/AIエージェント構築/Web AI統合/promptfoo評価）",
+  "version": "1.0.0",
+  "author": {
+    "name": "sumik5"
+  }
+}

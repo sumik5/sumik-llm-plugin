@@ -4,8 +4,8 @@ description: "Google Cloud specialized Tachikoma execution agent. Handles Cloud 
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-google-cloud
-  - developing-firebase
+  - cloud:developing-google-cloud
+  - cloud:developing-firebase
   - writing-clean-code
   - mastering-typescript
   - testing-code

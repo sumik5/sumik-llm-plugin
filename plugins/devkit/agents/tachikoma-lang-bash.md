@@ -4,7 +4,7 @@ description: "Bash shell scripting specialized Tachikoma execution agent. Handle
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-bash
+  - lang:developing-bash
   - writing-clean-code
   - testing-code
   - securing-code

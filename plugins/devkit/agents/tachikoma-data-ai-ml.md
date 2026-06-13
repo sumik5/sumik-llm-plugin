@@ -4,10 +4,10 @@ description: "AI/ML development specialized Tachikoma execution agent. Handles V
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - integrating-ai-web-apps
-  - designing-genai-patterns
-  - evaluating-with-promptfoo
-  - developing-mcp
+  - ai:integrating-ai-web-apps
+  - ai:designing-genai-patterns
+  - ai:evaluating-with-promptfoo
+  - lang:developing-mcp
   - developing-with-ai
   - writing-clean-code
   - mastering-typescript

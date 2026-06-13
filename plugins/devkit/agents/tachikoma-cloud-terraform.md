@@ -4,7 +4,7 @@ description: "Terraform IaC specialized Tachikoma execution agent. Handles HCL c
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-terraform
+  - cloud:developing-terraform
   - writing-clean-code
   - testing-code
   - securing-code

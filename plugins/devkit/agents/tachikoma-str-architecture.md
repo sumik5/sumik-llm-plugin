@@ -6,9 +6,9 @@ tools: Read, Grep, Glob, Bash, SendMessage, ToolSearch
 permissionMode: plan
 skills:
   - applying-clean-architecture
-  - architecting-infrastructure
-  - architecting-data
-  - building-multi-tenant-saas
+  - cloud:architecting-infrastructure
+  - cloud:architecting-data
+  - cloud:building-multi-tenant-saas
 ---
 
 # 言語設定（最優先・絶対遵守）

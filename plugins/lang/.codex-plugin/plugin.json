@@ -1,0 +1,33 @@
+{
+  "name": "lang",
+  "version": "1.0.0",
+  "description": "言語・フレームワーク・フロントエンド実装スキル群を提供するプラグイン。14個のスキル（Python・Go・Bash・React・Next.js・フルスタックJS・DB・Web API・MCP・next-devtools・フロントエンド設計・Figma実装・Tailwind・ブラウザ自動化）を含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "language",
+    "framework",
+    "frontend"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sumik Lang",
+    "shortDescription": "言語・フレームワーク・フロントエンド実装スキルを提供するプラグイン",
+    "longDescription": "14個の言語・フレームワーク・フロントエンド実装スキルを提供。Python・Go・Bash・React・Next.js・フルスタックJS・データベース・Web API・MCP・Tailwind・Figma実装・ブラウザ自動化をカバーします。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write", "Edit", "Bash"],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "developing-python でPythonコードを実装",
+      "developing-nextjs でNext.jsアプリを構築",
+      "developing-databases でスキーマを設計"
+    ],
+    "brandColor": "#3178C6"
+  }
+}

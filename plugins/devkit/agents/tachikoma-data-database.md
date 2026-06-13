@@ -4,7 +4,7 @@ description: "Database specialized Tachikoma execution agent. Handles relational
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-databases
+  - lang:developing-databases
   - writing-clean-code
   - testing-code
   - securing-code

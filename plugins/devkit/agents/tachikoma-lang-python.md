@@ -4,8 +4,8 @@ description: "Python specialized Tachikoma execution agent. Handles modern Pytho
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - developing-python
-  - building-ai-agents
+  - lang:developing-python
+  - ai:building-ai-agents
   - writing-clean-code
   - testing-code
   - securing-code
