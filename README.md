@@ -111,7 +111,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
-| `/epub-fix-cover` | フォルダ/ファイル配下のEPUB/PDFを走査し、表紙サムネイルが出ない原因とPDFの画面非フィット問題を是正（EPUB:固定レイアウトをreflowable化＋表紙正規化／PDF:Titleメタ付与、`--pdf-to-epub`でスキャン画像PDFを「1ページ=1画面」EPUBへ再構成しKindleで画面フィット・ページ送り・表紙表示、`--pdf-spread`でスキャンPDFをEPUB3 fixed-layout見開きEPUBへ再構成しノンブル左右判定・綴じ方向自動推定(rtl明示可)・余白自動トリミングでKindle/KFXの横画面で見開き表示・縦画面で単ページ表示、Calibre+poppler+Pillow使用、是正済みはスキップ） |
+| `/epub-fix-cover` | フォルダ/ファイル配下のEPUB/PDFを走査し、表紙サムネイルが出ない原因とPDFの画面非フィット問題を是正（EPUB:固定レイアウトをreflowable化＋表紙正規化／PDF:Titleメタ付与、`--pdf-to-epub`でスキャン画像PDFを「1ページ=1画面」EPUBへ再構成しKindleで画面フィット・ページ送り・表紙表示、`--pdf-spread`でスキャンPDFをEPUB3 fixed-layout見開きEPUBへ再構成しノンブル左右判定・綴じ方向自動推定(rtl明示可)・余白自動トリミング＋全ページ均一サイズ化・original-resolution付与(E999回避)でKindle/KFXの横画面で見開き表示・縦画面で単ページ表示、Calibre+poppler+Pillow使用、是正済みはスキップ） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
 ### Skills (74個)
