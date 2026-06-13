@@ -9,6 +9,11 @@
       "name": "devkit",
       "source": "./plugins/devkit",
       "description": "sumik Claude Code Plugin (devkit)"
+    },
+    {
+      "name": "studio",
+      "source": "./plugins/studio",
+      "description": "sumik Claude Code Plugin (studio) — スライド・図表・フラッシュカード・LaTeX 等のコンテンツ制作スキル群"
     }
   ]
 }

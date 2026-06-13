@@ -76,7 +76,7 @@ curl http://127.0.0.1:3141/
 
 ### 投入インフラの利用（毎回の作業の前提）
 
-このスキルは `${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/`（= `plugins/devkit/skills/creating-flashcards/scripts/`）に**2層構成の Python**を常備している。投入・整形・冪等性のインフラは毎回 /tmp に書き起こさず、これらを再利用する。
+このスキルは `${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/`（= `plugins/studio/skills/creating-flashcards/scripts/`）に**2層構成の Python**を常備している。投入・整形・冪等性のインフラは毎回 /tmp に書き起こさず、これらを再利用する。
 
 | ファイル | 性質 | 役割 |
 |---------|------|------|
@@ -513,10 +513,10 @@ scaffold が `extract_images()` で返した `[{"filename","data_b64"}]` を `QA
 **作業中に発見した新たな知見（パーサーのバグ修正、新しいpandocアーティファクトパターン、構造の変異等）があった場合、完了報告後に以下を実施する。**
 
 1. 現在のスキルファイルを読み込む:
-   - `plugins/devkit/skills/creating-flashcards/SKILL.md`
-   - `plugins/devkit/skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
-   - `plugins/devkit/skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
-   - `plugins/devkit/skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
+   - `plugins/studio/skills/creating-flashcards/SKILL.md`
+   - `plugins/studio/skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
+   - `plugins/studio/skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
+   - `plugins/studio/skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
 2. 今回の作業で発見した知見を整理する:
    - 新しいpandocアーティファクトパターン
    - パーサーで発生したバグとその修正方法

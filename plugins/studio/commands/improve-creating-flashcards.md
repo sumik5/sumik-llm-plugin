@@ -47,7 +47,7 @@ argument-hint: "[追記したい知見の補足メモ]"
 | (d) 判定マーカー表記揺れ | ○×・◯✕・Unicode 変種の新ケース |
 | (e) フォーマット/HTML/ノートタイプ干渉 | 予期しないレンダリング・フィールド干渉の新ケース |
 | (f) AnkiConnect/MCP の罠 | per-note エラー・重複処理・接続失敗の新パターン |
-| (g) toolkit の不変バグ | `plugins/devkit/skills/creating-flashcards/scripts/anki_toolkit.py` の投入インフラ・HTML整形・冪等性で発見したコードレベルのバグ（ソース非依存・全セッション共通） |
+| (g) toolkit の不変バグ | `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` の投入インフラ・HTML整形・冪等性で発見したコードレベルのバグ（ソース非依存・全セッション共通） |
 
 `$ARGUMENTS` に補足メモが渡された場合は、それも分析対象に加える。
 
@@ -56,14 +56,14 @@ argument-hint: "[追記したい知見の補足メモ]"
 以下のファイルを Read/Grep で精査し、抽出候補のうち**既に記載済みのもの**を除外する。  
 重複判定は語彙ではなく**意味レベル**で行うこと（例: 「Unicode `◯` 追加」は既存記述あり）。
 
-- `plugins/devkit/skills/creating-flashcards/SKILL.md`
-- `plugins/devkit/skills/creating-flashcards/INSTRUCTIONS.md`
-- `plugins/devkit/skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
-- `plugins/devkit/skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
-- `plugins/devkit/skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
-- `plugins/devkit/skills/creating-flashcards/references/ANKI-MCP-GUIDE.md`
-- `plugins/devkit/skills/creating-flashcards/references/ANKI-MCP-TOOLS.md`
-- `plugins/devkit/skills/creating-flashcards/scripts/anki_toolkit.py`（投入インフラの実装本体。(g) の不変バグ判定時に既存実装を確認）
+- `plugins/studio/skills/creating-flashcards/SKILL.md`
+- `plugins/studio/skills/creating-flashcards/INSTRUCTIONS.md`
+- `plugins/studio/skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
+- `plugins/studio/skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
+- `plugins/studio/skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
+- `plugins/studio/skills/creating-flashcards/references/ANKI-MCP-GUIDE.md`
+- `plugins/studio/skills/creating-flashcards/references/ANKI-MCP-TOOLS.md`
+- `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py`（投入インフラの実装本体。(g) の不変バグ判定時に既存実装を確認）
 
 ### Step 3: 追記案の構造化と振り分け
 
@@ -82,12 +82,12 @@ argument-hint: "[追記したい知見の補足メモ]"
 
 | 発見した知見 | 性質 | 振り分け先 | バンプ |
 |------------|------|-----------|--------|
-| `addNotes` の新しいエラー形式 / 冪等性の穴 / HTML整形の出力バグ | ソース非依存・不変 | `plugins/devkit/skills/creating-flashcards/scripts/anki_toolkit.py` を **Edit でコード修正** | PATCH |
+| `addNotes` の新しいエラー形式 / 冪等性の穴 / HTML整形の出力バグ | ソース非依存・不変 | `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` を **Edit でコード修正** | PATCH |
 | 新しい pandocアーティファクト / 構造パターン / 判定マーカー表記揺れ / 章見出し変異 | ソース固有・パース時判断 | references（CONTENT-DETECTION / BY-TYPE / COMMON）に**散文追記**（従来どおり） | PATCH |
 | `QAPair` に新フィールドが必要（例: 新しい問題種別） | 契約変更 | 🔴 3箇所同時更新（`anki_toolkit.py` / `parser_scaffold.py` / INSTRUCTIONS.md の CONTRACT ブロック）。本体に相談 | PATCH or MINOR |
 
 - **(a)〜(f) のうちソース固有のもの**（pandocアーティファクト・構造パターン・判定マーカー表記揺れ等）は references 散文へ（従来どおり）。
-- **(g) toolkit の不変バグ・(f) のうち投入インフラの不変な罠**は `plugins/devkit/skills/creating-flashcards/scripts/anki_toolkit.py` のコード修正へ。
+- **(g) toolkit の不変バグ・(f) のうち投入インフラの不変な罠**は `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` のコード修正へ。
 - 🔴 **scaffold の `parse()` TODO や共通ヘルパ（`clean_pandoc` 等）の regex は本コマンドで自動修正しない**（ソース固有のため、毎回の作業で手書き／差し替える前提）。scaffold に普遍的に効く改善（新しい共通クリーニングヘルパの追加等）のみ scaffold を編集対象に含めてよいが、`parse()` 本体は触らない。
 
 ### Step 4: 追記案の提示と承認
@@ -104,7 +104,7 @@ argument-hint: "[追記したい知見の補足メモ]"
 ## 抽出した知見 N 件
 
 ### 知見1: [タイトル]
-**対象ファイル**: plugins/devkit/skills/creating-flashcards/references/CONTENT-{DETECTION|BY-TYPE|COMMON}.md（知見の種別に応じて選択）
+**対象ファイル**: plugins/studio/skills/creating-flashcards/references/CONTENT-{DETECTION|BY-TYPE|COMMON}.md（知見の種別に応じて選択）
 **追記位置**: line XXX 付近（[既存セクション名] の直後）
 **追記内容**:
 > ⚠️ **[タイトル]**: [本文]
@@ -138,37 +138,37 @@ AskUserQuestion(
 
 ### Step 5: ファイル編集
 
-承認された知見を反映する。**振り分け判定表（Step 3）に従い**、不変バグは `plugins/devkit/skills/creating-flashcards/scripts/anki_toolkit.py` を Edit でコード修正し、ソース固有の知見は references へ散文追記する。編集後、書籍名・著者名・出版社名の混入がないか機械チェックする（scripts も対象に含める）:
+承認された知見を反映する。**振り分け判定表（Step 3）に従い**、不変バグは `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` を Edit でコード修正し、ソース固有の知見は references へ散文追記する。編集後、書籍名・著者名・出版社名の混入がないか機械チェックする（scripts も対象に含める）:
 
 ```bash
 grep -nE "『|』|TAC|オライリー|オーム社|技術評論|翔泳社|日経BP|インプレス" \
-  plugins/devkit/skills/creating-flashcards/references/CONTENT-DETECTION.md \
-  plugins/devkit/skills/creating-flashcards/references/CONTENT-BY-TYPE.md \
-  plugins/devkit/skills/creating-flashcards/references/CONTENT-COMMON.md \
-  plugins/devkit/skills/creating-flashcards/INSTRUCTIONS.md \
-  plugins/devkit/skills/creating-flashcards/scripts/anki_toolkit.py \
-  plugins/devkit/skills/creating-flashcards/scripts/parser_scaffold.py
+  plugins/studio/skills/creating-flashcards/references/CONTENT-DETECTION.md \
+  plugins/studio/skills/creating-flashcards/references/CONTENT-BY-TYPE.md \
+  plugins/studio/skills/creating-flashcards/references/CONTENT-COMMON.md \
+  plugins/studio/skills/creating-flashcards/INSTRUCTIONS.md \
+  plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py \
+  plugins/studio/skills/creating-flashcards/scripts/parser_scaffold.py
 ```
 
 検出ゼロを確認する。検出された場合は該当知見をユーザーへ返送し、汎用表現への置換を求める。
 
-> 🔴 `plugins/devkit/skills/creating-flashcards/scripts/anki_toolkit.py` をコード修正した場合、INSTRUCTIONS.md の CONTRACT ブロック（`<!-- CONTRACT:BEGIN -->`〜`END`）と実コードの整合を確認する。`QAPair` フィールド・公開API名を変えた場合は CONTRACT ブロックも同時更新する（契約は3箇所一致が必須）。`parse()` TODO や共通ヘルパの regex は自動修正しない。
+> 🔴 `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` をコード修正した場合、INSTRUCTIONS.md の CONTRACT ブロック（`<!-- CONTRACT:BEGIN -->`〜`END`）と実コードの整合を確認する。`QAPair` フィールド・公開API名を変えた場合は CONTRACT ブロックも同時更新する（契約は3箇所一致が必須）。`parse()` TODO や共通ヘルパの regex は自動修正しない。
 
 ### Step 6: バージョン更新・コミット・タグ付与
 
 > ⚠️ Step 4 で「コミット・タグまで実行」が承認された場合のみ実施する
 
-1. `plugins/devkit/.claude-plugin/plugin.json` の `version` を **PATCH bump**（パッチ番号 +1）
+1. `plugins/studio/.claude-plugin/plugin.json` の `version` を **PATCH bump**（パッチ番号 +1）
    - 理由: 既存スキルへの知見追記 = PATCH（新規コマンド追加の MINOR とは別の意味論）
 
-2. Conventional Commits 形式でコミット（`git add` 対象に `plugins/devkit/skills/creating-flashcards/scripts/` を含める）:
+2. Conventional Commits 形式でコミット（`git add` 対象に `plugins/studio/skills/creating-flashcards/scripts/` を含める）:
 
    ```bash
-   git add plugins/devkit/skills/creating-flashcards/ plugins/devkit/.claude-plugin/plugin.json
+   git add plugins/studio/skills/creating-flashcards/ plugins/studio/.claude-plugin/plugin.json
    git commit -m "docs(creating-flashcards): N件の追加知見を CONTENT-{DETECTION|BY-TYPE|COMMON}.md に反映"
    ```
 
-   - 🔴 **`plugins/devkit/skills/creating-flashcards/scripts/anki_toolkit.py` をコード修正した場合**は、コミットメッセージを `fix(creating-flashcards): toolkit の <内容> を修正` にする（散文追記の `docs(...)` とは type を分ける）。散文追記とコード修正が混在する場合は分割コミットを推奨する。
+   - 🔴 **`plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` をコード修正した場合**は、コミットメッセージを `fix(creating-flashcards): toolkit の <内容> を修正` にする（散文追記の `docs(...)` とは type を分ける）。散文追記とコード修正が混在する場合は分割コミットを推奨する。
 
 3. アノテーション付きタグを付与:
 

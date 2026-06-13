@@ -5,9 +5,9 @@ model: opus[1m]
 color: magenta
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - creating-slides
+  - studio:creating-slides
   - writing-effective-prose
-  - designing-training
+  - studio:designing-training
 mcpServers:
   - serena
 ---

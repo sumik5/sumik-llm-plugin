@@ -28,7 +28,7 @@ COMMON_DEV_SKILLS=(
 
 # ライティングスキル（.tex検出時に適用）
 WRITING_SKILLS=(
-    "writing-latex"
+    "studio:writing-latex"
     "writing-effective-prose"
     "searching-web"
 )
@@ -90,7 +90,7 @@ get_skill_description() {
         "developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
         "developing-terraform") echo "Terraform IaC開発" ;;
         "practicing-devops") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
-        "writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
+        "studio:writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
         "developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
         "automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
         "testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
@@ -289,7 +289,7 @@ check_cloud_run() {
 check_writing() {
     if find "$WORK_DIR" -maxdepth 3 -name "*.tex" 2>/dev/null | grep -q .; then
         HAS_WRITING_PROJECT=true
-        PROJECT_SKILLS+=("writing-latex")
+        PROJECT_SKILLS+=("studio:writing-latex")
     fi
 }
 

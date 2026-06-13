@@ -17,6 +17,7 @@ LLMの開発効率を最大化するためのプラグイン。Agent、コマン
 
 ```bash
 /plugin install devkit@sumik
+/plugin install studio@sumik
 ```
 
 ### Codex
@@ -24,6 +25,7 @@ LLMの開発効率を最大化するためのプラグイン。Agent、コマン
 ```bash
 codex plugin marketplace add https://github.com/sumik5/sumik-llm-plugin.git --ref main
 codex plugin add devkit@sumik-marketplace
+codex plugin add studio@sumik-marketplace
 ```
 
 ---
@@ -34,28 +36,41 @@ codex plugin add devkit@sumik-marketplace
 sumik-llm-plugin/                      # GitHub repo（Codex はここを git clone）
 ├── .agents/
 │   └── plugins/
-│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit）
+│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio）
 ├── .cache/
 │   └── sumik-marketplace/
-│       └── devkit -> ../..               # Codex marketplace から repo root の plugin を指す symlink
+│       ├── devkit -> ../..               # Codex marketplace から repo root の plugin を指す symlink
+│       └── studio -> ../../plugins/studio  # Codex marketplace から studio plugin を指す symlink
 ├── .claude-plugin/
-│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit / source ./plugins/devkit）
+│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio / source ./plugins/devkit + ./plugins/studio）
 ├── .codex-plugin/
 │   └── plugin.json                       # Codex CLI プラグインマニフェスト（plugin 名 devkit / skills ./plugins/devkit/skills/ / version 同期必須）
 ├── .mcp-codex.json                       # Codex 用 MCPサーバー設定（command ./plugins/devkit/bin/... / cwd "."）
 ├── README.md
 ├── CLAUDE.md
 └── plugins/
-    └── devkit/                           # Claude Code プラグイン本体（claude.ai が取り込む清潔な範囲）
+    ├── devkit/                           # Claude Code プラグイン本体（claude.ai が取り込む清潔な範囲）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 devkit / .codex-plugin/ と version 同期必須）
+    │   ├── .mcp.json                     # Claude 用 MCPサーバー設定（${CLAUDE_PLUGIN_ROOT}/bin/...）
+    │   ├── agents/                       # Agent定義 (28体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str)
+    │   ├── commands/                     # スラッシュコマンド (12個)
+    │   ├── hooks/                        # イベントフック (4個)
+    │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
+    │   ├── scripts/                      # ヘルパースクリプト (3個)
+    │   └── skills/                       # ナレッジスキル (63個)
+    └── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
         ├── .claude-plugin/
-        │   └── plugin.json               # プラグインメタデータ（plugin 名 devkit / .codex-plugin/ と version 同期必須）
-        ├── .mcp.json                     # Claude 用 MCPサーバー設定（${CLAUDE_PLUGIN_ROOT}/bin/...）
-        ├── agents/                       # Agent定義 (28体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str)
-        ├── commands/                     # スラッシュコマンド (14個)
-        ├── hooks/                        # イベントフック (4個)
-        ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
-        ├── scripts/                      # ヘルパースクリプト (3個)
-        └── skills/                       # ナレッジスキル (74個)
+        │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
+        ├── .mcp.json                     # Claude 用 MCPサーバー設定（drawio・${CLAUDE_PLUGIN_ROOT}/bin/...）
+        ├── .codex-plugin/
+        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 studio / skills ./skills/）
+        ├── .mcp-codex.json               # Codex 用 MCPサーバー設定（drawio・command ./bin/... / cwd "."）
+        ├── README.md
+        ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh)
+        ├── commands/                     # スラッシュコマンド (2個)
+        ├── scripts/                      # ヘルパースクリプト (pdf-to-markdown, epub-fix-cover.sh)
+        └── skills/                       # ナレッジスキル (11個)
 ```
 
 ---
@@ -95,7 +110,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | **タチコマ（アーキテクチャ）** (tachikoma-str-architecture) | Opus | アーキテクチャ設計専門（読み取り専用）。DDD・マイクロサービス・トレードオフ分析。設計ドキュメント作成のみ |
 | **タチコマ（プロダクトマネジメント）** (tachikoma-str-product-mgr) | Opus | プロダクトマネジメント専門（読み取り専用）。PRD作成・ロードマップ策定・優先順位付け・A/Bテスト設計・成長メトリクス分析・AIプロダクト成熟度評価・技術トレードオフ分析。ドキュメント作成のみ |
 
-### Commands (14個)
+### Commands (12個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -110,11 +125,9 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/e2e-chrome-devtools-mcp` | Chrome DevTools MCPによるE2Eテスト実行 |
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
-| `/improve-creating-flashcards` | creating-flashcards セッション後の知見を自動抽出し CONTENT-DETECTION.md / CONTENT-BY-TYPE.md / CONTENT-COMMON.md / INSTRUCTIONS.md へ追記してスキルを自己進化させる |
-| `/epub-fix-cover` | フォルダ/ファイル配下のEPUB/PDFを走査し、表紙サムネイルが出ない原因とPDFの画面非フィット問題を是正（EPUB:固定レイアウトをreflowable化＋表紙正規化／PDF:Titleメタ付与、`--pdf-to-epub`でスキャン画像PDFを「1ページ=1画面」EPUBへ再構成しKindleで画面フィット・ページ送り・表紙表示、`--pdf-spread`でスキャンPDFをEPUB3 fixed-layout見開きEPUBへ再構成しノンブル左右判定・綴じ方向自動推定(rtl明示可)・余白自動トリミング＋全ページ均一サイズ化・original-resolution付与(E999回避)でKindle/KFXの横画面で見開き表示・縦画面で単ページ表示、Calibre+poppler+Pillow使用、是正済みはスキップ） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
-### Skills (74個)
+### Skills (63個)
 
 #### コア開発
 
@@ -183,7 +196,6 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証） |
 | `designing-data-visualizations` | データビジュアライゼーション原則（チャート選択・カラースケール・デザインベストプラクティス・ストーリーテリング） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
-| `creating-countdown-icons` | カウントダウンアプリ用アプリアイコン（512×512 PNG）を対話フローで生成するスキル。絵文字候補4択→背景パレット4択の選択フローを経て、clean版とプレビュー版（白数字重ね）を出力 |
 
 #### ブラウザ自動化・E2Eテスト
 
@@ -203,12 +215,8 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `developing-terraform` | Terraform/Terragrunt IaC開発（HCL・モジュール・ステート・Terragrunt・mise・AWS/GCP） |
 | `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 | `practicing-devops` | DevOps方法論・IaCツール選定・オーケストレーション比較・CI/CD・プラットフォームエンジニアリング |
-| `creating-flashcards` | EPUB/PDFからAnkiフラッシュカード一括作成（コンテンツ構造分析・選択肢リスト化・一括インポート） |
 | `orchestrating-teams` | Agent Teamオーケストレーション（チーム編成・タチコマ並列起動・進捗管理・docs先行開発） |
-| `converting-content` | コンテンツ変換ガイド（画像ベースEPUB→テキストOCR変換・LM Studio英日翻訳・pandoc・recognize-image.py） |
-| `compressing-epub-images` | EPUB 内 JPEG 画像の再エンコード・リサイズによるサイズ削減スキル。実測サンプリングで予測サイズを算出し AskUserQuestion で圧縮レベル（quality 60〜70・1080pxリサイズ）をユーザーに選ばせる対話型ワークフロー。mimetype 先頭無圧縮格納・並列圧縮（xargs -P 8）・出力方式選択を含む |
 | `chronicle` | スクリーン録画・履歴参照スキル（Rolling Bufferで過去数時間の作業コンテキストを取得・OCR解析・作業の曖昧さ解消） |
-| `gws-slides` | Google Slides 読み書き（gws CLI経由でプレゼンテーション作成・編集・batchUpdate） |
 | `orchestrating-codex` | Codex CLI統合スキル（基本操作・プランレビュー・Agentオーケストレーション・Wave並列実行・max_threads制御） |
 | `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodex subagent定義（.toml）に変換するガイド（フィールドマッピング・developer_instructions変換・モデルtier-map・skills description自動ロード・起動メカニズム・検証）。最新Codex仕様(developers.openai.com/codex)準拠 |
 
@@ -216,14 +224,8 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 
 | スキル | 説明 |
 |--------|------|
-| `writing-latex` | LaTeX文書作成 |
 | `searching-web` | Web検索統合スキル（Exa MCP第一優先: 7カテゴリ検索/企業・コード・人物・財務・学術・個人サイト・Tweet/X ＋ gemini CLIフォールバック） |
-| `designing-training` | 研修設計・ファシリテーション方法論（ニーズ分析・カリキュラム設計・90/20/8法則・EATフレームワーク・参加者主体技法・オンライン/ハイブリッド・スキルマップ・研修資料作成・12リファレンスファイル） |
 | `writing-effective-prose` | 統合文章術スキル（論理構成・AI臭除去・技術文書7Cs・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）・技術ブログ・README作成・Zenn記事作成・投稿ワークフロー・Web編集メソッド（完読概念/主眼と骨子/構造シート）・文書の構造設計（5要素階層/辞書形式vs読み物形式/認知心理学的基盤）・+書く心構え・キャリア / 人を動かす文書 / UXコピー / 五感で書く / 推敲困ったら・59リファレンスファイル） |
-| `creating-diagrams` | ダイアグラム作成ガイド（Mermaid: 24種類・C4モデル/ER図/シーケンス図/フローチャート ＋ draw.io MCP統合） |
-| `creating-content` | コンテンツ制作統合スキル（AIコピーライティング: 15テクニック・心理的トリガー ＋ AIデザインクリエイティブ: バナー/SNS/ポスター） |
-| `creating-slides` | HTMLスライド作成（slides repo 3層分離モデル: Engine/Theme/Content、16:9デッキ、テーマカスタマイズ・ソース素材変換をガイド。認知科学・ロジック構築・ストーリーテリング・聴衆分析・スライドデザイン・ビジュアルデザイン実践・提案書構成術・デリバリー・準備プロセスの9リファレンスで品質担保。国際学会・学術プレゼン対応（ACADEMIC-*/ENGLISH-* 系6リファレンス追加）） |
-| `creating-pptx` | 箇条書き・メモ・素朴なスライドを「6つの構造」で組み直し、So What まで届くコンサル品質の1枚スライドを編集可能な PowerPoint（.pptx）とプレビュー画像（.png）のハイブリッドで生成するスキル。情報を足すのではなく削り、余白と構造で意思決定を一目で促す（手動呼び出し専用） |
 
 ### Scripts (3個)
 
@@ -242,7 +244,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `notify-complete` | Stop | タスク完了時のデスクトップ通知 |
 | `notify-waiting` | Stop | 待機状態の通知 |
 
-### MCP Servers (11個)
+### MCP Servers (10個)
 
 | サーバー | 用途 |
 |---------|------|
@@ -256,7 +258,6 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | docker | Dockerコンテナ管理 |
 | terraform | Terraformインフラ管理 |
 | sequentialthinking | 複雑な問題の構造化思考 |
-| drawio | draw.ioダイアグラム作成・表示 |
 
 ---
 

@@ -19,11 +19,6 @@
       "command": "./plugins/devkit/bin/npx-mise.sh",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
       "cwd": "."
-    },
-    "drawio": {
-      "command": "./plugins/devkit/bin/npx-mise.sh",
-      "args": ["@drawio/mcp"],
-      "cwd": "."
     }
   }
 }

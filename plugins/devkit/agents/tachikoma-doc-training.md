@@ -5,9 +5,9 @@ model: sonnet
 color: magenta
 tools: Read, Grep, Glob, Edit, Write, SendMessage, ToolSearch
 skills:
-  - creating-content
+  - studio:creating-content
   - writing-effective-prose
-  - designing-training
+  - studio:designing-training
   - applying-behavior-design
 ---
 

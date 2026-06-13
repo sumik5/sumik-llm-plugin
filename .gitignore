@@ -4,3 +4,4 @@ node_modules/
 !.cache/
 !.cache/sumik-marketplace/
 !.cache/sumik-marketplace/devkit
+!.cache/sumik-marketplace/studio

@@ -1,0 +1,8 @@
+{
+  "name": "studio",
+  "description": "sumik Claude Code Plugin (studio) — slides, diagrams, flashcards, EPUB/PDF conversion, LaTeX, content & training creation",
+  "version": "1.0.0",
+  "author": {
+    "name": "sumik5"
+  }
+}

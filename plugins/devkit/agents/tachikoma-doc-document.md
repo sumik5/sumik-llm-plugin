@@ -6,8 +6,8 @@ color: green
 tools: Read, Grep, Glob, Edit, Write, SendMessage, ToolSearch
 skills:
   - writing-effective-prose
-  - writing-latex
-  - creating-content
+  - studio:writing-latex
+  - studio:creating-content
 ---
 
 # 言語設定（最優先・絶対遵守）

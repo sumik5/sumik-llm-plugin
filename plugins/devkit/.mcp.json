@@ -15,10 +15,6 @@
     "sequentialthinking": {
       "command": "${CLAUDE_PLUGIN_ROOT}/bin/npx-mise.sh",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-    },
-    "drawio": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/bin/npx-mise.sh",
-      "args": ["@drawio/mcp"]
     }
   }
 }

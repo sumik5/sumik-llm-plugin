@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "drawio": {
+      "command": "./bin/npx-mise.sh",
+      "args": ["@drawio/mcp"],
+      "cwd": "."
+    }
+  }
+}

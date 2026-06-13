@@ -1,0 +1,35 @@
+{
+  "name": "studio",
+  "version": "1.0.0",
+  "description": "コンテンツ制作スキル群を提供するプラグイン。11個のスキル（スライド・PPTX・図表・フラッシュカード・LaTeX・コンテンツ生成・EPUB圧縮/変換・カウントダウンアイコン・研修設計）と2個のコマンドを含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "slides",
+    "diagrams",
+    "flashcards",
+    "content-creation"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp-codex.json",
+  "interface": {
+    "displayName": "Sumik Studio",
+    "shortDescription": "スライド・図表・フラッシュカード・LaTeX 等のコンテンツ制作スキルを提供するプラグイン",
+    "longDescription": "11個のコンテンツ制作スキルと2個のスラッシュコマンドを提供。HTMLスライド・PPTX・図表（Mermaid/draw.io）・Ankiフラッシュカード・LaTeX文書・マーケティングコピー・EPUB圧縮/変換・研修設計をカバーします。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write", "Edit", "Bash"],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "creating-flashcards でカードを作成",
+      "creating-slides でスライドを作成",
+      "creating-diagrams で図を作成"
+    ],
+    "brandColor": "#FF7A00"
+  }
+}
