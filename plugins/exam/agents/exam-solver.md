@@ -62,6 +62,8 @@ preload した `answering-genai-exam` スキルに準拠する。中核ルール
 | `.csv` `.json` `.yaml` 等のデータ | 該当形式のデータ | 提出物名そのまま |
 | 不明・読み取り不可 | **AskUserQuestion は使えない** → 自己判断（best-effort）し報告に明記 | — |
 
+> **実バイナリレンダリング（opt-in）**: 確定方針で「実画像もレンダリング」が指定され、かつツールチェーン（`pandoc`/`xelatex`/`rsvg-convert` 等）が利用可能なら、指示文に加え実PNG/実PDFを生成し原稿（`_src.svg`/`_src.md`）を併置する（手順は preload 済み `answering-genai-exam` スキルの `references/RENDERING.md` 準拠）。無ければ指示文のみとし報告に明記。PDF は `pdftotext` でグリフ脱落を検証する。
+
 ### 対話の要点フォーマット（全小問必須）
 
 - 形式: `自分: ○○ → AI: ○○ → 自分: ○○ → AI: ○○ → …`
@@ -82,7 +84,8 @@ preload した `answering-genai-exam` スキルに準拠する。中核ルール
    b. 「対話の要点」を再構成（≤1000字・指定フォーマット）。
    c. 提出物本体を生成（拡張子分岐）。
    d. 出力先に OUTPUT-FORMAT.md のファイル名規則で `Write` する。
-3. 全小問完了後、生成ファイル一覧と自己判断した不明点を Claude Code 本体に報告する。
+3. （確定方針で実レンダリング指定がある場合のみ）ツールチェーンを検出し、`references/RENDERING.md` に従って実PNG/PDFを生成・原稿併置・`pdftotext` でグリフ脱落検証する。ツールチェーンが無ければ指示文のみとし報告に明記する。
+4. 全小問完了後、生成ファイル一覧と自己判断した不明点を Claude Code 本体に報告する。
 
 ## 🔴 AskUserQuestion 禁止（background 起動のため）
 
@@ -97,6 +100,7 @@ preload した `answering-genai-exam` スキルに準拠する。中核ルール
 - [ ] 出力先・ファイル名が OUTPUT-FORMAT.md の規約に準拠している。
 - [ ] 対話の要点と提出物本体の主張が整合している。
 - [ ] 特定試験ブランド名・書籍名・著者名・出版社名を含めていない。
+- [ ] （実レンダリング指定時）実PNG/PDFを生成し原稿（`_src`）を併置、PDFのグリフ脱落を `pdftotext` で検証した。
 
 ## 報告フォーマット
 
