@@ -95,13 +95,23 @@ AskUserQuestion(
             ],
             "multiSelect": False,
         },
+        {
+            "question": "画像系/PDF提出物について、出力の忠実度を選んでください。",
+            "header": "出力忠実度",
+            "options": [
+                {"label": "指示文のみ（既定）", "description": "画像系は _画像生成指示.md のみ生成。ツールチェーン不要・最も移植性が高い"},
+                {"label": "実画像もレンダリング", "description": "指示文に加え実PNG/実PDFを生成（要ツールチェーン）。提出物名が実ファイルを要求する試験向け。references/RENDERING.md 準拠"},
+            ],
+            "multiSelect": False,
+        },
     ]
 )
 ```
 
-- 上記4種は **必要なものだけ** 1回の AskUserQuestion にまとめて提示する（複数 question を1コールに同梱）。
+- 上記5種は **必要なものだけ** 1回の AskUserQuestion にまとめて提示する（複数 question を1コールに同梱）。
 - 提出物拡張子が読み取り不可で出力形式を判断できない小問があれば、ここで必ず確認する（並列 solver 起動後は解消できない）。
 - 確定した回答は Step 3 で各 solver のプロンプトへ「確定方針」として埋め込む。
+- 「実画像もレンダリング」を選んだ場合、Step 4 の後に **Step 4.5（実バイナリレンダリング）** を実行する（`references/RENDERING.md` 準拠）。確定方針として各 worker にも渡す。
 
 ### Step 3: 求解の振り分け
 
@@ -166,6 +176,15 @@ c. **提出物本体の生成**（拡張子分岐・後述）。
 
 d. **出力**: `<入力画像dir>/answers/<問番号>/` に `references/OUTPUT-FORMAT.md` のファイル名規則で保存する。`Write` は親ディレクトリを自動生成する。
 
+### Step 4.5: 実バイナリレンダリング（opt-in・Step 2 で選択時のみ）
+
+Step 2 で「実画像もレンダリング」が選ばれた場合のみ実行する。**Bash が使える本体（または exam-solver）が、Step 4 完了後の後段パスとして** 行う（Workflow の並列 worker 内ではレンダリングしない＝ worker は指示文/原稿md を出すだけ）。手順・ツールチェーン・グリフ脱落の罠・検証は **`references/RENDERING.md` 準拠**。要点:
+
+1. ツールチェーン検出（`pandoc`/`xelatex`/`rsvg-convert`/`pdftotext` 等）。不足時は「指示文のみ」へフォールバックし報告に明記。
+2. `.md` 回答 → 実PDF（`pandoc --pdf-engine=xelatex` + CJK フォント）。図の `_画像生成指示.md` → 手書き SVG → `rsvg-convert` で実PNG。
+3. 原稿を `<basename>_src.md` / `<basename>_src.svg` として併置（再レンダリング可能に）。
+4. 🔴 PDF は `pdftotext -enc UTF-8` でグリフ脱落を検証（`✕`U+2715→`×`U+00D7 等・静かな脱落あり）。全成果物にブランド名漏洩がないか grep で全走査。
+
 ### Step 5: 集約・報告
 
 - 全問完了後、生成ファイル一覧と各問の要旨を報告する。
@@ -185,6 +204,8 @@ d. **出力**: `<入力画像dir>/answers/<問番号>/` に `references/OUTPUT-F
 | `.py` `.ts` `.js` `.sql` `.ipynb` 等のコード | 実際に動くソースコード（コメント付き） |
 | `.csv` `.json` `.yaml` 等のデータ | 該当形式のデータ |
 | 不明・読み取り不可 | Step 2 の AskUserQuestion で確認（並列 solver 時は本体が事前解消） |
+
+> **実バイナリレンダリング（opt-in）**: Step 2 で「実画像もレンダリング」を選んだ場合、画像系は `_画像生成指示.md`（既定）に **加えて** 実PNGを、`.md` 回答は実PDFを Step 4.5 で生成する。手順は `references/RENDERING.md`。既定（未選択）では従来どおり指示文のみ。
 
 ---
 
@@ -207,3 +228,5 @@ d. **出力**: `<入力画像dir>/answers/<問番号>/` に `references/OUTPUT-F
 - [ ] 出力は `<入力画像dir>/answers/<問番号>/` に OUTPUT-FORMAT.md のファイル名規則で保存した。
 - [ ] 対話の要点と提出物本体の主張が整合している。
 - [ ] 曖昧点は起動前（本体）または自己判断（solver）で処理し、報告に明記した。
+- [ ] （実レンダリング選択時）実PNG/PDF を生成し原稿（`_src`）を併置、PDF はグリフ脱落を `pdftotext` で検証した。
+- [ ] 全成果物に試験ブランド名・主催団体名・回次表記の漏洩がないか grep で確認した。

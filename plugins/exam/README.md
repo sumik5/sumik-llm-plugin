@@ -47,7 +47,8 @@ plugins/exam/
         ├── INSTRUCTIONS.md      # 解答生成ワークフロー本文（Step 0〜5・経路A=Workflow/B=background-Agent/C=逐次）
         ├── references/
         │   ├── WORKFLOW-SCRIPT.md # Workflow 並列求解（第一推奨）のスクリプト雛形・args 仕様・求解契約
-        │   └── OUTPUT-FORMAT.md # 出力ファイル名規則・拡張子分岐・対話要点/画像生成指示テンプレート
+        │   ├── OUTPUT-FORMAT.md # 出力ファイル名規則・拡張子分岐・対話要点/画像生成指示テンプレート
+        │   └── RENDERING.md     # 実バイナリレンダリング経路（opt-in）：ツールチェーン検出・md→PDF・図→PNG・グリフ脱落検証
         └── assets/
             └── answer-template.md  # 1大問分の出力サンプル（穴埋めテンプレート）
 ```
@@ -60,7 +61,7 @@ plugins/exam/
 
 | スキル | 説明 |
 |--------|------|
-| `answering-genai-exam` | 生成AI活用試験の問題画像（見開きスクショ）を読み取り、各小問の対話の要点（≤1000字）と提出物（拡張子分岐: markdown回答 / 画像生成指示 / コード）を生成して `answers/<問番号>/` に保存。複数画像は Workflow で問ごとに並列求解（第一推奨）、Workflow 不可時は exam-solver agent で background 並列、agent も Workflow も不可なら逐次フォールバック。曖昧点は並列起動前に AskUserQuestion で一括解消 |
+| `answering-genai-exam` | 生成AI活用試験の問題画像（見開きスクショ）を読み取り、各小問の対話の要点（≤1000字）と提出物（拡張子分岐: markdown回答 / 画像生成指示 / コード）を生成して `answers/<問番号>/` に保存。複数画像は Workflow で問ごとに並列求解（第一推奨）、Workflow 不可時は exam-solver agent で background 並列、agent も Workflow も不可なら逐次フォールバック。曖昧点は並列起動前に AskUserQuestion で一括解消。画像系/PDF提出物は既定で指示文のみ、opt-in で実PNG/PDFをレンダリング（`references/RENDERING.md`：ツールチェーン検出・グリフ脱落のpdftotext検証）。 |
 
 ### Agents (1体)
 
