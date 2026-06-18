@@ -1,7 +1,7 @@
 {
   "name": "studio",
-  "version": "1.0.1",
-  "description": "コンテンツ制作スキル群を提供するプラグイン。11個のスキル（スライド・PPTX・図表・フラッシュカード・LaTeX・コンテンツ生成・EPUB圧縮/変換・カウントダウンアイコン・研修設計）と2個のコマンドを含む。",
+  "version": "1.1.0",
+  "description": "コンテンツ制作スキル群を提供するプラグイン。12個のスキル（スライド・PPTX・図表・フラッシュカード・LaTeX・コンテンツ生成・EPUB圧縮/変換・カウントダウンアイコン・研修設計・検索可視性最適化(SEO/GEO)）と2個のコマンドを含む。",
   "author": {
     "name": "sumik5"
   },
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Sumik Studio",
     "shortDescription": "スライド・図表・フラッシュカード・LaTeX 等のコンテンツ制作スキルを提供するプラグイン",
-    "longDescription": "11個のコンテンツ制作スキルと2個のスラッシュコマンドを提供。HTMLスライド・PPTX・図表（Mermaid/draw.io）・Ankiフラッシュカード・LaTeX文書・マーケティングコピー・EPUB圧縮/変換・研修設計をカバーします。",
+    "longDescription": "12個のコンテンツ制作スキルと2個のスラッシュコマンドを提供。HTMLスライド・PPTX・図表（Mermaid/draw.io）・Ankiフラッシュカード・LaTeX文書・マーケティングコピー・EPUB圧縮/変換・研修設計・検索可視性最適化（SEO/GEO/AI検索）をカバーします。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write", "Edit", "Bash"],
