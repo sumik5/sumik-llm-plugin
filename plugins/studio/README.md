@@ -71,7 +71,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `creating-content` | コンテンツ制作統合スキル（AIコピーライティング: 15テクニック・心理的トリガー ＋ AIデザインクリエイティブ: バナー/SNS/ポスター等の広告ビジュアル制作プロンプト設計） |
 | `creating-countdown-icons` | カウントダウンアプリ用アプリアイコン（512×512 PNG）を絵文字・背景パレット選択の対話フローで生成。clean版とプレビュー版（白数字重ね）の2枚を出力 |
 | `designing-training` | 研修設計・ファシリテーション方法論（ニーズ分析・KSA・ADDIE/Gagné・90/20/8法則・EATフレームワーク・脳科学原則・オンライン/ハイブリッド・スキルマップ・研修資料作成） |
-| `optimizing-search-visibility` | 生成AI時代の検索可視性最適化リファレンス（古典SEO: ランキング要因/E-E-A-T/検索意図/トピッククラスター/Core Web Vitals(LCP/INP/CLS)/構造化データ/hreflang/キーワードリサーチ/オンページ/被リンク/ローカル・EC ＋ 生成AI活用: 制作支援プロンプト/カスタムGPT/RAG/AIエージェント自動化 ＋ AI検索最適化: AI Overviews/AI Mode/GEO/AEO/LLMO/llms.txt ＋ 計測: GA4/GSC/KPI/ROI ＋ リスク&ガバナンス: Scaled content abuse/著作権/ハルシネーション/Googleポリシー。FAQ/HowToリッチリザルト廃止・INPのFID置換など現行事実を反映） |
+| `optimizing-search-visibility` | 生成AI時代の検索可視性最適化リファレンス（古典SEO: ランキング要因/E-E-A-T/検索意図/トピッククラスター/Core Web Vitals(LCP/INP/CLS)/構造化データ/hreflang/キーワードリサーチ/オンページ/被リンク/ローカル・EC ＋ 生成AI活用: 制作支援プロンプト/カスタムGPT/RAG/AIエージェント自動化 ＋ AI検索最適化: AI Overviews/AI Mode/GEO/AEO/LLMO/llms.txt/AI引用源最適化 ＋ 計測: GA4/GSC/KPI/ROI ＋ AI可視性計測: Mentions/Citations ＋ リスク&ガバナンス: Scaled content abuse/著作権/ハルシネーション/Googleポリシー/社内AIガバナンス。FAQ/HowToリッチリザルト廃止・INPのFID置換など現行事実を反映。コピペ運用アセットの AI可視性プレイブック(自己診断ワークシート・実行チェックリスト・プロンプトライブラリ)を同梱） |
 
 ### Commands (2個)
 
