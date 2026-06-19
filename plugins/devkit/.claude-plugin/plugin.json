@@ -1,7 +1,7 @@
 {
   "name": "devkit",
   "description": "sumik Claude Code Plugin",
-  "version": "13.0.0",
+  "version": "13.1.0",
   "author": {
     "name": "sumik5"
   },
@@ -15,6 +15,32 @@
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/detect-project-skills.sh",
             "timeout": 15,
             "description": "Detect project files and suggest relevant skills"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/learnings-reminder.sh",
+            "timeout": 10,
+            "description": "Remind to capture learnings after each task"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/learnings-error-detector.sh",
+            "timeout": 10,
+            "description": "Detect errors in Bash tool output and prompt ERRORS.md entry"
           }
         ]
       }

@@ -67,10 +67,10 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── .mcp.json                     # Claude 用 MCPサーバー設定（${CLAUDE_PLUGIN_ROOT}/bin/...）
     │   ├── agents/                       # Agent定義 (28体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str)
     │   ├── commands/                     # スラッシュコマンド (12個)
-    │   ├── hooks/                        # イベントフック (4個)
+    │   ├── hooks/                        # イベントフック (6個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (3個)
-    │   └── skills/                       # ナレッジスキル (28個)
+    │   └── skills/                       # ナレッジスキル (29個)
     ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
@@ -167,7 +167,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
-### Skills (28個)
+### Skills (29個)
 
 #### コア開発
 
@@ -188,6 +188,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
 | `reviewing-code` | コードレビュー方法論（PRの構成・効果的なコメント技法・TWA・アンチパターン対策） |
 | `authoring-plugins` | Claude Code Plugin開発ガイド（Agent・Skill・コマンド定義の作成・最適化・フロントマター仕様・Progressive Disclosure・ツール制限）。Agent Skills標準 vs Claude Code拡張の分離原則・fork判定5軸マトリクス・FORK-GUIDE.md含む |
+| `capturing-learnings` | 作業中の学び・エラー・ユーザー訂正・機能要望を .learnings/ に構造化記録し継続的改善につなげるスキル（LRN/ERR/FEAT エントリ・反復パターン検出・CLAUDE.md/memory/AGENTS.md/新スキルへの昇格・devkit hookで自動リマインド）。プラグイン自身のスキル改善は authoring-plugins、定期棚卸しは USAGE-REVIEW を参照 |
 | `practicing-software-engineering` | SW開発プラクティス包括ガイド（プロジェクト基盤: Fast Feedback・DORA計測 ＋ チーム組織: Team Topologies・4チームタイプ ＋ ペアプログラミング: 4パターン ＋ 開発者習慣: GREAT Habits ＋ IC効果性マインドセット: アウトカム思考・戦略的優先順位付け ＋ キャリア成長: Junior→Staff・IC/Management パス ＋ 影響力: PM/デザイナー協働・権限なきリーダーシップ ＋ 20アンチパターン: 個人15+チーム5 ＋ 持続可能パフォーマンス: バーンアウト防止・リモートワーク ＋ AI活用ワークフロー: 日常AI統合・90日チーム採用計画、10リファレンスファイル） |
 | `writing-user-stories` | ユーザーストーリー作成ガイド（テンプレート・よくある間違い・技術要件変換・受入条件・分割テクニック） |
 | `solving-algorithms` | 競技プログラミング向けアルゴリズムとデータ構造リファレンス（計算量早見表・ソート7種・データ構造（スタック/キュー/木/BST/ヒープ/Union-Find）・探索（二分探索/ハッシュ/バックトラッキング/IDA*）・動的計画法（LCS/ナップザック/LIS）・グラフ（DFS/BFS/Dijkstra/Bellman-Ford/Floyd-Warshall/トポロジカルソート）・計算幾何学（ベクトル演算/凸包/交差判定）・整数論（素数/GCD/繰り返し二乗法）・7リファレンスファイル） |
@@ -235,7 +236,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `zip-skills.sh` | `skills/` 配下の各スキルフォルダを個別にzipアーカイブ化 |
 | `pdf-to-markdown` | PDF→Markdown変換バイナリ（`authoring-plugins` のPDF入力変換で使用） |
 
-### Hooks (4個)
+### Hooks (6個)
 
 | フック | トリガー | 説明 |
 |-------|---------|------|
@@ -243,6 +244,8 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `format-on-save` | PostToolUse | ファイル保存時の自動フォーマット（TypeScript/JSON/Terraform等） |
 | `notify-complete` | Stop | タスク完了時のデスクトップ通知 |
 | `notify-waiting` | Stop | 待機状態の通知 |
+| `learnings-reminder` | UserPromptSubmit | タスク完了後に .learnings/ への学び記録を促すリマインダー |
+| `learnings-error-detector` | PostToolUse | Bashコマンドのエラーを検出し .learnings/ERRORS.md への記録を提案 |
 
 ### MCP Servers (10個)
 
