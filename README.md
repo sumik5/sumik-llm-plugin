@@ -69,8 +69,8 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── commands/                     # スラッシュコマンド (12個)
     │   ├── hooks/                        # イベントフック (6個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
-    │   ├── scripts/                      # ヘルパースクリプト (3個)
-    │   └── skills/                       # ナレッジスキル (29個)
+    │   ├── scripts/                      # ヘルパースクリプト (4個)
+    │   └── skills/                       # ナレッジスキル (30個)
     ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
@@ -167,7 +167,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
-### Skills (29個)
+### Skills (30個)
 
 #### コア開発
 
@@ -220,6 +220,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `chronicle` | スクリーン録画・履歴参照スキル（Rolling Bufferで過去数時間の作業コンテキストを取得・OCR解析・作業の曖昧さ解消） |
 | `orchestrating-codex` | Codex CLI統合スキル（基本操作・プランレビュー・Agentオーケストレーション・Wave並列実行・max_threads制御） |
 | `converting-agents-to-codex` | Claude Code Agent定義（.md）をCodex subagent定義（.toml）に変換するガイド（フィールドマッピング・developer_instructions変換・モデルtier-map・skills description自動ロード・起動メカニズム・検証）。最新Codex仕様(developers.openai.com/codex)準拠 |
+| `searching-files-with-fff` | fff MCPによる高速ファイル検索（frecency順位付け・常駐インメモリインデックス）。3ツール（grep=内容検索/find_files=ファイル名fuzzy/multi_grep=複数パターンOR）・インライン制約構文・コアルール（bare identifierで検索・regex回避・2回で打切りRead）・DB永続化・serena/Glob/ripgrepとの使い分け |
 
 #### ドキュメント・品質
 
@@ -228,13 +229,14 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `searching-web` | Web検索統合スキル（Exa MCP第一優先: 7カテゴリ検索/企業・コード・人物・財務・学術・個人サイト・Tweet/X ＋ gemini CLIフォールバック） |
 | `writing-effective-prose` | 統合文章術スキル（論理構成・AI臭除去・技術文書7Cs・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）・技術ブログ・README作成・Zenn記事作成・投稿ワークフロー・Web編集メソッド（完読概念/主眼と骨子/構造シート）・文書の構造設計（5要素階層/辞書形式vs読み物形式/認知心理学的基盤）・+書く心構え・キャリア / 人を動かす文書 / UXコピー / 五感で書く / 推敲困ったら・59リファレンスファイル） |
 
-### Scripts (3個)
+### Scripts (4個)
 
 | スクリプト | 説明 |
 |----------|------|
 | `file-suggestion.sh` | ファイル候補検索ヘルパー（ripgrep + fzf でクエリにマッチするファイルを提示） |
 | `zip-skills.sh` | `skills/` 配下の各スキルフォルダを個別にzipアーカイブ化 |
 | `pdf-to-markdown` | PDF→Markdown変換バイナリ（`authoring-plugins` のPDF入力変換で使用） |
+| `fff-mcp.sh` | fff MCPサーバ起動ラッパー（fff-mcpバイナリをPATH/~/.local/binで解決→無ければ公式インストーラで自動取得、frecency/history DBをXDG準拠で永続化）。`searching-files-with-fff` スキルが利用 |
 
 ### Hooks (6個)
 
@@ -247,7 +249,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `learnings-reminder` | UserPromptSubmit | タスク完了後に .learnings/ への学び記録を促すリマインダー |
 | `learnings-error-detector` | PostToolUse | Bashコマンドのエラーを検出し .learnings/ERRORS.md への記録を提案 |
 
-### MCP Servers (10個)
+### MCP Servers (11個)
 
 | サーバー | 用途 |
 |---------|------|
@@ -261,6 +263,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | docker | Dockerコンテナ管理 |
 | terraform | Terraformインフラ管理 |
 | sequentialthinking | 複雑な問題の構造化思考 |
+| fff | 高速ファイル検索（frecency順位付け・grep=内容/find_files=ファイル名/multi_grep=複数OR・devkit同梱ラッパー経由） |
 
 ---
 

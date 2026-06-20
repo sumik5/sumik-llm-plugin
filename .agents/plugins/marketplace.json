@@ -10,8 +10,8 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/devkit"
       },
-      "version": "13.1.0",
-      "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・29個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
+      "version": "13.2.0",
+      "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・30個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
