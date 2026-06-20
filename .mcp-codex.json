@@ -19,6 +19,10 @@
       "command": "./plugins/devkit/bin/npx-mise.sh",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
       "cwd": "."
+    },
+    "fff": {
+      "command": "./plugins/devkit/scripts/fff-mcp.sh",
+      "cwd": "."
     }
   }
 }
