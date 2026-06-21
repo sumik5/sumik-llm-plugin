@@ -52,6 +52,50 @@ export default async function Page() {
 }
 ```
 
+#### 本番環境のError Boundary
+
+Next.jsは開発時、レンダリングサイクル中にエラーが投げられるとコールスタック付きのオーバーレイをページ全体に表示する。しかし**本番環境ではこのオーバーレイは存在しない**ため、React error boundaryがないとユーザーには白画面（空白画面）だけが表示される。
+
+ストリーミングchat UIをerror boundaryで包み、意味のあるエラーメッセージと回復用のCTA（再試行ボタン等）を描画する。
+
+```tsx
+'use client';
+import { Component, ReactNode } from 'react';
+
+class ChatErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // 白画面の代わりに意味のあるメッセージ＋回復CTAを描画
+      return (
+        <div role="alert">
+          <p>チャットの表示中に問題が発生しました。</p>
+          <button onClick={() => this.setState({ hasError: false })}>
+            再試行
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// ストリーミングchat UIをerror boundaryで包む
+<ChatErrorBoundary>
+  <ChatList messages={conversation} />
+</ChatErrorBoundary>
+```
+
+> **原則**: 開発時のオーバーレイに頼らず、本番では必ずerror boundaryでレンダリングエラーを捕捉する。回復CTAでユーザーが自力で立て直せる導線を用意する。error boundary作成の詳細はReact公式リファレンスを参照する。
+
 ### クライアント/サーバー問題のデバッグ
 
 #### 構造化ログの実装（Pino）
