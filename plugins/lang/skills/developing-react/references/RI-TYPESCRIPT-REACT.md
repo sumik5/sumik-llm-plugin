@@ -554,28 +554,31 @@ function CustomInput({ onValueChange, ...props }: CustomInputProps) {
 
 ## 7. 型安全なrefフォワーディング
 
-### forwardRefの型パラメータ
+### ref as prop（React 19の標準）
+
+React 19以降、`ref`は通常のpropsとして関数コンポーネントが直接受け取れます。`forwardRef`でラップする必要はありません。Propsに`ref`を含めるには、要素のpropsをまとめて引き継ぐ`ComponentPropsWithRef<"要素名">`を継承するのが最も簡潔です（`ref`の型まで自動で含まれます）：
 
 ```typescript
-interface CustomInputProps extends ComponentPropsWithoutRef<"input"> {
+import type { ComponentPropsWithRef } from "react";
+
+// ComponentPropsWithRef<"input"> が ref?: Ref<HTMLInputElement> まで含む
+interface CustomInputProps extends ComponentPropsWithRef<"input"> {
   label: string;
   error?: string;
 }
 
-// forwardRef<要素の型, Propsの型>
-const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
-  function CustomInput({ label, error, ...props }, ref) {
-    return (
-      <div>
-        <label>
-          {label}
-          <input ref={ref} {...props} aria-invalid={!!error} />
-        </label>
-        {error && <span className="error">{error}</span>}
-      </div>
-    );
-  }
-);
+// ref を分割代入で受け取る（forwardRef 不要）
+function CustomInput({ label, error, ref, ...props }: CustomInputProps) {
+  return (
+    <div>
+      <label>
+        {label}
+        <input ref={ref} {...props} aria-invalid={!!error} />
+      </label>
+      {error && <span className="error">{error}</span>}
+    </div>
+  );
+}
 
 // 使用例
 function Form() {
@@ -595,16 +598,106 @@ function Form() {
 }
 ```
 
-### ジェネリックコンポーネント + forwardRef
+`ComponentPropsWithoutRef`を使いたい場合や、自前のPropsへ明示的に`ref`を加えたい場合は、`Ref<T>`型を直接持たせます：
 
 ```typescript
+import type { ComponentPropsWithoutRef, Ref } from "react";
+
+interface CustomButtonProps extends ComponentPropsWithoutRef<"button"> {
+  variant: "primary" | "secondary";
+  ref?: Ref<HTMLButtonElement>; // ref を通常の prop として宣言
+}
+
+function CustomButton({ variant, ref, ...props }: CustomButtonProps) {
+  return <button ref={ref} className={`btn btn-${variant}`} {...props} />;
+}
+
+// 使用例（forwardRef 不要）
+const buttonRef = useRef<HTMLButtonElement>(null);
+<CustomButton ref={buttonRef} variant="primary">クリック</CustomButton>
+```
+
+### ジェネリックコンポーネント + ref as prop
+
+React 19では、ジェネリック関数コンポーネントに`ref`を加える際も、Propsへ`ref?: Ref<T>`を持たせるだけで済みます。`forwardRef`でラップしないため、ジェネリック型引数`<T>`が型推論で失われる従来の問題（`forwardRef`が型引数を素通しできずキャストや`as`が必要だった）が起こらず、自然に書けるのが利点です：
+
+```typescript
+import type { ComponentPropsWithoutRef, Ref } from "react";
+
 interface SelectProps<T> extends Omit<ComponentPropsWithoutRef<"select">, "value" | "onChange"> {
   options: T[];
   value: T;
   onChange: (value: T) => void;
   getOptionLabel: (option: T) => string;
   getOptionValue: (option: T) => string;
+  ref?: Ref<HTMLSelectElement>; // ref を prop として宣言
 }
+
+// ジェネリックを保ったまま素直に書ける（キャスト不要）
+function Select<T>({
+  options,
+  value,
+  onChange,
+  getOptionLabel,
+  getOptionValue,
+  ref,
+  ...props
+}: SelectProps<T>) {
+  return (
+    <select
+      {...props}
+      ref={ref}
+      value={getOptionValue(value)}
+      onChange={(e) => {
+        const selectedOption = options.find(
+          (opt) => getOptionValue(opt) === e.target.value
+        );
+        if (selectedOption) onChange(selectedOption);
+      }}
+    >
+      {options.map((option) => (
+        <option key={getOptionValue(option)} value={getOptionValue(option)}>
+          {getOptionLabel(option)}
+        </option>
+      ))}
+    </select>
+  );
+}
+```
+
+### forwardRef（React 18以前のlegacy）
+
+> ⚠️ `forwardRef`はReact 19で非推奨となり、将来のバージョンで削除予定です（移行用のcodemodが提供されています）。新規の関数コンポーネントでは上記の ref as prop を使い、以下は既存コードの読解・移行参照としてのみ用います。
+
+```typescript
+import { forwardRef } from "react";
+
+interface CustomInputProps extends ComponentPropsWithoutRef<"input"> {
+  label: string;
+  error?: string;
+}
+
+// forwardRef<要素の型, Propsの型>
+const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
+  function CustomInput({ label, error, ...props }, ref) {
+    return (
+      <div>
+        <label>
+          {label}
+          <input ref={ref} {...props} aria-invalid={!!error} />
+        </label>
+        {error && <span className="error">{error}</span>}
+      </div>
+    );
+  }
+);
+```
+
+ジェネリックコンポーネントを`forwardRef`で包む場合、型引数を素通しできないため戻り値型のキャストが必要でした（ref as prop ではこの回避策が不要になります）：
+
+```typescript
+import { forwardRef } from "react";
+import type { ForwardedRef, ReactElement } from "react";
 
 const Select = forwardRef(function Select<T>(
   { options, value, onChange, getOptionLabel, getOptionValue, ...props }: SelectProps<T>,
@@ -630,30 +723,6 @@ const Select = forwardRef(function Select<T>(
     </select>
   );
 }) as <T>(props: SelectProps<T> & { ref?: ForwardedRef<HTMLSelectElement> }) => ReactElement;
-```
-
-### React 19のref as prop
-
-React 19以降では、forwardRefを使わずに直接refをpropsとして受け取れます：
-
-```typescript
-interface CustomButtonProps extends ComponentPropsWithoutRef<"button"> {
-  variant: "primary" | "secondary";
-}
-
-function CustomButton({ variant, ref, ...props }: CustomButtonProps) {
-  return (
-    <button
-      ref={ref}
-      className={`btn btn-${variant}`}
-      {...props}
-    />
-  );
-}
-
-// 使用例（forwardRef不要）
-const buttonRef = useRef<HTMLButtonElement>(null);
-<CustomButton ref={buttonRef} variant="primary">クリック</CustomButton>
 ```
 
 ---

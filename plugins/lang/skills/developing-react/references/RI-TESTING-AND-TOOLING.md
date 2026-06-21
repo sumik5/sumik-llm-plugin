@@ -100,9 +100,30 @@ npm install -D eslint-config-prettier
 
 ### 1.3 PropTypes（型チェック）
 
-**注意: PropTypesはReact 19以降非推奨です。TypeScript推奨。**
+**🔴 React 19での重要な変更: 関数コンポーネントの `propTypes` / `defaultProps` のランタイムサポートが削除されました。** React 19はもう `.propTypes` / `.defaultProps` を読み取りません（実行時チェックされず無視される）。`prop-types` パッケージ自体は残りますが、React 19では機能しません。型検証はTypeScript、デフォルト値はESのデフォルト引数で行います。
 
-#### PropTypesの使用例
+```typescript
+// ✅ React 19推奨: 型はTypeScript、デフォルト値はESのデフォルト引数
+type InputProps = {
+  name: string;
+  label: string;
+  value?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+function Input({ name, label, value = '', onChange }: InputProps) {
+  return (
+    <label>
+      {label}
+      <input name={name} value={value} onChange={onChange} />
+    </label>
+  );
+}
+```
+
+#### PropTypesの使用例（legacy: React 18以前）
+
+> 以下はReact 18以前のレガシーパターンです。React 19では `.propTypes` は無視されるため、新規コードでは使用せずTypeScriptを使ってください。
 
 ```typescript
 import PropTypes from 'prop-types';
@@ -148,11 +169,13 @@ Users.propTypes = {
 
 #### PropTypes vs TypeScript
 
-| PropTypes | TypeScript |
-|-----------|-----------|
-| ランタイム型チェック | 静的型チェック（エディタ内） |
-| コンポーネントのみ | 全コードベース対応 |
-| React 19で非推奨 | 推奨される現代的手法 |
+| 観点 | PropTypes | TypeScript |
+|------|-----------|-----------|
+| 型チェック方式 | ランタイム型チェック | 静的型チェック（エディタ内） |
+| 適用範囲 | コンポーネントのみ | 全コードベース対応 |
+| React 19でのサポート状況 | **実行時無効（関数コンポーネントの `.propTypes` は無視される）** | フルサポート（推奨される現代的手法） |
+
+> **React 19以降、関数コンポーネントの PropTypes は実行時に無効化された（React が `.propTypes` を読まなくなった）ため、型検証は実質 TypeScript 一択です。**
 
 ### 1.4 React Developer Tools
 
