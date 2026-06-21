@@ -138,10 +138,10 @@ export default async function ProfilePage() {
 }
 ```
 
-### Middleware でのアクセス制御
+### Proxy（旧 Middleware）でのアクセス制御
 
 ```tsx
-// middleware.ts（ルートに配置）
+// proxy.ts（ルートに配置・Next.js 16 で middleware.ts から改名・Node.js runtime）
 import { withAuth } from "next-auth/middleware";
 
 export default withAuth({
@@ -152,6 +152,8 @@ export const config = {
   matcher: ["/dashboard/:path*", "/profile/:path*"],
 };
 ```
+
+> **Next.js 16 のファイル名規約**: middleware は `middleware.ts` → `proxy.ts` に改名され、Node.js runtime で動作する（network boundary を明示）。`middleware.ts` は Edge runtime 用に当面残るが**非推奨・将来削除**。NextAuth 等ライブラリ側の import パスや API 名（上例の `next-auth/middleware` / `withAuth` 等）は本書では変更していない。proxy.ts への対応や最新の推奨 API はライブラリのドキュメントを確認すること。
 
 ### Session の型拡張
 
@@ -384,7 +386,7 @@ export function LikeButton({ postId, initialLikes }: Props) {
 |---------|---------|
 | ブログ記事（更新頻度低） | `revalidate = 3600`（時間ベース） |
 | 商品在庫（更新頻度高） | `cache: "no-store"`（毎回取得） |
-| SNS投稿（書込時更新） | `revalidateTag("posts")`（On-demand） |
+| SNS投稿（書込時更新） | `revalidateTag("posts", "max")`（On-demand・第2引数 profile 必須） |
 | ダッシュボード（個人データ） | `cache: "no-store"` + `cookies()` |
 
 ```tsx
@@ -396,8 +398,12 @@ const posts = await fetch("https://api/posts", {
 
 // Server Action 内で無効化
 await prisma.post.create({ data });
-revalidateTag("posts"); // "posts" タグの全キャッシュを無効化
+// Next.js 16: revalidateTag は第2引数に cacheLife profile が必須
+// （'max'(推奨) / 'hours' / 'days' などの組込 profile、または { expire: 3600 }）
+revalidateTag("posts", "max"); // "posts" タグの全キャッシュを無効化
 ```
+
+> **Next.js 16 の即時反映 API**: Server Actions 内で書込結果を即座に反映したい（read-your-writes）場合は `updateTag(tag)`、キャッシュに触れず未キャッシュデータのみ更新したい場合は `refresh()` を使える（いずれも Server Actions 専用）。
 
 ---
 

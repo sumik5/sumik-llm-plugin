@@ -294,7 +294,29 @@ import { revalidateTag } from "next/cache";
 
 export async function createProduct(data: ProductData) {
   await prisma.product.create({ data });
-  revalidateTag("products"); // "products"タグのキャッシュを無効化
+  // Next.js 16: 第2引数の cacheLife profile が必須（'max' 推奨。他に 'hours'/'days' や { expire: 3600 }）
+  // 単一引数 revalidateTag("products") は非推奨。指定 profile に従った SWR（stale-while-revalidate）挙動になる
+  revalidateTag("products", "max");
+}
+```
+
+**Server Actions 専用の即時反映 API（Next.js 16）:**
+```typescript
+"use server";
+
+import { updateTag, refresh } from "next/cache";
+
+// read-your-writes が必要な場合（フォーム送信後に即座に最新を読み込みたい）
+export async function updateProduct(data: ProductData) {
+  await prisma.product.update({ where: { id: data.id }, data });
+  // タグのキャッシュを即時失効＋最新を読み込む（次回 revalidate を待たない）
+  updateTag("products");
+}
+
+// 未キャッシュデータのみ更新したい場合（キャッシュには触れない）
+export async function refreshUncachedData() {
+  // client の router.refresh() を補完する Server Action 版
+  refresh();
 }
 ```
 
@@ -696,14 +718,14 @@ export default async function DashboardPage() {
 
 **症状**: データが更新されない
 
-**解決策**: `revalidatePath()`または`revalidateTag()`でキャッシュ無効化
+**解決策**: `revalidatePath()`または`revalidateTag(tag, profile)`でキャッシュ無効化（Next.js 16 では `revalidateTag` に第2引数の cacheLife profile が必須。Server Actions で即時反映が必要なら `updateTag(tag)`、未キャッシュデータのみなら `refresh()`）
 
 ```typescript
 import { revalidatePath } from "next/cache";
 
 export async function updateProject(id: string, data: ProjectData) {
   await prisma.project.update({ where: { id }, data });
-  revalidatePath("/projects"); // キャッシュ無効化
+  revalidatePath("/projects"); // パスのキャッシュ無効化
 }
 ```
 

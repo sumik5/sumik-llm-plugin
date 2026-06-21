@@ -6,6 +6,8 @@
 
 miseは、Node.js、pnpm、pre-commit等のツールバージョン統一管理に加え、タスクランナー機能も備えたツール（asdf、rtxの代替）。
 
+> **Next.js 16 の Node.js 最低要件**: 推奨値（開発24.x / 本番22.x LTS）とは別軸で、Next.js 16 自体が動作要件として **Node.js 20.9 以上（LTS）**を要求する（`node -v` で確認）。**Node.js 18 はサポート外**になった点に注意。npx は Node.js 同梱で、`create-next-app` 等のバイナリをグローバルインストールせず実行できる。複数バージョンを切り替える場合は nvm / mise を使う。
+
 ### インストール
 
 ```bash
@@ -113,6 +115,8 @@ mise run clean          # クリーンアップ
 
 ## TypeScript設定
 
+> **TypeScript の最低要件 / 推奨版**: Next.js 16 の最低要件は **TypeScript 5.1+**。最新安定版は **5.9**（`tsc --init` の現代的既定に揃える）。
+
 ### tsconfig.json
 
 ```json
@@ -138,6 +142,10 @@ mise run clean          # クリーンアップ
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
 
     "plugins": [
       {
@@ -171,11 +179,18 @@ mise run clean          # クリーンアップ
 | `noImplicitReturns: true` | 暗黙的なreturnの禁止 |
 | `noFallthroughCasesInSwitch: true` | switch文のフォールスルー禁止 |
 | `noUncheckedIndexedAccess: true` | 配列・オブジェクトアクセス時の安全性向上（`T \| undefined`を強制） |
+| `exactOptionalPropertyTypes: true` | `?:`省略可プロパティと明示的`undefined`を区別（`{ x?: T }`に`{ x: undefined }`を代入不可） |
+| `verbatimModuleSyntax: true` | import/exportを変換せずそのまま出力（`import type`の明示を強制・バンドラ前提で推奨） |
+| `noUncheckedSideEffectImports: true` | 副作用importの解決チェック（存在しないモジュールの`import "..."`を検出） |
+| `moduleDetection: "force"` | 全ファイルをモジュール扱い（グローバルスコープ混入を防止） |
+| `module: "esnext"` / `moduleResolution: "bundler"` | バンドラ（Next.js/Turbopack）前提のモジュール解決 |
 | `paths` | パスエイリアス設定（`@/`でsrcディレクトリ参照） |
 
-> **注意**: `exactOptionalPropertyTypes`はライブラリ互換性の問題が多いため、プロダクションでは使用していない。
+> **補足**: `exactOptionalPropertyTypes`・`verbatimModuleSyntax`・`noUncheckedSideEffectImports`・`moduleDetection: "force"`はTS 5.9の`tsc --init`現代的既定に倣った推奨フラグ。`exactOptionalPropertyTypes`は古いライブラリの型定義で互換性問題が出る場合があるため、導入時は型エラーを確認して段階的に有効化する。`strict: true`は将来追加される厳格化も自動で取り込む opt-in スイッチとして必ず有効化する。
 
 ## ESLint設定（Flat Config）
+
+> **Next.js 16 の Lint 方針**: `next lint` コマンドは**削除**され、`next build` は **lint を実行しない**。ESLint（または Biome）を `eslint .` 等で直接実行する（下記 package.json の `lint` スクリプト参照）。`@next/eslint-plugin-next` は **Flat Config が既定**（ESLint v10 整合）で、`nextPlugin.configs.recommended` をそのまま読み込む。既存プロジェクトの移行は codemod `npx @next/codemod@canary next-lint-to-eslint-cli .` を使う。
 
 ### eslint.config.mjs
 
