@@ -66,7 +66,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/ai"
       },
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "GenAI・AIエージェント・Web AI統合・LLM評価スキル群を提供するプラグイン。4個のスキル（GenAI設計パターン・AIエージェント構築・Web AIアプリ統合・promptfooによるLLM評価）を含む。",
       "policy": {
         "installation": "AVAILABLE",
