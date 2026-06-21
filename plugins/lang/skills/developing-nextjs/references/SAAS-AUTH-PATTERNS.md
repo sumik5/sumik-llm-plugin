@@ -51,14 +51,16 @@ export default function RootLayout({ children }) {
 
 ---
 
-## 2. ミドルウェアによるルート保護
+## 2. プロキシ（旧ミドルウェア）によるルート保護
 
-### Next.js Middlewareでの認証チェック
+### proxy.ts での認証チェック
 
 サーバーサイドでルートアクセスを制御し、未認証ユーザーをブロック。
 
-```js
-// middleware.js
+> **Next.js 16のファイル名変更**: `middleware.ts` は **`proxy.ts`** に置き換えられた（network boundaryを明示し、**Node.js runtime** で動作）。ファイルを `proxy.ts` にリネームし、export 関数も `proxy` に変更する。`middleware.ts` は Edge runtime 用に当面残るが**非推奨で将来削除**される。Clerk 等のライブラリ統合では `clerkMiddleware` といった API 名や正確な配置は変わる可能性があるため、**最新の統合方法はライブラリ側のドキュメントを確認**すること（以下の API 名はライブラリの公開 API であり、ファイル名のみを Next.js 16 規約に合わせている）。
+
+```ts
+// proxy.ts（Next.js 16・旧 middleware.ts）
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
 // 保護対象のルートを定義

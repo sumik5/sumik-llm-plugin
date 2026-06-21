@@ -370,6 +370,41 @@ const webResult = await multiClient.callTool('web', 'scrapeUrl', { url: 'https:/
 
 ---
 
+## MCP Gateway（集約プロキシ）パターン
+
+エンタープライズ規模のLLMアプリでは、カレンダー・メール・EC・CRMなど多数の独立MCPサーバーへ接続する必要が生じます。各サーバーは独自の認可・データ形式・状態を持つため、エージェントが直接すべてへ接続すると**認可ロジックの重複・状態の不整合・脆い orchestration**が発生します。
+
+### Gateway の役割
+
+**MCP gateway** は、全登録サーバーへの通信・セキュリティ・ルーティング・共有 context を一手に引き受ける単一の AI-aware proxy です。アプリは gateway へ1接続するだけで、安定した統一インターフェース越しに全サーバーのToolを呼び出せます。
+
+- **ルーティング**: Tool名から適切な登録サーバーへ転送
+- **セキュリティ集約**: 認証・認可をプロキシ層に一元化（各サーバーへの認証情報を個別管理しない）
+- **共有 context**: gateway がワークフロー横断の状態を保持するため、マルチステップ処理がシームレスになる（例: 会議の予約が、メール確認とCRM更新まで連鎖し、エージェントが各連携を個別に管理しなくてよい）
+
+その性質は単なる API proxy というより、信頼を集約しツール間 orchestration を滑らかにする **AI-aware service mesh** に近いものです。
+
+### MultiServerClient との対比
+
+前節の `MultiServerClient`（client-side fan-out）と gateway（server-side aggregation）は、複数サーバーを扱う2つの異なるアプローチです。
+
+| 観点 | MultiServerClient（client-side fan-out） | MCP Gateway（server-side aggregation） |
+|------|----------------------------------------|----------------------------------------|
+| 接続数 | 1 Client = 1 Server を並列に複数保持 | アプリ→gateway の1接続のみ |
+| ルーティング | アプリ側でサーバー名を指定して振り分け | gateway が Tool名から自動ルーティング |
+| 認可 | 各 Client が個別に認証情報を保持 | プロキシ層に集約 |
+| 状態・context | サーバー間で共有されない | gateway が横断的に共有 context を保持 |
+| 適性 | 小〜中規模、サーバー数が固定的 | エンタープライズ多サーバー構成、スケール重視 |
+
+### 使い分けの指針
+
+- **MultiServerClient**: サーバー数が少なくアプリ側でルーティングを完全に制御したい、または gateway 運用基盤を持たない場合に適する（前節の実装で完結）。
+- **Gateway**: サーバー数が増えて認可・状態・orchestration の重複がコストになる段階で、運用責務をプロキシへ集約する。アプリのコードは1接続を維持するだけで、サーバーの追加・削除を gateway 側に隠蔽できる。
+
+> Tool 命名の衝突に注意: gateway が Tool名でルーティングする場合、登録サーバー間で同名 Tool が衝突しうる。サーバー単位の名前空間プレフィックス（例: `calendar.createEvent`）で一意化する運用が安全。
+
+---
+
 ## エラーハンドリング
 
 ### タイムアウト設定

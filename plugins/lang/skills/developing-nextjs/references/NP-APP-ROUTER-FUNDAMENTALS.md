@@ -314,6 +314,8 @@ export default function Default() {
 | ソフトナビ（Link） | モーダルUI | 背景ページそのまま |
 | ハードナビ（直接URL） | null（default.tsx） | フルページUI |
 
+> **Next.js 16: 全 slot に明示的 `default.js` が必須**。Parallel Route の各 slot（`@modal` 等）には `default.tsx`(`.js`) を必ず用意する。無いとビルドが失敗する。`null` を返す（上例）か `notFound()` を呼ぶことで従来のフォールバック挙動になる。
+
 ---
 
 ## Navigation

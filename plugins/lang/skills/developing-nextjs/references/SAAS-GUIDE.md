@@ -211,7 +211,7 @@ app/
 │   ├── auth.ts
 │   ├── generate.ts
 │   └── payments.ts
-├── middleware.ts              # Clerk認証Middleware
+├── proxy.ts                   # Clerk認証プロキシ（Next.js 16・旧 middleware.ts）
 └── layout.tsx                 # ルートレイアウト
 
 lib/
@@ -248,7 +248,7 @@ public/
 .env.local                     # 環境変数（Git除外）
 .env.example                   # 環境変数テンプレート
 drizzle.config.ts              # Drizzle設定
-middleware.ts                  # Clerk Middleware
+proxy.ts                       # Clerk認証プロキシ（Next.js 16・旧 middleware.ts。Node.js runtime。middleware.ts は非推奨だが Edge 用に当面残る）
 next.config.js
 package.json
 tsconfig.json
@@ -280,7 +280,7 @@ tailwind.config.ts
 
 - [ ] Clerkアカウント作成
 - [ ] Clerk APIキー取得（`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`）
-- [ ] `middleware.ts`でルート保護設定
+- [ ] `proxy.ts`でルート保護設定（Next.js 16・旧 `middleware.ts`。Clerk 等の最新統合方法はライブラリのドキュメントを確認）
 - [ ] サインイン・サインアップページ作成
 
 ### 3. データベースセットアップ

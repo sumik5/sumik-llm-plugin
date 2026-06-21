@@ -1,7 +1,7 @@
 {
   "name": "lang",
   "description": "sumik Claude Code Plugin (lang) — 言語・フレームワーク・フロントエンド実装スキル群（Python/Go/Bash/React/Next.js/フルスタックJS/DB/Web API/MCP/Tailwind/Figma実装/ブラウザ自動化）",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "sumik5"
   }
