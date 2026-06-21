@@ -1,6 +1,6 @@
 {
   "name": "lang",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "言語・フレームワーク・フロントエンド実装スキル群を提供するプラグイン。14個のスキル（Python・Go・Bash・React・Next.js・フルスタックJS・DB・Web API・MCP・next-devtools・フロントエンド設計・Figma実装・Tailwind・ブラウザ自動化）を含む。",
   "author": {
     "name": "sumik5"

@@ -38,7 +38,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/lang"
       },
-      "version": "1.1.0",
+      "version": "1.1.1",
       "description": "言語・フレームワーク・フロントエンド実装スキル群を提供するプラグイン。14個のスキル（Python・Go・Bash・React・Next.js・フルスタックJS・データベース・Web API・MCP・next-devtools・フロントエンド設計・デザイン実装・Tailwind・ブラウザ自動化）を含む。",
       "policy": {
         "installation": "AVAILABLE",
