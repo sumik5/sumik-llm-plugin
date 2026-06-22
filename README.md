@@ -22,6 +22,8 @@ LLMの開発効率を最大化するためのプラグイン。Agent、コマン
 /plugin install cloud@sumik
 /plugin install ai@sumik
 /plugin install design@sumik
+/plugin install exam@sumik
+/plugin install university@sumik
 ```
 
 ### Codex
@@ -34,6 +36,8 @@ codex plugin add lang@sumik-marketplace
 codex plugin add cloud@sumik-marketplace
 codex plugin add ai@sumik-marketplace
 codex plugin add design@sumik-marketplace
+codex plugin add exam@sumik-marketplace
+codex plugin add university@sumik-marketplace
 ```
 
 ---
@@ -44,7 +48,7 @@ codex plugin add design@sumik-marketplace
 sumik-llm-plugin/                      # GitHub repo（Codex はここを git clone）
 ├── .agents/
 │   └── plugins/
-│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + cloud + ai + design）
+│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + cloud + ai + design + exam + university）
 ├── .cache/
 │   └── sumik-marketplace/
 │       ├── devkit -> ../..               # Codex marketplace から repo root の plugin を指す symlink
@@ -52,9 +56,11 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 │       ├── lang -> ../../plugins/lang      # Codex marketplace から lang plugin を指す symlink
 │       ├── cloud -> ../../plugins/cloud    # Codex marketplace から cloud plugin を指す symlink
 │       ├── ai -> ../../plugins/ai          # Codex marketplace から ai plugin を指す symlink
-│       └── design -> ../../plugins/design  # Codex marketplace から design plugin を指す symlink
+│       ├── design -> ../../plugins/design  # Codex marketplace から design plugin を指す symlink
+│       ├── exam -> ../../plugins/exam       # Codex marketplace から exam plugin を指す symlink
+│       └── university -> ../../plugins/university  # Codex marketplace から university plugin を指す symlink
 ├── .claude-plugin/
-│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + cloud + ai + design / source ./plugins/<p>）
+│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + cloud + ai + design + exam + university / source ./plugins/<p>）
 ├── .codex-plugin/
 │   └── plugin.json                       # Codex CLI プラグインマニフェスト（plugin 名 devkit / skills ./plugins/devkit/skills/ / version 同期必須）
 ├── .mcp-codex.json                       # Codex 用 MCPサーバー設定（command ./plugins/devkit/bin/... / cwd "."）
@@ -104,13 +110,28 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 ai / skills ./skills/ / mcpServers なし）
     │   ├── README.md
     │   └── skills/                       # ナレッジスキル (4個)
-    └── design/                           # UX/デザイン戦略プラグイン（skills-only）
+    ├── design/                           # UX/デザイン戦略プラグイン（skills-only）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 design / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 design / skills ./skills/ / mcpServers なし）
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (6個)
+    ├── exam/                             # 生成AI活用試験 解答生成プラグイン（agent入り・subdirectory方式）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 exam / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 exam / skills ./skills/ / mcpServers なし）
+    │   ├── agents/                       # Agent定義 (exam-solver・1体・Claude専用)
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (1個)
+    └── university/                       # 大学用 Processing 開発プラグイン（skills-only）
         ├── .claude-plugin/
-        │   └── plugin.json               # プラグインメタデータ（plugin 名 design / version 同期必須）
+        │   └── plugin.json               # プラグインメタデータ（plugin 名 university / version 同期必須）
         ├── .codex-plugin/
-        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 design / skills ./skills/ / mcpServers なし）
+        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 university / skills ./skills/ / mcpServers なし）
         ├── README.md
-        └── skills/                       # ナレッジスキル (6個)
+        └── skills/                       # ナレッジスキル (1個: developing-processing)
 ```
 
 ---

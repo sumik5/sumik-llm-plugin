@@ -10,3 +10,4 @@ node_modules/
 !.cache/sumik-marketplace/ai
 !.cache/sumik-marketplace/design
 !.cache/sumik-marketplace/exam
+!.cache/sumik-marketplace/university

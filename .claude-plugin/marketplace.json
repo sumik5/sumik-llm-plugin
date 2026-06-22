@@ -39,6 +39,11 @@
       "name": "exam",
       "source": "./plugins/exam",
       "description": "sumik Claude Code Plugin (exam) — 生成AI活用試験の問題画像から対話の要点と回答提出物を生成するスキル群"
+    },
+    {
+      "name": "university",
+      "source": "./plugins/university",
+      "description": "sumik Claude Code Plugin (university) — 大学で使う Processing (Java Mode) 開発と CLI 自動コンパイル・実行・検証のスキル群"
     }
   ]
 }
