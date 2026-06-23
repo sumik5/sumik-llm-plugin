@@ -5,6 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - testing-code
+  - testing-with-vitest
   - writing-clean-code
   - mastering-typescript
   - securing-code

@@ -9,6 +9,7 @@ description: >-
   For RTL patterns, use lang:developing-react. For Web API testing, use lang:developing-web-apis.
   For A/B testing, use practicing-product-management. For TDD mindset/ATDD/BDD, see TESTING-PRACTICES.md.
   For project foundations and team organization, use practicing-software-engineering.
+  For Vitest 4.x specifics (migration, projects, Browser Mode, coverage config), use testing-with-vitest.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -76,7 +76,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── hooks/                        # イベントフック (6個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (4個)
-    │   └── skills/                       # ナレッジスキル (30個)
+    │   └── skills/                       # ナレッジスキル (31個)
     ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
@@ -188,7 +188,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
-### Skills (30個)
+### Skills (31個)
 
 #### コア開発
 
@@ -197,7 +197,8 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `implementing-as-tachikoma` | タチコマAgent運用ガイド |
 | `using-serena` | Serena MCP活用 |
 | `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・Simple Designの4ルール・66のコードスメルヒューリスティクス・ソフトウェアデザインの法則含む27カテゴリのコードスメル検出・リファクタリング・フォーマット・境界管理・20リファレンスファイル） |
-| `testing-code` | テストファースト（Vitest/Playwright）・テストの4本の柱フレームワーク（16リファレンス）。RTL固有は`lang:developing-react`参照 |
+| `testing-code` | テスト方法論(TDD/AAA・テストピラミッド・4本の柱・3つの手法・コード分類・アンチパターン・テスト管理・AI活用戦略)。フレームワーク非依存(16リファレンス)。Vitest固有は`testing-with-vitest`、RTL固有は`lang:developing-react`参照 |
+| `testing-with-vitest` | Vitest 4.x 専用ガイド(v3→v4移行・設定/環境/カバレッジ・CLI/フィルタ/タグ・Test Projects/並列/シャーディング・Browser Mode/ビジュアル回帰・フィクスチャ/ライフサイクル・モック・マッチャー/型テスト/インソース)(9リファレンス)。汎用方法論は`testing-code`参照 |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 | `software-security` | Project CodeGuard ベースのセキュアバイデフォルト・コーディングルール集（日本語訳・全23ルール: インジェクション/認証MFA/暗号/シークレット/認可/セッション/クラウド・K8s/IaC/サプライチェーン/MCP/モバイル/ロギング/プライバシー、25+言語対応のタグ・言語別ルーティング）。cosai-oasis/project-codeguard (CC-BY-4.0) の日本語翻案 |
