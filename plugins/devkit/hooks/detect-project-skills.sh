@@ -94,6 +94,7 @@ get_skill_description() {
         "lang:developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
         "lang:automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
         "testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
+        "testing-with-vitest") echo "Vitest 4.x 専用（v3→v4移行・設定・Browser Mode・並列・フィクスチャ・モック）" ;;
         "ai:building-ai-agents") echo "LangChain/LangGraph・Google ADK AIエージェント開発" ;;
         "cloud:implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
         "searching-web") echo "gemini CLI によるWeb検索" ;;
@@ -154,6 +155,11 @@ check_package_json() {
     # Playwright チェック（package.json内）
     if echo "$deps" | grep -qx "@playwright/test"; then
         PROJECT_SKILLS+=("testing-e2e-with-playwright")
+    fi
+
+    # Vitest チェック（package.json内）
+    if echo "$deps" | grep -qx "vitest"; then
+        PROJECT_SKILLS+=("testing-with-vitest")
     fi
 
     # OpenTelemetry チェック（JS）
@@ -297,6 +303,13 @@ check_writing() {
 check_playwright_config() {
     if find "$WORK_DIR" -maxdepth 2 -name "playwright.config.*" 2>/dev/null | grep -q .; then
         PROJECT_SKILLS+=("testing-e2e-with-playwright")
+    fi
+}
+
+# Vitest 設定ファイルチェック
+check_vitest_config() {
+    if find "$WORK_DIR" -maxdepth 2 \( -name "vitest.config.*" -o -name "vitest.workspace.*" \) 2>/dev/null | grep -q .; then
+        PROJECT_SKILLS+=("testing-with-vitest")
     fi
 }
 
@@ -500,6 +513,7 @@ check_package_json
 check_typescript
 check_design
 check_playwright_config
+check_vitest_config
 check_go
 check_python
 check_python_deps
