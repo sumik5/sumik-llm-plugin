@@ -13,7 +13,7 @@ when_to_use: >-
   For TDD/BDD/ATDD, use testing-code instead. For SOLID/refactoring, use writing-clean-code
   instead. For CI/CD, use cloud:practicing-devops instead. For DDD/Clean Architecture, use
   applying-clean-architecture instead. For ODD/debugging, use cloud:implementing-observability instead.
-  For prompt engineering techniques, use developing-with-ai instead.
+  For prompt engineering techniques, use ai:developing-with-ai instead.
 ---
 
 # ソフトウェアエンジニアリングプラクティス
@@ -49,7 +49,7 @@ when_to_use: >-
 | `writing-clean-code` | SOLID原則・コードスメル・リファクタリング手法 |
 | `cloud:practicing-devops` | Deployment Pipeline設定・CI/CD具体構成 |
 | `applying-clean-architecture` | DDD・Clean Architecture・マイクロサービス |
-| `developing-with-ai` | AIコーディングツール活用・プロンプトエンジニアリング・LLM対話設計 |
+| `ai:developing-with-ai` | AIコーディングツール活用・プロンプトエンジニアリング・LLM対話設計 |
 
 ---
 

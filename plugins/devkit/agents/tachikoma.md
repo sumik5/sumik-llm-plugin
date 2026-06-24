@@ -52,7 +52,7 @@ skills:
 
 - **SOLID原則**: 単一責任、開放閉鎖、リスコフ置換、インターフェース分離、依存性逆転（詳細は `writing-clean-code` スキル参照）
 - **型安全性**: any/Any型の使用禁止、strict mode有効化（詳細は `mastering-typescript` スキル参照）
-- **テスト（必須）**: テストファーストアプローチ、カバレッジ100%目標（詳細は `testing-code` スキル参照。Web UIの場合は `testing-e2e-with-playwright` も参照）
+- **テスト（必須）**: テストファーストアプローチ、カバレッジ100%目標（詳細は `testing-code` スキル参照。Web UIの場合は `web:testing-e2e-with-playwright` も参照）
 - **セキュリティ**: 実装完了後に `/codeguard-security:software-security` を必ず実行（詳細は `securing-code` スキル参照）
 
 ## 基本的な動作フロー

@@ -6,7 +6,7 @@ tools: Read, Glob, Grep, Bash, SendMessage, ToolSearch
 permissionMode: plan
 skills:
   - securing-code
-  - securing-ai-development
+  - ai:securing-ai-development
   - cloud:implementing-dynamic-authorization
   - cloud:managing-keycloak
 ---
@@ -70,7 +70,7 @@ skills:
 - **認証フロー**: 標準フロー（Authorization Code）推奨。Implicit Flowの危険性・PKCE必須化
 - **ロール設計**: Realm Roles vs Client Roles・複合ロール・グループ管理パターン
 
-### AI開発セキュリティ（securing-ai-development）
+### AI開発セキュリティ（ai:securing-ai-development）
 
 - **AI信頼フレームワーク**: AI開発ツール（GitHub Copilot・Claude Code等）のコンテキスト汚染リスク・プロンプトインジェクション脅威
 - **AI-BOM（AI Bill of Materials）**: AIシステムの依存コンポーネント一覧管理。モデルの出所・学習データの透明性

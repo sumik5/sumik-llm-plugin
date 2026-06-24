@@ -18,7 +18,12 @@
     {
       "name": "lang",
       "source": "./plugins/lang",
-      "description": "sumik Claude Code Plugin (lang) — 言語/フレームワーク/フロントエンド実装スキル群"
+      "description": "sumik Claude Code Plugin (lang) — 言語スキル群（Python/Go/Bash/DB/MCP/アルゴリズム）"
+    },
+    {
+      "name": "web",
+      "source": "./plugins/web",
+      "description": "sumik Claude Code Plugin (web) — Web/フロントエンド実装スキル群（Next.js/React/フルスタックJS/Web API/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E）"
     },
     {
       "name": "cloud",
@@ -28,12 +33,17 @@
     {
       "name": "ai",
       "source": "./plugins/ai",
-      "description": "sumik Claude Code Plugin (ai) — GenAI設計/AIエージェント/Web AI統合/LLM評価スキル群"
+      "description": "sumik Claude Code Plugin (ai) — GenAI設計/AIエージェント/Web AI統合/LLM評価/AI支援開発/AI開発セキュリティスキル群"
     },
     {
       "name": "design",
       "source": "./plugins/design",
       "description": "sumik Claude Code Plugin (design) — UX/デザイン思考/AI体験/データ可視化/デザインシステムスキル群"
+    },
+    {
+      "name": "product",
+      "source": "./plugins/product",
+      "description": "sumik Claude Code Plugin (product) — プロダクトマネジメント・要件定義スキル群（PRD/ロードマップ/ユーザーストーリー）"
     },
     {
       "name": "exam",

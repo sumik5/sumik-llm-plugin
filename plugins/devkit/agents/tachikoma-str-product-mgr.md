@@ -16,11 +16,11 @@ color: yellow
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 permissionMode: default
 skills:
-  - practicing-product-management
+  - product:practicing-product-management
   - design:designing-ux
   - cloud:architecting-infrastructure
   - writing-effective-prose
-  - writing-user-stories
+  - product:writing-user-stories
   - design:applying-behavior-design
 ---
 
@@ -48,7 +48,7 @@ skills:
 
 ## 専門領域
 
-### practicing-product-management スキルの活用
+### product:practicing-product-management スキルの活用
 
 PM中核知識に関する以下の知識を持ちます:
 

@@ -237,10 +237,10 @@ TeamCreate → Task tool × 3（1メッセージで同時発行）:
 
 **チーム編成前に以下のスキルを参照してプロジェクト特性を把握:**
 
-- `developing-nextjs`: Next.js/React検出 → frontend/backendメンバー構成を調整
+- `web:developing-nextjs`: Next.js/React検出 → frontend/backendメンバー構成を調整
 - `developing-go`: Go検出 → backend実装にGo専門知識を提供
 - `testing-code`: テストツール検出 → testerメンバーのツールチェーン設定
-- `designing-frontend`: UIライブラリ検出 → frontendメンバーのコンポーネント戦略
+- `web:designing-frontend`: UIライブラリ検出 → frontendメンバーのコンポーネント戦略
 
 **自動検出の活用:**
 `rules/skill-triggers.md` のサブエージェントルーティング表を参照し、プロジェクト構成に基づいて適切な**専門タチコマ**をメンバーとして割り当てる。各専門タチコマにはドメインスキルがプリロード済みのため、追加のスキルロード指示は不要。

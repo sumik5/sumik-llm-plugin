@@ -160,7 +160,7 @@ AskUserQuestion(
 // メンバー1: frontend
 {
   "description": "フロントエンド実装",
-  "prompt": "## タスク: Reactコンポーネント実装\n\n担当タスク: #4, #5, #6\nファイル所有権: src/components/**, src/pages/**\n参照スキル: developing-nextjs\n\n具体的な実装指示:\n- ユーザー一覧コンポーネント（データテーブル、ページネーション）\n- ユーザー編集フォーム（バリデーション、API連携）\n- エラー表示・ローディング状態\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作（commit等）を実行しない",
+  "prompt": "## タスク: Reactコンポーネント実装\n\n担当タスク: #4, #5, #6\nファイル所有権: src/components/**, src/pages/**\n参照スキル: web:developing-nextjs\n\n具体的な実装指示:\n- ユーザー一覧コンポーネント（データテーブル、ページネーション）\n- ユーザー編集フォーム（バリデーション、API連携）\n- エラー表示・ローディング状態\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作（commit等）を実行しない",
   "subagent_type": "sumik:tachikoma-fw-nextjs",
   "team_name": "user-management",
   "name": "frontend",
@@ -171,7 +171,7 @@ AskUserQuestion(
 // メンバー2: backend（同じメッセージ内で並列呼び出し）
 {
   "description": "バックエンドAPI実装",
-  "prompt": "## タスク: REST API CRUD実装\n\n担当タスク: #1, #2, #3\nファイル所有権: src/api/**, src/services/**, src/models/**\n参照スキル: developing-fullstack-javascript\n\n具体的な実装指示:\n- PostgreSQLスキーマ設計・マイグレーション\n- GET/POST/PUT/DELETE エンドポイント実装\n- バリデーション、エラーハンドリング\n- 認可チェック\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作を実行しない",
+  "prompt": "## タスク: REST API CRUD実装\n\n担当タスク: #1, #2, #3\nファイル所有権: src/api/**, src/services/**, src/models/**\n参照スキル: web:developing-fullstack-javascript\n\n具体的な実装指示:\n- PostgreSQLスキーマ設計・マイグレーション\n- GET/POST/PUT/DELETE エンドポイント実装\n- バリデーション、エラーハンドリング\n- 認可チェック\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作を実行しない",
   "subagent_type": "sumik:tachikoma-fw-fullstack-js",
   "team_name": "user-management",
   "name": "backend",
@@ -182,7 +182,7 @@ AskUserQuestion(
 // メンバー3: tester（同じメッセージ内で並列呼び出し）
 {
   "description": "E2Eテスト作成",
-  "prompt": "## タスク: E2Eテストシナリオ作成\n\n担当タスク: #7, #8\nファイル所有権: tests/e2e/**\n参照スキル: testing-e2e-with-playwright\n\n具体的な実装指示:\n- Playwrightによるユーザー登録・編集・削除フロー検証\n- 各種エラーケースのテスト\n- アクセシビリティチェック\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作を実行しない",
+  "prompt": "## タスク: E2Eテストシナリオ作成\n\n担当タスク: #7, #8\nファイル所有権: tests/e2e/**\n参照スキル: web:testing-e2e-with-playwright\n\n具体的な実装指示:\n- Playwrightによるユーザー登録・編集・削除フロー検証\n- 各種エラーケースのテスト\n- アクセシビリティチェック\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作を実行しない",
   "subagent_type": "sumik:tachikoma-qa-e2e-test",
   "team_name": "user-management",
   "name": "tester",

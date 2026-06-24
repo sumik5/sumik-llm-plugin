@@ -271,8 +271,8 @@ const result = streamText({
 
 | スキル | 相互参照理由 |
 |--------|------------|
-| `developing-nextjs` | App Router・RSC・API Routes・Server Actions詳細 |
+| `web:developing-nextjs` | App Router・RSC・API Routes・Server Actions詳細 |
 | `designing-genai-patterns` | RAG内部仕様（ベクトルDB・埋め込み・チャンキング・検索パイプライン）／本番LLMOps（データパイプライン・評価・モニタリング・コスト管理） |
 | `developing-mcp` | MCPサーバー開発・プロトコル実装・ツール定義 |
-| `developing-nextjs` | 認証・課金・マルチテナントを含むSaaSアーキテクチャ全体 |
+| `web:developing-nextjs` | 認証・課金・マルチテナントを含むSaaSアーキテクチャ全体 |
 | `securing-code` | AIアプリのセキュリティチェック（入力バリデーション・プロンプトインジェクション対策） |

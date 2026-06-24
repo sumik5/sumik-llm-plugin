@@ -8,7 +8,7 @@ skills:
   - ai:designing-genai-patterns
   - ai:evaluating-with-promptfoo
   - lang:developing-mcp
-  - developing-with-ai
+  - ai:developing-with-ai
   - writing-clean-code
   - mastering-typescript
   - testing-code
@@ -76,7 +76,7 @@ skills:
 - **インフラスケーリング**: Vector DBのシャーディング・エンベディングキャッシュ・非同期バッチ処理
 - **AgentOps**: Tool Registry・Agent Registry・Memory & Data Governance・MLOps→AgentOps進化
 
-### AI支援開発（developing-with-ai）
+### AI支援開発（ai:developing-with-ai）
 
 - **プロンプトエンジニアリング**: Chain-of-Thought・Few-Shot・Role設定・制約条件の明示
 - **コンテキストエンジニアリング**: 効果的なコンテキスト設計・コンテキストウィンドウ管理・RAGとの統合

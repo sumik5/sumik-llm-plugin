@@ -6,10 +6,10 @@ description: >-
   Covers Vitest, Jest, Playwright, and AI-augmented testing strategies.
   Includes the Four Pillars of good tests (regression protection, refactoring resistance, fast feedback, maintainability),
   three testing styles (output/state/communication-based), code classification, and test anti-patterns.
-  For RTL patterns, use lang:developing-react. For Web API testing, use lang:developing-web-apis.
-  For A/B testing, use practicing-product-management. For TDD mindset/ATDD/BDD, see TESTING-PRACTICES.md.
+  For RTL patterns, use web:developing-react. For Web API testing, use web:developing-web-apis.
+  For A/B testing, use product:practicing-product-management. For TDD mindset/ATDD/BDD, see TESTING-PRACTICES.md.
   For project foundations and team organization, use practicing-software-engineering.
-  For Vitest 4.x specifics (migration, projects, Browser Mode, coverage config), use testing-with-vitest.
+  For Vitest 4.x specifics (migration, projects, Browser Mode, coverage config), use web:testing-with-vitest.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

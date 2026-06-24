@@ -347,8 +347,8 @@ AskUserQuestion(
 - **securing-code:** 一般的なセキュリティベストプラクティス（入力検証、SQL Injection対策、XSS対策等）
 - **implementing-dynamic-authorization:** Cedar/ABAC/ReBAC認可モデル（Keycloak外の認可フレームワーク）
 - **designing-web-apis:** REST API設計（Keycloak統合時のAPI設計）
-- **developing-nextjs:** Next.js統合（App Router + Server Components + Keycloak）
-- **developing-fullstack-javascript:** NestJS/Express統合（バックエンドでKeycloak認証）
+- **web:developing-nextjs:** Next.js統合（App Router + Server Components + Keycloak）
+- **web:developing-fullstack-javascript:** NestJS/Express統合（バックエンドでKeycloak認証）
 - **practicing-devops:** Dockerデプロイ基礎（Keycloakコンテナ運用）
 - **developing-google-cloud:** Google Cloud開発・セキュリティ（Cloud Run/GKE統合、IAM、Keycloak on Cloud Run）
 

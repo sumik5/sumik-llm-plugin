@@ -337,7 +337,7 @@ mcp__shadcn__get_add_command(
 )
 ```
 
-詳細は`designing-frontend`スキルを参照してください。
+詳細は`web:designing-frontend`スキルを参照してください。
 
 ### Next.js開発の場合
 
@@ -353,7 +353,7 @@ mcp__nextjs_runtime__list_tools(port=3000)
 mcp__nextjs_docs__search(query="Server Components")
 ```
 
-詳細は`using-next-devtools`スキルを参照してください。
+詳細は`web:using-next-devtools`スキルを参照してください。
 
 ## 実装品質の確保
 
@@ -471,8 +471,8 @@ Skill tool: /codeguard-security:software-security
 
 - **managing-git-worktrees** - Worktree管理の詳細
 - **using-serena** - serena MCP詳細ガイド
-- **using-next-devtools** - Next.js開発の詳細
-- **designing-frontend** - UIコンポーネント管理
+- **web:using-next-devtools** - Next.js開発の詳細
+- **web:designing-frontend** - UIコンポーネント管理
 - **mcp-search** - 情報検索戦略
 - **writing-clean-code** - SOLID原則とクリーンコード
 - **mastering-typescript** - 型安全性の徹底

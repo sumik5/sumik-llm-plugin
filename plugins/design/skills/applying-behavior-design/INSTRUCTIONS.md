@@ -322,6 +322,6 @@ AskUserQuestion({
 ## 関連スキル
 
 - **designing-ux**: 視覚的なUI/UXデザイン原則
-- **designing-frontend**: フロントエンドコード生成
+- **web:designing-frontend**: フロントエンドコード生成
 - **testing-code**: A/Bテストと効果測定の実装
 - **securing-code**: 行動データのセキュリティとプライバシー

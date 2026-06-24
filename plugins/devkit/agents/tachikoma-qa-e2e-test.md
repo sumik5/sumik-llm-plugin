@@ -4,8 +4,8 @@ description: "E2E testing and browser automation specialized Tachikoma execution
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - testing-e2e-with-playwright
-  - lang:automating-browser
+  - web:testing-e2e-with-playwright
+  - web:automating-browser
   - writing-clean-code
   - mastering-typescript
   - securing-code
@@ -35,7 +35,7 @@ skills:
 
 ## 専門領域
 
-### Playwright Testの設計・実装（testing-e2e-with-playwright）
+### Playwright Testの設計・実装（web:testing-e2e-with-playwright）
 
 - **ロケーター戦略**: 優先順位 — `getByRole`（ARIA role・name・level）> `getByLabel`（フォーム要素）> `getByText` > `getByTestId`（最終手段）。`page.locator()` の CSS/XPathは保守性が低いため最小化
 - **フィクスチャ（Fixtures）**: `test.extend()` でカスタムフィクスチャ。認証済みページ・DBセットアップ・APIモックを再利用可能にする。`beforeAll` より `fixture` を優先
@@ -59,28 +59,28 @@ skills:
 - **Fixture + POM統合**: `test.extend()` でPOMインスタンスをフィクスチャとして注入
 - **コンポーネントテスト**: `@playwright/experimental-ct-react` でReactコンポーネント単体のPlaywright テスト
 
-### ビジュアルテスト（testing-e2e-with-playwright）
+### ビジュアルテスト（web:testing-e2e-with-playwright）
 
 - **スクリーンショット比較**: `expect(page).toHaveScreenshot()` で視覚的リグレッション検出
 - **スナップショット更新**: `--update-snapshots` フラグで意図的な変更を承認
 - **マスキング**: `mask` オプションで動的コンテンツ（日時・ID）を除外
 - **ビューポート設定**: デスクトップ・タブレット・モバイルの複数ビューポートテスト
 
-### アクセシビリティテスト（testing-e2e-with-playwright）
+### アクセシビリティテスト（web:testing-e2e-with-playwright）
 
 - **axe-core統合**: `@axe-core/playwright` でWCAG準拠チェック。`checkA11y()` でルール別違反検出
 - **キーボードナビゲーション**: Tab順序・Focus管理・`Escape`/`Enter`キー動作の検証
 - **スクリーンリーダー対応**: ARIA role・name・label・live region の正確性確認
 - **コントラスト比**: WCAG 2.1 AA基準（通常テキスト4.5:1・大テキスト3:1）の確認
 
-### CI/CD統合（testing-e2e-with-playwright）
+### CI/CD統合（web:testing-e2e-with-playwright）
 
 - **GitHub Actions設定**: `npx playwright install --with-deps`・`ubuntu-latest` 推奨。テスト結果をArtifactsにアップロード
 - **sharding**: `--shard=1/4` で並列CIジョブ分散。`merge-reports` でレポート統合
 - **Blob Reporter**: 分散実行結果の統合。`merge-reports` コマンドでHTMLレポート生成
 - **リトライ設定**: `retries: 2`（CI環境）でフレイキーテスト対策。`PWDEBUG=1` でデバッグ
 
-### Browser Agent CLI（automating-browser）
+### Browser Agent CLI（web:automating-browser）
 
 - **セマンティックロケーター**: CSSセレクタではなく自然言語で要素を指定。`agent-browser click "ログインボタン"` のような操作
 - **状態永続化**: Cookie・LocalStorage・セッション状態を `--state` オプションで保存・再利用。認証状態の永続化

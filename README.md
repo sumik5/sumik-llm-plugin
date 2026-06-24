@@ -19,9 +19,11 @@ LLMの開発効率を最大化するためのプラグイン。Agent、コマン
 /plugin install devkit@sumik
 /plugin install studio@sumik
 /plugin install lang@sumik
+/plugin install web@sumik
 /plugin install cloud@sumik
 /plugin install ai@sumik
 /plugin install design@sumik
+/plugin install product@sumik
 /plugin install exam@sumik
 /plugin install university@sumik
 ```
@@ -33,9 +35,11 @@ codex plugin marketplace add https://github.com/sumik5/sumik-llm-plugin.git --re
 codex plugin add devkit@sumik-marketplace
 codex plugin add studio@sumik-marketplace
 codex plugin add lang@sumik-marketplace
+codex plugin add web@sumik-marketplace
 codex plugin add cloud@sumik-marketplace
 codex plugin add ai@sumik-marketplace
 codex plugin add design@sumik-marketplace
+codex plugin add product@sumik-marketplace
 codex plugin add exam@sumik-marketplace
 codex plugin add university@sumik-marketplace
 ```
@@ -48,19 +52,21 @@ codex plugin add university@sumik-marketplace
 sumik-llm-plugin/                      # GitHub repo（Codex はここを git clone）
 ├── .agents/
 │   └── plugins/
-│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + cloud + ai + design + exam + university）
+│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university）
 ├── .cache/
 │   └── sumik-marketplace/
 │       ├── devkit -> ../..               # Codex marketplace から repo root の plugin を指す symlink
 │       ├── studio -> ../../plugins/studio  # Codex marketplace から studio plugin を指す symlink
 │       ├── lang -> ../../plugins/lang      # Codex marketplace から lang plugin を指す symlink
+│       ├── web -> ../../plugins/web        # Codex marketplace から web plugin を指す symlink
 │       ├── cloud -> ../../plugins/cloud    # Codex marketplace から cloud plugin を指す symlink
 │       ├── ai -> ../../plugins/ai          # Codex marketplace から ai plugin を指す symlink
 │       ├── design -> ../../plugins/design  # Codex marketplace から design plugin を指す symlink
+│       ├── product -> ../../plugins/product  # Codex marketplace から product plugin を指す symlink
 │       ├── exam -> ../../plugins/exam       # Codex marketplace から exam plugin を指す symlink
 │       └── university -> ../../plugins/university  # Codex marketplace から university plugin を指す symlink
 ├── .claude-plugin/
-│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + cloud + ai + design + exam + university / source ./plugins/<p>）
+│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university / source ./plugins/<p>）
 ├── .codex-plugin/
 │   └── plugin.json                       # Codex CLI プラグインマニフェスト（plugin 名 devkit / skills ./plugins/devkit/skills/ / version 同期必須）
 ├── .mcp-codex.json                       # Codex 用 MCPサーバー設定（command ./plugins/devkit/bin/... / cwd "."）
@@ -76,7 +82,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── hooks/                        # イベントフック (6個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (4個)
-    │   └── skills/                       # ナレッジスキル (31個)
+    │   └── skills/                       # ナレッジスキル (24個)
     ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
@@ -88,14 +94,21 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh)
     │   ├── commands/                     # スラッシュコマンド (2個)
     │   ├── scripts/                      # ヘルパースクリプト (pdf-to-markdown, epub-fix-cover.sh)
-    │   └── skills/                       # ナレッジスキル (11個)
-    ├── lang/                             # 言語・フレームワーク・フロントエンド実装プラグイン（skills-only）
+    │   └── skills/                       # ナレッジスキル (12個)
+    ├── lang/                             # 言語・データベース実装プラグイン（skills-only）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 lang / version 同期必須）
     │   ├── .codex-plugin/
     │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 lang / skills ./skills/ / mcpServers なし）
     │   ├── README.md
-    │   └── skills/                       # ナレッジスキル (14個)
+    │   └── skills/                       # ナレッジスキル (6個)
+    ├── web/                              # Web フロントエンド・フレームワーク実装プラグイン（skills-only）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 web / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 web / skills ./skills/ / mcpServers なし）
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (11個)
     ├── cloud/                            # クラウド・インフラ・アーキテクチャプラグイン（skills-only）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 cloud / version 同期必須）
@@ -109,7 +122,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── .codex-plugin/
     │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 ai / skills ./skills/ / mcpServers なし）
     │   ├── README.md
-    │   └── skills/                       # ナレッジスキル (4個)
+    │   └── skills/                       # ナレッジスキル (6個)
     ├── design/                           # UX/デザイン戦略プラグイン（skills-only）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 design / version 同期必須）
@@ -117,6 +130,13 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 design / skills ./skills/ / mcpServers なし）
     │   ├── README.md
     │   └── skills/                       # ナレッジスキル (6個)
+    ├── product/                          # プロダクトマネジメント・ユーザーストーリープラグイン（skills-only）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 product / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 product / skills ./skills/ / mcpServers なし）
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (2個)
     ├── exam/                             # 生成AI活用試験 解答生成プラグイン（agent入り・subdirectory方式）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 exam / version 同期必須）
@@ -188,7 +208,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
-### Skills (31個)
+### Skills (24個)
 
 #### コア開発
 
@@ -197,42 +217,29 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `implementing-as-tachikoma` | タチコマAgent運用ガイド |
 | `using-serena` | Serena MCP活用 |
 | `writing-clean-code` | 言語非依存のクリーンコードレシピ（SOLID原則・Simple Designの4ルール・66のコードスメルヒューリスティクス・ソフトウェアデザインの法則含む27カテゴリのコードスメル検出・リファクタリング・フォーマット・境界管理・20リファレンスファイル） |
-| `testing-code` | テスト方法論(TDD/AAA・テストピラミッド・4本の柱・3つの手法・コード分類・アンチパターン・テスト管理・AI活用戦略)。フレームワーク非依存(16リファレンス)。Vitest固有は`testing-with-vitest`、RTL固有は`lang:developing-react`参照 |
-| `testing-with-vitest` | Vitest 4.x 専用ガイド(v3→v4移行・設定/環境/カバレッジ・CLI/フィルタ/タグ・Test Projects/並列/シャーディング・Browser Mode/ビジュアル回帰・フィクスチャ/ライフサイクル・モック・マッチャー/型テスト/インソース)(9リファレンス)。汎用方法論は`testing-code`参照 |
+| `testing-code` | テスト方法論(TDD/AAA・テストピラミッド・4本の柱・3つの手法・コード分類・アンチパターン・テスト管理・AI活用戦略)。フレームワーク非依存(16リファレンス)。Vitest固有は`web:testing-with-vitest`、RTL固有は`web:developing-react`参照 |
 | `researching-libraries` | ライブラリ調査（車輪の再発明禁止） |
 | `securing-code` | セキュアコーディング（OWASP Top 10、インジェクション対策、認証・認可、Web penetration testing knowledge含む） |
 | `software-security` | Project CodeGuard ベースのセキュアバイデフォルト・コーディングルール集（日本語訳・全23ルール: インジェクション/認証MFA/暗号/シークレット/認可/セッション/クラウド・K8s/IaC/サプライチェーン/MCP/モバイル/ロギング/プライバシー、25+言語対応のタグ・言語別ルーティング）。cosai-oasis/project-codeguard (CC-BY-4.0) の日本語翻案 |
-| `securing-ai-development` | AI開発セキュリティ戦略（信頼フレームワーク、適応型ガードレール、AI-BOM、AI-SPM、ガバナンス、クロスファンクショナル所有権） |
-| `developing-with-ai` | AI支援開発メソドロジー（プロンプトエンジニアリング・コンテキストエンジニアリング・コード生成・QA・デバッグ・エージェント協調） |
-| `practicing-product-management` | プロダクトマネジメント実践ガイド（PM定義・アジャイルケイデンス・AARRR・PMF/GTM・収益モデル・ロードマップ・優先順位付け・PM-UX協働・AI時代PM進化・AI成熟度評価・AIケーススタディ・AI/ML基礎リテラシー・AI PM専門化ロール×3・AI機会評価/ROI算出・MLOps・責任あるAI・GPM/PLG: PLGモデル4戦略・freemium比較・B2B/B2Cペルソナ・ペインポイント分析・PLG文化・バリュープロポジション・カスタマーサクセス・オンボーディング・CS組織スケーリング・9つのリテンション戦略・CRR/NPS/CLV・拡張収益・ARPU/ARR/NRR・価格戦略・GPMの未来と倫理・失敗ケーススタディ・キャリアパス・7リファレンスファイル） |
 | `applying-semantic-versioning` | SemVer 2.0.0仕様準拠バージョン判断ガイド（MAJOR/MINOR/PATCH判定・プレリリース・範囲指定・よくある誤り） |
 | `writing-conventional-commits` | Conventional Commits 1.0.0準拠コミットメッセージガイド（type/scope/BREAKING CHANGE判定・SemVer連携） |
 | `managing-claude-md` | CLAUDE.md管理（8原則、プログレッシブ・ディスクロージャー、生きたドキュメント運用） |
-| `reviewing-code` | コードレビュー方法論（PRの構成・効果的なコメント技法・TWA・アンチパターン対策） |
 | `authoring-plugins` | Claude Code Plugin開発ガイド（Agent・Skill・コマンド定義の作成・最適化・フロントマター仕様・Progressive Disclosure・ツール制限）。Agent Skills標準 vs Claude Code拡張の分離原則・fork判定5軸マトリクス・FORK-GUIDE.md含む |
 | `capturing-learnings` | 作業中の学び・エラー・ユーザー訂正・機能要望を .learnings/ に構造化記録し継続的改善につなげるスキル（LRN/ERR/FEAT エントリ・反復パターン検出・CLAUDE.md/memory/AGENTS.md/新スキルへの昇格・devkit hookで自動リマインド）。プラグイン自身のスキル改善は authoring-plugins、定期棚卸しは USAGE-REVIEW を参照 |
 | `practicing-software-engineering` | SW開発プラクティス包括ガイド（プロジェクト基盤: Fast Feedback・DORA計測 ＋ チーム組織: Team Topologies・4チームタイプ ＋ ペアプログラミング: 4パターン ＋ 開発者習慣: GREAT Habits ＋ IC効果性マインドセット: アウトカム思考・戦略的優先順位付け ＋ キャリア成長: Junior→Staff・IC/Management パス ＋ 影響力: PM/デザイナー協働・権限なきリーダーシップ ＋ 20アンチパターン: 個人15+チーム5 ＋ 持続可能パフォーマンス: バーンアウト防止・リモートワーク ＋ AI活用ワークフロー: 日常AI統合・90日チーム採用計画、10リファレンスファイル） |
-| `writing-user-stories` | ユーザーストーリー作成ガイド（テンプレート・よくある間違い・技術要件変換・受入条件・分割テクニック） |
-| `solving-algorithms` | 競技プログラミング向けアルゴリズムとデータ構造リファレンス（計算量早見表・ソート7種・データ構造（スタック/キュー/木/BST/ヒープ/Union-Find）・探索（二分探索/ハッシュ/バックトラッキング/IDA*）・動的計画法（LCS/ナップザック/LIS）・グラフ（DFS/BFS/Dijkstra/Bellman-Ford/Floyd-Warshall/トポロジカルソート）・計算幾何学（ベクトル演算/凸包/交差判定）・整数論（素数/GCD/繰り返し二乗法）・7リファレンスファイル） |
 | `find-skills` | スキル発見・インストールガイド（agent skills エコシステム検索・"how do I do X" / "find a skill for X" クエリへの応答・能力拡張サポート） |
 
 #### アーキテクチャ
 
 | スキル | 説明 |
 |--------|------|
-| `applying-clean-architecture` | Clean Architecture原則（依存性ルール・同心円モデル・コンポーネント原則・境界設計・アンチパターン） |
+| `applying-clean-architecture` | Clean Architecture と DDD の統合ガイド（依存性ルール・同心円レイヤモデル: Entities/Use Cases/Interface Adapters/Frameworks & Drivers・コンポーネント原則 REP/CCP/CRP・ADP/SDP/SAP・Screaming Architecture・Humble Object・DDD戦略/戦術パターン: 境界づけられたコンテキスト/ユビキタス言語/コンテキストマッピング/Value Object/Entity/Aggregate/Event Sourcing/CQRS/Saga） |
 
 #### フレームワーク
 
 | スキル | 説明 |
 |--------|------|
 | `mastering-typescript` | TypeScript包括ガイド（83項目の実装判断基準 + 型システム・関数・クラス・高度な型・非同期・モジュール・ビルド + Total TypeScript: satisfies・余剰プロパティ・コンパイラ振る舞い + TS5デコレータ完全ガイド + 型関係論・型推論パターン・型安全テクニック） |
-
-#### ブラウザ自動化・E2Eテスト
-
-| スキル | 説明 |
-|--------|------|
-| `testing-e2e-with-playwright` | Playwright Testによる包括的E2Eテスト（ロケーター戦略・フィクスチャ/POM・モッキング・エミュレーション・信頼性・CI/CD・拡張・アクセシビリティ・ビジュアルリグレッション・認証・フォーム・AI生成・実践パターン） |
 
 #### インフラ・ツール
 
@@ -250,6 +257,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 |--------|------|
 | `searching-web` | Web検索統合スキル（Exa MCP第一優先: 7カテゴリ検索/企業・コード・人物・財務・学術・個人サイト・Tweet/X ＋ gemini CLIフォールバック） |
 | `writing-effective-prose` | 統合文章術スキル（論理構成・AI臭除去・技術文書7Cs・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）・技術ブログ・README作成・Zenn記事作成・投稿ワークフロー・Web編集メソッド（完読概念/主眼と骨子/構造シート）・文書の構造設計（5要素階層/辞書形式vs読み物形式/認知心理学的基盤）・+書く心構え・キャリア / 人を動かす文書 / UXコピー / 五感で書く / 推敲困ったら・59リファレンスファイル） |
+| `reviewing-code` | コードレビューガイドライン（PR構成・効果的コメント・トーン3原則: 客観性/具体性/明確なアウトカム・CodeRabbit統合・自動修正ループ） |
 
 ### Scripts (4個)
 

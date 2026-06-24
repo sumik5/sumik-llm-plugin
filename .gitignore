@@ -11,3 +11,5 @@ node_modules/
 !.cache/sumik-marketplace/design
 !.cache/sumik-marketplace/exam
 !.cache/sumik-marketplace/university
+!.cache/sumik-marketplace/web
+!.cache/sumik-marketplace/product

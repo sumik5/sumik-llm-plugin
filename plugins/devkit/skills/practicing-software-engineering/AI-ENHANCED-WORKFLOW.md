@@ -416,7 +416,7 @@ AIがルーティン・ボイラープレート・反復作業を担うことで
 
 ## 関連リファレンス
 
-- `developing-with-ai` — プロンプトエンジニアリング・コンテキストエンジニアリングの技術的手法（本ファイルの技術的詳細は同スキルに委譲）
+- `ai:developing-with-ai` — プロンプトエンジニアリング・コンテキストエンジニアリングの技術的手法（本ファイルの技術的詳細は同スキルに委譲）
 - `securing-code` — AI生成コードへのセキュリティチェック適用
 - `testing-code` — テストファーストアプローチの詳細実践
 - `practicing-software-engineering/DEVELOPER-HABITS.md` — ICとしての効果的な習慣形成

@@ -376,4 +376,4 @@ Test-Driven Prompting の詳細方法論と、PO/開発者/アジャイルコー
 - `using-serena`: Serena MCP によるトークン効率的なコード編集
 - `creating-content`: AIコピーライティング・クリエイティブ制作
 - `researching-libraries`: ライブラリ調査（AI支援開発前の事前調査必須）
-- `practicing-product-management`: PM向けClaude Code活用（コードベース調査・フィードバック分析・競合分析・要件生成）
+- `product:practicing-product-management`: PM向けClaude Code活用（コードベース調査・フィードバック分析・競合分析・要件生成）

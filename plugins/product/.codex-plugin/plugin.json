@@ -1,0 +1,33 @@
+{
+  "name": "product",
+  "version": "1.0.0",
+  "description": "プロダクトマネジメント・要件定義スキル群を提供するプラグイン。2個のスキル（practicing-product-management: PRD・ロードマップ・AARRR・A/Bテスト・PLG・カスタマーサクセス・writing-user-stories: ユーザーストーリー・受入基準・ストーリー分割）を含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "product-management",
+    "requirements",
+    "user-stories"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sumik Product",
+    "shortDescription": "プロダクトマネジメント・要件定義スキルを提供するプラグイン",
+    "longDescription": "2個のプロダクト・要件定義スキルを提供。PRD・ロードマップ・優先順位付け・AARRR海賊指標・A/Bテスト・PLG・カスタマーサクセスと、ユーザーストーリー作成・受入基準・ストーリー分割をカバーします。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write", "Edit"],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "practicing-product-management でPRDを作成",
+      "writing-user-stories でユーザーストーリーを書く",
+      "practicing-product-management で成長指標を分析"
+    ],
+    "brandColor": "#7C3AED"
+  }
+}

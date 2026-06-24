@@ -12,9 +12,9 @@ description: >-
   planning organizational adoption, building a pattern library, constructing
   a design system within Figma, starting a DS from scratch, or creating
   design system content.
-  For component styling, use styling-with-tailwind instead.
-  For design-to-code, use implementing-design instead.
-  For frontend codegen, use designing-frontend instead.
+  For component styling, use web:styling-with-tailwind instead.
+  For design-to-code, use web:implementing-design instead.
+  For frontend codegen, use web:designing-frontend instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -66,7 +66,7 @@ Bashツールでコマンドを実行する場合：
 
 #### next-devtools MCP（Next.js専用）
 **用途**: Next.js開発の診断、アップグレード、最適化
-**スキル参照**: `using-next-devtools`
+**スキル参照**: `web:using-next-devtools`
 **優先度**: 🔴 必須（Next.jsプロジェクトの場合）
 
 **主な機能**:
@@ -77,7 +77,7 @@ Bashツールでコマンドを実行する場合：
 
 #### shadcn MCP（UIコンポーネント）
 **用途**: React/Next.js UIコンポーネント管理
-**スキル参照**: `designing-frontend`
+**スキル参照**: `web:designing-frontend`
 **優先度**: 🔴 必須（React/Next.jsプロジェクトの場合）
 
 **主な機能**:
@@ -254,8 +254,8 @@ ListMcpResourcesToolで全MCPサーバーの一覧を取得
 詳細な使用方法については、以下のスキルを参照してください：
 
 - **using-serena** - serena MCP詳細ガイド
-- **using-next-devtools** - Next.js開発ガイド
-- **designing-frontend** - UIコンポーネント管理
+- **web:using-next-devtools** - Next.js開発ガイド
+- **web:designing-frontend** - UIコンポーネント管理
 - **practicing-devops** - Docker環境管理
 - **mcp-aws** - AWSインフラ構築
 - **mcp-browser-auto** - ブラウザ自動化

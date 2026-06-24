@@ -496,4 +496,4 @@ AIプロダクト設計前に確認すべき倫理リスク:
 | `designing-ux` | 一般的UI/UXデザイン原則・視覚デザイン |
 | `practicing-design-thinking` | デザイン思考プロセス・UXリサーチ手法 |
 | `applying-behavior-design` | 行動変容・習慣化設計 |
-| `designing-frontend` | フロントエンドコードの実装 |
+| `web:designing-frontend` | フロントエンドコードの実装 |

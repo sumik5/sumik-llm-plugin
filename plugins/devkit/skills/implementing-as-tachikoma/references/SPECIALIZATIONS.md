@@ -488,8 +488,8 @@ POST /api/auth/login
 - **managing-agent-hierarchy** - Agent階層全体の理解
 - **coordinating-as-kusanagi** - Managerからの指示の理解
 - **using-serena** - コード編集の詳細
-- **using-next-devtools** - Next.js開発の詳細
-- **designing-frontend** - UIコンポーネント管理
+- **web:using-next-devtools** - Next.js開発の詳細
+- **web:designing-frontend** - UIコンポーネント管理
 - **practicing-devops** - インフラ構築
 - **mcp-browser-auto** - テスト自動化
 - **writing-clean-code** - SOLID原則・コード品質基準

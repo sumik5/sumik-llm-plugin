@@ -64,7 +64,7 @@ npx -y react-doctor@latest <directory> <options>
 ### 4. 修正の提案
 
 スコアが75未満の場合、severity: error の問題から優先的に修正提案を行う。
-ユーザーが修正を希望する場合、`developing-react` スキルの該当ルール（RP-rules/）を参照して修正を実施。
+ユーザーが修正を希望する場合、`web:developing-react` スキルの該当ルール（RP-rules/）を参照して修正を実施。
 
 ## スコア基準
 
@@ -89,6 +89,6 @@ npx -y react-doctor@latest <directory> <options>
 
 ## 関連スキル
 
-- **developing-react**: React開発ガイド（パフォーマンスルール、Internals、アニメーション、RTL）
-- **developing-nextjs**: Next.js固有の開発ガイド
+- **web:developing-react**: React開発ガイド（パフォーマンスルール、Internals、アニメーション、RTL）
+- **web:developing-nextjs**: Next.js固有の開発ガイド
 - **testing-code**: テスト方法論

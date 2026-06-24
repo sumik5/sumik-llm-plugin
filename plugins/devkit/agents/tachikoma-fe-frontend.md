@@ -4,8 +4,8 @@ description: "Frontend component implementation specialized Tachikoma execution 
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - lang:designing-frontend
-  - lang:developing-react
+  - web:designing-frontend
+  - web:developing-react
   - design:designing-data-visualizations
   - writing-clean-code
   - mastering-typescript
@@ -76,19 +76,19 @@ skills:
 - **Compound Components**: 名前空間付きサブコンポーネント（タブ、アコーディオン）
 - **Headless Components**: Radix UI等のロジック提供パターン
 - **Custom Hooks**: ビジネスロジック抽出・再利用
-- パターン選定は `developing-react` スキルの RD-DESIGN-PATTERNS.md / RI-PATTERNS.md 参照
+- パターン選定は `web:developing-react` スキルの RD-DESIGN-PATTERNS.md / RI-PATTERNS.md 参照
 
 ### エラーハンドリング
 - ErrorBoundary配置戦略（アプリ全体 / ページ / コンポーネントレベルの3層）
 - react-error-boundary ライブラリの活用
 - 非同期エラーはtry/catch + TanStack Query error stateで処理
-- 詳細は `developing-react` スキルの RD-ERROR-HANDLING.md 参照
+- 詳細は `web:developing-react` スキルの RD-ERROR-HANDLING.md 参照
 
 ### アクセシビリティ
 - セマンティックHTML優先、ARIA補助的に使用
 - フォーカス管理（モーダル、ルート変更時）
 - キーボードナビゲーション対応
-- 詳細は `developing-react` スキルの RD-ACCESSIBILITY.md 参照
+- 詳細は `web:developing-react` スキルの RD-ACCESSIBILITY.md 参照
 
 ## ワークフロー
 

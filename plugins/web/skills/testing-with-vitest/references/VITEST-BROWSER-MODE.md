@@ -232,7 +232,7 @@ await expect(page.getByTestId('dashboard')).toMatchScreenshot('dashboard', {
 ## クロススキル参照
 
 - **フル E2E テスト**（シナリオ・認証フロー・クロスページ操作）→ `testing-e2e-with-playwright` スキルを参照
-- **React コンポーネントの RTL ベーステスト**（`@testing-library/react`）→ `lang:developing-react` スキルを参照
+- **React コンポーネントの RTL ベーステスト**（`@testing-library/react`）→ `developing-react` スキルを参照
 
 ---
 

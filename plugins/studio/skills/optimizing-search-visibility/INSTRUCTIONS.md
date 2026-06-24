@@ -240,7 +240,7 @@ SEO改善の典型的な進行順序。各ステップで参照すべき referen
 | Web AI・RAGの実装コードを書きたい | `ai:integrating-ai-web-apps` |
 | AIエージェントを構築したい | `ai:building-ai-agents` |
 | UX・ユーザー体験設計をしたい | `design:designing-ux` |
-| SEO KPIをプロダクト戦略・成長指標と連携させたい | `practicing-product-management` |
+| SEO KPIをプロダクト戦略・成長指標と連携させたい | `product:practicing-product-management` |
 | トピッククラスター・サイト構造を図解したい | `studio:creating-diagrams` |
 
 ---

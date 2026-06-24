@@ -37,7 +37,7 @@ WRITING_SKILLS=(
 DESIGN_SKILLS=(
     "design:designing-ux"
     "design:applying-behavior-design"
-    "lang:implementing-design"
+    "web:implementing-design"
 )
 
 # データベーススキル（DB関連検出時に適用）
@@ -80,33 +80,33 @@ get_skill_description() {
         "researching-libraries") echo "実装前のライブラリ調査（車輪の再発明禁止）" ;;
         "cloud:architecting-infrastructure") echo "インフラパターン127種＋マイクロサービス（CQRS/Saga/粒度決定）＋モダナイゼーション・トレードオフ分析" ;;
         "cloud:implementing-observability") echo "監視・オブザーバビリティ設計（ログ・トレース・メトリクス・OpenTelemetry）" ;;
-        "lang:developing-react") echo "React 19.x 開発（Internals・パフォーマンス・アニメーション・RTL）" ;;
-        "lang:developing-nextjs") echo "Next.js 16 / React 19開発" ;;
-        "lang:using-next-devtools") echo "Next.js DevTools MCP活用" ;;
+        "web:developing-react") echo "React 19.x 開発（Internals・パフォーマンス・アニメーション・RTL）" ;;
+        "web:developing-nextjs") echo "Next.js 16 / React 19開発" ;;
+        "web:using-next-devtools") echo "Next.js DevTools MCP活用" ;;
         "mastering-typescript") echo "TypeScript型システム・パターン" ;;
-        "lang:designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
+        "web:designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
         "lang:developing-go") echo "Go開発ガイド" ;;
         "lang:developing-python") echo "Python開発ガイド" ;;
         "lang:developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
         "cloud:developing-terraform") echo "Terraform IaC開発" ;;
         "cloud:practicing-devops") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
         "studio:writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
-        "lang:developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
-        "lang:automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
-        "testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
-        "testing-with-vitest") echo "Vitest 4.x 専用（v3→v4移行・設定・Browser Mode・並列・フィクスチャ・モック）" ;;
+        "web:developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
+        "web:automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
+        "web:testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
+        "web:testing-with-vitest") echo "Vitest 4.x 専用（v3→v4移行・設定・Browser Mode・並列・フィクスチャ・モック）" ;;
         "ai:building-ai-agents") echo "LangChain/LangGraph・Google ADK AIエージェント開発" ;;
         "cloud:implementing-dynamic-authorization") echo "Cedar/ABAC/ReBAC 動的認可" ;;
         "searching-web") echo "gemini CLI によるWeb検索" ;;
         "design:designing-ux") echo "UX戦略・デザイン思考・グラフィックデザイン・AIエクスペリエンス設計" ;;
         "design:applying-behavior-design") echo "行動変容デザイン（CREATEファネル）" ;;
-        "lang:implementing-design") echo "Figmaデザイン→コード変換（Code Connect・デザイントークン同期）" ;;
+        "web:implementing-design") echo "Figmaデザイン→コード変換（Code Connect・デザイントークン同期）" ;;
         "lang:developing-databases") echo "DB設計・SQLアンチパターン・内部構造・リレーショナル設計（正規化・最適化・PostgreSQL）" ;;
         "lang:developing-mcp") echo "MCP（Model Context Protocol）開発" ;;
         "cloud:developing-google-cloud") echo "Google Cloud 開発・セキュリティ（Cloud Run + IAM/VPC/KMS/DLP/SCC）" ;;
         "cloud:developing-aws") echo "AWS開発（システム設計・サーバーレス・CDK・EKS・SRE・コスト最適化・Bedrock）" ;;
         "ai:integrating-ai-web-apps") echo "AI web app integration with Vercel AI SDK, LangChain.js, and MCP (streaming, RAG, tool calling, structured data)" ;;
-        "lang:styling-with-tailwind") echo "Tailwind CSSスタイリング方法論（v4プライマリ）" ;;
+        "web:styling-with-tailwind") echo "Tailwind CSSスタイリング方法論（v4プライマリ）" ;;
         *) echo "" ;;
     esac
 }
@@ -131,11 +131,11 @@ check_package_json() {
     if echo "$deps" | grep -qx "next"; then
         has_next=true
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("lang:developing-nextjs" "lang:using-next-devtools" "lang:developing-react")
+        PROJECT_SKILLS+=("web:developing-nextjs" "web:using-next-devtools" "web:developing-react")
 
         # Next.js SaaS チェック（stripe / next-auth / @auth/core / @clerk/nextjs）
         if echo "$deps" | grep -qE '^(stripe|next-auth|@auth/core|@clerk/nextjs)$'; then
-            PROJECT_SKILLS+=("lang:developing-nextjs")
+            PROJECT_SKILLS+=("web:developing-nextjs")
         fi
     fi
 
@@ -143,23 +143,23 @@ check_package_json() {
     if [[ "$has_next" == "false" ]] && echo "$deps" | grep -qx "react"; then
         has_react=true
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("lang:developing-react")
+        PROJECT_SKILLS+=("web:developing-react")
     fi
 
     # フルスタックJS チェック（express / @nestjs/core / fastify / koa / @hapi/hapi）
     if echo "$deps" | grep -qE '^(express|@nestjs/core|fastify|koa|@hapi/hapi)$'; then
         HAS_LANGUAGE_PROJECT=true
-        PROJECT_SKILLS+=("lang:developing-fullstack-javascript")
+        PROJECT_SKILLS+=("web:developing-fullstack-javascript")
     fi
 
     # Playwright チェック（package.json内）
     if echo "$deps" | grep -qx "@playwright/test"; then
-        PROJECT_SKILLS+=("testing-e2e-with-playwright")
+        PROJECT_SKILLS+=("web:testing-e2e-with-playwright")
     fi
 
     # Vitest チェック（package.json内）
     if echo "$deps" | grep -qx "vitest"; then
-        PROJECT_SKILLS+=("testing-with-vitest")
+        PROJECT_SKILLS+=("web:testing-with-vitest")
     fi
 
     # OpenTelemetry チェック（JS）
@@ -175,7 +175,7 @@ check_package_json() {
     # Tailwind CSS チェック（v4: package.json tailwindcss依存）
     if echo "$deps" | grep -qx "tailwindcss"; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("lang:styling-with-tailwind")
+        PROJECT_SKILLS+=("web:styling-with-tailwind")
     fi
 }
 
@@ -192,19 +192,19 @@ check_design() {
     # components.json（shadcn/ui）
     if [[ -f "$WORK_DIR/components.json" ]]; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("lang:designing-frontend")
+        PROJECT_SKILLS+=("web:designing-frontend")
     fi
 
     # Storybook
     if find "$WORK_DIR" -maxdepth 3 -name "*.stories.tsx" -o -name "*.stories.ts" 2>/dev/null | grep -q .; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("lang:developing-react")
+        PROJECT_SKILLS+=("web:developing-react")
     fi
 
     # Tailwind CSS（v3: tailwind.config.*, v4: package.json tailwindcss依存）
     if find "$WORK_DIR" -maxdepth 2 -name "tailwind.config.*" 2>/dev/null | grep -q .; then
         HAS_DESIGN_PROJECT=true
-        PROJECT_SKILLS+=("lang:styling-with-tailwind")
+        PROJECT_SKILLS+=("web:styling-with-tailwind")
     fi
 
     # .pen ファイル（Pencil MCP）
@@ -302,14 +302,14 @@ check_writing() {
 # Playwright 設定ファイルチェック
 check_playwright_config() {
     if find "$WORK_DIR" -maxdepth 2 -name "playwright.config.*" 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("testing-e2e-with-playwright")
+        PROJECT_SKILLS+=("web:testing-e2e-with-playwright")
     fi
 }
 
 # Vitest 設定ファイルチェック
 check_vitest_config() {
     if find "$WORK_DIR" -maxdepth 2 \( -name "vitest.config.*" -o -name "vitest.workspace.*" \) 2>/dev/null | grep -q .; then
-        PROJECT_SKILLS+=("testing-with-vitest")
+        PROJECT_SKILLS+=("web:testing-with-vitest")
     fi
 }
 

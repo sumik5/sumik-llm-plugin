@@ -6,7 +6,7 @@
 
 ## 概要
 
-ai は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。GenAI デザインパターン・AI エージェント構築・Web AI 統合・promptfoo による LLM 評価/レッドチーミングといった AI/LLM 開発系スキルを集約します。devkit のタチコマ Agent がこれらのスキルを `ai:<skill>` 修飾名で preload するため、devkit と常にセットでインストールされる前提です。
+ai は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。GenAI デザインパターン・AI エージェント構築・Web AI 統合・promptfoo による LLM 評価/レッドチーミング・AI 支援開発方法論・AI 開発セキュリティ戦略といった AI/LLM 開発系スキルを集約します。devkit のタチコマ Agent がこれらのスキルを `ai:<skill>` 修飾名で preload するため、devkit と常にセットでインストールされる前提です。
 
 ---
 
@@ -44,14 +44,14 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
         ├── .codex-plugin/
         │   └── plugin.json              # Codex CLI プラグインマニフェスト（skills ./skills/・MCP なし）
         ├── README.md
-        └── skills/                      # ナレッジスキル (4個)
+        └── skills/                      # ナレッジスキル (6個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Skills (4個)
+### Skills (6個)
 
 | スキル | 説明 |
 |--------|------|
@@ -59,9 +59,11 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `building-ai-agents` | AIエージェント構築統合ガイド（LangChain/LangGraph: LCEL・ReAct・マルチエージェント・MCP統合・LangSmith評価 ＋ Google ADK: Agent分類・ツール設計・A2A・RAG・セキュリティ ＋ リアルタイムマルチモーダル: WebSocket・Web Audio API・Gemini Live API） |
 | `integrating-ai-web-apps` | Vercel AI SDK + LangChain.js + MCPによるWebアプリAI統合（ストリーミングチャット・RAG・ツール呼び出し・構造化データ生成・React/Next.js連携） |
 | `evaluating-with-promptfoo` | promptfooによるLLM評価・レッドチーミング（promptfooconfig.yaml設定・40+アサーション・プロバイダー・134+レッドチームプラグイン・コンプライアンスフレームワーク・CI/CD統合） |
+| `developing-with-ai` | AI支援開発方法論（プロンプトエンジニアリング・コンテキストエンジニアリング・コード生成ワークフロー・品質保証・協調デバッグ・エージェント協調パターン・LLM対話設計パターン（8つの会話パターン・意図の文法）・チームLLM導入ワークショップ・役割別拡張（Dev/PO/Coach/Manager）） |
+| `securing-ai-development` | AI活用ソフトウェア開発のための組織的セキュリティ戦略（信頼フレームワーク・適応型ガードレール・AI-BOM・AI-SPM・ガバナンスモデル・部門横断オーナーシップ）。AIコーディングアシスタント・エージェントシステム・AI加速SDLCワークフローのセキュリティ統制を確立する際に使用 |
 
 ---
 
 ## 依存関係メモ
 
-devkit の AI/ML 系タチコマ（tachikoma-data-ai-ml、tachikoma-lang-python ほか）が ai 提供スキルを `ai:<skill>` 修飾名で preload します。このクロスプラグイン参照を成立させるため、ai は devkit と**常に併設インストールされること**が前提です。ai 単体ではこれらのタチコマのスキル preload が解決されません。
+devkit の AI/ML 系タチコマ（tachikoma-data-ai-ml、tachikoma-lang-python ほか）が ai 提供スキルを `ai:<skill>` 修飾名で preload します。また devkit のセキュリティ監査タチコマ（tachikoma-qa-security）が `ai:securing-ai-development` を preload します。このクロスプラグイン参照を成立させるため、ai は devkit と**常に併設インストールされること**が前提です。ai 単体ではこれらのタチコマのスキル preload が解決されません。

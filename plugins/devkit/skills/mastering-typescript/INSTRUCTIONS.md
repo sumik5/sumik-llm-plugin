@@ -190,8 +190,8 @@ if (isUser(data)) {
 
 | スキル | 関係 |
 |--------|------|
-| `developing-nextjs` | Next.js固有のTypeScript設定・パターン（React性能最適化含む） |
-| `developing-fullstack-javascript` | フルスタックJS/TSアーキテクチャ戦略 |
+| `web:developing-nextjs` | Next.js固有のTypeScript設定・パターン（React性能最適化含む） |
+| `web:developing-fullstack-javascript` | フルスタックJS/TSアーキテクチャ戦略 |
 
 ---
 

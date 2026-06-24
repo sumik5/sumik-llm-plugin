@@ -4,13 +4,13 @@ description: "Next.js/React specialized Tachikoma execution agent. Handles Next.
 model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
-  - lang:developing-nextjs
-  - lang:developing-react
-  - lang:using-next-devtools
+  - web:developing-nextjs
+  - web:developing-react
+  - web:using-next-devtools
   - writing-clean-code
   - mastering-typescript
   - testing-code
-  - testing-e2e-with-playwright
+  - web:testing-e2e-with-playwright
   - securing-code
 ---
 
@@ -73,19 +73,19 @@ skills:
 - **Compound Components**: 名前空間付きサブコンポーネント（タブ、アコーディオン）
 - **Headless Components**: Radix UI等のロジック提供パターン
 - **Custom Hooks**: ビジネスロジック抽出・再利用
-- パターン選定は `developing-react` スキルの RD-DESIGN-PATTERNS.md / RI-PATTERNS.md 参照
+- パターン選定は `web:developing-react` スキルの RD-DESIGN-PATTERNS.md / RI-PATTERNS.md 参照
 
 ### エラーハンドリング
 - ErrorBoundary配置戦略（アプリ全体 / ページ / コンポーネントレベルの3層）
 - react-error-boundary ライブラリの活用
 - 非同期エラーはtry/catch + TanStack Query error stateで処理
-- 詳細は `developing-react` スキルの RD-ERROR-HANDLING.md 参照
+- 詳細は `web:developing-react` スキルの RD-ERROR-HANDLING.md 参照
 
 ### アクセシビリティ
 - セマンティックHTML優先、ARIA補助的に使用
 - フォーカス管理（モーダル、ルート変更時）
 - キーボードナビゲーション対応
-- 詳細は `developing-react` スキルの RD-ACCESSIBILITY.md 参照
+- 詳細は `web:developing-react` スキルの RD-ACCESSIBILITY.md 参照
 
 ## ワークフロー
 
@@ -95,7 +95,7 @@ skills:
 4. **最新仕様確認**: next-devtools `nextjs_docs` で関連機能のドキュメントを検索
 5. **実装**: serena MCPでコードベース分析 → Server/Client Componentsの境界を考慮しながら実装
 6. **キャッシュ最適化**: 必要に応じて `enable_cache_components` でCache Components設定
-7. **テスト（必須）**: Vitest + RTLでユニットテスト作成（testing-codeスキルのTDD・AAAパターンに準拠）。Web UI変更時はPlaywright E2Eテストも作成（testing-e2e-with-playwrightスキルに準拠）
+7. **テスト（必須）**: Vitest + RTLでユニットテスト作成（testing-codeスキルのTDD・AAAパターンに準拠）。Web UI変更時はPlaywright E2Eテストも作成（web:testing-e2e-with-playwrightスキルに準拠）
 8. **エラーチェック**: next-devtools `nextjs_get_errors` でエラーがないか確認
 9. **品質確認**: TypeScript型チェック・ESLint実行
 10. **完了報告**: 成果物とファイル一覧をClaude Code本体に報告
@@ -131,7 +131,7 @@ skills:
 - [ ] 要件どおりの実装が完了している
 - [ ] コードがビルド・lint通過する
 - [ ] テストが追加・更新されている（必須。testing-codeスキルのTDD・AAAパターンに準拠）
-- [ ] Web UI変更を含む場合、E2Eテストが追加・更新されている（testing-e2e-with-playwrightスキルに準拠）
+- [ ] Web UI変更を含む場合、E2Eテストが追加・更新されている（web:testing-e2e-with-playwrightスキルに準拠）
 - [ ] CodeGuardセキュリティチェック実行済み
 - [ ] docs/plan-*.md のチェックリストを更新した（並列実行時）
 - [ ] 完了報告に必要な情報がすべて含まれている

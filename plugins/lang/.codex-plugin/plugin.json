@@ -1,7 +1,7 @@
 {
   "name": "lang",
-  "version": "1.1.1",
-  "description": "言語・フレームワーク・フロントエンド実装スキル群を提供するプラグイン。14個のスキル（Python・Go・Bash・React・Next.js・フルスタックJS・DB・Web API・MCP・next-devtools・フロントエンド設計・Figma実装・Tailwind・ブラウザ自動化）を含む。",
+  "version": "2.0.0",
+  "description": "言語スキル群を提供するプラグイン。6個のスキル（Python・Go・Bash・データベース・MCP・アルゴリズム）を含む。Web/フロントエンド実装は web プラグインへ分離。",
   "author": {
     "name": "sumik5"
   },
@@ -15,8 +15,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Sumik Lang",
-    "shortDescription": "言語・フレームワーク・フロントエンド実装スキルを提供するプラグイン",
-    "longDescription": "14個の言語・フレームワーク・フロントエンド実装スキルを提供。Python・Go・Bash・React・Next.js・フルスタックJS・データベース・Web API・MCP・Tailwind・Figma実装・ブラウザ自動化をカバーします。",
+    "shortDescription": "言語スキル（Python/Go/Bash/DB/MCP/アルゴリズム）を提供するプラグイン",
+    "longDescription": "6個の言語スキルを提供。Python・Go・Bash・データベース・MCP・アルゴリズムをカバーします。Web/フロントエンド実装は web プラグインへ分離。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write", "Edit", "Bash"],
@@ -25,7 +25,7 @@
     "termsOfServiceURL": "https://example.com/terms",
     "defaultPrompt": [
       "developing-python でPythonコードを実装",
-      "developing-nextjs でNext.jsアプリを構築",
+      "developing-go でGoサービスを構築",
       "developing-databases でスキーマを設計"
     ],
     "brandColor": "#3178C6"

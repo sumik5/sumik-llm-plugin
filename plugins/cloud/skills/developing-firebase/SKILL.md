@@ -9,8 +9,8 @@ description: >-
   App Distribution, AdMob, and Extensions.
   MUST load when firebase, @firebase, or firebase-admin packages detected,
   or firebaseConfig/firebase.json/firestore.rules files present.
-  For GCP infra→developing-google-cloud. For Next.js integration→developing-nextjs.
-  For REST API design→developing-web-apis.
+  For GCP infra→developing-google-cloud. For Next.js integration→web:developing-nextjs.
+  For REST API design→web:developing-web-apis.
 ---
 
 # Firebase 開発ガイド
