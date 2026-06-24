@@ -481,9 +481,18 @@ import * as Sentry from '@sentry/react'
 
 // Sentryの初期化（main.tsx）
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  tracesSampleRate: 1.0,
+  // Vite は import.meta.env（VITE_ プレフィックス）。Next.js は process.env.NEXT_PUBLIC_*
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.MODE,
+  integrations: [
+    Sentry.browserTracingIntegration(), // トレース（パフォーマンス）計測
+    Sentry.replayIntegration(),         // Session Replay（エラー再現）
+  ],
+  tracesSampleRate: 1.0,                 // 本番は 0.1 など低めに調整
+  replaysSessionSampleRate: 0.1,         // 通常セッションの 10% を録画
+  replaysOnErrorSampleRate: 1.0,         // エラー発生セッションは 100% 録画
+  // 分散トレーシングを有効にする対象 URL
+  tracePropagationTargets: ['localhost', /^https:\/\/[^/]*\.your-api\.com/],
 })
 
 // componentDidCatch内でのレポート
@@ -512,6 +521,28 @@ function App() {
   )
 }
 ```
+
+### ソースマップと配信環境連携
+
+本番のスタックトレースを可読化するにはソースマップのアップロードが必須。Vite なら `@sentry/vite-plugin` を使う:
+
+```ts
+// vite.config.ts
+import { sentryVitePlugin } from '@sentry/vite-plugin'
+
+export default defineConfig({
+  build: { sourcemap: 'hidden' }, // 本番ソースマップを生成（公開はしない）
+  plugins: [
+    sentryVitePlugin({
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN, // CI のシークレットで注入
+    }),
+  ],
+})
+```
+
+> **React Router v7（framework mode）** では `@sentry/react-router` を使い、`Sentry.reactRouterV7BrowserTracingIntegration(...)` でルーティング計測を有効化する。
 
 ### React 19 + Sentryの統合
 
