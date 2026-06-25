@@ -42,3 +42,28 @@ Codex は repo root `hooks-codex.json`（対応イベントのみ・`./plugins/d
 
 **昇格候補**: 反復（他の Codex プラグイン作業で再利用）が確認できれば `authoring-plugins` の
 `MANAGING-MULTI-PLUGIN.md` か CLAUDE.md「Codex プラグイン配布の注意点」表へ hook 配布規約として昇格。
+
+---
+
+## [LRN-20260625-002] Codex プラグインの「実アクティブパス」は `codex plugin list` の PATH 列で見る
+
+**種別**: knowledge_gap（デバッグで判明）
+
+**症状**: devkit を 14.2.0 へ更新後、`~/.codex/plugins/cache/sumik-marketplace/devkit/` を見ると最新が
+`14.1.1` 止まりで hooks-codex.json も無く、「Codex 未更新」と誤判断した。
+
+**真相**: `~/.codex/plugins/cache/...` は**陳腐化した別キャッシュ**で、Codex が実際に読むのは
+`codex plugin list` の PATH 列が示すパス——本件では
+`/Users/sumik/.codex/.tmp/marketplaces/sumik-marketplace/.cache/sumik-marketplace/devkit`
+（= marketplace チェックアウト内の `.cache/<mp>/devkit → ../..` symlink = git チェックアウト root）。
+これは push 済み main を直接指すため 14.2.0＋hooks-codex.json が即反映されていた。
+
+**対処**: Codex プラグインの版・内容を確認する時は `~/.codex/plugins/cache` を信用せず、
+`codex plugin list`（STATUS=installed,enabled / VERSION / **PATH**）で実体パスを特定し、
+そのパスの `.codex-plugin/plugin.json`・`hooks-codex.json` を読む。関連: [[mcp-availability-from-session-not-just-config]]（config 単独で断定しない）。
+
+**Codex で plugin hook を発火させる3条件**（本件で確立）:
+1. プラグインが hooks-codex.json 同梱版（marketplace 経由で push 済み main が反映）
+2. `~/.codex/config.toml` の `[features] hooks = true`（旧 `codex_hooks` は deprecated alias）
+3. **trust 承認**（plugin 同梱 hook = 非管理 hook。次回 `codex` 起動時にプロンプト。自動化は
+   `codex --dangerously-bypass-hook-trust` だが常用非推奨）
