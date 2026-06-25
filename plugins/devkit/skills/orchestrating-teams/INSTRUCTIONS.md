@@ -6,23 +6,16 @@
 
 ## 概要
 
-### Before（team-builder Agent方式）
-```
-Claude Code → Task tool → team-builder(Agent) → TeamCreate → タチコマ
-                                                  ↓
-                                        tmux制御が効かない（仕様）
-```
-
-### After（このスキル方式 - 2フェーズ）
+### このスキル方式（2フェーズ）
 ```
 Claude Code（このスキルをロード）
-    ├─ Phase 1: TeamCreate → planner（sumik:tachikoma-str-product-mgr, model: opus）→ 要件分析・コードベース分析・docs/plan作成
+    ├─ Phase 1: Agent（planner, sumik:tachikoma-str-product-mgr, model: opus）→ 要件分析・コードベース分析・docs/plan作成
     ├─ 計画レビュー・承認（ユーザー確認）
-    └─ Phase 2: TaskCreate → ドメイン別専門タチコマ（team_name + run_in_background: true）← tmux pane ✓
+    └─ Phase 2: Agent（ドメイン別専門タチコマ, run_in_background: true）← 並列実行
                  → 進捗管理 → 統合 → クリーンアップ
 ```
 
-**Claude Code本体は最小限の判断（並列化の要否）のみ行い、計画策定から実装までAgent Teamに委譲します。**
+**Claude Code本体は最小限の判断（並列化の要否）のみ行い、計画策定から実装までAgentに委譲します。**
 
 ---
 
@@ -36,19 +29,18 @@ Claude Code（このスキルをロード）
 
 ---
 
-## 🔴 Step 0: Agent Teams API ツールのロード（最初に必ず実行）
+## 🔴 Step 0: 遅延ツールのロード（最初に必ず実行）
 
-**Agent Teams API のツールはすべて「遅延ツール（deferred tools）」であり、ToolSearch で事前にロードしないと呼び出せない。**
+**SendMessage / Task 系ツール（TaskCreate, TaskUpdate, TaskList）は「遅延ツール（deferred tools）」であり、ToolSearch で事前にロードしないと呼び出せない。Agent ツール自体は遅延ツールではなく最初から使用可能。**
 
-スキルをロードしたら、他のどの操作よりも先に以下を実行:
+SendMessage / Task 系を使用する直前に以下を実行:
 
 ```
-ToolSearch("TeamCreate team")       → TeamCreate, TeamDelete がロードされる
 ToolSearch("TaskCreate task")       → TaskCreate, TaskUpdate, TaskList がロードされる
 ToolSearch("SendMessage message")   → SendMessage がロードされる
 ```
 
-**⚠️ これを省略すると TeamCreate が呼び出せず、`team_name` 付きで Task tool を呼んでも tmux pane は起動しない（バックグラウンド実行のみになる）。これが tmux pane が開かない最大の原因。**
+**⚠️ これを省略すると TaskCreate / SendMessage が呼び出せない。TeamCreate/TeamDelete は v2.1.178 で廃止済み（ToolSearch しても "No matching deferred tools found" となる）。**
 
 ---
 
@@ -56,22 +48,21 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 
 並列化の判断基準・単体起動条件は `references/PARALLEL-DECISION-CRITERIA.md` を参照。
 
-**このスキル固有の起動アクション:** 条件に該当したら即座に **TeamCreate → planner（`sumik:tachikoma-str-product-mgr`, model: opus）** を起動する。
+**このスキル固有の起動アクション:** 条件に該当したら即座に **Agent ツールで planner（`sumik:tachikoma-str-product-mgr`, model: opus）** を起動する。
 
 ---
 
 ## クイックスタート（2フェーズ方式）
 
 ### Phase 1: 計画策定（planner タチコマに全委譲）
-1. **TeamCreate** - チーム作成（ユーザー要求の内容から team_name を決定するだけ）
-2. **planner タチコマ起動（model: opus）** - ユーザー要求をそのまま渡す。現状把握・コードベース分析・要件整理・チーム編成設計・`docs/plan-{feature}.md` 作成・**Codex プランレビューループ**を全てplannerが実行
-3. **計画レビュー・承認** - plannerがCodexレビュー済みのdocs/planをユーザーに提示して確認
+1. **Agent ツールで planner タチコマ起動（model: opus, run_in_background: true）** - ユーザー要求をそのまま渡す。現状把握・コードベース分析・要件整理・チーム編成設計・`docs/plan-{feature}.md` 作成・**Codex プランレビューループ**を全てplannerが実行
+2. **計画レビュー・承認** - plannerがCodexレビュー済みのdocs/planをユーザーに提示して確認
 
 ### Phase 2: 実装（implementer タチコマ並列起動）
-4. **TaskCreate + Task tool（`team_name` + `run_in_background: true`）** - plan に基づきドメイン別専門タチコマを `team_name` 付きで並列起動（tmux pane）
-5. **進捗管理 → 統合 → クリーンアップ** - SendMessage、TaskList、TeamDelete
+3. **TaskCreate + Agent ツール（`run_in_background: true`）** - plan に基づきドメイン別専門タチコマを並列起動
+4. **進捗管理 → 統合 → クリーンアップ** - SendMessage、TaskList。セッション終了で自動解散（明示的に閉じる場合のみ shutdown_request）
 
-**🔴 Claude Code本体はファイルを読まない・分析しない。** ユーザー要求を受け取ったら即座にTeamCreate → planner起動。現状把握から計画策定まで全てplannerの責務。
+**🔴 Claude Code本体はファイルを読まない・分析しない。** ユーザー要求を受け取ったら即座に Agent ツールで planner を起動。現状把握から計画策定まで全てplannerの責務。
 
 ---
 
@@ -105,7 +96,7 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 ## 🔴 絶対に避けるべきこと
 
 - **Bash toolでメンバーを起動しない**（`--team` 等のCLIオプションは存在しない）
-- **🔴 `team_name` + `run_in_background: true` を省略しない**（`team_name` なし = tmux paneに表示されない。`run_in_background` なし = 前景で逐次実行。両方必須）
+- **🔴 `run_in_background: true` を省略しない**（省略すると前景で逐次実行になる。`team_name` は無視されるため不要）
 - **Task toolに存在しないパラメータを使用しない**（`task`, `additional_instructions` は無効）
 - **同一ファイルへの同時書き込み**（サイレントな上書きが発生）
 - **`docs/plan-*.md` なしでチーム作成しない**（回復不能になる）

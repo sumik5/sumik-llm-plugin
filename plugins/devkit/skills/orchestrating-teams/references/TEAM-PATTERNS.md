@@ -134,11 +134,11 @@ Agent Team編成の4つのパターンとモデル戦略を提供します。
 
 **例: 複数ページの同時実装**
 ```
-TeamCreate → Task tool × 3（1メッセージで同時発行）:
+Agent ツール × 3（1メッセージで同時発行, run_in_background: true）:
   1. sumik:tachikoma-fw-nextjs, name: "page-dashboard", prompt: "ダッシュボードページ実装"
   2. sumik:tachikoma-fw-nextjs, name: "page-settings", prompt: "設定ページ実装"
   3. sumik:tachikoma-fw-nextjs, name: "page-profile", prompt: "プロフィールページ実装"
-→ 3つのtmux paneで同時進行
+→ 3つの pane で同時進行
 ```
 
 **例: 複数テストスイートの同時作成**
@@ -189,7 +189,6 @@ TeamCreate → Task tool × 3（1メッセージで同時発行）:
 ```json
 {
   "subagent_type": "sumik:tachikoma-fw-nextjs",  // ドメインに応じた専門タチコマを選択
-  "team_name": "user-management",
   "name": "frontend",
   "run_in_background": true
 }
@@ -224,7 +223,6 @@ TeamCreate → Task tool × 3（1メッセージで同時発行）:
 ```json
 {
   "subagent_type": "sumik:serena-expert",
-  "team_name": "user-management",
   "name": "optimizer",
   "run_in_background": true
 }

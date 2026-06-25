@@ -449,11 +449,11 @@ See [WORKFLOWS.md](references/WORKFLOWS.md) for detailed development workflow.
 
 既存のMarkdown、PDF、EPUB、URL、複数ファイル、またはフォルダからスキルを作成する場合:
 
-1. **Phase 0: 入力判定**（Claude Code本体）- 入力ファイル・URL特定、作業ディレクトリ作成、TeamCreate
+1. **Phase 0: 入力判定**（Claude Code本体）- 入力ファイル・URL特定、作業ディレクトリ作成
 2. **Phase A: 計画策定**（Planner タチコマ・Opus）- ファイル変換（PDF/EPUB/URL → Markdown）〜 内容分析 〜 構造設計を一括委譲。全結果を `docs/conversion-{skill-name}/` に永続化
 3. **Phase B: ユーザー確認**（Claude Code本体）- docs/ 読み込み → AskUserQuestion → 決定を `06-user-decisions.md` に保存
 4. **Phase C: 実装**（Implementer タチコマ × N・Sonnet）- docs/ の計画・ユーザー決定を読み込みスキルファイルを並列生成
-5. **Phase D: 品質チェック**（Claude Code本体）- 最終検証 → TeamDelete → リリース
+5. **Phase D: 品質チェック**（Claude Code本体）- 最終検証 → リリース（タチコマは自動解散、能動的閉鎖はオプション）
 
 **Compaction耐性**: 全中間結果を `docs/conversion-{skill-name}/` に保存。各ステップ完了ごとにファイル書き込み。compaction後は `99-progress.md` から状態を復元して再開可能。
 

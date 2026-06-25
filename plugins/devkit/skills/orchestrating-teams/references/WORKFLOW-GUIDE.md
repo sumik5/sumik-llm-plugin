@@ -6,36 +6,26 @@ Claude Code本体がAgent Team APIを操作する2フェーズ方式のワーク
 
 ## Phase 1: 計画策定
 
-### Step 0: Agent Teams API ツールのロード（🔴 最初に必ず実行）
+### Step 0: 遅延ツールのロード（🔴 使用前に必ず実行）
 
-**TeamCreate, TaskCreate, SendMessage 等は遅延ツール（deferred tools）。ToolSearch でロードしないと呼び出せない。**
+**SendMessage / Task 系（TaskCreate, TaskUpdate, TaskList）は遅延ツール（deferred tools）。ToolSearch でロードしないと呼び出せない。Agent ツール自体は遅延ツールではなく最初から使用可能。TeamCreate/TeamDelete は v2.1.178 で廃止済み（ToolSearch しても "No matching deferred tools found" となる）。**
+
+各ツールを使用する直前に以下を実行:
 
 ```
-ToolSearch("TeamCreate team")       → TeamCreate, TeamDelete がロード
 ToolSearch("TaskCreate task")       → TaskCreate, TaskUpdate, TaskList がロード
 ToolSearch("SendMessage message")   → SendMessage がロード
 ```
 
-⚠️ **この手順を省略すると TeamCreate が使えず、tmux pane が開かない原因になる。**
+⚠️ **Task 系 / SendMessage の使用前にこの手順を省略しないこと。**
 
 ---
 
-### Step 1: TeamCreate（即座に実行）
+### Step 1: planner タチコマ起動（即座に実行）
 
 **🔴 Claude Code本体はファイルを読まない・コードベースを分析しない。**
 
-ユーザー要求を受け取ったら、要求内容から `team_name` を決定して即座に TeamCreate を呼び出す:
-
-```json
-{
-  "team_name": "user-management",
-  "description": "ユーザー管理機能の開発"
-}
-```
-
-**注意:**
-- セッションあたり1チームのみ作成可能
-- `team_name` は `docs/plan-{feature-name}.md` の `{feature-name}` と一致させる
+ユーザー要求を受け取ったら、即座に Agent ツールで planner タチコマを起動する（TeamCreate は v2.1.178 で廃止済み・不要）:
 
 ---
 
@@ -51,7 +41,6 @@ planner タチコマの起動:
   "prompt": "## タスク: 実装計画の策定\n\n**ユーザー要求:** {ユーザーの要求をそのまま記載}\n\n以下を実行してください:\n1. コードベースを分析し、変更対象ファイル・影響範囲を特定\n2. TEAM-PATTERNS.md を参照し、最適なチーム編成パターンを選択\n3. タスク分解（1メンバーあたり5-6タスク目標）\n4. ファイル所有権パターンを定義（同一ファイル同時書込禁止）\n5. docs/plan-{feature-name}.md を PLAN-TEMPLATE.md の形式で作成\n6. 各タスクに最適な専門タチコマのsubagent_typeを推奨\n（参照: rules/skill-triggers.md のルーティング表）\n7. 🔴 Codex プランレビューループ: 計画書作成後、完了報告前に必ず実行\n   a. `which codex` で存在確認（見つからない or エラー → スキップしてOK）\n   b. `using-codex` スキルを使って `{plan_file_fullpath}` を初回レビューする\n   c. 致命的な指摘があればプランを修正し、同スキルの `--resume` モードで再レビューする\n   d. 致命的な指摘がなくなるまで修正→再レビューを繰り返す\n   e. 本質的でないコメントは無視してOK\n\n参照スキル: orchestrating-teams（references/TEAM-PATTERNS.md, references/PLAN-TEMPLATE.md）, using-codex\n\n禁止事項:\n- 実装コードの変更（計画策定のみ）\n- git書込操作",
   "subagent_type": "sumik:tachikoma-str-product-mgr",
   "model": "opus",
-  "team_name": "user-management",
   "name": "planner",
   "run_in_background": true,
   "mode": "bypassPermissions"
@@ -147,9 +136,8 @@ AskUserQuestion(
 | `description` | ✅ | 3-5語の短い説明（例: "フロントエンド実装"） |
 | `prompt` | ✅ | タスクの詳細指示（Spawn Prompt全文を含める） |
 | `subagent_type` | ✅ | **ドメイン別専門タチコマ**を選択（`rules/skill-triggers.md` ルーティング表参照）。例: `"sumik:tachikoma-fw-nextjs"`, `"sumik:tachikoma-qa-e2e-test"` |
-| `team_name` | ✅ | チーム名（TeamCreateで作成した名前）。**tmux pane起動に必須** |
 | `name` | 任意 | メンバー名（例: "frontend", "backend"） |
-| `run_in_background` | ✅ | `true` で並列実行（**必須**）。`team_name` と組み合わせてtmux pane起動 |
+| `run_in_background` | ✅ | `true` で並列実行（**必須**）。これだけで pane 表示される（`team_name` は不要） |
 | `mode` | 任意 | `"bypassPermissions"` で権限確認をスキップ |
 
 ### 5.2 並列起動例（3メンバー）
@@ -162,7 +150,6 @@ AskUserQuestion(
   "description": "フロントエンド実装",
   "prompt": "## タスク: Reactコンポーネント実装\n\n担当タスク: #4, #5, #6\nファイル所有権: src/components/**, src/pages/**\n参照スキル: web:developing-nextjs\n\n具体的な実装指示:\n- ユーザー一覧コンポーネント（データテーブル、ページネーション）\n- ユーザー編集フォーム（バリデーション、API連携）\n- エラー表示・ローディング状態\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作（commit等）を実行しない",
   "subagent_type": "sumik:tachikoma-fw-nextjs",
-  "team_name": "user-management",
   "name": "frontend",
   "run_in_background": true,
   "mode": "bypassPermissions"
@@ -173,7 +160,6 @@ AskUserQuestion(
   "description": "バックエンドAPI実装",
   "prompt": "## タスク: REST API CRUD実装\n\n担当タスク: #1, #2, #3\nファイル所有権: src/api/**, src/services/**, src/models/**\n参照スキル: web:developing-fullstack-javascript\n\n具体的な実装指示:\n- PostgreSQLスキーマ設計・マイグレーション\n- GET/POST/PUT/DELETE エンドポイント実装\n- バリデーション、エラーハンドリング\n- 認可チェック\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作を実行しない",
   "subagent_type": "sumik:tachikoma-fw-fullstack-js",
-  "team_name": "user-management",
   "name": "backend",
   "run_in_background": true,
   "mode": "bypassPermissions"
@@ -184,7 +170,6 @@ AskUserQuestion(
   "description": "E2Eテスト作成",
   "prompt": "## タスク: E2Eテストシナリオ作成\n\n担当タスク: #7, #8\nファイル所有権: tests/e2e/**\n参照スキル: web:testing-e2e-with-playwright\n\n具体的な実装指示:\n- Playwrightによるユーザー登録・編集・削除フロー検証\n- 各種エラーケースのテスト\n- アクセシビリティチェック\n\n禁止事項:\n- 所有権範囲外のファイルを編集しない\n- 他メンバーのタスクに介入しない\n- git書込操作を実行しない",
   "subagent_type": "sumik:tachikoma-qa-e2e-test",
-  "team_name": "user-management",
   "name": "tester",
   "run_in_background": true,
   "mode": "bypassPermissions"
@@ -282,7 +267,7 @@ Claude Code本体は完了報告受領時にリストが更新されているこ
 ```markdown
 ## 実行ログ
 
-- [2026-02-18 10:00] チーム作成完了（team_name: user-management）
+- [2026-02-18 10:00] planner起動完了
 - [2026-02-18 10:05] frontend/backend/testerスポーン完了
 - [2026-02-18 10:30] タスク1完了（backend: スキーマ設計）
 - [2026-02-18 10:45] タスク4完了（frontend: 一覧コンポーネント）
@@ -354,21 +339,17 @@ TaskList()
 
 各メンバー（frontend, backend, tester）に対して個別に送信。
 
-### 8.2 全メンバーシャットダウン後にTeamDelete
+### 8.2 後始末（TeamDelete は不要）
 
-**全メンバーがシャットダウンしたことを確認してから TeamDelete を実行:**
-
-```json
-TeamDelete()
-```
+**セッション終了で全メンバーは自動解散される（TeamDelete は v2.1.178 で廃止済み）。**
+能動的に特定メンバーを閉じたい場合のみ、shutdown_request 後に `teammate_terminated` 通知を確認する。
 
 ---
 
 ## Agent Teams API 制限（重要）
 
 ### 制限事項
-- **セッションあたり1チーム**
-- **ネストされたチーム不可**（メンバーは独自チーム不可）
+- **ネストされたチーム不可**（メンバーは独自のサブエージェントチームを持てない）
 - **リーダー固定**（譲渡不可）
 - **各メンバーは独自コンテキスト**（リーダーの会話履歴は継承しない）
 
