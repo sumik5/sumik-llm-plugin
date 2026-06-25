@@ -79,7 +79,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── .mcp.json                     # Claude 用 MCPサーバー設定（${CLAUDE_PLUGIN_ROOT}/bin/...）
     │   ├── agents/                       # Agent定義 (28体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str)
     │   ├── commands/                     # スラッシュコマンド (12個)
-    │   ├── hooks/                        # イベントフック (6個)
+    │   ├── hooks/                        # イベントフック (12個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (4個)
     │   └── skills/                       # ナレッジスキル (25個)
@@ -269,16 +269,24 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `pdf-to-markdown` | PDF→Markdown変換バイナリ（`authoring-plugins` のPDF入力変換で使用） |
 | `fff-mcp.sh` | fff MCPサーバ起動ラッパー（fff-mcpバイナリをPATH/~/.local/binで解決→無ければ公式インストーラで自動取得、frecency/history DBをXDG準拠で永続化）。`searching-files-with-fff` スキルが利用 |
 
-### Hooks (6個)
+### Hooks (12個)
 
 | フック | トリガー | 説明 |
 |-------|---------|------|
 | `detect-project-skills` | SessionStart | セッション開始時にプロジェクト構成を検出し、推奨スキルを自動提示 |
-| `format-on-save` | PostToolUse | ファイル保存時の自動フォーマット（TypeScript/JSON/Terraform等） |
-| `notify-complete` | Stop | タスク完了時のデスクトップ通知 |
-| `notify-waiting` | Stop | 待機状態の通知 |
+| `read-handover` | SessionStart | 前回セッションの引き継ぎノート（HANDOVER.md / .claude/handovers/）を読み込んで注入 |
+| `format-on-save` | PostToolUse(Edit\|Write) | ファイル保存時の自動フォーマット（TypeScript/JSON/Terraform等） |
+| `learnings-error-detector` | PostToolUse(Bash) | Bashコマンドのエラーを検出し .learnings/ERRORS.md への記録を提案 |
 | `learnings-reminder` | UserPromptSubmit | タスク完了後に .learnings/ への学び記録を促すリマインダー |
-| `learnings-error-detector` | PostToolUse | Bashコマンドのエラーを検出し .learnings/ERRORS.md への記録を提案 |
+| `rtk-rewrite` | PreToolUse(Bash) | Bashコマンドを rtk 等価形へ書き換えトークン節約（rtk未導入時はno-op） |
+| `notify-waiting` | Notification | 入力待ち時のデスクトップ通知（macOS） |
+| `notify-complete` | Stop | タスク完了時のデスクトップ通知（macOS・最終メッセージ要約付き） |
+| `notify-subagent-stop` | SubagentStop | サブエージェント完了時のデスクトップ通知（macOS） |
+| `notify-teammate-idle` | TeammateIdle | teammate 待機時のデスクトップ通知（macOS） |
+| `retrospective` | SessionEnd | セッション終了時に git データをデイリーレトロスペクティブへ追記 |
+| `write-handover` | SessionEnd / PreCompact | セッション終了・compaction前に引き継ぎノートを自動生成 |
+
+> **Codex CLI 配布**: hooks-codex.json で SessionStart / UserPromptSubmit / PreToolUse / PostToolUse / Stop / SubagentStop / PreCompact を登録（`.codex-plugin/plugin.json` の `hooks` キーで宣言・`${CLAUDE_PLUGIN_ROOT}` 非展開のため `./plugins/devkit/hooks/...` 相対パス）。Codex は Notification / SessionEnd / TeammateIdle を非対応のため、`notify-waiting` / `notify-teammate-idle` / `retrospective` は Claude Code 専用、`write-handover` は Codex では PreCompact のみ発火する。
 
 ### MCP Servers (11個)
 

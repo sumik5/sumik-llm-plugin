@@ -1,7 +1,7 @@
 {
   "name": "devkit",
   "description": "sumik Claude Code Plugin",
-  "version": "14.1.1",
+  "version": "14.2.0",
   "author": {
     "name": "sumik5"
   },
@@ -15,6 +15,12 @@
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/detect-project-skills.sh",
             "timeout": 15,
             "description": "Detect project files and suggest relevant skills"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/read-handover.sh",
+            "timeout": 10,
+            "description": "Inject previous session handover notes at session start"
           }
         ]
       }
@@ -32,6 +38,19 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/rtk-rewrite.sh",
+            "timeout": 10,
+            "description": "Rewrite Bash commands to rtk equivalents for token savings (no-op if rtk absent)"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Bash",
@@ -41,6 +60,95 @@
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/learnings-error-detector.sh",
             "timeout": 10,
             "description": "Detect errors in Bash tool output and prompt ERRORS.md entry"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/format-on-save.sh",
+            "timeout": 30,
+            "description": "Auto-format edited files (prettier/eslint/terraform fmt)"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/notify-waiting.sh",
+            "timeout": 10,
+            "description": "Desktop notification when waiting for user input (macOS)"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/notify-complete.sh",
+            "timeout": 10,
+            "description": "Desktop notification when Claude finishes responding (macOS)"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/notify-subagent-stop.sh",
+            "timeout": 10,
+            "description": "Desktop notification when a subagent finishes (macOS)"
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/notify-teammate-idle.sh",
+            "timeout": 10,
+            "description": "Desktop notification when a teammate goes idle (macOS)"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/retrospective.sh",
+            "timeout": 30,
+            "description": "Append session git data to daily retrospective"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/write-handover.sh",
+            "timeout": 30,
+            "description": "Auto-generate session handover note at session end"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/write-handover.sh",
+            "timeout": 30,
+            "description": "Auto-generate handover note before compaction"
           }
         ]
       }
