@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "google-analytics": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/pipx-mise.sh",
+      "args": ["analytics-mcp"]
+    }
+  }
+}

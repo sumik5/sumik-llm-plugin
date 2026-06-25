@@ -1,0 +1,35 @@
+{
+  "name": "google",
+  "version": "1.0.0",
+  "description": "Google サービス連携プラグイン。Google Analytics (GA4) 公式 MCP サーバー analytics-mcp と GA4 データ分析スキル analyzing-with-google-analytics を含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "mcp",
+    "google-analytics",
+    "ga4",
+    "analytics"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp-codex.json",
+  "interface": {
+    "displayName": "Sumik Google",
+    "shortDescription": "Google Analytics (GA4) 公式 MCP サーバーと GA4 分析スキルを提供するプラグイン",
+    "longDescription": "Google Analytics (GA4) の公式 MCP サーバー analytics-mcp を同梱し、アカウントサマリー・各種レポート実行・ファネル/リアルタイム分析を可能にします。GA4 データ分析の使い方スキルを1個含みます。実行には Python 3.10+・pipx・Google Cloud の ADC 認証が必要です。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write", "Edit", "Bash"],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "privacyPolicyURL": "https://example.com/privacy",
+    "termsOfServiceURL": "https://example.com/terms",
+    "defaultPrompt": [
+      "analyzing-with-google-analytics で GA4 レポートを実行",
+      "run_report で過去28日のセッション数を取得",
+      "run_realtime_report で現在のアクティブユーザーを確認"
+    ],
+    "brandColor": "#E37400"
+  }
+}

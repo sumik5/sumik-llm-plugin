@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "google-analytics": {
+      "command": "./bin/pipx-mise.sh",
+      "args": ["analytics-mcp"],
+      "cwd": "."
+    }
+  }
+}

@@ -54,6 +54,11 @@
       "name": "university",
       "source": "./plugins/university",
       "description": "sumik Claude Code Plugin (university) — 大学で使う Processing (Java Mode) 開発と CLI 自動コンパイル・実行・検証のスキル群"
+    },
+    {
+      "name": "google",
+      "source": "./plugins/google",
+      "description": "sumik Claude Code Plugin (google) — Google Analytics (GA4) 公式 MCP サーバー analytics-mcp と GA4 データ分析スキル"
     }
   ]
 }

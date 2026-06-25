@@ -1,0 +1,8 @@
+{
+  "name": "google",
+  "description": "Google サービス連携プラグイン。Google Analytics (GA4) の公式 MCP サーバー analytics-mcp を同梱し、アカウントサマリー取得・各種レポート実行・ファネル/リアルタイム分析を可能にする。GA4 データ分析の使い方スキル analyzing-with-google-analytics を1個含む。実行には Python 3.10+・pipx・Google Cloud の ADC 認証が必要。",
+  "version": "1.0.0",
+  "author": {
+    "name": "sumik5"
+  }
+}
