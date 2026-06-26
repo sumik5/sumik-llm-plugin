@@ -101,6 +101,15 @@ is_inspection_command() {
   local command_text
   command_text="$(printf '%s' "$1" | sed 's/^[[:space:]]*//')"
 
+  # Compound read-only probes such as:
+  #   for f in ...; do printf ...; tail -40 "$f"; done
+  # still only display files, but their output can contain this hook's own
+  # error-pattern literals. Treat them like tail/cat/sed inspection commands.
+  if printf '%s' "$command_text" | /usr/bin/grep -Eq '^(for|while)[[:space:]].*(cat|sed|head|tail|nl|wc|rg|grep|git (diff|status|show|ls-files|cat-file)|rtk git (diff|status|show|ls-files|cat-file))' \
+    && ! printf '%s' "$command_text" | /usr/bin/grep -Eq '(^|[[:space:];|&])(bash|sh|zsh|python|python3|node|npm|pnpm|yarn|pytest|go test|cargo|terraform|make)([[:space:];|&]|$)'; then
+    return 0
+  fi
+
   case "$command_text" in
     pwd|pwd\ *|\
     ls\ *|/bin/ls\ *|\

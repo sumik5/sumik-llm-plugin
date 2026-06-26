@@ -35,7 +35,9 @@ fi
 
 # サニタイズ関数（ダブルクォート・バックスラッシュ・改行を除去）
 sanitize() {
-    echo "$1" | tr -d '"\\' | tr '\n\r' ' '
+    local value="${1//\"/}"
+    value="${value//\\/}"
+    printf '%s' "$value" | tr '\n\r' ' '
 }
 
 # 通知設定
@@ -56,7 +58,8 @@ if command -v terminal-notifier &>/dev/null; then
         -sound "$SOUND" \
         -contentImage "$ICON" \
         -group "$GROUP" \
-    || osascript <<EOF 2>/dev/null || true
+        >/dev/null 2>&1 \
+    || osascript <<EOF >/dev/null 2>&1 || true
 display notification "${MESSAGE_SAFE}" \
     with title "${TITLE_SAFE}" \
     subtitle "${SUBTITLE_SAFE}" \
@@ -64,12 +67,10 @@ display notification "${MESSAGE_SAFE}" \
 EOF
 else
     # osascriptフォールバック
-    osascript <<EOF 2>/dev/null || true
+    osascript <<EOF >/dev/null 2>&1 || true
 display notification "${MESSAGE_SAFE}" \
     with title "${TITLE_SAFE}" \
     subtitle "${SUBTITLE_SAFE}" \
     sound name "${SOUND}"
 EOF
 fi
-
-echo "通知完了: ${PROJECT_NAME}"

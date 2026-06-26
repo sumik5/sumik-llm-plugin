@@ -156,6 +156,10 @@ Hook JSON output validation failed — hookSpecificOutput is missing required fi
 | `PostToolUse` | `hookEventName`・`additionalContext` |
 | `Stop` | `hookEventName`・`decision`（`"block"` 等）・`reason` |
 
+> Codex 実装では `PreToolUse` の `updatedInput` を返す場合、`permissionDecision: "allow"` が必須。
+> `updatedInput` だけを返すと `PreToolUse hook returned updatedInput without permissionDecision:allow`
+> で検証失敗する。ユーザー確認に回したい場合は `updatedInput` を返さず `exit 0` で元入力を通す。
+
 ### 最小例：PostToolUse で additionalContext を注入する
 
 ```json

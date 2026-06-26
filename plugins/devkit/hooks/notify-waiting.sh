@@ -30,7 +30,7 @@ DISPLAY_DURATION=5          # 通知の表示時間（秒）
 #say -v Victoria "${MESSAGE}" &
 
 # 通知センターに表示（表示時間付き）
-if ! osascript <<EOF 2>/dev/null
+if ! osascript <<EOF >/dev/null 2>&1
 display notification "${MESSAGE}" \
     with title "Claude Code" \
     subtitle "プロジェクト: ${PROJECT_NAME}" \
@@ -46,5 +46,3 @@ fi
 
 # 音声通知の完了を待つ
 wait
-
-echo "通知完了: ${PROJECT_NAME}"
