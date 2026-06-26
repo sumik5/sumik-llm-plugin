@@ -636,6 +636,9 @@ git tag v{new-version}
 - **[AGENT-GUIDE.md](references/AGENT-GUIDE.md)**: フロントマター詳細・ツール制限・permissionMode・並列実行・体制同期手順
 - **[AGENT-TEMPLATE.md](references/AGENT-TEMPLATE.md)**: タチコマAgent定義テンプレート
 
+### Hook詳細
+- **[HOOK-GUIDE.md](references/HOOK-GUIDE.md)**: Hook の登録・stdin契約・JSON出力契約（hookSpecificOutput には hookEventName 必須）・Codex差分
+
 ### Skill詳細
 - **[SKILL-GUIDE.md](references/SKILL-GUIDE.md)**: Skill作成・変換・レビューの完全ガイド
 - **[FORK-GUIDE.md](references/FORK-GUIDE.md)**: `context: fork` 詳細ガイド（5軸判定マトリクス・適用例・アンチパターン・移植性警告）

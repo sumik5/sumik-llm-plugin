@@ -122,6 +122,7 @@ TODAY="$(date +%Y%m%d)"
 cat <<EOF
 {
   "hookSpecificOutput": {
+    "hookEventName": "PostToolUse",
     "additionalContext": "エラーが検出されました。想定外・非自明・再発しうる・将来セッションに有益なエラーであれば .learnings/ERRORS.md に [ERR-${TODAY}-XXX] 形式で記録してください（capturing-learnings スキル参照）。"
   }
 }

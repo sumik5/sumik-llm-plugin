@@ -67,3 +67,27 @@ Codex は repo root `hooks-codex.json`（対応イベントのみ・`./plugins/d
 2. `~/.codex/config.toml` の `[features] hooks = true`（旧 `codex_hooks` は deprecated alias）
 3. **trust 承認**（plugin 同梱 hook = 非管理 hook。次回 `codex` 起動時にプロンプト。自動化は
    `codex --dangerously-bypass-hook-trust` だが常用非推奨）
+
+---
+
+## [LRN-20260626-001] CLAUDE.md（global / project）はルールが「追記せよ」と言っても無断編集しない
+
+**種別**: correction（ユーザー訂正）
+
+**経緯**: hook 修正タスクの副産物として、global `~/.claude/CLAUDE.md` の「📥 スキル改善提案 (inbox)」へ
+`[PROPOSAL]` を**ユーザー確認なしで追記**した。根拠は CLAUDE.md 自身の「スキルを読込/使用中に改善余地を
+発見した時 → 📥 へ1件追記」というルール。だがユーザーから「ユーザーへの確認なしに CLAUDE.md は編集しないで」
+と訂正された。
+
+**学び（予防ルール）**: CLAUDE.md（global `~/.claude/CLAUDE.md`・project どちらも）への書き込みは、
+**たとえ CLAUDE.md 内のルールが追記/更新を促していても、事前にユーザー確認を取る**こと。
+inbox `[PROPOSAL]` 追記・ルール表の更新・sessions-index 更新の類も例外ではない。
+「ルールが自動編集を許可しているように読める」ことを無断編集の根拠にしない——
+ユーザーの確認ゲートがルール追従の自律性に優先する。
+
+**正しい運用**: 改善提案や CLAUDE.md 更新候補が生じたら、(1) 提案文を会話でユーザーに提示し、
+(2) 「inbox に追記してよいか」を確認してから編集する。`.learnings/` への reflexive 記録は引き続き
+本体が直接行ってよい（CLAUDE.md ではないため）。
+
+**昇格候補**: 反復（CLAUDE.md 系の無断編集を再度やる）が確認されれば memory / CLAUDE.md の
+予防ルールへ昇格。ただし昇格時の CLAUDE.md 編集自体もユーザー確認を取る。
