@@ -168,5 +168,6 @@ class TransmitterAdapter implements Transmitter {
 ## 関連スキル
 
 - `writing-clean-code`: SOLID原則（依存関係逆転の原則と深く関係）
+- [DEPENDENCY-INJECTION.md](./DEPENDENCY-INJECTION.md): 外部依存の抽象化、Composition Root、DIコンテナ利用範囲
 - `testing-code`: 学習テストと境界テストの実装
 - `mastering-typescript`: 境界でのキャストを型安全なラッパーに閉じ込める

@@ -36,7 +36,7 @@
 
 ### 統合された実践知見
 
-本スキルは、クリーンなコードの体系的な実践知、および優れたプログラマの習慣に関する公開知見も統合しています。66 のコードスメル・ヒューリスティクス、シンプルデザインの 4 つのルール、および実践的なフォーマット・境界管理パターンをリファレンスとして提供します。
+本スキルは、クリーンなコードの体系的な実践知、および優れたプログラマの習慣に関する公開知見も統合しています。66 のコードスメル・ヒューリスティクス、シンプルデザインの 4 つのルール、Dependency Injection の実践判断、および実践的なフォーマット・境界管理パターンをリファレンスとして提供します。
 
 ---
 
@@ -129,7 +129,7 @@
 - 両者は抽象に依存する
 - 依存性注入（DI）を積極的に活用
 
-**詳細は [SOLID-PRINCIPLES.md](./references/SOLID-PRINCIPLES.md) を参照してください。**
+**詳細は [SOLID-PRINCIPLES.md](./references/SOLID-PRINCIPLES.md) と [DEPENDENCY-INJECTION.md](./references/DEPENDENCY-INJECTION.md) を参照してください。**
 
 ---
 
@@ -146,6 +146,18 @@
 - 依存性注入（DI）の実践パターン
 
 **主要原則**: SOLID全5原則（SRP, OCP, LSP, ISP, DIP）、DRY、KISS、YAGNI
+
+---
+
+### [DEPENDENCY-INJECTION.md](./references/DEPENDENCY-INJECTION.md) - Dependency Injection 実践
+**カバー内容**: Composition Root、Constructor/Method/Property Injection、Service Locator/Control Freak/Ambient Context、ライフタイム管理、Python/FastAPI/TypeScript/NestJS/Angular/Inversify/TSyringe
+
+- DIをコンテナ利用ではなく依存生成責務の分離として扱う判断フロー
+- Pure DIとDIコンテナの採用基準
+- Singleton / Scoped / Transient と Captive Dependency の検出
+- PythonのProtocol/FastAPI Depends/dependency-injector、TypeScriptのruntime token/provider scope/decorator metadataの注意点
+
+**主要レシピ**: Composition Rootへの集約、Constructor Injection既定、Service Locator排除、ライフタイム整合、テスト用Fake注入
 
 ---
 

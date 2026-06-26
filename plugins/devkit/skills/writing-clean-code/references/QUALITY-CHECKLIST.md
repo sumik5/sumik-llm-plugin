@@ -65,13 +65,18 @@
 #### Dependency Inversion（依存関係逆転）
 - [ ] 抽象（インターフェース）に依存
 - [ ] 具象クラスに直接依存していない
-- [ ] 依存性注入（DI）を活用
+- [ ] 必須依存はConstructor Injectionで明示
+- [ ] 依存グラフの組み立てはComposition Rootに集約
+- [ ] 通常コードがDIコンテナやService Locatorを直接呼び出していない
+- [ ] Singleton/Scoped/Transientのライフタイムが整合している
+- [ ] テスト時にFake/Stub/Mockを注入できる
 
 **確認方法**:
 ```
-new演算子でクラスを直接生成している箇所を確認
-→ 多い場合はDIコンテナの導入を検討
-→ テスト時にモックを注入できるか確認
+外部I/Oやフレームワーク依存を new / resolve / Depends 相当で取得している箇所を確認
+→ Composition Root以外なら依存をコンストラクタ/メソッド引数へ移す
+→ DIコンテナ導入前にPure DIで足りるか確認
+→ 詳細は DEPENDENCY-INJECTION.md を参照
 ```
 
 ---

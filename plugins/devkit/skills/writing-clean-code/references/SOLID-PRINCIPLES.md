@@ -429,133 +429,103 @@ serveMeal(new Human())    // OK
 - **テストしやすさ**: モックやスタブを注入可能
 - **疎結合**: モジュール間の依存が弱い
 
-### ❌ 悪い例: 具象クラスに直接依存
+### ❌ 悪い例: 具象クラスを内部生成する
 ```typescript
-// 具象クラス
-class MySQLDatabase {
-  save(data: any): void {
-    console.log('Saving to MySQL:', data)
+interface User {
+  id: string
+  name: string
+}
+
+class MySqlUserRepository {
+  async save(user: User): Promise<void> {
+    console.log('Saving to MySQL:', user.id)
   }
 }
 
-// ❌ UserServiceがMySQLDatabaseに直接依存
 class UserService {
-  private db = new MySQLDatabase()  // 具象クラスに依存
+  private readonly users = new MySqlUserRepository()
 
-  saveUser(user: User): void {
-    this.db.save(user)
+  async saveUser(user: User): Promise<void> {
+    await this.users.save(user)
   }
 }
-
-// PostgreSQLに変更したい場合
-// → UserServiceを修正する必要がある
 ```
 
 **問題点**:
-- DB実装変更時にUserServiceを修正
-- テスト時に実際のDBが必要
-- UserServiceとMySQLDatabaseが密結合
+- DB実装変更時に`UserService`を修正する
+- テスト時に実DBまたは重いモックが必要になる
+- `UserService`が具象実装の生成責務まで持つ
 
-### ✅ 良い例: 抽象（インターフェース）に依存
+### ✅ 良い例: 抽象を受け取り、Composition Rootで組み立てる
 ```typescript
-// 抽象（インターフェース）
-interface Database {
-  save(data: any): void
-  findById(id: string): any
+interface User {
+  id: string
+  name: string
 }
 
-// 具象クラス1: MySQL実装
-class MySQLDatabase implements Database {
-  save(data: any): void {
-    console.log('Saving to MySQL:', data)
+interface UserRepository {
+  save(user: User): Promise<void>
+  findById(id: string): Promise<User | null>
+}
+
+class MySqlUserRepository implements UserRepository {
+  async save(user: User): Promise<void> {
+    console.log('Saving to MySQL:', user.id)
   }
 
-  findById(id: string): any {
+  async findById(id: string): Promise<User | null> {
     console.log('Finding in MySQL:', id)
     return null
   }
 }
 
-// 具象クラス2: PostgreSQL実装
-class PostgreSQLDatabase implements Database {
-  save(data: any): void {
-    console.log('Saving to PostgreSQL:', data)
+class InMemoryUserRepository implements UserRepository {
+  private readonly users = new Map<string, User>()
+
+  async save(user: User): Promise<void> {
+    this.users.set(user.id, user)
   }
 
-  findById(id: string): any {
-    console.log('Finding in PostgreSQL:', id)
-    return null
-  }
-}
-
-// 具象クラス3: In-Memory実装（テスト用）
-class InMemoryDatabase implements Database {
-  private data = new Map()
-
-  save(data: any): void {
-    this.data.set(data.id, data)
-  }
-
-  findById(id: string): any {
-    return this.data.get(id)
+  async findById(id: string): Promise<User | null> {
+    return this.users.get(id) ?? null
   }
 }
 
-// ✅ UserServiceは抽象に依存（依存性注入）
 class UserService {
-  constructor(private db: Database) {}  // 抽象に依存
+  constructor(private readonly users: UserRepository) {}
 
-  saveUser(user: User): void {
-    this.db.save(user)
-  }
-
-  getUser(id: string): User {
-    return this.db.findById(id)
+  async saveUser(user: User): Promise<void> {
+    await this.users.save(user)
   }
 }
 
-// 使用時に実装を注入
-const mysqlService = new UserService(new MySQLDatabase())
-const postgresService = new UserService(new PostgreSQLDatabase())
-const testService = new UserService(new InMemoryDatabase())
+function buildUserService(): UserService {
+  return new UserService(new MySqlUserRepository())
+}
+
+function buildTestUserService(): UserService {
+  return new UserService(new InMemoryUserRepository())
+}
 ```
 
 **改善点**:
-- UserServiceは抽象（インターフェース）に依存
-- DB実装を簡単に切り替え可能
-- テスト時にモックを注入可能
-- UserServiceとDB実装が疎結合
+- `UserService`は抽象に依存し、具象実装の生成を知らない
+- 本番実装とテスト実装をComposition Rootで差し替えられる
+- 依存関係がコンストラクタから読み取れる
+- DIコンテナがなくてもDIは成立する
 
-### 依存性注入（DI）の実践例
-```typescript
-// DIコンテナの簡単な例
-class Container {
-  private services = new Map<string, any>()
+### DIの補足
 
-  register(name: string, service: any): void {
-    this.services.set(name, service)
-  }
+DIコンテナは任意の道具です。小規模なコードではPure DIで十分です。コンテナを使う場合も、`container.resolve()` を通常のアプリケーションコードから呼ばず、Composition Rootに閉じ込めてください。通常コードから任意の依存を取り出す設計はService Locatorです。
 
-  resolve<T>(name: string): T {
-    return this.services.get(name)
-  }
-}
-
-// 使用例
-const container = new Container()
-container.register('database', new MySQLDatabase())
-container.register('userService',
-  new UserService(container.resolve('database'))
-)
-
-const userService = container.resolve<UserService>('userService')
-```
+Python/FastAPI/TypeScript/NestJS/Angular/Inversify/TSyringeでの実践判断は [DEPENDENCY-INJECTION.md](./DEPENDENCY-INJECTION.md) を参照してください。
 
 ---
 
 ## 🔗 関連ドキュメント
 
 - [クリーンコードの基礎](./CLEAN-CODE-BASICS.md)
+- [Dependency Injection 実践](./DEPENDENCY-INJECTION.md)
 - [品質チェックリスト](./QUALITY-CHECKLIST.md)
 - [クイックリファレンス](./QUICK-REFERENCE.md)
 

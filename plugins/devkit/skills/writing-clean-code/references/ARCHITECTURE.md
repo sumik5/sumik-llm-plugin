@@ -9,6 +9,9 @@
 - [ ] シングルトンパターンを使用している
 - [ ] グローバル関数やスタティックメソッドが多数存在する
 - [ ] クラス間で強い依存関係がある
+- [ ] Composition Root以外で具象依存を生成・解決している
+- [ ] 通常コードがDIコンテナやService Locatorを直接呼び出している
+- [ ] SingletonがScoped/Transientな状態ful依存を保持している
 - [ ] 継承階層が深すぎる（3レベル以上）
 - [ ] 具象クラスが他の具象クラスを継承している
 - [ ] protected属性を多用している
@@ -656,5 +659,6 @@ AskUserQuestion(
 ## 関連スキル
 
 - `writing-clean-code`: SOLID原則の詳細（本スキルのメインファイル）
+- [DEPENDENCY-INJECTION.md](./DEPENDENCY-INJECTION.md): Composition Root、DIコンテナ利用範囲、Service Locator排除、ライフタイム管理
 - `testing`: リファクタリング時のテスト戦略
 - `mastering-typescript`: 型システムによる依存関係の明示

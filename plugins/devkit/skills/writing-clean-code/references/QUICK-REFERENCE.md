@@ -150,24 +150,28 @@ function addItem(items: Item[], newItem: Item): Item[] {
 ```typescript
 // ❌ 悪い例
 class UserService {
-  private db = new MySQLDatabase()  // 具象に依存
-  saveUser(user: User) {
-    this.db.save(user)
+  private readonly users = new MySqlUserRepository()
+
+  async saveUser(user: User): Promise<void> {
+    await this.users.save(user)
   }
 }
 
 // ✅ 良い例（依存性注入）
-interface Database {
-  save(data: any): void
+interface UserRepository {
+  save(user: User): Promise<void>
 }
 
 class UserService {
-  constructor(private db: Database) { }  // 抽象に依存
-  saveUser(user: User) {
-    this.db.save(user)
+  constructor(private readonly users: UserRepository) {}
+
+  async saveUser(user: User): Promise<void> {
+    await this.users.save(user)
   }
 }
 ```
+
+詳細: [Dependency Injection 実践](./DEPENDENCY-INJECTION.md)
 
 ---
 
