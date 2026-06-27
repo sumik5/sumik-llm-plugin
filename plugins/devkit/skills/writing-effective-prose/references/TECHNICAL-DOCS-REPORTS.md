@@ -38,7 +38,7 @@
 - [x] SOLID原則遵守
 - [x] 型安全性確保（any/Any型なし）
 - [x] テストカバレッジ100%
-- [x] CodeGuardセキュリティチェック完了
+- [x] software-security セキュリティ確認完了
 - [x] ESLint/Prettierチェック通過
 
 ### 動作確認

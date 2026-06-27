@@ -576,7 +576,7 @@ async function fetchWithRedirectValidation(url: string) {
 すべてのコード実装完了時に確認：
 
 ### 必須チェック
-- [ ] **CodeGuardセキュリティチェック実施済み**
+- [ ] **software-security スキルに基づくセキュリティ確認実施済み**
 - [ ] A01: 認可チェックの実装
 - [ ] A02: 機密データの暗号化
 - [ ] A03: インジェクション対策（入力検証、プリペアドステートメント）

@@ -227,7 +227,7 @@ IaCテンプレートの設定ミスを自動検出するため、CheckovをCI/C
 - [ ] XSS対策（出力エンコーディング）
 - [ ] SSRF対策（内部URLへのリクエスト禁止）
 - [ ] Deserialization攻撃対策（信頼できないデータのデシリアライズ禁止）
-- [ ] 実装完了後に `/codeguard-security:software-security` 実行（必須）
+- [ ] 実装完了後に `software-security` スキル 実行（必須）
 
 ---
 
@@ -278,7 +278,7 @@ IAM権限の範囲を確認してください:
 
 | スキル | 用途 |
 |--------|------|
-| **securing-code** | OWASP Top 10、CodeGuard実行、コードレベルセキュリティ |
+| **securing-code** | OWASP Top 10、software-security確認、コードレベルセキュリティ |
 | **developing-aws** | AWSサーバーレス開発パターン、IAM設計、CDK/SAM |
 | **developing-google-cloud** | Google Cloud開発、Cloud Run、Service Account設計 |
 | **implementing-observability** | 分散トレーシング、セキュリティログ統合、SLO設計、アラート設計、インシデント検知 |

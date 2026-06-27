@@ -294,10 +294,10 @@ TaskList()
 
 ### 7.3 品質チェック
 
-**CodeGuardセキュリティチェック実行（推奨）:**
+**software-security セキュリティ確認（推奨）:**
 
 ```bash
-/codeguard-security:software-security
+software-security スキル
 ```
 
 ### 7.4 docs/plan-*.md のタスクリストを全完了に更新
@@ -318,7 +318,7 @@ TaskList()
 
 - [2026-02-18 11:30] 全タスク完了
 - [2026-02-18 11:35] 統合テスト完了
-- [2026-02-18 11:40] CodeGuardセキュリティチェック完了
+- [2026-02-18 11:40] software-security セキュリティ確認完了
 ```
 
 ---

@@ -156,7 +156,7 @@ skills:
 - [ ] 要件どおりの実装が完了している
 - [ ] コードがビルド・lint通過する
 - [ ] テストが追加・更新されている（テスト対象の場合）
-- [ ] CodeGuardセキュリティチェック実行済み
+- [ ] software-security スキルに基づくセキュリティ確認済み
 - [ ] docs/plan-*.md のチェックリストを更新した（並列実行時）
 - [ ] 完了報告に必要な情報がすべて含まれている
 
@@ -194,7 +194,7 @@ skills:
 ### コア品質
 - [ ] SOLID原則を遵守（`writing-clean-code` スキル準拠）
 - [ ] テストカバレッジ目標を達成（`testing-code` スキル準拠）
-- [ ] セキュリティチェック完了（`/codeguard-security:software-security` 実行）
+- [ ] software-security スキルに基づくセキュリティ確認完了
 
 ## 報告フォーマット
 

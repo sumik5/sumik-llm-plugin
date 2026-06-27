@@ -44,6 +44,17 @@ if [ -z "$CMD" ]; then
   exit 0
 fi
 
+# rtk find is intentionally smaller than POSIX find. It cannot handle compound
+# predicates/actions such as -o, parentheses, and -exec, so keep those commands
+# on the original system find instead of rewriting them into a failing command.
+if printf '%s' "$CMD" | /usr/bin/grep -Eq '(^|[[:space:];|&])(/usr/bin/)?find[[:space:]]'; then
+  case "$CMD" in
+    *"-exec"*|*" -o "*|*" -or "*|*" -not "*|*" ! "*|*"("*|*")"*|*"-delete"*|*"-prune"*|*"-quit"*)
+      exit 0
+      ;;
+  esac
+fi
+
 # Delegate all rewrite + permission logic to the Rust binary.
 REWRITTEN=$(rtk rewrite "$CMD" 2>/dev/null)
 EXIT_CODE=$?

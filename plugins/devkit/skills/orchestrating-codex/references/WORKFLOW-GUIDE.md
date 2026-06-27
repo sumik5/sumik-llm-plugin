@@ -251,10 +251,10 @@ Wave N 並列起動 → 全agent完了待ち → Wave N+1 並列起動
 
 #### 品質チェック
 
-**CodeGuardセキュリティチェック実行（推奨）:**
+**software-security セキュリティ確認（推奨）:**
 
 ```bash
-/codeguard-security:software-security
+software-security スキル
 ```
 
 #### docs/plan-*.md を全完了に更新

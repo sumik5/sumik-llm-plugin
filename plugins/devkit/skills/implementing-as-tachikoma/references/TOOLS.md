@@ -198,7 +198,7 @@ ListMcpResourcesToolで全MCPサーバーの一覧を取得
 2. serena MCPでコードベース分析
 3. serena MCPで実装
 4. テスト実行
-5. securing-code スキルでCodeGuard実行
+5. securing-code スキルでsoftware-security確認
 ```
 
 **パターン2**: Next.js開発の標準フロー

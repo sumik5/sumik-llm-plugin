@@ -277,7 +277,7 @@ root/
 - **コミットメッセージ**: Conventional Commits 形式
 
 ## セキュリティ
-- **実装完了後**: `/codeguard-security:software-security` 実行必須
+- **実装完了後**: `software-security` スキル 実行必須
 ```
 
 ---

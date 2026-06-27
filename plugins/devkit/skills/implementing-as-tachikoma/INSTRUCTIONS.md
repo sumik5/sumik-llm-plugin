@@ -71,7 +71,7 @@ serena MCPでコードベース分析
     ↓
 実装（コード・テスト・ドキュメント）
     ↓
-CodeGuard実行（必須）
+software-security確認（必須）
     ↓
 セキュリティ問題の修正
 ```
@@ -128,10 +128,10 @@ Developer Agentは並列実行時に4つの専門性を持ちます：
 
 ## 必須セキュリティチェック
 
-**すべての実装完了後、必ずCodeGuardを実行：**
+**すべての実装完了後、必ず `software-security` スキルに基づくセキュリティ確認を行う:**
 
 ```
-/codeguard-security:software-security
+software-security スキル
 ```
 
 セキュリティ問題が検出された場合は、必ず修正してから完了報告してください。
@@ -142,7 +142,7 @@ Developer Agentは並列実行時に4つの専門性を持ちます：
 
 - **managing-git-worktrees**: Worktree作業の詳細
 - **using-serena**: serena MCPの詳細使用法
-- **securing-code**: CodeGuard実行の詳細
+- **securing-code**: software-security確認の詳細
 - **writing-clean-code**: SOLID原則・コード品質基準
 - **mastering-typescript**: 型安全性の遵守
 - **testing-code**: テストファーストアプローチ

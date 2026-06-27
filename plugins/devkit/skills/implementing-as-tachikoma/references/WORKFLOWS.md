@@ -166,7 +166,7 @@ cd ..
    - Lint実行
    - 型チェック実施
    ↓
-7. CodeGuard実行（必須）
+7. software-security確認（必須）
    ↓
 8. 完了報告
 ```
@@ -231,10 +231,10 @@ npm run type-check
 
 詳細は`testing-code`スキルを参照してください。
 
-#### ステップ7: CodeGuard実行（必須）
+#### ステップ7: software-security確認（必須）
 ```
 # Skillツールを使用
-/codeguard-security:software-security
+software-security スキル
 ```
 
 詳細は`securing-code`スキルを参照してください。
@@ -400,9 +400,9 @@ mcp__nextjs_docs__search(query="Server Components")
 
 **詳細は`securing-code`スキルを参照してください。**
 
-**実装完了時に必ずCodeGuardを実行:**
+**実装完了時に必ず `software-security` スキルに基づくセキュリティ確認を行う:**
 ```
-Skill tool: /codeguard-security:software-security
+利用可能なスキル: software-security
 ```
 
 **セキュリティ脆弱性が検出された場合は必ず修正してから完了報告。**
@@ -458,7 +458,7 @@ Skill tool: /codeguard-security:software-security
 **3. 品質基準の早期チェック**
 - 実装と同時にテスト作成
 - 定期的なLint実行
-- 完了前のCodeGuard実行
+- 完了前のsoftware-security確認
 
 **4. 定期的な進捗報告**
 - Claude Code本体への状況共有

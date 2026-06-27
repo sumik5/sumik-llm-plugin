@@ -108,7 +108,7 @@ skills:
 - [ ] `any` 型を使用していない
 - [ ] SOLID原則に従った実装
 - [ ] テストがAAAパターンで記述されている
-- [ ] セキュリティチェック（`/codeguard-security:software-security`）実行済み
+- [ ] software-security スキルに基づくセキュリティ確認済み
 
 ## 完了定義（Definition of Done）
 
@@ -118,7 +118,7 @@ skills:
 - [ ] コードがビルド・lint通過する
 - [ ] テストが追加・更新されている（必須。testing-codeスキルのTDD・AAAパターンに準拠）
 - [ ] Web UI変更を含む場合、E2Eテストが追加・更新されている（web:testing-e2e-with-playwrightスキルに準拠）
-- [ ] CodeGuardセキュリティチェック実行済み
+- [ ] software-security スキルに基づくセキュリティ確認済み
 - [ ] docs/plan-*.md のチェックリストを更新した（並列実行時）
 - [ ] 完了報告に必要な情報がすべて含まれている
 
