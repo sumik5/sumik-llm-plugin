@@ -24,10 +24,10 @@ config-reference）＋ローカル実プラグイン（figma・replayio の `hoo
    SubagentStop / Stop の10種。**非対応 = Notification / SessionEnd / TeammateIdle**（公式が「not documented」と明示）。
    → これらに紐づく hook（通知系の一部・retrospective 等）は Codex 側に登録できない。
 
-3. **`${CLAUDE_PLUGIN_ROOT}` を command パス文字列内で展開しない**（MCP の `os error 2` と同根）。
-   実プラグインは `./scripts/...` の**相対パス**を使う（plugin root 基準で解決）。
-   devkit は plugin root = repo root のため `bash ./plugins/devkit/hooks/X.sh`（`.mcp-codex.json` と同規約）。
-   - **ただし hook プロセスの環境変数としては `CLAUDE_PLUGIN_ROOT`（＝`PLUGIN_ROOT` の互換 alias）が set される**。「env var が set される」と「`${...}` を manifest/パス文字列で展開する」は別物。
+3. **Codex hook command は cwd 相対パスではなく `PLUGIN_ROOT` / `CLAUDE_PLUGIN_ROOT` 環境変数で解決する**。
+   `./scripts/...` や `./plugins/devkit/hooks/...` のような相対パスは、hook 実行時 cwd が plugin root でない場合に `exit 127` になる。
+   devkit は plugin root = repo root のため、Codex 側では `bash "${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/X.sh"` 形式にする。
+   - MCP 設定の `command` で `${CLAUDE_PLUGIN_ROOT}` が展開されない問題とは別に、hook では実行時環境変数として `PLUGIN_ROOT` と互換 alias `CLAUDE_PLUGIN_ROOT` が使える。
 
 4. **stdin JSON のフィールド名は Claude Code と一致**（replayio の実スクリプトが `.tool_input.command` を読む）。
    Stop/SubagentStop は `stop_hook_active` / `last_assistant_message`、SubagentStop は加えて `agent_type`/`agent_id`/`agent_transcript_path`。
@@ -37,8 +37,8 @@ config-reference）＋ローカル実プラグイン（figma・replayio の `hoo
    プラグイン同梱 hook は「non-managed」扱いで、**ユーザーが明示的に review & trust するまで Codex はスキップ**する
    （install/enable だけでは自動信頼されない）。Windows は無効。
 
-**この repo での適用**: Claude は `plugins/devkit/.claude-plugin/plugin.json` の hooks ブロック（全イベント・`${CLAUDE_PLUGIN_ROOT}`）。
-Codex は repo root `hooks-codex.json`（対応イベントのみ・`./plugins/devkit/hooks/...` 相対）＋ `.codex-plugin/plugin.json` の `"hooks": "./hooks-codex.json"` 宣言。
+**この repo での適用**: Claude は `plugins/devkit/.claude-plugin/plugin.json` の hooks ブロック（全イベント・`${CLAUDE_PLUGIN_ROOT}/hooks/...`）。
+Codex は repo root `hooks-codex.json`（対応イベントのみ・`${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/...`）＋ `.codex-plugin/plugin.json` の `"hooks": "./hooks-codex.json"` 宣言。
 
 **昇格候補**: 反復（他の Codex プラグイン作業で再利用）が確認できれば `authoring-plugins` の
 `MANAGING-MULTI-PLUGIN.md` か CLAUDE.md「Codex プラグイン配布の注意点」表へ hook 配布規約として昇格。

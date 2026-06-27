@@ -210,9 +210,10 @@ Codex が対応するイベント（SessionStart / SubagentStart / PreToolUse / 
 
 ### パス解決の差異
 
-- Codex は command パス内の `${CLAUDE_PLUGIN_ROOT}` を展開しない（MCP の `os error 2` と同根）
-- `./plugins/devkit/hooks/<name>.sh` のような**相対パス**（plugin root 基準）を使う
-- ただし hook プロセスの **環境変数**としては `CLAUDE_PLUGIN_ROOT` が set される
+- Codex の hook command はユーザーの作業ディレクトリで実行されることがあるため、`./plugins/devkit/hooks/<name>.sh` のような cwd 相対パスは使わない
+- Codex では hook 実行時の環境変数として `PLUGIN_ROOT` が set される。Claude 互換の alias として `CLAUDE_PLUGIN_ROOT` も参照できる
+- devkit の `hooks-codex.json` では `"bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/<name>.sh\""` 形式にして、repo root 以外の cwd でも同じ hook を呼び出す
+- Claude Code 側の `plugins/devkit/.claude-plugin/plugin.json` は従来通り `"bash ${CLAUDE_PLUGIN_ROOT}/hooks/<name>.sh"` 形式を使う。Claude plugin root は `plugins/devkit` なので Codex とパス末尾が異なる
 
 ### その他
 
@@ -225,12 +226,13 @@ Codex が対応するイベント（SessionStart / SubagentStart / PreToolUse / 
 
 **Hook の編集はソースリポジトリのみ**に行う。
 
-稼働中の hook は `~/.claude/plugins/cache/...` にある git スナップショットの**読取専用コピー**である。ソースリポジトリでの修正は、**push + プラグイン再インストール**が完了するまでキャッシュに反映されない。
+稼働中の hook は Claude では `~/.claude/plugins/cache/...`、Codex では `codex plugin list` の PATH が示す marketplace checkout にある。ソースリポジトリでの修正は、**push + プラグイン再インストール / marketplace upgrade** が完了するまで実行中のコピーに反映されない。
 
 | 環境 | 実体パス |
 |-----|---------|
 | 編集対象（正） | `/Users/sumik/repo/shivase/sumik-claude-plugin/plugins/devkit/hooks/` |
-| 読取専用コピー（触らない） | `~/.claude/plugins/cache/sumik/devkit/<version>/hooks/` |
+| Claude 実行コピー（触らない） | `~/.claude/plugins/cache/sumik/devkit/<version>/hooks/` |
+| Codex 実行コピー（触らない） | `codex plugin list` の devkit PATH（例: `~/.codex/.tmp/marketplaces/...`） |
 
 ---
 
@@ -244,6 +246,6 @@ Codex が対応するイベント（SessionStart / SubagentStart / PreToolUse / 
 - [ ] plain stdout 型（SessionStart・UserPromptSubmit）と JSON 型（PreToolUse・PostToolUse 等）を取り違えていないか
 - [ ] `exit 0` + JSON で正常系・`exit 2` + stderr でブロック系を使い分けているか
 - [ ] stdin から必要なフィールドを正しく取得しているか（`.tool_name`・`.tool_input.command`・`.tool_response` 等）
-- [ ] Codex 向けに配布する場合、`hooks-codex.json`（相対パス）への記載が必要か検討したか
+- [ ] Codex 向けに配布する場合、`hooks-codex.json` の command が `PLUGIN_ROOT` / `CLAUDE_PLUGIN_ROOT` ベースで cwd 非依存になっているか
 - [ ] Codex 非対応イベント（`Notification`・`SessionEnd`・`TeammateIdle`）を `hooks-codex.json` に誤って含めていないか
 - [ ] 編集後のソースを push + プラグイン再インストールして動作確認を行ったか

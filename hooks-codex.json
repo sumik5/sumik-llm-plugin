@@ -4,8 +4,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/detect-project-skills.sh", "timeout": 15 },
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/read-handover.sh", "timeout": 10 }
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/detect-project-skills.sh\"", "timeout": 15 },
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/read-handover.sh\"", "timeout": 10 }
         ]
       }
     ],
@@ -13,7 +13,7 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/learnings-reminder.sh", "timeout": 10 }
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/learnings-reminder.sh\"", "timeout": 10 }
         ]
       }
     ],
@@ -21,7 +21,7 @@
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/rtk-rewrite.sh", "timeout": 10 }
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/rtk-rewrite.sh\"", "timeout": 10 }
         ]
       }
     ],
@@ -29,34 +29,34 @@
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/learnings-error-detector.sh", "timeout": 10 }
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/learnings-error-detector.sh\"", "timeout": 10 }
         ]
       },
       {
         "matcher": "Edit|Write",
         "hooks": [
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/format-on-save.sh", "timeout": 30 }
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/format-on-save.sh\"", "timeout": 30 }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/notify-complete.sh", "timeout": 10 }
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/notify-complete.sh\"", "timeout": 10 }
         ]
       }
     ],
     "SubagentStop": [
       {
         "hooks": [
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/notify-subagent-stop.sh", "timeout": 10 }
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/notify-subagent-stop.sh\"", "timeout": 10 }
         ]
       }
     ],
     "PreCompact": [
       {
         "hooks": [
-          { "type": "command", "command": "bash ./plugins/devkit/hooks/write-handover.sh", "timeout": 30 }
+          { "type": "command", "command": "bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/write-handover.sh\"", "timeout": 30 }
         ]
       }
     ]

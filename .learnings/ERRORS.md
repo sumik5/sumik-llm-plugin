@@ -198,3 +198,35 @@ error: PreToolUse hook returned updatedInput without permissionDecision:allow
 - 再現可否: yes
 - 関連ファイル: plugins/devkit/hooks/rtk-rewrite.sh
 - 関連(See Also): ERR-20260626-005
+
+---
+
+## [ERR-20260627-001] Codex plugin hook の相対パスが cwd 依存で code 127 になる
+
+**記録日時**: 2026-06-27T09:40:12+09:00
+**優先度**: high
+**ステータス**: resolved
+**領域**: config
+
+### 要約
+`hooks-codex.json` の hook command が `bash ./plugins/devkit/hooks/*.sh` 形式の cwd 相対パスになっており、Codex が plugin root 以外の cwd で hook を実行すると `No such file or directory` で `exit 127` になる。
+
+### エラー
+```
+SessionStart hook (failed)
+error: hook exited with code 127
+
+UserPromptSubmit hook (failed)
+error: hook exited with code 127
+```
+
+### 状況
+`hooks-codex.json` は `.codex-plugin/plugin.json` の `"hooks": "./hooks-codex.json"` から配布されるが、各 command は `bash ./plugins/devkit/hooks/detect-project-skills.sh` などの相対パスを使う。repo root で単体実行すると成功する一方、`cwd=/Users/sumik` や `/tmp` で実行すると `bash: ./plugins/devkit/hooks/learnings-reminder.sh: No such file or directory` となり `exit=127` を再現した。hook 本体の権限や JSON/stdout 契約の問題ではなく、起動時 cwd と相対パス解決の問題。
+
+### 推奨修正
+Codex plugin hook command は `PLUGIN_ROOT` / `CLAUDE_PLUGIN_ROOT` 環境変数から hook 実体を絶対パスで呼び出す。devkit では `hooks-codex.json` を `"bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/<name>.sh\""` 形式に変更し、repo root 以外の cwd から `SessionStart` / `UserPromptSubmit` の sample payload を流して `exit 0` を確認する。
+
+### メタデータ
+- 再現可否: yes
+- 関連ファイル: hooks-codex.json, .codex-plugin/plugin.json, plugins/devkit/hooks/learnings-reminder.sh
+- 関連(See Also): LRN-20260625-001, ERR-20260626-005
