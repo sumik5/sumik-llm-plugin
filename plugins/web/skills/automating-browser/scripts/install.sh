@@ -1,12 +1,22 @@
 #!/bin/bash
 #
 # agent-browser Installation Script
-# Installs agent-browser CLI tool for browser automation
+# Installs the agent-browser CLI (Vercel Labs / vercel-labs/agent-browser).
+#
+# agent-browser is a fast native (Rust) browser automation CLI. A Rust daemon
+# drives Chrome directly via the Chrome DevTools Protocol (CDP) -- no Playwright
+# or Node.js runtime is required for the daemon itself.
+#
+# This script tries several install paths (npm / Homebrew / Cargo) and then runs
+# "agent-browser install", which DOWNLOADS Chrome for Testing (Google's official
+# automation channel) on first run. That download step is mandatory and cannot be
+# skipped -- the daemon needs a Chrome for Testing binary to control.
 #
 # Usage:
 #   bash install.sh           # Install with prompts
 #   bash install.sh --force   # Force reinstall
 #   bash install.sh --check   # Check installation only
+#   bash install.sh --help    # Show help
 #
 
 set -e
@@ -63,42 +73,73 @@ check_installation() {
     fi
 }
 
-# Check prerequisites
-check_prerequisites() {
-    info "Checking prerequisites..."
+# Decide which install route to use.
+# Preference order:
+#   - macOS: Homebrew first (native, no Node runtime), then npm, then Cargo
+#   - other: npm first, then Homebrew, then Cargo
+# Echoes one of: npm / homebrew / cargo / none
+detect_install_route() {
+    local os
+    os=$(detect_os)
 
-    # Check Node.js
-    if ! command_exists node; then
-        error "Node.js is not installed. Please install Node.js first."
-        echo "  Visit: https://nodejs.org/"
-        echo "  Or use nvm: https://github.com/nvm-sh/nvm"
-        return 1
+    if [ "$os" = "macos" ]; then
+        if command_exists brew; then
+            echo "homebrew"
+            return 0
+        fi
+        if command_exists npm; then
+            echo "npm"
+            return 0
+        fi
+        if command_exists cargo; then
+            echo "cargo"
+            return 0
+        fi
+    else
+        if command_exists npm; then
+            echo "npm"
+            return 0
+        fi
+        if command_exists brew; then
+            echo "homebrew"
+            return 0
+        fi
+        if command_exists cargo; then
+            echo "cargo"
+            return 0
+        fi
     fi
 
-    local node_version
-    node_version=$(node --version)
-    info "Node.js version: $node_version"
-
-    # Check npm
-    if ! command_exists npm; then
-        error "npm is not installed. Please install npm."
-        return 1
-    fi
-
-    local npm_version
-    npm_version=$(npm --version)
-    info "npm version: $npm_version"
-
-    success "Prerequisites check passed"
+    echo "none"
     return 0
 }
 
-# Install agent-browser
+# Install agent-browser via the selected route.
+# Argument: route (npm / homebrew / cargo)
 install_agent_browser() {
-    info "Installing agent-browser via npm..."
+    local route="$1"
 
-    # Install globally
-    npm install -g agent-browser
+    case "$route" in
+        npm)
+            info "using npm"
+            info "Installing agent-browser via npm (global)..."
+            npm install -g agent-browser
+            ;;
+        homebrew)
+            info "using homebrew"
+            info "Installing agent-browser via Homebrew..."
+            brew install agent-browser
+            ;;
+        cargo)
+            info "using cargo"
+            info "Installing agent-browser via Cargo (this compiles from source)..."
+            cargo install agent-browser
+            ;;
+        *)
+            error "No supported installer route was selected."
+            return 1
+            ;;
+    esac
 
     if ! command_exists agent-browser; then
         error "Installation failed. agent-browser not found in PATH."
@@ -109,21 +150,23 @@ install_agent_browser() {
     return 0
 }
 
-# Install browser dependencies
+# Install browser dependencies + Chrome for Testing.
+# "agent-browser install" downloads Chrome for Testing on first run (mandatory).
+# On Linux, --with-deps also installs the required system libraries.
 install_browser_deps() {
     local os
     os=$(detect_os)
 
-    info "Installing browser dependencies..."
+    info "Running 'agent-browser install' (downloads Chrome for Testing on first run)..."
 
     if [ "$os" = "linux" ]; then
-        info "Detected Linux - installing with system dependencies..."
+        info "Detected Linux - installing with system dependencies (--with-deps)..."
         agent-browser install --with-deps
     else
         agent-browser install
     fi
 
-    success "Browser dependencies installed"
+    success "Chrome for Testing and browser dependencies installed"
     return 0
 }
 
@@ -145,6 +188,20 @@ verify_installation() {
         error "Verification failed"
         return 1
     fi
+}
+
+# Print guidance when no installer route is available.
+print_no_route_guidance() {
+    error "No supported installer found (npm / brew / cargo)."
+    echo ""
+    echo "Install one of the following, then re-run this script:"
+    echo "  - Node.js + npm (recommended):  https://nodejs.org/"
+    echo "      (or use nvm: https://github.com/nvm-sh/nvm)"
+    echo "  - Homebrew (macOS/Linux):       https://brew.sh/"
+    echo "  - Rust + Cargo:                 https://rustup.rs/"
+    echo ""
+    echo "After installing, this script will run 'agent-browser install',"
+    echo "which downloads Chrome for Testing on first run."
 }
 
 # Main installation flow
@@ -193,7 +250,7 @@ main() {
         fi
     fi
 
-    # Check if already installed
+    # Check if already installed (idempotent: skip unless --force)
     if check_installation && [ "$force_install" = false ]; then
         info "agent-browser is already installed."
         echo ""
@@ -201,25 +258,28 @@ main() {
         exit 0
     fi
 
-    # Check prerequisites
-    if ! check_prerequisites; then
-        error "Prerequisites not met. Please install Node.js and npm first."
+    # Pick an install route (npm / homebrew / cargo). If none, guide and exit.
+    local route
+    route=$(detect_install_route)
+
+    if [ "$route" = "none" ]; then
+        print_no_route_guidance
         exit 1
     fi
 
     echo ""
 
     # Install agent-browser
-    if ! install_agent_browser; then
+    if ! install_agent_browser "$route"; then
         error "Failed to install agent-browser"
         exit 1
     fi
 
     echo ""
 
-    # Install browser dependencies
+    # Install browser dependencies + Chrome for Testing
     if ! install_browser_deps; then
-        error "Failed to install browser dependencies"
+        error "Failed to install Chrome for Testing / browser dependencies"
         exit 1
     fi
 
@@ -237,9 +297,12 @@ main() {
     echo "=========================================="
     echo ""
     echo "Quick start:"
-    echo "  agent-browser open https://example.com"
-    echo "  agent-browser snapshot -i"
+    echo "  agent-browser open example.com"
+    echo "  agent-browser snapshot"
     echo "  agent-browser close"
+    echo ""
+    echo "Tip: set AGENT_BROWSER_PROFILE to a Chrome profile name or a directory"
+    echo "     path to persist sessions across runs (e.g. logged-in state)."
     echo ""
     echo "For more information:"
     echo "  agent-browser --help"

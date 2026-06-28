@@ -1,216 +1,124 @@
-# Browser Automation with agent-browser
+# agent-browser によるブラウザ自動化
 
-## Prerequisites Check (Auto-Install)
+## agent-browser とは（アーキテクチャ）
 
-**IMPORTANT:** Before using agent-browser, run these commands:
+agent-browser は Vercel Labs 製の高速ネイティブ **Rust 製ブラウザ自動化 CLI**。AI エージェント向けに最適化されており、`snapshot` で取得した `ref` を使って操作する snapshot→ref ワークフロー、URL を agent-readable text として読む `read`、自然言語操作の `chat`、MCP サーバー化の `mcp` などを備える。
+
+- **client-daemon アーキテクチャ**: Rust 製デーモンが Chrome DevTools Protocol (CDP) で Chrome を直接制御する。
+- **Node.js / Playwright ランタイム不要**: デーモンの実行に Node.js も Playwright も要らない（"No Playwright or Node.js required for the daemon."）。
+- **Chrome for Testing**: ブラウザ本体は `agent-browser install` で Google 公式の自動化用チャネル（Chrome for Testing）から取得する。
+
+> 互換性メモ: state ファイルは storageState 互換の JSON 形式で保存される。trace は Playwright Trace Viewer で開ける。これらは互換フォーマットを採用しているだけで、ランタイムとして Playwright が動いているわけではない。
+
+## 使い分け（このスキルが担う役割）
+
+| 用途 | 第一選択 |
+|------|---------|
+| **アプリの web 操作・ブラウザ自動化**（スクレイピング、UI 操作フロー、認証永続化、フォーム送信、データ抽出） | **automating-browser**（agent-browser CLI）= 第一選択 |
+| E2E テストスイートの設計・実装 | `web:testing-e2e-with-playwright`（住み分け） |
+| パフォーマンス計測 / Lighthouse / 詳細トレース等の診断 | `chrome-devtools` MCP が補完 |
+| ユーザーの既存 Chrome タブ・ログイン済みセッションの操作 | `claude-in-chrome` が補完 |
+
+アプリのブラウザ自動化は agent-browser を起点にし、診断やユーザー実セッションの操作が必要な局面でのみ補完ツールへ切り替える。
+
+## インストール
+
+導入経路は複数ある。いずれの経路でも、最後に `agent-browser install` を実行して Chrome for Testing を取得する（**初回のみ・省略不可**）。
 
 ```bash
-# 1. Set storage location to /tmp (prevents cluttering project directories)
-export AGENT_BROWSER_PROFILE=/tmp/agent-browser-profile
+# npm (global)
+npm install -g agent-browser && agent-browser install
 
-# 2. Auto-install if not present
-which agent-browser || npm install -g agent-browser
+# npm (local)
+npm install agent-browser && agent-browser install
+
+# Homebrew
+brew install agent-browser && agent-browser install
+
+# Cargo
+cargo install agent-browser && agent-browser install
+
+# Linux: システム依存パッケージも導入
+agent-browser install --with-deps
 ```
 
-## Environment Variables
-
-| Variable | Description | Recommended Value |
-|----------|-------------|-------------------|
-| `AGENT_BROWSER_PROFILE` | Browser profile storage location | `/tmp/agent-browser-profile` |
-| `AGENT_BROWSER_SESSION` | Default session name | (optional) |
-
-**Always set `AGENT_BROWSER_PROFILE` before running commands** to avoid creating `.playwright-cli` folders in your working directory.
-
-## Quick Start Workflow
+- From source からビルドする場合は Node.js 24+ / pnpm 11+ / Rust が必要。
+- 導入確認:
 
 ```bash
-# 1. Navigate to page
+which agent-browser
+agent-browser --version
+```
+
+### スキル発動時の自動インストール推奨フロー
+
+```bash
+which agent-browser >/dev/null 2>&1 || bash "${CLAUDE_SKILL_DIR}/scripts/install.sh"
+```
+
+`${CLAUDE_SKILL_DIR}` は自スキルのバンドルディレクトリに解決される公式変数。`install.sh` は npm 不在時に Homebrew / Cargo を案内する。
+
+## 機能ハイライト
+
+- **セマンティックロケーター**: `find role|text|label|placeholder|alt|title|testid|nth <value> <action>` でアクセシビリティ属性から要素を選択。
+- **snapshot→ref ワークフロー**: `snapshot` はデフォルトで `ref`（アクセシビリティツリー）を返す。`-i` で interactive 要素のみ、`--urls` でリンク URL 付き。
+- **状態永続化（state / auth vault）**: `state save|load|list|show|rename|clear` で storageState 互換 JSON を永続化。`auth save|login` で AES-256-GCM 暗号化された認証 Vault を扱う。
+- **ネットワーク傍受（route / har）**: `network route` でリクエストを横取り（abort / body 差し替え / resource-type 指定）、`network har start|stop` で HAR 記録。
+- **デバイスエミュレーション**: `set device "iPhone 14"` でデバイス、`set geo <lat> <lng>` で位置情報、`set media [dark|light]` でカラースキームをエミュレート。
+- **read**: Chrome を起動せず URL を agent-readable text(markdown) として取得（URL 省略でアクティブタブの DOM を読む）。
+- **chat**: 自然言語でブラウザを操作（single-shot / 引数なしで対話 REPL）。
+- **batch**: 複数コマンドを連続実行（`--bail` で失敗時中断・stdin の JSON 配列にも対応）。
+- **mcp**: stdio で MCP サーバーを起動し、ツールプロファイル（core / network / state / debug / tabs / react / mobile / all）を選択。
+- **diff**: `diff snapshot|screenshot|url` で状態・ビジュアルの差分比較。
+- **vitals**: `vitals [url]` で Web Vitals + hydration メトリクスを取得。
+- **react**: `react tree|inspect|renders|suspense` で React 解析（要 `--enable react-devtools`）。
+
+## クイックスタート
+
+```bash
+# 1. ページへ移動
 agent-browser open <url>
 
-# 2. Get interactive elements with refs (@e1, @e2, etc.)
+# 2. interactive 要素を ref 付きで取得（@e1, @e2, ...）
 agent-browser snapshot -i
 
-# 3. Interact using refs from snapshot
+# 3. snapshot の ref を使って操作
 agent-browser click @e1
 agent-browser fill @e2 "input text"
 
-# 4. Re-snapshot after DOM changes
+# 4. DOM 変化後は再 snapshot
 agent-browser snapshot -i
 
-# 5. Close browser when done
+# 5. 終了時にブラウザを閉じる
 agent-browser close
 ```
 
-## Core Workflow Pattern
+## 中核ワークフロー
 
 1. **Navigate**: `agent-browser open <url>`
-2. **Snapshot**: `agent-browser snapshot -i` (returns elements with refs like `@e1`, `@e2`)
-3. **Interact**: Use refs from snapshot for clicks, fills, etc.
-4. **Re-snapshot**: After navigation or significant DOM changes
-5. **Repeat**: Until task is complete
+2. **Snapshot**: `agent-browser snapshot -i`（`@e1`, `@e2` のような ref を返す）
+3. **Interact**: snapshot の ref でクリック・入力などを実行
+4. **Re-snapshot**: ナビゲーションや大きな DOM 変化のあと
+5. **Repeat**: タスク完了まで繰り返す
 
-## Selectors (Priority Order)
+## 主な環境変数
 
-| Type | Syntax | Example | When to Use |
-|------|--------|---------|-------------|
-| **Refs** | `@e1`, `@e2` | `click @e1` | Always preferred (from snapshot) |
-| **CSS** | Standard CSS | `click "#submit"` | When ref unavailable |
-| **Text** | `text=...` | `click "text=Submit"` | Match visible text |
-| **Role** | `role ...` | `find role button click` | Semantic selection |
-| **Label** | `label ...` | `find label "Email" fill "x"` | Form inputs |
+| 変数 | 説明 |
+|------|------|
+| `AGENT_BROWSER_SESSION` | 分離セッション名 |
+| `AGENT_BROWSER_RESTORE` | 自動保存 / 復元するセッション状態の名前 |
+| `AGENT_BROWSER_RESTORE_SAVE` | 復元保存ポリシー（`auto` / `always` / `never`） |
+| `AGENT_BROWSER_NAMESPACE` | デーモンソケット / 復元状態ディレクトリの名前空間 |
+| `AGENT_BROWSER_PROFILE` | Chrome プロファイル名 または 永続化ディレクトリのパス |
+| `AGENT_BROWSER_STATE` | JSON ファイルからストレージ状態をロード |
+| `AGENT_BROWSER_ENCRYPTION_KEY` | AES-256-GCM 用の 64 文字 hex キー |
+| `AGENT_BROWSER_STATE_EXPIRE_DAYS` | N 日経過した状態を自動削除（既定 30） |
+| `AGENT_BROWSER_DEFAULT_TIMEOUT` | 既定の操作タイムアウト（ms・既定 25000） |
 
-## Essential Commands
+> `AGENT_BROWSER_PROFILE` は「Chrome プロファイル名」または「永続化ディレクトリのパス」を指定する。パス指定（例: `/tmp/agent-browser-profile`）も引き続き有効で、専用ディレクトリを割り当てたい場合に使う。
 
-### Navigation
-```bash
-agent-browser open <url>      # Navigate to URL
-agent-browser back            # Go back
-agent-browser forward         # Go forward
-agent-browser reload          # Reload page
-agent-browser close           # Close browser
-```
+## 関連リファレンス
 
-### Snapshot (Page Analysis)
-```bash
-agent-browser snapshot        # Full accessibility tree
-agent-browser snapshot -i     # Interactive elements only (RECOMMENDED)
-agent-browser snapshot -c     # Compact output (remove empty nodes)
-agent-browser snapshot -d 3   # Limit depth to 3 levels
-agent-browser snapshot -s "#main"  # Scope to CSS selector
-```
-
-### Interactions
-```bash
-agent-browser click @e1           # Click element
-agent-browser dblclick @e1        # Double-click
-agent-browser fill @e2 "text"     # Clear and type
-agent-browser type @e2 "text"     # Type without clearing
-agent-browser press Enter         # Press key
-agent-browser press Control+a     # Key combination
-agent-browser hover @e1           # Hover over element
-agent-browser check @e1           # Check checkbox
-agent-browser uncheck @e1         # Uncheck checkbox
-agent-browser select @e1 "value"  # Select dropdown option
-agent-browser scroll down 500     # Scroll page
-agent-browser scrollintoview @e1  # Scroll element into view
-agent-browser drag @e1 @e2        # Drag from e1 to e2
-agent-browser upload @e1 file.png # Upload file
-```
-
-### Information Retrieval
-```bash
-agent-browser get text @e1        # Get element text
-agent-browser get value @e1       # Get input value
-agent-browser get html @e1        # Get element HTML
-agent-browser get attr @e1 href   # Get attribute value
-agent-browser get title           # Get page title
-agent-browser get url             # Get current URL
-agent-browser get count "button"  # Count matching elements
-```
-
-### Wait Commands
-```bash
-agent-browser wait @e1                     # Wait for element visible
-agent-browser wait 2000                    # Wait milliseconds
-agent-browser wait --text "Success"        # Wait for text to appear
-agent-browser wait --url "**/dashboard"    # Wait for URL pattern
-agent-browser wait --load networkidle      # Wait for network idle
-```
-
-### Screenshots & PDF
-```bash
-agent-browser screenshot              # Screenshot to stdout
-agent-browser screenshot output.png   # Save to file
-agent-browser screenshot --full       # Full page screenshot
-agent-browser pdf output.pdf          # Generate PDF
-```
-
-## Sessions (Parallel Browsers)
-
-Run multiple independent browser instances:
-
-```bash
-agent-browser --session login open https://app.example.com
-agent-browser --session test open https://test.example.com
-agent-browser session list              # List active sessions
-agent-browser --session login close     # Close specific session
-```
-
-## Authentication Headers
-
-Set HTTP headers for authenticated requests:
-
-```bash
-# Set headers when opening URL
-agent-browser open https://api.example.com --headers '{"Authorization": "Bearer TOKEN"}'
-
-# Set global headers for session
-agent-browser set headers '{"Authorization": "Bearer TOKEN"}'
-```
-
-## Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `AGENT_BROWSER_SESSION` | Default session name |
-| `AGENT_BROWSER_EXECUTABLE_PATH` | Custom browser binary path |
-
-## JSON Output (for Parsing)
-
-Add `--json` for machine-readable output:
-
-```bash
-agent-browser snapshot -i --json
-agent-browser get text @e1 --json
-agent-browser get url --json
-```
-
-## Debugging
-
-```bash
-agent-browser open example.com --headed  # Show browser window
-agent-browser console                    # View console messages
-agent-browser errors                     # View page errors
-agent-browser --debug open example.com   # Enable debug output
-```
-
-## Common Patterns
-
-### Form Submission
-```bash
-agent-browser open https://example.com/form
-agent-browser snapshot -i
-agent-browser fill @e1 "user@example.com"    # Email field
-agent-browser fill @e2 "password123"          # Password field
-agent-browser click @e3                       # Submit button
-agent-browser wait --load networkidle
-```
-
-### Login & Save State
-```bash
-agent-browser open https://app.example.com/login
-agent-browser snapshot -i
-agent-browser fill @e1 "username"
-agent-browser fill @e2 "password"
-agent-browser click @e3
-agent-browser wait --url "**/dashboard"
-agent-browser state save auth.json
-
-# Later: restore state
-agent-browser state load auth.json
-agent-browser open https://app.example.com/dashboard
-```
-
-### Data Extraction
-```bash
-agent-browser open https://example.com/data
-agent-browser snapshot -i
-agent-browser get text @e1 --json
-agent-browser eval "document.querySelectorAll('.item').length"
-```
-
-## Additional Resources
-
-- **Detailed Command Reference**: See `AGENT-COMMANDS.md`
-- **Practical Examples**: See `AGENT-EXAMPLES.md`
-- **GitHub Repository**: https://github.com/vercel-labs/agent-browser
+- **コマンド詳細リファレンス**: `AGENT-COMMANDS.md`
+- **実践例**: `AGENT-EXAMPLES.md`
+- **GitHub リポジトリ**: https://github.com/vercel-labs/agent-browser

@@ -62,7 +62,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合・オブジェクト指向UI設計（OOUI）：オブジェクト抽出・ビュー/ナビゲーション・レイアウトパターン・マイクロフロントエンドアーキテクチャ） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
 | `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証 ＋ Figma UIデザイン: ワイヤーフレーム→ハンドオフ・8ptグリッド・UIStack） |
-| `automating-browser` | Browser Agent CLIによるブラウザ操作自動化（セマンティックロケーター、状態永続化、ネットワーク傍受） |
+| `automating-browser` | agent-browser CLI（Vercel Labs製・Rustネイティブ・CDP直結でChrome制御、デーモンにNode/Playwright不要）によるブラウザ操作自動化。snapshot→ref・セマンティックロケーター・状態永続化（state/auth vault）・ネットワーク傍受・read（Chrome起動なしURL→markdown）・chat（自然言語操作）・batch・mcp。アプリのweb操作の第一選択（E2Eは`testing-e2e-with-playwright`） |
 | `using-next-devtools` | next-devtools MCP経由のNext.js開発統合ツール（診断・バージョンアップグレード・Cache Components最適化・自動エラー修正） |
 | `testing-with-vitest` | Vitest 4.x特化の設定・移行・最適化ガイド（v3→v4破壊的変更・maxWorkers・test.projects・module runner・coverage刷新・Browser Mode・fixtures/test.extend・ライフサイクルフック・vi モック・型テスト・in-source testing）。テスト方法論全般は`devkit:testing-code`参照 |
 | `testing-e2e-with-playwright` | Playwright E2Eテストの設計・実装・運用ガイド（`@playwright/test`・`playwright.config.*`検出時に自動ロード）。Playwright E2E固有のパターンに特化 |
