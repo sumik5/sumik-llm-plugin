@@ -1,7 +1,7 @@
 {
   "name": "devkit",
-  "version": "14.2.6",
-  "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・25個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
+  "version": "14.3.0",
+  "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・26個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
   "author": {
     "name": "sumik5"
   },
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Sumik Claude Plugin",
     "shortDescription": "タチコマAgentシステムとスキル群でClaude Codeの開発ワークフローを強化するプラグイン",
-    "longDescription": "28体のタチコマAgent、25個のナレッジスキル、12個のスラッシュコマンドを提供。並列実行モデル・トークン効率化・型安全・セキュリティファーストの開発ワークフローを実現します。",
+    "longDescription": "28体のタチコマAgent、26個のナレッジスキル、12個のスラッシュコマンドを提供。並列実行モデル・トークン効率化・型安全・セキュリティファーストの開発ワークフローを実現します。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": [
