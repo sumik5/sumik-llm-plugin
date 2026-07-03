@@ -321,3 +321,19 @@ resume のキャッシュはドキュメント記載どおり「**agent() 呼び
 ### メタデータ
 - 再現可否: yes
 - 関連(See Also): ERR-20260702-001
+
+## [ERR-20260703-002] git tag が "fatal: no tag message?" で失敗する（tag.gpgsign=true 環境）
+
+### 症状
+リリース時に `git tag v14.4.1` 等の軽量タグ作成が全件 `fatal: no tag message?` で失敗した（commit・push は成功）。
+
+### 原因
+この環境の git config に `tag.gpgsign = true` が設定されており、タグは常に署名付き（annotated）として作成される。annotated タグはメッセージ必須のため、`-m` なしの `git tag <name>` は editor 起動不能な非対話実行下で即失敗する。
+
+### 対処
+`git tag -m "<短い要約>" <name>` とメッセージを明示すれば成功（署名も通る）。加えて `cd <repo> && for ...` 複合コマンドはパーミッション拒否されるため、`git -C <repo>` 形式で実行する（CLAUDE.md 既知の罠と同根）。
+
+### メタデータ
+- 再現可否: yes
+- 関連ファイル: ~/.gitconfig（tag.gpgsign）
+- 昇格候補: CLAUDE.md「git コミット/タグ/push 時の注意」表へ `git tag は -m 必須（tag.gpgsign=true）` 行の追記
