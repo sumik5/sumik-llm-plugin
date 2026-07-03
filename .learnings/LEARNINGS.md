@@ -132,3 +132,27 @@ Codex CLI 0.142.3 では hook の review / active 状態は `~/.codex/config.tom
 ### メタデータ
 - 関連ファイル: plugins/devkit/skills/authoring-plugins/references/NAMING.md, plugins/devkit/skills/authoring-plugins/INSTRUCTIONS.md
 - 関連(See Also): ERR-20260702-001
+
+## [LRN-20260703-001] Agent Skills strict validation は Claude Code 拡張 frontmatter を拒否する
+
+**記録日時**: 2026-07-03T13:41:45+09:00
+**優先度**: medium
+**ステータス**: resolved
+**領域**: docs
+**種別**: knowledge_gap
+
+### 要約
+Codex CLI がローカルで読み込める SKILL.md でも、Agent Skills 公式の `skills-ref validate` と OpenAI API upload 相当の strict validation では `context` / `agent` / `when_to_use` / `disable-model-invocation` などの Claude Code 拡張 frontmatter が失敗する。
+
+### 詳細
+84スキルの Codex 互換性確認で、`name` / `description` / 親ディレクトリ名一致 / description 1024字以内は全件 OK だった。一方、`uvx --from 'git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref' skills-ref validate plugins/devkit/skills/authoring-plugins` は `disable-model-invocation` を unknown field として拒否した。全件集計では 40/84 スキルが strict validation では失敗し、理由は標準フィールド外の Claude Code 拡張または独自メタデータだった。Codex の暗黙呼び出し抑止は `disable-model-invocation: true` ではなく、skill 配下の `agents/openai.yaml` に `policy.allow_implicit_invocation: false` を置く。
+
+### 推奨アクション
+Codex strict / OpenAI API 配布を対象にする skill は frontmatter を `name` / `description` / `license` / `compatibility` / `metadata` / `allowed-tools` に限定する。Claude Code 専用挙動を使う場合は strict 非互換として扱い、Codex 向けの invocation policy は `agents/openai.yaml` に分離する。description 改修時は `when_to_use` にしかない重要トリガーが Codex で欠落しないか確認する。
+
+### メタデータ
+- 発生源: conversation
+- 関連ファイル: plugins/devkit/skills/authoring-plugins/INSTRUCTIONS.md, plugins/devkit/skills/authoring-plugins/references/SKILL-GUIDE.md, plugins/devkit/skills/authoring-plugins/references/NAMING.md
+- タグ: codex, agent-skills, skill-validation, authoring-plugins
+- Pattern-Key: codex-skill-strict-validation
+- Recurrence-Count: 1 / First-Seen: 2026-07-03 / Last-Seen: 2026-07-03

@@ -2,7 +2,7 @@
 
 ## Skill Name Requirements
 
-> **省略可能**: `name` フィールドは省略できる。省略時はディレクトリ名がスキル名として使用される。明示的に指定する場合は以下の制約に従う。
+> **標準/Codexでは必須**: `name` フィールドは Agent Skills 標準と Codex では必須で、親ディレクトリ名と一致させる。Claude Code では省略時にディレクトリ名へフォールバックするが、クロスクライアント配布では省略しない。
 
 ### Technical Constraints
 
@@ -10,6 +10,7 @@
 |-----------|-------------|
 | Max length | 64 characters |
 | Allowed chars | lowercase letters, numbers, hyphens |
+| Directory match | Must match the parent directory name |
 | Forbidden | XML tags, spaces, underscores |
 | Reserved words | "anthropic", "claude" |
 
@@ -52,7 +53,7 @@ processing.pdfs   # periods
 
 ## Writing Effective Descriptions
 
-> **省略可能**: `description` フィールドは省略できる。省略時はSKILL.md本文の最初の段落がdescriptionとして使用される。ただし、スキルの発見性を高めるため明示的な記述を**強く推奨**する。
+> **標準/Codexでは必須**: `description` フィールドは Agent Skills 標準と Codex では必須。Claude Code では省略時に本文最初の段落へフォールバックするが、ルーティング精度とクロスクライアント互換のため必ず明示する。
 
 ### Format Requirements
 
@@ -134,6 +135,7 @@ description: "agent-browser CLI によるブラウザ操作自動化（スクレ
 
 - description が 1,024 字上限に迫る場合のみ、差別化参照群を `when_to_use` へ退避する（合算 1,536 字まで）
 - ⚠️ `when_to_use` は Claude Code 固有拡張。Codex 等の他クライアントでは無視されるため、**クロスクライアント配布スキルでは最重要のルーティング情報を description 側に残す**
+- Codex では description が初期 skill 一覧の予算内で短縮されることがあるため、退避する場合でも冒頭の description だけで主要用途が判定できるようにする
 
 #### Mutual Update Requirement
 

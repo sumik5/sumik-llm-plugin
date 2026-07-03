@@ -1,17 +1,16 @@
 ---
 name: authoring-plugins
-disable-model-invocation: false
 description: >-
-  Claude Code Plugin (Agent / Skill / Command / Hook) authoring guide covering
-  the Agent Skills standard (agentskills.io) + Claude Code extensions,
-  context: fork applicability matrix, name/description constraint validation,
-  spec-freshness checks, source-to-skill conversion (Markdown/PDF/EPUB/URL),
-  multi-plugin repository management (marketplace, Codex distribution, version sync),
-  skill-change impact analysis on agents, cross-reference integrity,
-  and the skill-improvement loop (IMPROVEMENT-INTAKE, USAGE-REVIEW).
-  Use when creating, modifying, or reviewing plugin components,
-  splitting or adding plugins in a multi-plugin repo,
-  or processing skill-improvement proposals.
+  Claude Code and Codex plugin authoring guide for Agent, Skill, Command, and Hook
+  components. Covers the Agent Skills standard (agentskills.io), Codex skill
+  packaging (.agents/skills, .codex-plugin manifests, agents/openai.yaml),
+  Claude Code extensions (context: fork, when_to_use, disable-model-invocation),
+  name/description validation, spec-freshness checks, source-to-skill conversion,
+  multi-plugin management, version sync, agent impact analysis, cross-reference
+  integrity, and skill-improvement loops.
+  Use when creating, modifying, or reviewing plugin components, auditing Codex
+  skill compatibility, splitting or adding plugins in a multi-plugin repo, or
+  processing skill-improvement proposals.
   For discovering and installing existing skills, use find-skills instead.
   For MCP protocol/server development, use lang:developing-mcp.
   For converting Claude Code agents to Codex, use converting-agents-to-codex.

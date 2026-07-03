@@ -65,7 +65,7 @@ The context window is a shared resource. Challenge each piece of information:
 
 **Default assumption**: Claude is already very smart. Only add context Claude doesn't already have.
 
-> **注意**: スキルのコンテキスト占有量はコンテキストウィンドウの**2%**（フォールバック: 16,000文字）で動的に算出される。環境変数 `SLASH_COMMAND_TOOL_CHAR_BUDGET` で上書き可能。多くのスキルを使用している場合、`/context` コマンドで除外されたスキルの警告を確認できる。
+> **注意**: Codex の初期 skill 一覧はコンテキストウィンドウの**2%**（不明時 8,000 文字）を上限に `name` / `description` / path を載せる。多くのスキルを使用している場合は長い description から短縮されるため、主要トリガーは description 冒頭へ置く。Claude Code は `maxSkillDescriptionChars` 等の別設定で listing 量を制御する。
 
 ### 2. Two-Stage Loading（二段階ロード） 🔴 必須パターン
 
@@ -119,13 +119,15 @@ Match specificity to task fragility:
 
 ```yaml
 ---
-name: skill-name                      # 推奨（省略時はディレクトリ名を使用）
-description: >-                        # 🔴 必ず >- を使用（インライン文字列はコロンでYAMLエラー）
+name: skill-name                      # 標準/Codexでは必須・親ディレクトリ名と一致
+description: >-                        # 標準/Codexでは必須・max 1024 chars
   What it does. Use when trigger.
+allowed-tools: Read Grep Glob          # 標準フィールド（Experimental・スペース区切り）
+
+# Claude Code 固有拡張（Codex strict / OpenAI API 配布では使わない）
 argument-hint: "[issue-number]"        # オートコンプリートで表示
 disable-model-invocation: true         # Claudeの自動ロードを禁止
 user-invocable: false                  # /メニューから非表示
-allowed-tools: Read, Grep, Glob        # 許可ツールの制限
 model: sonnet                          # 使用モデル指定
 context: fork                          # サブエージェント実行
 agent: Explore                         # context: fork時のエージェントタイプ
@@ -139,12 +141,12 @@ hooks:                                 # スキルスコープのライフサイ
 
 | フィールド | 必須 | 説明 |
 |-----------|------|------|
-| `name` | 推奨 | 表示名。省略時はディレクトリ名を使用。明示的な記載を推奨 |
-| `description` | 推奨 | 機能説明+トリガー条件。省略時は本文最初の段落 |
+| `name` | 標準/Codex: 必須 | 表示名。親ディレクトリ名と一致させる。Claude Code では省略時フォールバックがあるが、クロスクライアント配布では省略しない |
+| `description` | 標準/Codex: 必須 | 機能説明+トリガー条件。Claude Code では省略時フォールバックがあるが、Codex/Agent Skills では明示する |
 | `argument-hint` | いいえ | オートコンプリートで表示される引数ヒント |
 | `disable-model-invocation` | いいえ | `true`でClaude自動ロードを禁止。手動`/name`のみ |
 | `user-invocable` | いいえ | `false`で`/`メニューから非表示（バックグラウンド知識用） |
-| `allowed-tools` | いいえ | 許可ツールの制限（カンマ区切り） |
+| `allowed-tools` | いいえ | 標準フィールド。許可ツールの制限（スペース区切り・Experimental） |
 | `model` | いいえ | 使用モデル指定（例: `sonnet`, `opus`, `haiku`） |
 | `context` | いいえ | `fork`でサブエージェント実行 |
 | `agent` | いいえ | `context: fork`時のエージェントタイプ（`Explore`, `Plan`等） |
@@ -159,6 +161,7 @@ hooks:                                 # スキルスコープのライフサイ
 - Include what the skill does AND when to use it
 - Add differentiation when similar skills exist (e.g., "For X, use Y instead.")
 - Be specific and include key terms for discovery
+- Codex では `when_to_use` を標準ルーティング情報として扱わないため、重要な trigger / differentiation は description から出さない
 - 🔴 **YAML構文安全**: description は必ず `>-`（folded block scalar）で記述する。インライン文字列（`description: text...`）はコロン（`:`）を含むとYAMLパーサーが「キー: 値」として誤解釈し、`mapping values are not allowed in this context` エラーになる
 - 🔴 **Length limit**: description は **1024文字以下**（Claude Codeのフロントマター解析でこの長さを超えると切り捨てられる）
   - **必ず検証**: SKILL.md 作成・編集後に以下のコマンドで文字数を確認すること
@@ -190,6 +193,17 @@ See [NAMING.md](references/NAMING.md) for detailed naming guidelines.
 | `${CLAUDE_SKILL_DIR}` | スキルのSKILL.mdが存在するディレクトリパス | `${CLAUDE_SKILL_DIR}/scripts/helper.py` |
 
 > **注意**: `$ARGUMENTS` が本文に含まれない場合、引数は自動的に `ARGUMENTS: <value>` として末尾に追加される。
+
+### Codex optional metadata（`agents/openai.yaml`）
+
+Codex で skill の暗黙呼び出しを禁止したい場合、Claude Code 固有の `disable-model-invocation` ではなく skill ディレクトリ内に `agents/openai.yaml` を置く:
+
+```yaml
+policy:
+  allow_implicit_invocation: false
+```
+
+`interface` や `dependencies` も同じファイルに置く。Agent Skills 標準 frontmatter を strict に保ちたい場合、Codex 固有メタデータは SKILL.md frontmatter に混ぜない。
 
 ### 動的コンテキスト注入（`` !`command` ``）
 
@@ -335,7 +349,7 @@ my-skill/
 
 ### ネストされたディレクトリの自動検出
 
-モノレポ内のサブパッケージからもスキルは自動発見される:
+Claude Code ではモノレポ内のサブパッケージからも `.claude/skills/` が自動発見される:
 
 ```
 monorepo/
@@ -352,6 +366,8 @@ monorepo/
 ```
 
 各パッケージの `.claude/skills/` ディレクトリが自動的にスキャンされる。
+
+Codex では repo/user/admin/system の skill directory を探索する。repo 内では Codex を起動した `$CWD/.agents/skills` から repo root までの `.agents/skills` が対象になる。チーム共有や Codex 向け repo-scoped skill は `.agents/skills/<skill-name>/SKILL.md` に置く。
 
 ### --add-dir からのスキル読み込み
 
