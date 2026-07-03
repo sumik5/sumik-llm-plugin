@@ -82,28 +82,58 @@ description: Extracts text and tables from PDF files. Use when working with PDF 
 When similar skills exist, add mutual references to prevent confusion:
 
 ```yaml
-# Pair: Theory ↔ Implementation
-# applying-design-guidelines (theory)
-description: "...Use when making design decisions or evaluating existing interfaces. For actual frontend code generation, use designing-frontend instead."
+# Pair: Theory ↔ Implementation（実在例: design:designing-ux ↔ web:designing-frontend）
+# designing-ux (theory・design プラグイン)
+description: "...Use when designing user experiences or referencing UI/graphic design principles. For actual frontend code generation, use web:designing-frontend instead."
 
-# designing-frontend (implementation)
-description: "...Use when implementing web components that need creative, polished UI code. For theoretical UI/UX design principles, use applying-design-guidelines instead."
+# designing-frontend (implementation・web プラグイン)
+description: "...Use when implementing web components that need creative, polished UI code. For theoretical UI/UX design principles, use design:designing-ux instead."
 ```
 
 ```yaml
-# Unified: All-in-one browser automation
+# Unified: All-in-one CLI tool（実在例: web:automating-browser）
 # automating-browser (unified)
-description: "...Covers Playwright MCP (lightweight automation), CLI agent (advanced scenarios), and E2E testing. Use for any browser automation needs."
+description: "agent-browser CLI によるブラウザ操作自動化（スクレイピング・UI操作フロー・認証永続化・フォーム送信・データ抽出）。Use when アプリの web 操作・ブラウザ自動化を行うとき。..."
 ```
 
 | Differentiation Type | Pattern | Example |
 |---------------------|---------|---------|
-| Theory ↔ Implementation | "For actual X, use Y instead" | applying-design-guidelines ↔ designing-frontend |
-| Unified Tool | "All-in-one for X" | automating-browser (統合: Playwright MCP + CLIエージェント + E2Eテスト) |
-| General ↔ Specific | "Reference Y for general X" | convert-to-skill → authoring-plugins |
-| Parent ↔ Child | "For specific use case, see Y" | authoring-plugins → convert-to-skill |
-| Language-level ↔ Architecture-level | "Complements X with Y-level focus" | writing-clean-code ↔ architecting-infrastructure |
+| Theory ↔ Implementation | "For actual X, use Y instead" | design:designing-ux ↔ web:designing-frontend |
+| Unified Tool | "All-in-one for X" | web:automating-browser（agent-browser CLI に統合） |
+| General ↔ Specific | "For X-specific details, use Y" | devkit:testing-code（方法論全般） ↔ web:testing-with-vitest（Vitest 4.x特化） |
+| Code-level ↔ Architecture-level | "Complements X with Y-level focus" | devkit:writing-clean-code ↔ devkit:applying-clean-architecture |
 | Foundation ↔ Advanced | "For advanced X, use Y" | mastering-typescript (統合済み: 言語機能+実装判断基準) |
+
+#### クロスプラグイン参照の修飾規則（マルチプラグイン構成・🔴 必須）
+
+差別化参照（Part 3）や when_to_use で他スキルを指すときの表記規則:
+
+| 参照先 | 表記 | 例（cloud プラグイン内の description から） |
+|--------|------|------|
+| 同一プラグイン内のスキル | bare 名 | `use practicing-devops instead` |
+| 他プラグインのスキル | `plugin:skill` 修飾 | `use devkit:securing-code instead` |
+
+- 実在しないスキル名への参照（ダングリング）は禁止。書く前に `plugins/*/skills/*/` で実在を確認する
+- **同一ターゲットへの差別化文は 1 文に統合**する（"For DDD, use X. For Clean Architecture, use X." のような同一スキルへの重複参照は冗長）
+- description に自スキルの内部ファイル名（`references/FOO.md` 等）を書かない — ルーティングに寄与せず、ファイルリネームで陳腐化する（本文中の参照は可）
+
+#### description の内容ドリフト監査
+
+スキル本文（INSTRUCTIONS.md / references/）を増強・削減したら、**description の機能列挙も同期**する。放置すると description が本文の実体から乖離し、ルーティング精度が落ちる（実測: 84 スキル監査で最多の問題群）。
+
+- references/ に新ファイルを追加した時: その主要トピックが description に現れているか確認
+- 本文からトピックを削除した時: description の該当語も除去
+- 定期棚卸しは [USAGE-REVIEW.md](USAGE-REVIEW.md)、単発改善は [IMPROVEMENT-INTAKE.md](IMPROVEMENT-INTAKE.md) に従う
+
+#### 日本語 description の記法
+
+- `>-`（folded block scalar）では行の折返しが半角スペースに変換される。日本語文の途中で折り返すと文中に不自然な空白が混入するため、**折返しは文境界（。の直後）か既存の半角スペース位置のみ**で行う
+- 言語は既存 description の主要言語（日本語/英語）を維持する（改修時に勝手に翻訳しない）。1 つの description 内では主要言語を統一する
+
+#### when_to_use の使い分け（Claude Code 拡張）
+
+- description が 1,024 字上限に迫る場合のみ、差別化参照群を `when_to_use` へ退避する（合算 1,536 字まで）
+- ⚠️ `when_to_use` は Claude Code 固有拡張。Codex 等の他クライアントでは無視されるため、**クロスクライアント配布スキルでは最重要のルーティング情報を description 側に残す**
 
 #### Mutual Update Requirement
 
@@ -120,10 +150,11 @@ When creating a new skill with similar existing skills, **both sides must be upd
 When consolidating related skills, update all references:
 
 ```yaml
-# Unified skill (developing-nextjs)
-description: "Next.js 16 / React 19 development guide covering App Router, Server Components, React performance optimization, and React internals. Use when package.json contains 'next'."
+# Unified skill (cloud:implementing-observability)
+description: "Unified observability guide covering monitoring system design, OpenTelemetry implementation, logging design, and observability engineering practices. ... Replaces: designing-monitoring, implementing-opentelemetry, implementing-logging."
 
-# Result: react-best-practices and mastering-react-internals are integrated into developing-nextjs
+# Result: 3 skills are integrated into implementing-observability; all other skills'
+# descriptions that referenced the old names are rewritten to point to the unified skill
 ```
 
 **Critical Rules:**
@@ -291,31 +322,44 @@ Before finalizing your skill name and description:
 
 スキル名は以下のgerund prefix のいずれかで始めること:
 
-| Prefix | 用途 | 例 |
+| Prefix | 用途 | 実在例 |
 |--------|------|-----|
-| `developing-` | 言語・フレームワーク開発ガイド | `developing-nextjs`, `developing-go` |
-| `writing-` | ドキュメント・コード記述 | `writing-clean-code`, `writing-latex` |
-| `designing-` | UI/UX・API設計 | `designing-frontend`, `designing-web-apis` |
-| `implementing-` | 実装手順・ワークフロー | `implementing-opentelemetry` |
-| `enforcing-` | ルール・制約の強制 | `enforcing-type-safety` |
-| `managing-` | 運用・インフラ管理 | `managing-docker` |
-| `using-` | ツール・ライブラリ活用 | `using-serena`, `using-next-devtools` |
-| `testing-` | テスト戦略・手法 | `testing-code` |
-| `securing-` | セキュリティ対策 | `securing-code` |
-| `researching-` | 調査・評価 | `researching-libraries` |
-| `building-` | システム・アプリ構築 | `building-multi-tenant-saas` |
-| `mastering-` | 内部構造・上級者向け深掘り | `mastering-typescript` |
-| `applying-` | パターン・ガイドライン適用 | `applying-design-guidelines` |
-| `automating-` | ブラウザ・プロセス自動化 | `automating-browser` |
-| `reviewing-` | レビュー・分析 | `reviewing-code` |
-| `converting-` | 変換・処理 | `converting-documents` |
-| `crafting-` | コンテンツ制作 | `crafting-ai-copywriting` |
-| `generating-` | 成果物自動生成 | `generating-google-slides` |
-| `removing-` | 特定要素の除去 | `removing-xxx` （例: 特定パターン除去スキル） |
-| `searching-` | 検索・情報収集 | `searching-web` |
-| `modernizing-` | レガシー刷新 | `modernizing-legacy-systems` |
-| `architecting-` | アーキテクチャ設計 | `architecting-infrastructure` |
+| `analyzing-` | データ分析・レポート照会 | `analyzing-with-google-analytics` |
+| `answering-` | 試験・質問への解答生成 | `answering-genai-exam` |
+| `applying-` | パターン・ガイドライン適用 | `applying-clean-architecture`, `applying-behavior-design` |
+| `architecting-` | アーキテクチャ設計 | `architecting-infrastructure`, `architecting-data` |
 | `authoring-` | スキル・コンテンツ作成 | `authoring-plugins` |
+| `automating-` | ブラウザ・プロセス自動化 | `automating-browser` |
+| `building-` | システム・アプリ構築 | `building-multi-tenant-saas`, `building-ai-agents` |
+| `capturing-` | 記録・知見キャプチャ | `capturing-learnings` |
+| `compressing-` | 圧縮・サイズ最適化 | `compressing-epub-images` |
+| `converting-` | 変換・処理 | `converting-content`, `converting-agents-to-codex` |
+| `creating-` | 成果物制作 | `creating-slides`, `creating-flashcards`, `creating-diagrams` |
+| `designing-` | UI/UX・システム設計 | `designing-ux`, `designing-genai-patterns` |
+| `developing-` | 言語・フレームワーク開発ガイド | `developing-nextjs`, `developing-go` |
+| `evaluating-` | 評価・テストハーネス | `evaluating-with-promptfoo` |
+| `implementing-` | 実装手順・ワークフロー | `implementing-observability`, `implementing-design` |
+| `integrating-` | 技術統合 | `integrating-ai-web-apps` |
+| `managing-` | 運用・管理 | `managing-keycloak`, `managing-claude-md` |
+| `mastering-` | 内部構造・上級者向け深掘り | `mastering-typescript` |
+| `operating-` | ツール・サービスの CLI 操作 | `operating-gitlab`, `operating-herdr` |
+| `optimizing-` | 最適化戦略 | `optimizing-search-visibility` |
+| `orchestrating-` | エージェント編成・並列実行 | `orchestrating-teams`, `orchestrating-codex` |
+| `practicing-` | 実践方法論 | `practicing-devops`, `practicing-product-management` |
+| `recommending-` | 推奨・提案生成 | `recommending-automations` |
+| `researching-` | 調査・評価 | `researching-libraries` |
+| `reviewing-` | レビュー・分析 | `reviewing-code` |
+| `searching-` | 検索・情報収集 | `searching-web`, `searching-files-with-fff` |
+| `securing-` | セキュリティ対策 | `securing-code`, `securing-ai-development` |
+| `solving-` | 問題解法・アルゴリズム | `solving-algorithms` |
+| `styling-` | スタイリング手法 | `styling-with-tailwind` |
+| `testing-` | テスト戦略・手法 | `testing-code`, `testing-with-vitest` |
+| `using-` | ツール・ライブラリ活用 | `using-serena`, `using-next-devtools` |
+| `writing-` | ドキュメント・コード記述 | `writing-clean-code`, `writing-latex` |
+
+> 上記以外の gerund prefix（`enforcing-` / `generating-` / `modernizing-` 等）も規則上は許容されるが、現行コーパスに実在スキルはない。新設時は既存 prefix への統合を優先的に検討する。
+>
+> **例外命名**: `chronicle` / `find-skills` / `gws-slides` / `software-security` は gerund 形でない特殊スキル（バンドル由来・上流プロジェクト固有名・ツール名直結）。新規スキルでは gerund 原則を厳守し、これらを前例として引用しない。
 
 ### 命名規則チェックフロー
 

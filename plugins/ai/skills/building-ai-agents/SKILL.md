@@ -1,11 +1,12 @@
 ---
 name: building-ai-agents
 disable-model-invocation: false
-description: |
+description: >-
   AIエージェント構築ガイド（LangChain/LangGraph・Google ADK・リアルタイムマルチモーダル）。
   Use when building AI agents with LangChain, LangGraph, Google ADK, or Gemini Live API.
-  フレームワーク選択、ツール定義、マルチエージェント、A2A、リアルタイム音声/動画を含む。
-  For framework-agnostic GenAI design patterns, use designing-genai-patterns. For JS/Vercel AI SDK web integration, use integrating-ai-web-apps. For MCP protocol/server design, use developing-mcp.
+  フレームワーク選択、ツール定義、マルチエージェント、A2A、RAGパイプライン、リアルタイム音声/動画を含む。
+  For framework-agnostic GenAI design patterns, use designing-genai-patterns. For JS/Vercel AI SDK web
+  integration, use integrating-ai-web-apps. For MCP protocol/server design, use lang:developing-mcp.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

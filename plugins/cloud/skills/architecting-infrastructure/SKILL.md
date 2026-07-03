@@ -9,11 +9,12 @@ description: >-
   infrastructure, evaluating non-functional requirements, modernizing legacy systems, making
   architectural trade-offs, or designing microservices.
 when_to_use: >-
-  For DevOps (CI/CD, IaC), use practicing-devops. For DDD domain modeling, use
-  applying-clean-architecture. For Clean Architecture, use applying-clean-architecture. For
-  observability patterns, use implementing-observability instead. For GCP enterprise architecture,
-  use developing-google-cloud instead. For GPU/CUDA performance tuning and AI workload
-  optimization, use designing-genai-patterns instead.
+  For DevOps (CI/CD, IaC), use practicing-devops. For DDD domain modeling and Clean Architecture, use
+  devkit:applying-clean-architecture. For read-side data architecture (read replicas, materialized
+  views, caching strategies), use architecting-data instead. For observability patterns, use
+  implementing-observability instead. For GCP enterprise architecture, use developing-google-cloud
+  instead. For GPU/CUDA performance tuning and AI workload optimization, use
+  ai:designing-genai-patterns instead.
 ---
 
 詳細な手順・ガイドラインは [INSTRUCTIONS.md](INSTRUCTIONS.md) を参照してください。

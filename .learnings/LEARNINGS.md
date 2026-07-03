@@ -117,3 +117,18 @@ Codex CLI 0.142.3 では hook の review / active 状態は `~/.codex/config.tom
 - 関連(See Also): LRN-20260625-001, LRN-20260625-002, ERR-20260627-001
 - Pattern-Key: codex-hook-trust
 - Recurrence-Count: 1 / First-Seen: 2026-06-27 / Last-Seen: 2026-06-27
+
+## [LRN-20260702-001] 一括 description 監査は analyze→敵対的verify+apply→機械検証ゲートの3段構成が有効
+
+**記録日時**: 2026-07-02T21:35:00+09:00
+**優先度**: medium
+**ステータス**: resolved
+**領域**: workflow
+**種別**: best_practice
+
+### 要約
+84スキルの description 一括改善で、(1) 読み取り専用 analyze（本文と突き合わせて提案を生成）→ (2) 敵対的 verify+apply（別エージェントが一次ソースを読み直して検証合格分のみ Edit）→ (3) 本体の機械検証ゲート（YAML/字数/参照実在/禁止語/言語比率/本文不変を全件スクリプト検証）の3段が機能した。系統的問題の最多はクロスプラグイン参照の `plugin:skill` 修飾漏れ、次点は本文成長に伴う description の内容ドリフト。機械ゲートは「著者」（コードレビュー文脈の author 訳語）を書籍著者パターンとして誤検知したが、リポジトリ規約の grep ゲートも同様に反応する語のため「PR作成者」への言い換えで解消した。規約化した知見は authoring-plugins の NAMING.md/INSTRUCTIONS.md に焼き込み済み。
+
+### メタデータ
+- 関連ファイル: plugins/devkit/skills/authoring-plugins/references/NAMING.md, plugins/devkit/skills/authoring-plugins/INSTRUCTIONS.md
+- 関連(See Also): ERR-20260702-001

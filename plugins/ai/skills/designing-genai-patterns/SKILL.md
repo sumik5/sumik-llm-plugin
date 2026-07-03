@@ -7,11 +7,12 @@ description: >-
   deployment optimization (SLM, Prompt Caching, Inference Optimization), safety guardrails (Self-Check, Guardrails),
   RAG implementation (11 source types, chunking, vector stores),
   and LLMOps/AgentOps (maturity L0–2, Tool/Agent Registry, Memory Governance, LLM metrics, LLMSecOps).
-  Also covers AI performance (GPU/CUDA, LLM inference) via PERF- references.
+  Also covers AI performance (GPU/CUDA, LLM inference).
   Use when designing GenAI applications, choosing RAG strategies, implementing agent architectures,
   optimizing LLM reliability, or operating AI systems in production.
+  For LangChain/LangGraph/ADK agents, use building-ai-agents.
   For web AI (Vercel AI SDK, LangChain.js), use integrating-ai-web-apps.
-  For GCP-specific ML (BigQuery ML, Vertex AI), use developing-google-cloud.
+  For GCP-specific ML (BigQuery ML, Vertex AI), use cloud:developing-google-cloud.
 disable-model-invocation: false
 ---
 

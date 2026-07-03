@@ -11,9 +11,9 @@ description: >-
   reliability, or adopting observability practices. Replaces: designing-monitoring,
   implementing-opentelemetry, implementing-logging.
 when_to_use: >-
-  For LLM monitoring, use designing-genai-patterns instead. For DevOps (CI/CD, IaC), use
+  For LLM monitoring, use ai:designing-genai-patterns instead. For DevOps (CI/CD, IaC), use
   practicing-devops instead. For GPU/CUDA profiling (Nsight Systems/Compute, PyTorch Profiler),
-  use designing-genai-patterns instead.
+  use ai:designing-genai-patterns instead.
 disable-model-invocation: false
 ---
 

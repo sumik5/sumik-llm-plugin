@@ -10,10 +10,10 @@ description: >-
   or debugging distributed system behavior. Replaces: designing-relational-databases,
   avoiding-sql-antipatterns, understanding-database-internals.
 when_to_use: >-
-  For data architecture patterns (CQRS, event sourcing), use architecting-data instead. For GCP
-  managed databases (Cloud SQL, Spanner, Firestore, Bigtable) and BigQuery analytics, use
-  developing-google-cloud instead. For app-layer ORM workflows (Drizzle in Express), use
-  web:developing-fullstack-javascript.
+  For data architecture patterns (CQRS, event sourcing), use cloud:architecting-data instead.
+  For GCP managed databases (Cloud SQL, Spanner, Firestore, Bigtable) and BigQuery analytics,
+  use cloud:developing-google-cloud instead. For app-layer ORM workflows (Drizzle in Express),
+  use web:developing-fullstack-javascript.
 disable-model-invocation: false
 ---
 

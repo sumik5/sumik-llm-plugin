@@ -7,10 +7,10 @@ description: >-
   type safety rules (Any prohibition, TypedDict, Protocol, dataclass),
   Architecture Patterns (Repository, Unit of Work, Aggregates, Domain Events, CQRS, Event-Driven Architecture),
   and DDD Tactical Patterns (Value Object, Entity, Aggregate Root).
-  For language-agnostic clean code principles, use writing-clean-code.
-  For application logging design, use implementing-observability.
+  For language-agnostic clean code principles, use devkit:writing-clean-code.
+  For application logging design, use cloud:implementing-observability.
   For Clean Architecture in Python, see references/CA-PYTHON.md.
-  For general Clean Architecture principles, use applying-clean-architecture.
+  For general Clean Architecture principles, use devkit:applying-clean-architecture.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

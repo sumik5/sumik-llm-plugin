@@ -1,7 +1,16 @@
 ---
 name: testing-with-vitest
 description: >-
-  Vitest 4.x specialized testing guide covering the test runner core: v3 to v4 migration and breaking changes (maxWorkers, test.projects, module runner, coverage overhaul), configuration (environments, coverage v8/istanbul, reporters), CLI and test filtering/tags, parallelism and performance (pools, sharding), Browser Mode (stable in v4, visual regression), fixtures and test context (test.extend), lifecycle hooks (aroundEach/aroundAll, globalSetup), mocking (vi API, modules, timers, MSW), matchers, type testing, and in-source testing. Use when package.json contains vitest or vitest.config.* is present, or when configuring, migrating, or optimizing Vitest. For framework-agnostic test methodology (TDD, AAA, test pyramid, four pillars, anti-patterns), use testing-code. For React Testing Library and React component testing, use developing-react. For Playwright E2E, use testing-e2e-with-playwright.
+  Vitest 4.x specialized testing guide covering the test runner core: v3 to v4 migration and breaking
+  changes (maxWorkers, test.projects, module runner, coverage overhaul), configuration (environments,
+  coverage v8/istanbul, reporters), CLI and test filtering/tags, parallelism and performance (pools,
+  sharding), Browser Mode (stable in v4, visual regression), fixtures and test context (test.extend),
+  lifecycle hooks (aroundEach/aroundAll, globalSetup), mocking (vi API, modules, timers, MSW),
+  matchers, type testing, and in-source testing. Use when package.json contains vitest or
+  vitest.config.* is present, or when configuring, migrating, or optimizing Vitest. For
+  framework-agnostic test methodology (TDD, AAA, test pyramid, four pillars, anti-patterns), use
+  devkit:testing-code. For React Testing Library and React component testing, use developing-react.
+  For Playwright E2E, use testing-e2e-with-playwright.
 ---
 
 # testing-with-vitest

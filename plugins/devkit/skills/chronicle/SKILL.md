@@ -1,9 +1,19 @@
 ---
 name: chronicle
-description: |
-  Allows you to view the user's screen as well as several hours of history. Use when the user makes a reference to their recent work, for which it'd be helpful to see the screen. This skill MUST be used whenever you need to resolve ambiguity in a user request, where the user hasn't specified enough context to do the task. Examples include disambiguating the specific user/app/document/error the user is referring to.
-  
-  You must also use this skill if the user asks about any question regarding Chronicle or asks what you can see from the screen.
+description: >-
+  Views the user's screen and several hours of screen-recording history via the Chronicle
+  (Codex screen recording) feature: reads the latest per-display frame, greps OCR sidecars
+  (*.ocr.jsonl) for recent on-screen text, inspects historical 1-minute frames across
+  multiple displays, and consults Chronicle memories. Use when the user makes a reference
+  to their recent work, for which it'd be helpful to see the screen. This skill MUST be
+  used whenever you need to resolve ambiguity in a user request, where the user hasn't
+  specified enough context to do the task. Examples include disambiguating the specific
+  user/app/document/error the user is referring to.
+
+
+  You must also use this skill if the user asks about any question regarding Chronicle
+  or asks what you can see from the screen. Chronicle is passive observation only; for
+  actively driving or automating a browser, use web:automating-browser instead.
 context: fork
 agent: general-purpose
 ---

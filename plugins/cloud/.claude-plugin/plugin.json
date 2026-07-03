@@ -1,7 +1,7 @@
 {
   "name": "cloud",
   "description": "sumik Claude Code Plugin (cloud) — クラウド・インフラ・アーキテクチャスキル群（AWS/Google Cloud/Terraform/Firebase/DevOps/オブザーバビリティ/認可/Keycloak/インフラ・データ設計/マルチテナントSaaS）",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "sumik5"
   }

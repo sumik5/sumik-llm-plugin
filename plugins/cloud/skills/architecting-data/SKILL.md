@@ -7,10 +7,11 @@ description: >-
   Use when designing data flow architecture, choosing read scalability strategies, or
   implementing caching for enterprise systems.
   For microservices patterns (Saga, granularity), use architecting-infrastructure instead.
-  For DDD domain modeling, use applying-clean-architecture instead.
-  For database engine internals, use developing-databases instead.
-  For relational DB schema design, use developing-databases instead.
-  For GCP-specific data services (BigQuery, Dataflow, Dataproc), lakehouse (BigLake, Dataplex), and BigQuery advanced operations (editions, HA/DR), use developing-google-cloud instead.
+  For DDD domain modeling, use devkit:applying-clean-architecture instead.
+  For database engine internals and relational DB schema design, use
+  lang:developing-databases instead.
+  For GCP-specific data services (BigQuery, Dataflow, Dataproc), lakehouse (BigLake, Dataplex),
+  and BigQuery advanced operations (editions, HA/DR), use developing-google-cloud instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

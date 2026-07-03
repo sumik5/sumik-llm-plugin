@@ -1,9 +1,12 @@
 ---
 name: gws-slides
-description: |
-  Read and write Google Slides presentations via the gws CLI.
-  Use when reading or programmatically editing Google Slides documents (batchUpdate).
-  For creating self-authored HTML presentation decks (themes, storytelling), use creating-slides instead.
+description: >-
+  Read and write Google Slides presentations via the gws CLI (gws slides presentations create / get /
+  batchUpdate, with gws schema for inspecting request parameters).
+  Use when reading or programmatically editing Google Slides documents (batchUpdate requests,
+  presentation retrieval) from the command line.
+  For creating self-authored HTML presentation decks (themes, storytelling), use creating-slides
+  instead. For generating PowerPoint .pptx files, use creating-pptx instead.
 context: fork
 agent: general-purpose
 metadata:

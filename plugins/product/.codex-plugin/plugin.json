@@ -1,6 +1,6 @@
 {
   "name": "product",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "プロダクトマネジメント・要件定義スキル群を提供するプラグイン。2個のスキル（practicing-product-management: PRD・ロードマップ・AARRR・A/Bテスト・PLG・カスタマーサクセス・writing-user-stories: ユーザーストーリー・受入基準・ストーリー分割）を含む。",
   "author": {
     "name": "sumik5"

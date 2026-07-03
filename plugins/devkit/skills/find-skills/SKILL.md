@@ -1,6 +1,14 @@
 ---
 name: find-skills
-description: Helps users discover and install agent skills when they ask questions like "how do I do X", "find a skill for X", "is there a skill that can...", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill. For evaluating npm/pip/Go code libraries, use researching-libraries instead. For authoring local plugin/skill components, use authoring-plugins instead.
+description: >-
+  Discovers and installs agent skills from the open skills ecosystem using the Skills CLI
+  (npx skills find / add / check / update) and the skills.sh registry and leaderboard,
+  vetting candidates by install count and source reputation before recommending or installing them.
+  Use when the user asks questions like "how do I do X", "find a skill for X",
+  "is there a skill that can...", wants to search for tools, templates, or workflows,
+  or expresses interest in extending agent capabilities with installable skills.
+  For evaluating npm/pip/Go code libraries, use researching-libraries instead.
+  For authoring local plugin/skill components, use authoring-plugins instead.
 context: fork
 agent: Explore
 ---

@@ -2,9 +2,11 @@
 name: converting-agents-to-codex
 description: >-
   Claude Code Agent定義（.md）をCodex subagent定義（agents/*.toml）に変換するガイド。
-  フィールドマッピング・developer_instructions変換・skillsのdescription自動ロード方式・検証手順・よくある失敗パターンを網羅。
+  フィールドマッピング・developer_instructions変換・skillsのdescription自動ロード方式・モデルtier-map（model_reasoning_effort）・config.toml/mcp_servers設定・AGENTS.mdルーティング統合・検証手順・よくある失敗パターンを網羅。
   Use when converting Claude Code agents to Codex format, migrating agent definitions, or setting up Codex subagents.
   Triggers: "agentをcodexに変換", "codex agent変換", "agent migration"。
+  For Codex-side agent orchestration (Wave並列実行・max_threads運用), use orchestrating-codex instead.
+  For authoring new Claude Code plugins/agents/skills, use authoring-plugins instead.
 context: fork
 agent: general-purpose
 disable-model-invocation: true

@@ -1,6 +1,6 @@
 {
   "name": "lang",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "言語スキル群を提供するプラグイン。6個のスキル（Python・Go・Bash・データベース・MCP・アルゴリズム）を含む。Web/フロントエンド実装は web プラグインへ分離。",
   "author": {
     "name": "sumik5"

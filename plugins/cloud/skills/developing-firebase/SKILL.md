@@ -1,16 +1,14 @@
 ---
 name: developing-firebase
 description: >-
-  Firebase platform development guide covering Authentication (email/social/session),
-  Firestore & Realtime Database (modeling/queries/security rules),
-  Cloud Storage, Cloud Functions (triggers/scheduling), Hosting,
-  Analytics (events/BigQuery), FCM push notifications,
-  Remote Config, Test Lab, Performance Monitoring, Dynamic Links,
-  App Distribution, AdMob, and Extensions.
-  MUST load when firebase, @firebase, or firebase-admin packages detected,
-  or firebaseConfig/firebase.json/firestore.rules files present.
-  For GCP infra→developing-google-cloud. For Next.js integration→web:developing-nextjs.
-  For REST API design→web:developing-web-apis.
+  Firebase platform development guide covering Authentication (email/social/session), Firestore &
+  Realtime Database (modeling/queries/security rules), Cloud Storage, Cloud Functions
+  (triggers/scheduling), Hosting, Emulator Suite (local dev/testing), Analytics (events/BigQuery),
+  Crashlytics, FCM push notifications, Remote Config, Test Lab, Performance Monitoring, Dynamic Links,
+  App Distribution, AdMob, and Extensions. MUST load when firebase, @firebase, or firebase-admin
+  packages detected, or firebaseConfig/firebase.json/firestore.rules files present. For GCP
+  infra→developing-google-cloud. For Next.js integration→web:developing-nextjs. For REST API
+  design→web:developing-web-apis.
 ---
 
 # Firebase 開発ガイド

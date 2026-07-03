@@ -1,7 +1,7 @@
 {
   "name": "product",
   "description": "sumik Claude Code Plugin (product) — プロダクトマネジメント・要件定義スキル群（PRD/ロードマップ/AARRR/PLG/ユーザーストーリー/受入基準）",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "sumik5"
   }

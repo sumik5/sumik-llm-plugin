@@ -10,7 +10,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/devkit"
       },
-      "version": "14.4.0",
+      "version": "14.4.1",
       "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・27個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
       "policy": {
         "installation": "AVAILABLE",
@@ -24,7 +24,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/studio"
       },
-      "version": "1.2.0",
+      "version": "1.2.1",
       "description": "コンテンツ制作スキル群を提供するプラグイン。12個のスキル（スライド・PPTX・図表・フラッシュカード・LaTeX・コンテンツ生成・EPUB圧縮/変換・カウントダウンアイコン・研修設計・検索可視性最適化(SEO/GEO)）と2個のコマンドを含む。",
       "policy": {
         "installation": "AVAILABLE",
@@ -38,7 +38,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/lang"
       },
-      "version": "2.0.0",
+      "version": "2.0.1",
       "description": "言語スキル群を提供するプラグイン。6個のスキル（developing-python・developing-go・developing-bash・developing-databases・developing-mcp・solving-algorithms）を含む。Web/フロントエンド実装は web プラグインへ分離。",
       "policy": {
         "installation": "AVAILABLE",
@@ -52,7 +52,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/web"
       },
-      "version": "1.1.0",
+      "version": "1.1.1",
       "description": "Web・フロントエンド実装スキル群を提供するプラグイン。11個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
       "policy": {
         "installation": "AVAILABLE",
@@ -66,7 +66,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/cloud"
       },
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "クラウド・インフラ・IaC・認可スキル群を提供するプラグイン。11個のスキル（AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ設計・データ設計・マルチテナントSaaS）を含む。",
       "policy": {
         "installation": "AVAILABLE",
@@ -80,7 +80,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/ai"
       },
-      "version": "1.2.0",
+      "version": "1.2.1",
       "description": "GenAI・AIエージェント・Web AI統合・LLM評価スキル群を提供するプラグイン。6個のスキル（GenAI設計パターン・AIエージェント構築・Web AIアプリ統合・promptfooによるLLM評価・AI支援開発方法論・AI開発セキュリティ戦略）を含む。",
       "policy": {
         "installation": "AVAILABLE",
@@ -94,7 +94,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/design"
       },
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "UX・デザイン思考・AI体験・データ可視化・デザインシステムスキル群を提供するプラグイン。6個のスキル（UXデザイン・AI体験設計・デザイン思考・データ可視化・デザインシステム構築・行動デザイン）を含む。",
       "policy": {
         "installation": "AVAILABLE",
@@ -108,7 +108,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/product"
       },
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "プロダクトマネジメント・要件定義スキル群を提供するプラグイン。2個のスキル（practicing-product-management: PRD・ロードマップ・AARRR・PLG・writing-user-stories: ユーザーストーリー・受入基準）を含む。",
       "policy": {
         "installation": "AVAILABLE",

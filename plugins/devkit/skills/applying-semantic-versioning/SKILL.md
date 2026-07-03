@@ -1,9 +1,10 @@
 ---
 name: applying-semantic-versioning
 description: >-
-  Semantic Versioning 2.0.0仕様に基づくバージョン判断ガイド。MAJOR/MINOR/PATCH判定、プレリリース・ビルドメタデータ、範囲指定を提供。
+  Semantic Versioning 2.0.0仕様に基づくバージョン判断ガイド。MAJOR/MINOR/PATCH判定フロー、プレリリース・ビルドメタデータ、優先度比較ルール、npm/pipのバージョン範囲指定（^・~・==）、検証用正規表現を提供。
   REQUIRED for all version-related decisions. Use when determining version bumps, creating releases, or managing dependencies.
   For commit message format (type/scope/BREAKING CHANGE), use writing-conventional-commits instead.
+  For API versioning strategy trade-offs, use cloud:architecting-infrastructure instead.
 disable-model-invocation: true
 ---
 

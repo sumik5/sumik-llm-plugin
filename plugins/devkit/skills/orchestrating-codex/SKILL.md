@@ -3,7 +3,9 @@ name: orchestrating-codex
 description: >-
   Codex CLI統合スキル（基本操作・プランレビュー・Agentオーケストレーション）。
   Use when using Codex for code consultation, plan review, or orchestrating Codex agents in Wave parallel execution.
-  Triggers: "codex", "codexと相談", "codexでレビュー", "codexでオーケストレーション"。Wave計画に基づき自然言語でagentを同時起動し、config.tomlのmax_threadsで並列度を宣言的に制御する。
+  Triggers: "codex", "codexと相談", "codexでレビュー", "codexでオーケストレーション"、`.codex/agents/*.toml` や config.toml の [agents] セクションの検出。
+  tachikoma-product-manager agent に計画策定を委譲する2フェーズ方式で、Wave計画に基づき自然言語でagentを同時起動し、config.tomlのmax_threadsで並列度を宣言的に制御する。
+  カスタムagent定義はTOML形式（name/description/developer_instructions/sandbox_mode）。
   For agent conversion to Codex format, use converting-agents-to-codex instead.
   For Claude Code teammate orchestration (parallel sub-agents via Agent + run_in_background), use orchestrating-teams instead.
 context: fork

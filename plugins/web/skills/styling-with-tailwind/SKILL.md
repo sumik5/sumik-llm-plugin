@@ -1,13 +1,15 @@
 ---
 name: styling-with-tailwind
 description: >-
-  Tailwind CSS styling methodology covering utility-first philosophy, v4 CSS-first config,
-  utility/modifier reference, component design patterns, customization (plugins, presets, JS API),
-  migration strategies, and design system construction with design tokens.
-  Use when styling web applications with Tailwind CSS or making CSS architecture decisions.
-  For frontend code generation with shadcn/ui and Storybook, use designing-frontend instead.
-  For general UI/UX design principles, use designing-ux instead.
-  For design system strategy beyond CSS (pattern language, organizational adoption, UI pattern catalog, measurement), use building-design-systems instead.
+  Tailwind CSS styling methodology covering utility-first philosophy, v4 CSS-first config (@theme,
+  directives), utility/modifier reference, dark mode implementation, component design patterns
+  (className props, headless UI and animation library selection), customization (plugins, presets, JS
+  API), migration strategies, and design system construction with design tokens. Use when styling web
+  applications with Tailwind CSS or making CSS architecture decisions. For frontend code generation
+  with shadcn/ui and Storybook, use designing-frontend instead. For general UI/UX design principles,
+  use design:designing-ux instead. For design system strategy beyond CSS (pattern language,
+  organizational adoption, UI pattern catalog, measurement), use design:building-design-systems
+  instead.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
