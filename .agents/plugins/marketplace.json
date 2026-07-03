@@ -38,8 +38,8 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/lang"
       },
-      "version": "2.0.1",
-      "description": "言語スキル群を提供するプラグイン。6個のスキル（developing-python・developing-go・developing-bash・developing-databases・developing-mcp・solving-algorithms）を含む。Web/フロントエンド実装は web プラグインへ分離。",
+      "version": "2.1.0",
+      "description": "言語スキル群を提供するプラグイン。7個のスキル（developing-python・developing-go・developing-r・developing-bash・developing-databases・developing-mcp・solving-algorithms）を含む。Web/フロントエンド実装は web プラグインへ分離。",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"

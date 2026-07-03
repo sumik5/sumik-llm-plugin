@@ -156,3 +156,27 @@ Codex strict / OpenAI API 配布を対象にする skill は frontmatter を `na
 - タグ: codex, agent-skills, skill-validation, authoring-plugins
 - Pattern-Key: codex-skill-strict-validation
 - Recurrence-Count: 1 / First-Seen: 2026-07-03 / Last-Seen: 2026-07-03
+
+## [LRN-20260703-002] `lang` に新しい言語スキルを追加する時は manifest・README・hook まで同期する
+
+**記録日時**: 2026-07-03T19:29:10+09:00
+**優先度**: medium
+**ステータス**: resolved
+**領域**: docs
+**種別**: best_practice
+
+### 要約
+`plugins/lang` に言語スキルを追加する時は、スキル本体だけでなく `lang` の3点バージョン同期、Claude/Codex marketplace description、README/CLAUDE のスキル数、`detect-project-skills.sh` の自動検出を同時に更新する。
+
+### 詳細
+R 用スキル追加では、`plugins/lang/skills/developing-r/` の作成だけでは配布面と自動ロード面が不完全だった。`plugins/lang/.claude-plugin/plugin.json`、`plugins/lang/.codex-plugin/plugin.json`、`.agents/plugins/marketplace.json` は `2.1.0` に揃える必要があり、`.claude-plugin/marketplace.json` には version は無いが利用者向け description の言語一覧を更新する必要があった。さらに SessionStart hook の `plugins/devkit/hooks/detect-project-skills.sh` に `lang:developing-r` の説明と `.R` / `.Rmd` / `.qmd` / `renv.lock` / `DESCRIPTION` / `NAMESPACE` / `.Rproj` 検出を追加して、実プロジェクトで推奨スキルに出ることを確認した。
+
+### 推奨アクション
+新しい言語スキルを `plugins/lang/skills/<name>/` に追加したら、少なくとも `plugins/lang/.claude-plugin/plugin.json`、`plugins/lang/.codex-plugin/plugin.json`、`.agents/plugins/marketplace.json`、`.claude-plugin/marketplace.json`、`plugins/lang/README.md`、root `README.md`、`CLAUDE.md`、`plugins/devkit/hooks/detect-project-skills.sh` を確認する。検証は JSON parse、version 3点同期、description 1024字以内、スキル数実数、hook の一時プロジェクト検出、禁止語 grep をセットで実行する。
+
+### メタデータ
+- 発生源: conversation
+- 関連ファイル: plugins/lang/skills/developing-r/SKILL.md, plugins/lang/.claude-plugin/plugin.json, plugins/lang/.codex-plugin/plugin.json, .agents/plugins/marketplace.json, .claude-plugin/marketplace.json, plugins/devkit/hooks/detect-project-skills.sh
+- タグ: lang, skill-authoring, version-sync, hooks
+- Pattern-Key: lang-new-skill-sync
+- Recurrence-Count: 1 / First-Seen: 2026-07-03 / Last-Seen: 2026-07-03

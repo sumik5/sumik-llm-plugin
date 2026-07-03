@@ -1,12 +1,12 @@
 # lang
 
-**言語スキル（Python・Go・Bash・データベース・MCP・アルゴリズム）のためのプラグイン**
+**言語スキル（Python・Go・R・Bash・データベース・MCP・アルゴリズム）のためのプラグイン**
 
 ---
 
 ## 概要
 
-lang は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。Python・Go・Bash・データベース・MCP・アルゴリズムといった言語系スキルを集約します。Web・フロントエンド実装系スキル（React・Next.js・フルスタック JavaScript・Web API・next-devtools・フロントエンド設計・Figma 実装・Tailwind・ブラウザ自動化）は web プラグインへ分離されました。devkit のタチコマ Agent がこれらのスキルを `lang:<skill>` 修飾名で preload するため、devkit と常にセットでインストールされる前提です。
+lang は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。Python・Go・R・Bash・データベース・MCP・アルゴリズムといった言語系スキルを集約します。Web・フロントエンド実装系スキル（React・Next.js・フルスタック JavaScript・Web API・next-devtools・フロントエンド設計・Figma 実装・Tailwind・ブラウザ自動化）は web プラグインへ分離されました。devkit のタチコマ Agent がこれらのスキルを `lang:<skill>` 修飾名で preload するため、devkit と常にセットでインストールされる前提です。
 
 ---
 
@@ -44,19 +44,20 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
         ├── .codex-plugin/
         │   └── plugin.json              # Codex CLI プラグインマニフェスト（skills ./skills/・MCP なし）
         ├── README.md
-        └── skills/                      # ナレッジスキル (6個)
+        └── skills/                      # ナレッジスキル (7個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Skills (6個)
+### Skills (7個)
 
 | スキル | 説明 |
 |--------|------|
-| `developing-python` | Python 3.13開発（Pythonベストプラクティス125項目・実践パターン50問・SEプロセス・Clean Architecture実践・Architecture Patterns: Repository/UoW/Aggregates/Domain Events/CQRS・DDD Tactical Patterns: Entity/Value Object/Aggregate Root） |
+| `developing-python` | Python 3.13開発（型安全性・uv/ruff/mypy・FastAPI/FastMCP・pytest・設計パターン・DDD・依存性注入・非同期処理・パッケージング） |
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
+| `developing-r` | R開発包括ガイド（Rscript/RStudio・renv・testthat・Rパッケージ・ベクトル化・tidyverse/dplyr/tidyr・ggplot2・統計解析・tidymodels・Shiny・Quarto/R Markdown・AI API連携・性能/並列化） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
 | `developing-databases` | DB設計・SQLアンチパターン・DB内部構造・PostgreSQL実践運用を統合した包括的データベース開発ガイド（リレーショナルDB設計・正規化・25のSQLアンチパターン・Bツリー/LSMストレージエンジン・分散システム・合意アルゴリズム・クエリチューニング・MVCC/VACUUM・バックアップ/PITR・レプリケーション/HA・監視） |
 | `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |

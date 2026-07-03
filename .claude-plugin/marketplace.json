@@ -18,7 +18,7 @@
     {
       "name": "lang",
       "source": "./plugins/lang",
-      "description": "sumik Claude Code Plugin (lang) — 言語スキル群（Python/Go/Bash/DB/MCP/アルゴリズム）"
+      "description": "sumik Claude Code Plugin (lang) — 言語スキル群（Python/Go/R/Bash/DB/MCP/アルゴリズム）"
     },
     {
       "name": "web",

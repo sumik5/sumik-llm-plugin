@@ -101,7 +101,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── .codex-plugin/
     │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 lang / skills ./skills/ / mcpServers なし）
     │   ├── README.md
-    │   └── skills/                       # ナレッジスキル (6個)
+    │   └── skills/                       # ナレッジスキル (7個)
     ├── web/                              # Web フロントエンド・フレームワーク実装プラグイン（skills-only）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 web / version 同期必須）

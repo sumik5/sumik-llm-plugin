@@ -1,7 +1,7 @@
 {
   "name": "lang",
-  "version": "2.0.1",
-  "description": "言語スキル群を提供するプラグイン。6個のスキル（Python・Go・Bash・データベース・MCP・アルゴリズム）を含む。Web/フロントエンド実装は web プラグインへ分離。",
+  "version": "2.1.0",
+  "description": "言語スキル群を提供するプラグイン。7個のスキル（Python・Go・R・Bash・データベース・MCP・アルゴリズム）を含む。Web/フロントエンド実装は web プラグインへ分離。",
   "author": {
     "name": "sumik5"
   },
@@ -15,8 +15,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Sumik Lang",
-    "shortDescription": "言語スキル（Python/Go/Bash/DB/MCP/アルゴリズム）を提供するプラグイン",
-    "longDescription": "6個の言語スキルを提供。Python・Go・Bash・データベース・MCP・アルゴリズムをカバーします。Web/フロントエンド実装は web プラグインへ分離。",
+    "shortDescription": "言語スキル（Python/Go/R/Bash/DB/MCP/アルゴリズム）を提供するプラグイン",
+    "longDescription": "7個の言語スキルを提供。Python・Go・R・Bash・データベース・MCP・アルゴリズムをカバーします。Web/フロントエンド実装は web プラグインへ分離。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write", "Edit", "Bash"],
@@ -26,6 +26,7 @@
     "defaultPrompt": [
       "developing-python でPythonコードを実装",
       "developing-go でGoサービスを構築",
+      "developing-r でRのデータ分析スクリプトを作成",
       "developing-databases でスキーマを設計"
     ],
     "brandColor": "#3178C6"

@@ -87,6 +87,7 @@ get_skill_description() {
         "web:designing-frontend") echo "フロントエンドUI/UXコンポーネント" ;;
         "lang:developing-go") echo "Go開発ガイド" ;;
         "lang:developing-python") echo "Python開発ガイド" ;;
+        "lang:developing-r") echo "R開発ガイド（Rscript・renv・testthat・tidyverse・ggplot2・Shiny・Quarto）" ;;
         "lang:developing-bash") echo "Bash shell scripting and automation (fundamentals, I/O, process control, testing, security, patterns)" ;;
         "cloud:developing-terraform") echo "Terraform IaC開発" ;;
         "cloud:practicing-devops") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
@@ -231,6 +232,16 @@ check_python() {
     if [[ -f "$WORK_DIR/pyproject.toml" ]] || [[ -f "$WORK_DIR/requirements.txt" ]]; then
         HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("lang:developing-python")
+    fi
+}
+
+# R プロジェクトチェック
+check_r() {
+    if [[ -f "$WORK_DIR/renv.lock" ]] || [[ -f "$WORK_DIR/DESCRIPTION" ]] || [[ -f "$WORK_DIR/NAMESPACE" ]] \
+        || find "$WORK_DIR" -maxdepth 2 -name "*.Rproj" 2>/dev/null | grep -q . \
+        || find "$WORK_DIR" -maxdepth 3 \( -name "*.R" -o -name "*.Rmd" -o -name "*.qmd" -o -name "app.R" \) 2>/dev/null | grep -q .; then
+        HAS_LANGUAGE_PROJECT=true
+        PROJECT_SKILLS+=("lang:developing-r")
     fi
 }
 
@@ -516,6 +527,7 @@ check_playwright_config
 check_vitest_config
 check_go
 check_python
+check_r
 check_python_deps
 check_bash
 check_terraform
