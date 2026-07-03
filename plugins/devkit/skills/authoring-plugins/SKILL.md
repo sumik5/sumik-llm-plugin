@@ -21,7 +21,7 @@ description: >-
 
 ## 最新仕様の鮮度確認
 
-- 確認日: 2026-07-02
+- 確認日: 2026-07-03
 - Agent Skills 標準: <https://agentskills.io/specification>
 - Claude Code 拡張: <https://code.claude.com/docs/en/skills>
 

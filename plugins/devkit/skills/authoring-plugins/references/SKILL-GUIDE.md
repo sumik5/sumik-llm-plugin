@@ -65,7 +65,7 @@ The context window is a shared resource. Challenge each piece of information:
 
 **Default assumption**: Claude is already very smart. Only add context Claude doesn't already have.
 
-> **注意**: Codex の初期 skill 一覧はコンテキストウィンドウの**2%**（不明時 8,000 文字）を上限に `name` / `description` / path を載せる。多くのスキルを使用している場合は長い description から短縮されるため、主要トリガーは description 冒頭へ置く。Claude Code は `maxSkillDescriptionChars` 等の別設定で listing 量を制御する。
+> **注意**: Codex の初期 skill 一覧はコンテキストウィンドウの**2%**（不明時 8,000 文字）を上限に `name` / `description` / path を載せる。多くのスキルを使用している場合は長い description から短縮されるため、主要トリガーは description 冒頭へ置く。Claude Code は `skillListingMaxDescChars`（合算cap）/ `skillListingBudgetFraction`（予算割合）等の別設定で listing 量を制御する。
 
 ### 2. Two-Stage Loading（二段階ロード） 🔴 必須パターン
 
