@@ -252,7 +252,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `recommending-automations` | コードベースを解析し Claude Code / Codex 双方の自動化（hooks/subagents/skills/MCP servers/plugins）を推奨する読み取り専用レコメンダー。検出プラットフォーム（.claude・CLAUDE.md / .codex・AGENTS.md）を優先しつつ各レコメンドに両クライアントのセットアップ手順を併記。references/platform-matrix でクロスプラットフォーム対応表（hooks イベント名・subagent TOML・MCP map形式・skills パス差異）を提供。anthropics/claude-plugins-official (Apache-2.0) の翻案 |
 | `searching-files-with-fff` | fff MCPによる高速ファイル検索（frecency順位付け・常駐インメモリインデックス）。3ツール（grep=内容検索/find_files=ファイル名fuzzy/multi_grep=複数パターンOR）・インライン制約構文・コアルール（bare identifierで検索・regex回避・2回で打切りRead）・DB永続化・serena/Glob/ripgrepとの使い分け |
 | `operating-gitlab` | glab CLI（GitLab公式CLI）によるGitLab操作の包括的リファレンス。全コマンドグループ（auth/mr/issue/ci/repo/release/api/variable/schedule/label/milestone/snippet/runner/securefile/鍵管理 他）と認証（self-managed `--hostname`・`GITLAB_TOKEN`・CI job token）・主要ワークフロー（MR/CI/issue/release）を網羅。GitHub操作は`gh`/`pull-request`、コミット文言は`writing-conventional-commits`、レビュー方法論は`reviewing-code`へ |
-| `operating-herdr` | herdr CLI（terminal-native agent multiplexer）操作。`HERDR_ENV=1` 環境で workspace/tab/pane の制御・pane 分割・コマンド実行・出力読み取り（visible/recent/recent-unwrapped）・出力待機（リテラル/正規表現）・エージェントステータス待機・エージェント spawn/協調を行う。herdr 外部からの操作は不可（HERDR_ENV ガード）。Claude Code 内の並列タチコマ編成は `orchestrating-teams` を使用 |
+| `operating-herdr` | herdr CLI（terminal-native agent multiplexer）操作。`HERDR_ENV=1` 環境で workspace/tab/pane の制御・pane 分割/移動/リサイズ/ナビゲーション（neighbor/focus/swap/zoom）・コマンド実行・出力読み取り（visible/recent/recent-unwrapped）・出力待機（リテラル/正規表現）・エージェントステータス待機・`herdr agent start` によるエージェント spawn/協調・`herdr integration install`（Claude/Codex 統合フック）を行う。herdr 外部からの操作は不可（HERDR_ENV ガード）。Claude Code 内の並列タチコマ編成は `orchestrating-teams` を使用 |
 
 #### ドキュメント・品質
 
