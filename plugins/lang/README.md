@@ -57,7 +57,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 |--------|------|
 | `developing-python` | Python 3.13開発（型安全性・uv/ruff/mypy・FastAPI/FastMCP・pytest・設計パターン・DDD・依存性注入・非同期処理・パッケージング） |
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
-| `developing-r` | R開発包括ガイド（Rscript/RStudio・renv・testthat・Rパッケージ・ベクトル化・tidyverse/dplyr/tidyr・ggplot2・統計解析・tidymodels・Shiny・Quarto/R Markdown・AI API連携・性能/並列化） |
+| `developing-r` | R開発包括ガイド（データ構造/coercion・ベクトル化・OOP(S3/S4/R5/R6)・デバッグ・データ入出力/文字列/正規表現・tidyverse/dplyr/tidyr/purrr・base graphics/ggplot2・記述統計/確率/分布/仮説検定/分散分析/回帰/GLM・シミュレーション・tidymodels/AI・LLM API/RAG・Shiny・Quarto/R Markdown・renv/testthat/パッケージ開発・性能/並列・C/C++/Python連携） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
 | `developing-databases` | DB設計・SQLアンチパターン・DB内部構造・PostgreSQL実践運用を統合した包括的データベース開発ガイド（リレーショナルDB設計・正規化・25のSQLアンチパターン・Bツリー/LSMストレージエンジン・分散システム・合意アルゴリズム・クエリチューニング・MVCC/VACUUM・バックアップ/PITR・レプリケーション/HA・監視） |
 | `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |

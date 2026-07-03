@@ -13,10 +13,12 @@ R のスクリプト、パッケージ、データ分析、可視化、統計解
 
 | ファイル | 使う場面 |
 |----------|----------|
-| `references/CORE-LANGUAGE.md` | R のデータ構造、ベクトル化、関数、制御構造、OOP、デバッグ |
-| `references/DATA-ANALYSIS.md` | データ読み込み、整形、EDA、可視化、統計解析の実務 |
-| `references/STATISTICS-ML-AI.md` | シミュレーション、統計モデリング、tidymodels、AI API/RAG |
-| `references/ENGINEERING-PRODUCTION.md` | renv、testthat、パッケージ開発、Shiny、Quarto、本番運用、性能、セキュリティ |
+| `references/CORE-LANGUAGE.md` | データ構造・添字・coercion・関数とスコープ・制御構造と反復・OOP（S3/S4/R5/R6）・エラー処理・デバッグ |
+| `references/DATA-ANALYSIS.md` | データ入出力・文字列/正規表現・tidyverse 整形・join/reshape・data.table・EDA |
+| `references/VISUALIZATION.md` | base graphics・ggplot2/Grammar of Graphics・scale/facet/theme・色・図の保存 |
+| `references/STATISTICS.md` | 記述統計・確率・分布（d/p/q/r 4 系統）・シミュレーション・信頼区間・仮説検定・分散分析・回帰・残差診断・GLM |
+| `references/MODELING-ML-AI.md` | tidymodels ワークフロー・resampling/tuning/評価指標・代表モデル・AI/LLM API・RAG・品質評価 |
+| `references/ENGINEERING-PRODUCTION.md` | プロジェクト/renv・testthat・パッケージ開発・Shiny・Quarto・性能/並列・C/Python 連携・セキュリティ |
 
 ## 基本ワークフロー
 
