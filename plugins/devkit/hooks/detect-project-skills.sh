@@ -93,6 +93,7 @@ get_skill_description() {
         "cloud:practicing-devops") echo "Docker/Podmanコンテナ管理（開発環境・Compose・daemonless・rootless）" ;;
         "studio:writing-latex") echo "LaTeX文書作成（日本語対応）" ;;
         "web:developing-fullstack-javascript") echo "NestJS/Express フルスタックJS" ;;
+        "web:building-nodejs-services") echo "Fastify Node.jsサービス構築" ;;
         "web:automating-browser") echo "Browser Agent CLI ブラウザ操作自動化" ;;
         "web:testing-e2e-with-playwright") echo "Playwright E2Eテスト設計・実装" ;;
         "web:testing-with-vitest") echo "Vitest 4.x 専用（v3→v4移行・設定・Browser Mode・並列・フィクスチャ・モック）" ;;
@@ -147,10 +148,16 @@ check_package_json() {
         PROJECT_SKILLS+=("web:developing-react")
     fi
 
-    # フルスタックJS チェック（express / @nestjs/core / fastify / koa / @hapi/hapi）
-    if echo "$deps" | grep -qE '^(express|@nestjs/core|fastify|koa|@hapi/hapi)$'; then
+    # フルスタックJS チェック（express / @nestjs/core / koa / @hapi/hapi）
+    if echo "$deps" | grep -qE '^(express|@nestjs/core|koa|@hapi/hapi)$'; then
         HAS_LANGUAGE_PROJECT=true
         PROJECT_SKILLS+=("web:developing-fullstack-javascript")
+    fi
+
+    # Fastify チェック（Node.js サービス構築）
+    if echo "$deps" | grep -qE '^fastify$'; then
+        HAS_LANGUAGE_PROJECT=true
+        PROJECT_SKILLS+=("web:building-nodejs-services")
     fi
 
     # Playwright チェック（package.json内）

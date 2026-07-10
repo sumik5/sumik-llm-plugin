@@ -14,6 +14,7 @@ when_to_use: >-
   instead. For CI/CD, use cloud:practicing-devops instead. For DDD/Clean Architecture, use
   applying-clean-architecture instead. For ODD/debugging, use cloud:implementing-observability instead.
   For prompt engineering techniques, use ai:developing-with-ai instead.
+  For the discipline of cutting self-induced complexity (technology minimalism, personal automation, simplicity-oriented collaboration), use pursuing-simplicity instead.
 ---
 
 # ソフトウェアエンジニアリングプラクティス
@@ -50,6 +51,7 @@ when_to_use: >-
 | `cloud:practicing-devops` | Deployment Pipeline設定・CI/CD具体構成 |
 | `applying-clean-architecture` | DDD・Clean Architecture・マイクロサービス |
 | `ai:developing-with-ai` | AIコーディングツール活用・プロンプトエンジニアリング・LLM対話設計 |
+| `pursuing-simplicity` | 自己誘発の複雑化を認識して削る判断（Orient-Step-Learn・S vs C ルーブリック）、技術ミニマリズム（依存/FW/機能）、個人の自動化と環境習熟、シンプリシティ志向のソフトスキル、データ駆動の簡素化 |
 
 ---
 

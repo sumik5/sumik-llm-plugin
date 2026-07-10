@@ -150,6 +150,8 @@ compaction 発生時:
    - Phase E 未完了 → リリース手順再実行
 ```
 
+> 🔴 **スペンド上限・失敗通知の判定（実証済み）**: background エージェントの `idleReason: failed`（スペンド上限等）は**最終状態ではない**——リトライで完走することがある。failed 通知を受けても即再起動せず、出力先の**実ファイル mtime** を確認し「failed 通知時刻 < 成果物 mtime」なら生存扱いで完了を待つ。ファイル末尾の整合（関連参照・チェックリスト等で自然に閉じているか）で完成判定し、真に欠けたタスクのみ「前任成果物を必読に含めた再開型プロンプト」で 1 体だけ差し替える。
+
 ---
 
 ### Phase A: 計画策定（Planner タチコマ・Opus）
@@ -162,13 +164,15 @@ Claude Code本体は Planner タチコマを起動してファイル変換から
 Agent({
   "description": "計画策定",
   "prompt": "## タスク: スキル変換計画の策定\n\n**作業ディレクトリ:** docs/conversion-{skill-name}/\n（存在しない場合はまず作成: `mkdir -p docs/conversion-{skill-name}/`）\n\n**入力ファイル・URL:**\n- {入力ファイルパス1 or URL1}\n- {入力ファイルパス2 or URL2（あれば）}\n\n## 実行ステップ\n\n### Step 1: ファイル変換（Markdown化）\n各入力ファイルを以下の方法でMarkdown変換する。変換済みMDパスを `docs/conversion-{skill-name}/00-input-files.md` に記録すること。\n\n**PDF変換:**\n> ⚠️ PDFファイルをReadツールで直接読み取ってはならない。APIの画像制限を超えるため専用スクリプトを使用すること。\n```bash\nplugins/devkit/scripts/pdf-to-markdown <input.pdf> /tmp/output.md\n```\n\n**pandoc対応形式（EPUB/DOCX/ODT/RST/LaTeX/HTML/Org/AsciiDoc/RTF/PPTX）:**\n```bash\nif ! command -v pandoc &> /dev/null; then brew install pandoc; fi\npandoc -t markdown -o /tmp/<output>.md <input-file>\n```\n\n**EPUBが画像ベースの場合（pandoc変換後に確認）:**\npandoc変換後のMarkdownで `![` 参照が大半でテキストが少ない場合は画像ベースEPUBと判定し、以下を実施すること:\n1. AskUserQuestion でユーザーに画像ベースEPUBであり変換できない旨を通知する\n2. 「了解（変換を中止）」ならば変換処理を終了する\n3. 「テキスト部分のみで続行」ならばpandoc変換済みMDをそのままソースとして使用する\n詳細: `plugins/devkit/skills/authoring-plugins/references/CONVERTING.md` の「画像ベースEPUBの検出と対応」を参照。\n\n**URL変換:**\n```bash\ncurl -o /tmp/page.html '<URL>'\npandoc /tmp/page.html -f html -t gfm -o /tmp/page.md\n```\n\n変換結果は目視確認（本文が適切に抽出されているか）。\n\n### Step 2: グルーピング分析（複数ファイル時）\n複数ファイルの場合、全Markdownファイルを読み込み、以下を `docs/conversion-{skill-name}/01-grouping-analysis.md` に保存:\n- 各ファイルの概要テーブル（ファイル名・タイトル・主要トピック・推定行数・ドメイン）\n- 意味的グルーピング提案（同一技術・スコープ → 1スキル、異なる技術 → 別スキル）\n- 既存 `plugins/devkit/skills/` との一括重複チェック結果（既存スキルのfrontmatterと比較）\n- 判断が必要なケースはその理由と候補を記録（Claude Code本体がPhase BでAskUserQuestion実施）\n\n### Step 3: 内容構造分析\n変換済みMarkdownを読み込み、以下を `docs/conversion-{skill-name}/02-content-analysis.md` に保存:\n- セクション数とトピック一覧\n- コード例の有無・言語\n- 判断基準テーブルの有無\n- 推定総行数（全ファイル合計）\n- 既存スキルとのスコープ比較（`plugins/devkit/skills/` 内の既存スキルdescriptionと照合）\n- スキル名候補2-3個（gerund形式、`plugins/devkit/skills/authoring-plugins/references/NAMING-STRATEGY.md` 参照）\n- 相互description更新が必要な類似スキルリスト\n\n### Step 4: 構造設計\n以下を設計して `docs/conversion-{skill-name}/03-design-plan.md` に保存:\n- Frontmatter設計（英語description・三部構成: What + When + 差別化）\n- SKILL.md + サブファイル構成（500行以下を目標。超過時はユーザー確認が必要と記録）\n- 判断分岐箇所（AskUserQuestion指示を配置する箇所の特定）\n- トリガー設定（REQUIRED/SessionStart hook/Use when パターン、`plugins/devkit/skills/authoring-plugins/references/TEMPLATES.md` 参照）\n\n### Step 5: 相互更新設計\n類似スキルのdescription更新案を `docs/conversion-{skill-name}/04-mutual-updates.md` に保存:\n- 新規スキル → 既存スキルへの差別化参照\n- 既存スキル → 新規スキルへの差別化参照\n- 双方向の差別化文言案\n\n### Step 6: implementer用タスク分割\n生成する各ファイルの担当範囲を `docs/conversion-{skill-name}/05-implementation-tasks.md` に保存:\n- 各ファイルの所有権（target-file-path）\n- 対応するソースMarkdownのパス・対象セクション\n- 推定行数・複雑度\n\n### Step 7: 進捗更新\n`docs/conversion-{skill-name}/99-progress.md` のPhase Aを完了マーク。変換済みMDファイルのパスも記録する。\n\n## Compaction耐性規則\n- 各Stepの完了ごとに該当 docs/ ファイルに書き込む（まとめて後から書かない）\n- 大きなソースファイル分析時は、セクション単位で中間結果を保存\n- `plugins/devkit/skills/` 実装ファイルは変更しない（読み取り + `docs/` 作成のみ）\n\n## 参照\n- 変換コマンド詳細: `plugins/devkit/skills/authoring-plugins/references/CONVERTING.md` の「A.2 変換コマンドリファレンス」\n- 命名戦略: `plugins/devkit/skills/authoring-plugins/references/NAMING-STRATEGY.md`\n- テンプレート集: `plugins/devkit/skills/authoring-plugins/references/TEMPLATES.md`",
-  "subagent_type": "sumik:tachikoma-str-architecture",
+  "subagent_type": "devkit:tachikoma-str-product-mgr",
   "model": "opus",
   "name": "planner",
   "run_in_background": true,
   "mode": "bypassPermissions"
 })
 ```
+
+> 🔴 **Planner の subagent_type 注意**: Planner は `docs/` への計画ファイル書込が必須のため、**Write ツールを持つエージェント**（例: `devkit:tachikoma-str-product-mgr`）を使う。`tachikoma-str-architecture` は READ-ONLY（Write なし）のため Planner に使うと docs/ 保存が Bash heredoc 頼みになり不安定（複数書籍バッチ変換で str-product-mgr の安定稼働を実証済み）。
 
 #### A.2 変換コマンドリファレンス（Plannerが使用）
 
@@ -465,6 +469,16 @@ Agent({
 
 ---
 
+#### C.3 複数ソース同時変換時の統合衝突回避（🔴 重要）
+
+複数のソースを並行変換し、複数の新規スキルが**同一プラグイン**や**同一の既存スキル**に収束する場合、ソースごとの finalizer タスク（README 更新・version bump・相互 description 追記）は互いに衝突する（例: 2 計画が同じ README カウントを「+1」ずつ主張して実数とズレる／同一既存スキルの description に 2 計画が同時追記する）。
+
+- **finalizer 系タスクは implementer に割り当てず、全ソースの実装完了後に本体が一括統合する**（README カウントは `ls | wc -l` の実数で一括是正・相互 description は全計画の `04-mutual-updates.md` を突き合わせて逐次適用＋1024 字再実測）。
+- Planner には「README/version/相互 description は本タスクに含めない（一括統合へ移管・必要事項の列挙のみ）」を明示指示する。
+- 新規スキル同士の相互参照（新規 A → 新規 B）は、参照先の生成完了を本体が確認してから残す/削る判定をする（実装時点で未存在ならダングリング化する）。
+
+---
+
 ### Phase D: 品質チェック（Claude Code本体）
 
 全 Implementer 完了後、品質チェックリストを適用する。
@@ -478,6 +492,8 @@ Agent({
 #### D.2 品質チェックリスト適用
 
 後述の「品質チェックリスト」セクションを全項目確認する。
+
+- 🔴 **数値は自己申告を信用せず本体が実測する**: implementer の description 字数自己申告は folded block scalar の行結合スペースを数え漏らして乖離する実例がある（申告 1004 字 / YAML パース実測 1102 字）。`yaml.safe_load` で frontmatter をパースした実効文字列長（description ≤1024・description+when_to_use 合算 ≤1536）を必ず機械実測する。行数・ファイル数・固有名 grep も同様に本体が一次ソースで再検証する。
 
 #### D.3 タチコマのシャットダウン（任意）
 

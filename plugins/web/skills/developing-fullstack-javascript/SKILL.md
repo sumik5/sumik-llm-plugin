@@ -9,11 +9,13 @@ description: >-
   patterns, Proxy/Reflect, or iterator protocols. Also covers V8 engine internals (hidden classes,
   inline caches, string/number repr), event loop model, JS/Node error model, and Express 5 + Drizzle
   ORM CRUD APIs.
+  For Fastify-based services, Node.js runtime internals (libuv, streams, clustering, worker threads), CLI tools, message queues, or standalone Node project scaffolding, use building-nodejs-services instead.
 when_to_use: >-
   For application logging design and structured logging patterns, use
   cloud:implementing-observability. For TypeScript type system and advanced type patterns, use
   devkit:mastering-typescript. For React data fetching/OpenAPI integration, use developing-react. For
   DB design/SQL internals/PostgreSQL tuning, use lang:developing-databases.
+  For selecting or comparing API styles (REST/GraphQL/gRPC/WebSocket/messaging) and their trade-offs, use web:choosing-api-styles.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -8,6 +8,7 @@ description: >-
   transactions, service granularity, data ownership, resilience, messaging. Use when designing
   infrastructure, evaluating non-functional requirements, modernizing legacy systems, making
   architectural trade-offs, or designing microservices.
+  For security-architecture design methodology (threat modeling, zero trust) use architecting-security instead.
 when_to_use: >-
   For DevOps (CI/CD, IaC), use practicing-devops. For DDD domain modeling and Clean Architecture, use
   devkit:applying-clean-architecture. For read-side data architecture (read replicas, materialized
@@ -15,6 +16,7 @@ when_to_use: >-
   implementing-observability instead. For GCP enterprise architecture, use developing-google-cloud
   instead. For GPU/CUDA performance tuning and AI workload optimization, use
   ai:designing-genai-patterns instead.
+  For a hands-on, code-centric legacy transformation method—MMI maturity scoring, the four strategic steps, fighting model anemia, seams and characterization tests, and a domain-driven refactoring catalog—use devkit:transforming-legacy-systems instead.
 ---
 
 詳細な手順・ガイドラインは [INSTRUCTIONS.md](INSTRUCTIONS.md) を参照してください。

@@ -44,14 +44,14 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
         ├── .codex-plugin/
         │   └── plugin.json              # Codex CLI プラグインマニフェスト（skills ./skills/・MCP なし）
         ├── README.md
-        └── skills/                      # ナレッジスキル (11個)
+        └── skills/                      # ナレッジスキル (12個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Skills (11個)
+### Skills (12個)
 
 | スキル | 説明 |
 |--------|------|
@@ -64,6 +64,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `implementing-dynamic-authorization` | 動的認可設計（ABAC/ReBAC/PBAC、Cedar、認可アーキテクチャ） |
 | `managing-keycloak` | Keycloak IAM包括ガイド（OIDC/SAML・SSO・Realm/Client/User管理・認証フロー・MFA・認可ポリシー・JWT Token管理・アプリ統合・Docker/K8sデプロイ・SPI拡張） |
 | `architecting-infrastructure` | インフラデザインパターン127種 + アーキテクチャモダナイゼーション（トレードオフ分析） + マイクロサービスパターン（CQRS・Saga・粒度決定・データ所有権）。ベンダー非依存の設計方式選定・非機能要求分析 |
+| `architecting-security` | セキュリティアーキテクチャ設計方法論（アーティファクト駆動設計・脅威モデリング: STRIDE/LINDDUN/アタックツリー・Zero Trust: NIST SP 800-207・データ中心セキュリティ・コンプライアンス/ガバナンス・セキュリティ要件工学・システムコンテキスト/クラウド設計・Build/Run運用、9リファレンスファイル） |
 | `architecting-data` | データアーキテクチャパターン（Read-Side最適化、CQRS、CDC、Event Sourcing、キャッシュ戦略） |
 | `building-multi-tenant-saas` | マルチテナントSaaSアーキテクチャ設計ガイド（デプロイモデル・テナント分離・データパーティショニング・silo/pool戦略・アイデンティティ・オンボーディング・ティアリング） |
 

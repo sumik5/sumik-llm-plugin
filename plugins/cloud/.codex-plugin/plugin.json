@@ -1,7 +1,7 @@
 {
   "name": "cloud",
-  "version": "1.0.2",
-  "description": "クラウド・インフラ・アーキテクチャスキル群を提供するプラグイン。11個のスキル（AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ設計・データ設計・マルチテナントSaaS）を含む。",
+  "version": "1.1.0",
+  "description": "クラウド・インフラ・アーキテクチャスキル群を提供するプラグイン。12個のスキル（AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ設計・データ設計・マルチテナントSaaS・セキュリティアーキテクチャ設計）を含む。",
   "author": {
     "name": "sumik5"
   },
@@ -16,7 +16,7 @@
   "interface": {
     "displayName": "Sumik Cloud",
     "shortDescription": "クラウド・インフラ・アーキテクチャスキルを提供するプラグイン",
-    "longDescription": "11個のクラウド・インフラ・アーキテクチャスキルを提供。AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ/データ設計・マルチテナントSaaSをカバーします。",
+    "longDescription": "12個のクラウド・インフラ・アーキテクチャスキルを提供。AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ/データ設計・マルチテナントSaaS・セキュリティアーキテクチャ設計方法論をカバーします。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write", "Edit", "Bash"],

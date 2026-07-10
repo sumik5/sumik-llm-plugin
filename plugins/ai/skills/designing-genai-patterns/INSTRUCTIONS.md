@@ -192,6 +192,20 @@ LLMの出力を直接制御するための基本パラメータ:
 - **Temperature**: 出力のランダム性制御（0=決定的, 高=多様）
 - **Top-K Sampling**: 上位K個のトークンのみから選択（長尾を除去）
 - **Nucleus Sampling（Top-P）**: 累積確率がp以上のトークン群から選択（動的制御）
+- **Beam Search（ビーム探索）**: トークンを1個ずつ選ぶ代わりに、複数の継続候補を並列探索して「系列全体の確率」を最大化する決定的探索アルゴリズム。P1（`num_beams` パラメータ）と P14（Tree of Thoughts のビーム探索）の動作基盤。
+
+  反復ペナルティ・長さペナルティ・beam width の3種が主な制御ノブとなる:
+
+  - **反復ペナルティ**: 生成済みトークンの再出現確率を下げる。`frequency_penalty`（頻度に比例して強まる）と `presence_penalty`（一度出現したトークンに一律適用し多様性を促す）の2種類。
+  - **長さペナルティ**: `min_length`（最小生成長の強制）・`max_length`（上限設定）・Length Normalization（短系列スコアへの偏りを長さ関数で補正）。
+  - **beam width（ビーム幅）**: 並列保持する探索系列数。増やすほど品質向上・計算コスト増。
+
+  **モデル別サポート状況（一般的傾向）**:
+
+  | 制御パラメータ | サポート状況 |
+  |--------------|------------|
+  | 反復ペナルティ（frequency / presence） | 主要クラウドAPIの一部で対応・非対応が分かれる |
+  | 長さペナルティ・beam width | OSS推論ライブラリ（Transformers系ライブラリ）で対応、ホスト型APIは概ね非対応 |
 
 ### Agentic AI（エージェント型AI）
 
@@ -259,6 +273,17 @@ LLMの出力を直接制御するための基本パラメータ:
 ---
 
 ## 7. パターン組合せ指針
+
+### エージェント型パターンの4分類フレーム
+
+エージェント型パターンは広く知られた4カテゴリ（**Reflection / Tool Use / Planning / Multiagent Collaboration**）で俯瞰できる。本スキルのパターンとの対応:
+
+- **Reflection**: 出力を批評し自己修正（P18 Reflection が典型）
+- **Tool Use**: 外部ツール・API 呼び出し（P21 Tool Calling が典型）
+- **Planning**: タスク分解と多段推論（P12 Deep Search・P13 Chain of Thought・P14 Tree of Thoughts が該当）
+- **Multiagent Collaboration**: 複数エージェントの協調（P23 が典型）
+
+多くの実装は複数カテゴリを同時に内包する（例: P14 Tree of Thoughts は4カテゴリすべての要素を持つ）。パターン組合せ設計の際に抜け漏れを確認する俯瞰軸として活用する。
 
 ### コンポーザブルなアジェンティックワークフロー
 

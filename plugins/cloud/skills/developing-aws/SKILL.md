@@ -8,6 +8,7 @@ description: >-
   DMS), and HA/fault tolerance. Use when working with AWS services, CDK infrastructure, or serverless
   applications. MUST load when working with AWS services, detected by aws-cdk or @aws-sdk in
   package.json, cdk.json, samconfig.toml, serverless.yml, template.yaml (SAM), or eksctl configs.
+  For vendor-neutral security architecture methodology use architecting-security instead.
 when_to_use: >-
   For GCP, use developing-google-cloud. For Terraform IaC, use developing-terraform. For Docker, use
   practicing-devops. For monitoring/logging, use implementing-observability. For RAG, use

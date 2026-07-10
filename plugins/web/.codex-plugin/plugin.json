@@ -1,7 +1,7 @@
 {
   "name": "web",
-  "version": "1.1.2",
-  "description": "Web・フロントエンド実装スキル群を提供するプラグイン。11個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
+  "version": "1.2.0",
+  "description": "Web・フロントエンド実装スキル群を提供するプラグイン。13個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・choosing-api-styles・building-nodejs-services・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
   "author": {
     "name": "sumik5"
   },
@@ -16,7 +16,7 @@
   "interface": {
     "displayName": "Sumik Web",
     "shortDescription": "Web・フロントエンド実装スキルを提供するプラグイン",
-    "longDescription": "11個のWeb・フロントエンド実装スキルを提供。Next.js・React・フルスタックJS・Web API・フロントエンド設計・Tailwind CSS・Figmaデザイン実装・ブラウザ自動化・next-devtools・Vitest・Playwright E2E をカバーします。",
+    "longDescription": "13個のWeb・フロントエンド実装スキルを提供。Next.js・React・フルスタックJS・Web API・APIスタイル選定・Fastify Node.jsサービス構築・フロントエンド設計・Tailwind CSS・Figmaデザイン実装・ブラウザ自動化・next-devtools・Vitest・Playwright E2E をカバーします。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write", "Edit", "Bash"],

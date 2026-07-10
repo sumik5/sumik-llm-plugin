@@ -9,6 +9,8 @@ description: >-
   strategies. For framework-specific implementation (Express, NestJS), use
   developing-fullstack-javascript. For microservices patterns and trade-off analysis of API usability
   vs maintenance, use cloud:architecting-infrastructure instead.
+  For choosing among API styles (REST vs GraphQL vs gRPC vs webhooks vs WebSocket vs messaging) and their trade-offs before implementation, use choosing-api-styles.
+  For Fastify framework implementation (routing, plugins, schema validation), use building-nodejs-services.
 disable-model-invocation: false
 ---
 

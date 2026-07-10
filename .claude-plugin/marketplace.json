@@ -23,7 +23,7 @@
     {
       "name": "web",
       "source": "./plugins/web",
-      "description": "sumik Claude Code Plugin (web) — Web/フロントエンド実装スキル群（Next.js/React/フルスタックJS/Web API/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E）"
+      "description": "sumik Claude Code Plugin (web) — Web/フロントエンド実装スキル群（Next.js/React/フルスタックJS/Web API/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築）"
     },
     {
       "name": "cloud",

@@ -10,8 +10,8 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/devkit"
       },
-      "version": "14.5.1",
-      "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・27個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
+      "version": "14.6.0",
+      "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。28体のタチコマAgent・30個のスキル・12個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
@@ -52,8 +52,8 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/web"
       },
-      "version": "1.1.2",
-      "description": "Web・フロントエンド実装スキル群を提供するプラグイン。11個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
+      "version": "1.2.0",
+      "description": "Web・フロントエンド実装スキル群を提供するプラグイン。13個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・choosing-api-styles・building-nodejs-services・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
@@ -66,8 +66,8 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/cloud"
       },
-      "version": "1.0.2",
-      "description": "クラウド・インフラ・IaC・認可スキル群を提供するプラグイン。11個のスキル（AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ設計・データ設計・マルチテナントSaaS）を含む。",
+      "version": "1.1.0",
+      "description": "クラウド・インフラ・IaC・認可スキル群を提供するプラグイン。12個のスキル（AWS・Google Cloud・Terraform・Firebase・DevOps・オブザーバビリティ・動的認可・Keycloak・インフラ設計・データ設計・マルチテナントSaaS・セキュリティアーキテクチャ設計）を含む。",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
@@ -80,7 +80,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/ai"
       },
-      "version": "1.2.2",
+      "version": "1.2.3",
       "description": "GenAI・AIエージェント・Web AI統合・LLM評価スキル群を提供するプラグイン。6個のスキル（GenAI設計パターン・AIエージェント構築・Web AIアプリ統合・promptfooによるLLM評価・AI支援開発方法論・AI開発セキュリティ戦略）を含む。",
       "policy": {
         "installation": "AVAILABLE",

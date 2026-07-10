@@ -12,6 +12,9 @@ description: >-
   For code-level clean practices, use writing-clean-code. For distributed/infrastructure patterns,
   use cloud:architecting-infrastructure. For evolutionary architecture and microservices intro, see
   ARCHITECTURE-EVOLUTION.md. For project foundations and team practices, use practicing-software-engineering.
+when_to_use: >-
+  For transforming an existing legacy codebase toward this target design—Modularity Maturity
+  Index (MMI) assessment, domain rediscovery, and incremental refactoring—use transforming-legacy-systems.
 ---
 
 詳細な手順・ガイドラインは [INSTRUCTIONS.md](INSTRUCTIONS.md) を参照してください。

@@ -44,14 +44,14 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
         ├── .codex-plugin/
         │   └── plugin.json              # Codex CLI プラグインマニフェスト（skills ./skills/・MCP なし）
         ├── README.md
-        └── skills/                      # ナレッジスキル (11個)
+        └── skills/                      # ナレッジスキル (13個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Skills (11個)
+### Skills (13個)
 
 | スキル | 説明 |
 |--------|------|
@@ -59,6 +59,8 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `developing-react` | React 19.x 開発ガイド（Internals・パフォーマンスルール・デザインパターン（Container/Presenter・HOC・Render Props・Headless等）・エラーハンドリング・アクセシビリティ（ARIA・フォーカス管理・キーボードナビゲーション）・状態管理（nuqs・Jotai・React Compiler）・アニメーション・RTLテスト・Storybook） |
 | `developing-fullstack-javascript` | フルスタックJS開発（NestJS/Express・React・CI/CD・品質）＋JavaScript言語基礎（型・クロージャ・プロトタイプ・async/await・モジュール・メタプログラミング）を包括カバー。V8内部・イベントループ・Express 5 + Drizzle ORM CRUDも収録 |
 | `developing-web-apis` | Web API開発統合ガイド（API設計ベストプラクティス・Spec First開発方法論・APIテスト戦略）。エンドポイント設計・HTTPスペック・バージョニング・セキュリティ・コントラクトテスト・自動化を網羅 |
+| `choosing-api-styles` | APIスタイル選定・比較の意思決定ガイド（REST/GraphQL/gRPC/Webhook/WebSocket/メッセージング/Webフィードの7スタイル）。通信モード・プロトコル基盤(HTTP/1.1/2/3・QUIC)・スタイル別トレードオフ・6次元選定マトリクスと決定木を収録 |
+| `building-nodejs-services` | Fastify による Node.js サービス/CLI/実プロジェクト構築（Fastifyコア: ルーティング/フック/プラグイン/スキーマ検証・Nodeランタイム内部: イベントループ/libuv/streams/clustering・REST実装・永続化: Mongoose/Sequelize/SQLite/Redis・認証フロー・SSR・メッセージング: RabbitMQ・CLIツール・外部データ統合/スクレイピング・メール/生成AI統合・scaffolding・品質チェックリスト、12リファレンスファイル） |
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合・オブジェクト指向UI設計（OOUI）：オブジェクト抽出・ビュー/ナビゲーション・レイアウトパターン・マイクロフロントエンドアーキテクチャ） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
 | `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証 ＋ Figma UIデザイン: ワイヤーフレーム→ハンドオフ・8ptグリッド・UIStack） |

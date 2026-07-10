@@ -82,7 +82,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── hooks/                        # イベントフック (12個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (4個)
-    │   └── skills/                       # ナレッジスキル (28個)
+    │   └── skills/                       # ナレッジスキル (30個)
     ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
@@ -108,14 +108,14 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── .codex-plugin/
     │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 web / skills ./skills/ / mcpServers なし）
     │   ├── README.md
-    │   └── skills/                       # ナレッジスキル (11個)
+    │   └── skills/                       # ナレッジスキル (13個)
     ├── cloud/                            # クラウド・インフラ・アーキテクチャプラグイン（skills-only）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 cloud / version 同期必須）
     │   ├── .codex-plugin/
     │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 cloud / skills ./skills/ / mcpServers なし）
     │   ├── README.md
-    │   └── skills/                       # ナレッジスキル (11個)
+    │   └── skills/                       # ナレッジスキル (12個)
     ├── ai/                               # AI/LLM/エージェント開発プラグイン（skills-only）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 ai / version 同期必須）
@@ -208,7 +208,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 
-### Skills (28個)
+### Skills (30個)
 
 #### コア開発
 
@@ -227,6 +227,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `authoring-plugins` | Claude Code Plugin開発ガイド（Agent・Skill・コマンド定義の作成・最適化・フロントマター仕様・Progressive Disclosure・ツール制限）。Agent Skills標準 vs Claude Code拡張の分離原則・fork判定5軸マトリクス・FORK-GUIDE.md含む |
 | `capturing-learnings` | 作業中の学び・エラー・ユーザー訂正・機能要望を .learnings/ に構造化記録し継続的改善につなげるスキル（LRN/ERR/FEAT エントリ・反復パターン検出・CLAUDE.md/memory/AGENTS.md/新スキルへの昇格・devkit hookで自動リマインド）。プラグイン自身のスキル改善は authoring-plugins、定期棚卸しは USAGE-REVIEW を参照 |
 | `practicing-software-engineering` | SW開発プラクティス包括ガイド（プロジェクト基盤: Fast Feedback・DORA計測 ＋ チーム組織: Team Topologies・4チームタイプ ＋ ペアプログラミング: 4パターン ＋ 開発者習慣: GREAT Habits ＋ IC効果性マインドセット: アウトカム思考・戦略的優先順位付け ＋ キャリア成長: Junior→Staff・IC/Management パス ＋ 影響力: PM/デザイナー協働・権限なきリーダーシップ ＋ 20アンチパターン: 個人15+チーム5 ＋ 持続可能パフォーマンス: バーンアウト防止・リモートワーク ＋ AI活用ワークフロー: 日常AI統合・90日チーム採用計画、10リファレンスファイル） |
+| `pursuing-simplicity` | シンプリシティ（自己誘発の複雑化への抵抗）実践ガイド（Orient-Step-Learn ループ・S vs C 評価ルーブリック ＋ 技術ミニマリズム: 依存の意思決定チェーン/最小・安定フレームワーク選定/機能=負債の抑制/増分価値提供/保守的技術採用 ＋ 個人の自動化と環境習熟: Automate First/Day Zero デプロイ/端末・シェル・エディタ・ワークスペース/マシンプロビジョニング ＋ 協働とソフトスキル: 非同期・時間的結合の除去/会議の作法・DWP/スキル拡散/弁証法的思考/共感/コードへの直感/アナロジー ＋ データ駆動の簡素化とエラーを見つけるコードレイアウト、5リファレンスファイル） |
 | `find-skills` | スキル発見・インストールガイド（agent skills エコシステム検索・"how do I do X" / "find a skill for X" クエリへの応答・能力拡張サポート） |
 
 #### アーキテクチャ
@@ -234,6 +235,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | スキル | 説明 |
 |--------|------|
 | `applying-clean-architecture` | Clean Architecture と DDD の統合ガイド（依存性ルール・同心円レイヤモデル: Entities/Use Cases/Interface Adapters/Frameworks & Drivers・コンポーネント原則 REP/CCP/CRP・ADP/SDP/SAP・Screaming Architecture・Humble Object・DDD戦略/戦術パターン: 境界づけられたコンテキスト/ユビキタス言語/コンテキストマッピング/Value Object/Entity/Aggregate/Event Sourcing/CQRS/Saga） |
+| `transforming-legacy-systems` | レガシーシステムのDDD変革方法論（MMI: モジュール性成熟度の3次元定量評価と変革経路セレクター ＋ 複雑性の統御 ＋ 協働モデリング: ドメインストーリーテリング/EventStorming/シナリオキャスティング ＋ 変革アプローチ選定: 段階的置換/リシェイピング ＋ 技術的安定化: Seam・契約による設計 ＋ ドメイン知識のコード注入: 貧血モデル解消 ＋ 戦略4ステップ: ドメイン再発見→モデリング→整合→実行 ＋ チーム編成 ＋ 変革向けリファクタリングカタログ20エントリ、12リファレンスファイル） |
 
 #### フレームワーク
 

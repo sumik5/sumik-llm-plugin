@@ -10,6 +10,7 @@ description: >-
   For architecture-level clean design, use applying-clean-architecture.
   For legacy code refactoring, see CHANGEABLE-CODE.md subfile.
   For refactoring mindset (spikes, feature toggles, structural discovery), see REFACTORING-MINDSET.md reference.
+  For project-, environment-, and collaboration-level simplicity beyond code (technology minimalism, personal automation, cutting self-induced complexity), use pursuing-simplicity.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
