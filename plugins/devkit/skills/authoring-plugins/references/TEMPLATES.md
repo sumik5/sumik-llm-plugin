@@ -57,7 +57,7 @@ description: >-
 ---
 name: developing-go
 description: >-
-  Guides Go development with best practices from Google Style Guide and Effective Go.
+  Guides Go development with clean code practices and design patterns.
   Use when go.mod is detected or Go code is being written.
   Covers naming, error handling, concurrency, testing, and project structure.
 ---
@@ -92,15 +92,14 @@ description: >-
 **既存スキルの実例:**
 
 ```yaml
-# enforcing-type-safety
+# testing-code
 ---
-name: enforcing-type-safety
+name: testing-code
 description: >-
-  Enforces type safety in TypeScript/Python implementations.
-  Any/any types strictly prohibited.
-  Use when processing API responses, integrating external libraries,
-  or implementing data validation.
-  Supports strict mode configuration and type guard implementation.
+  Enforces TDD with the AAA pattern, actual/expected variables,
+  and a 100% coverage goal for business logic.
+  REQUIRED for all feature implementations.
+  Automatically load when writing or reviewing tests.
 ---
 ```
 
@@ -145,21 +144,21 @@ description: >-
 **既存スキルの実例:**
 
 ```yaml
-# applying-design-guidelines（理論寄り）
+# designing-ux（理論寄り・design プラグイン）
 ---
-name: applying-design-guidelines
+name: designing-ux
 description: >-
   Comprehensive UI/UX design principles covering visual design
-  (typography, color, motion) and user experience
+  (typography, color, layout) and user experience
   (cognitive psychology, interaction patterns, mental models).
   Use when making design decisions, evaluating existing interfaces,
   or needing theoretical design guidance.
-  For actual frontend code generation, use designing-frontend instead.
+  For actual frontend code generation, use web:designing-frontend instead.
 ---
 ```
 
 ```yaml
-# designing-frontend（実装寄り）
+# designing-frontend（実装寄り・web プラグイン）
 ---
 name: designing-frontend
 description: >-
@@ -168,21 +167,21 @@ description: >-
   that need creative, polished UI code.
   Focuses on actual code generation (HTML/CSS/JS) with component management.
   For theoretical UI/UX design principles and guidelines,
-  use applying-design-guidelines instead.
+  use design:designing-ux instead.
 ---
 ```
 
 ```yaml
-# automating-browser（統合）
+# automating-browser（統合・web プラグイン）
 ---
 name: automating-browser
 description: >-
-  Unified browser automation covering Playwright MCP (lightweight automation),
-  CLI agent (advanced scenarios), and E2E testing with Playwright Test.
-  Use for any browser automation needs - from simple navigation to complex
-  testing workflows.
-  Integrates three approaches: MCP for quick scripts, CLI agent for
-  professional automation, and E2E testing for comprehensive test suites.
+  Unified browser automation via the agent-browser CLI covering
+  scraping, UI operation flows, auth persistence, form submission,
+  and data extraction.
+  Use for browser automation needs - from simple navigation to
+  natural-language operation and batch execution.
+  For E2E test suites, use testing-e2e-with-playwright instead.
 ---
 ```
 
@@ -190,7 +189,7 @@ description: >-
 
 | 関係性 | パターン | 例 |
 |--------|----------|----|
-| 理論 vs 実装 | 理論側: `For actual [実装], use [実装スキル]` | applying-design-guidelines / designing-frontend |
+| 理論 vs 実装 | 理論側: `For actual [実装], use [実装スキル]` | design:designing-ux / web:designing-frontend |
 | 統合ツール | `Unified [機能] covering [3つの柱]` | automating-browser |
 | 汎用 vs 特化 | 汎用側: `For [特化ドメイン], use [特化スキル]` | - |
 
@@ -205,7 +204,7 @@ description: >-
 REQUIRED for [scope]. Automatically load when [condition].
 [Key concepts covered]. [Distinction from similar skills].
 ```
-例: writing-clean-code, enforcing-type-safety, testing, securing-code
+例: writing-clean-code, testing-code, securing-code
 
 #### パターン2: 自動検出（MUST load）
 ```
@@ -213,7 +212,7 @@ REQUIRED for [scope]. Automatically load when [condition].
 MUST load when [specific file/config] is detected in project.
 Covers [key features]. For [alternative scope], use [other-skill] instead.
 ```
-例: developing-nextjs, developing-go, managing-docker
+例: developing-nextjs, developing-go, developing-python
 
 #### パターン3: オンデマンド（Use when）
 ```
@@ -513,7 +512,7 @@ description: >-
 
 ```
 # developing-fullstack-javascript（トピック別分割）
-plugins/devkit/skills/developing-fullstack-javascript/
+plugins/web/skills/developing-fullstack-javascript/
 ├── SKILL.md
 └── references/
     ├── BACKEND-STRATEGIES.md
@@ -740,11 +739,11 @@ AskUserQuestion(
 パターンAでユーザーが「既存に追記」を選択した後に使用する。追記方法を確認。
 
 ````python
-# 例: managing-docker に追記する場合
+# 例: practicing-devops に追記する場合
 AskUserQuestion(
     questions=[
         {
-            "question": "既存スキル managing-docker への追記方法を選択してください。",
+            "question": "既存スキル practicing-devops への追記方法を選択してください。",
             "header": "追記方法",
             "options": [
                 {"label": "新規サブファイルとして追加（推奨）", "description": "OPTIMIZATION.md 等のサブファイルを新規作成"},

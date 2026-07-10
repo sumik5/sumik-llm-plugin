@@ -364,7 +364,7 @@ Transition: Instant
 
 ## ユーザー確認の原則
 
-**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**（AskUserQuestion が使えない環境（Codex CLI 等）では、以下のコード例を雛形として同じ質問と選択肢をテキストで提示して確認する）
 
 ### 確認すべき場面
 

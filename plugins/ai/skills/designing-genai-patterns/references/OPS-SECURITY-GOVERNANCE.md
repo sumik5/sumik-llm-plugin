@@ -475,7 +475,7 @@ if dpp > 0.1:
 
 ## AskUserQuestion指針
 
-以下の状況ではAskUserQuestionで確認する：
+以下の状況ではAskUserQuestionで確認する（AskUserQuestion が使えない環境では、同じ選択肢を通常のテキスト質問として提示する）：
 
 ### セキュリティレベルの選定
 

@@ -406,7 +406,7 @@ resource "aws_vpc" "main" {
 
 ## ユーザー確認の原則（AskUserQuestion）
 
-**判断分岐がある場合、推測せず必ずAskUserQuestionツールで確認する。**
+**判断分岐がある場合、推測せず必ずAskUserQuestionツールで確認する。**（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ選択肢を通常のテキスト質問として提示して回答を得る）
 
 ### 確認すべき場面
 

@@ -262,7 +262,7 @@ Androidでは同等の概念を「Cutout Area」と呼ぶ。
 
 ## ユーザー確認の原則（AskUserQuestion）
 
-**判断が必要な場面では推測で進めず、必ずAskUserQuestionでユーザーに確認する。**
+**判断が必要な場面では推測で進めず、必ずAskUserQuestionでユーザーに確認する。**（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ選択肢を通常のテキスト質問として提示して確認する）
 
 ### 確認すべき場面
 

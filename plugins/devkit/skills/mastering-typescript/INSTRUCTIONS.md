@@ -62,7 +62,7 @@ interface UserResponse {
 
 ### 2.4 ユーザー確認の原則（AskUserQuestion）
 
-**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ選択肢を通常のテキスト質問として提示する）
 
 確認すべき場面:
 - **型定義の設計方針**: `interface` vs `type` の選択（拡張性が必要か）

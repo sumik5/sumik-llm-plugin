@@ -38,22 +38,22 @@
 |------------------|----------------|-----------|-------------|
 | フレームワーク・言語の開発ガイド | 環境構築、API、ルーティング、設定 | `developing-` | developing-nextjs, developing-go, developing-python |
 | フルスタック・複合開発 | フロント+バック+デプロイ | `developing-fullstack-` | developing-fullstack-javascript |
-| コンテナ・インフラ・CI/CD運用 | Docker, k8s, 監視, ログ | `managing-` | managing-docker |
-| 品質ルール・制約の強制 | 「禁止」「必須」「strict」が頻出 | `enforcing-` | enforcing-type-safety |
+| コンテナ・インフラ・CI/CD運用 | Docker, k8s, 監視, ログ | `practicing-` / `managing-` | practicing-devops, managing-keycloak |
+| 品質ルール・制約の強制 | 「禁止」「必須」「strict」が頻出 | `enforcing-` | (mastering-typescriptに統合済み) |
 | ライブラリ・技術の調査・評価 | 比較表、pros/cons、選定基準 | `researching-` | researching-libraries |
 | ファイル・ドキュメント・設定の生成 | テンプレート、生成手順、フォーマット | `writing-` | writing-latex, writing-effective-prose |
 | UI・画面・デザインの作成 | コンポーネント、レイアウト、色、フォント | `designing-` | designing-frontend |
-| テスト戦略・手法 | テストケース、カバレッジ、TDD、モック | `testing` / `testing-` | testing |
+| テスト戦略・手法 | テストケース、カバレッジ、TDD、モック | `testing-` | testing-code, testing-with-vitest |
 | セキュリティ対策 | 脆弱性、認証、暗号化、OWASP | `securing-` | securing-code |
 | ツール・ライブラリの使い方 | コマンド一覧、設定方法、API使用法 | `using-` | using-serena, using-next-devtools |
 | 実装手順・ワークフロー | ステップバイステップ、手順書 | `implementing-` | implementing-as-tachikoma |
-| データ変換・処理 | 入出力変換、パース、マイグレーション | `converting-` / `processing-` | convert-to-skill |
+| データ変換・処理 | 入出力変換、パース、マイグレーション | `converting-` / `processing-` | converting-content |
 | Web検索・情報収集 | 検索クエリ、情報源、調査手法 | `searching-` | searching-web |
 | ベストプラクティス集 | パターン集、アンチパターン、最適化Tips | `[topic]-best-practices` | (developing-nextjsに統合済み) |
-| ガイドライン・原則集 | 設計原則、コーディング規約 | `applying-` / `[topic]-guidelines` | applying-design-guidelines |
+| ガイドライン・原則集 | 設計原則、コーディング規約 | `applying-` / `[topic]-guidelines` | applying-clean-architecture |
 | ブラウザ自動化 | スクレイピング、E2Eテスト、操作自動化 | `automating-` | automating-browser |
-| Git・バージョン管理 | ブランチ戦略、ワークフロー | `managing-git-` | managing-git-worktrees |
-| レビュー・分析 | コードレビュー、品質分析 | `reviewing-` / `analyzing-` | reviewing-with-coderabbit |
+| Git・バージョン管理 | コミット規約、MR/PRワークフロー | `operating-` / `writing-` | operating-gitlab, writing-conventional-commits |
+| レビュー・分析 | コードレビュー、品質分析 | `reviewing-` / `analyzing-` | reviewing-code, reviewing-with-hunk |
 
 ### 動詞選択のフローチャート
 
@@ -87,8 +87,8 @@
 
 | 状況 | 重複度 | 推奨アクション | 具体例 |
 |------|--------|--------------|--------|
-| 完全に同じドメイン・スコープ | 高 | **既存に追記** | Docker運用ノート → managing-docker に追加 |
-| 既存スキルの一部トピックを深掘り | 中〜高 | **既存にサブファイルとして追加** | React Hooks詳細 → developing-nextjs にHOOKS.mdとして追加 |
+| 完全に同じドメイン・スコープ | 高 | **既存に追記** | Docker運用ノート → practicing-devops に追加 |
+| 既存スキルの一部トピックを深掘り | 中〜高 | **既存にサブファイルとして追加** | React Hooks詳細 → developing-react にHOOKS.mdとして追加 |
 | 部分的に重複するが独立性あり | 中 | **AskUserQuestionで確認** | Tailwind CSS設計 → designing-frontend の一部 or 新規 `using-tailwind`？ |
 | 完全に新しいドメイン | なし | **新規作成** | Rust開発ガイド → developing-rust（新規） |
 
@@ -115,7 +115,7 @@
 | ソースファイル | 主要コンテンツ | 候補1（ファイル名ベース） | 候補2（コンテンツベース） | 候補3（既存パターンベース） |
 |-------------|-------------|----------------------|---------------------|--------------------------|
 | `terraform-patterns.md` | Terraform設計パターン | `designing-terraform` | `implementing-terraform-patterns` | `developing-terraform` ※既存に追記 |
-| `react-hooks-patterns.md` | React Hooks設計パターン | `designing-react-hooks` | `implementing-react-hooks` | `developing-nextjs` ※既存に追記 |
+| `react-hooks-patterns.md` | React Hooks設計パターン | `designing-react-hooks` | `implementing-react-hooks` | `developing-react` ※既存に追記 |
 | `rust-intro.md` | Rust言語入門 | `developing-rust` | `developing-rust` | `developing-rust`（新規） |
 | `api-auth-guide.md` | API認証実装ガイド | `implementing-api-auth` | `securing-api-auth` | `securing-code` ※既存に追記の可能性 |
 

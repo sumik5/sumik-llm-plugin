@@ -211,7 +211,7 @@ when {                                     // Conditions: 条件
 
 ## ユーザー確認の原則（AskUserQuestion）
 
-**曖昧さがある場合、必ずAskUserQuestionツールで確認してください。** 以下のポイントで判断が必要です：
+**曖昧さがある場合、必ずAskUserQuestionツールで確認してください。**（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ質問・選択肢を通常のテキストで提示して確認する）以下のポイントで判断が必要です：
 
 ### 1. 認可モデル選定
 

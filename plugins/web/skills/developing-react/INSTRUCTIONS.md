@@ -4,6 +4,8 @@
 
 React固有の開発知識を集約したスキル。React Internals、パフォーマンス最適化（react-doctor 47+ルール）、UIアニメーション、テスト（React Testing Library）の4領域をカバーする。
 
+> 本スキル内（references/ 含む）の AskUserQuestion 指示は、AskUserQuestion ツールが使えない環境（Codex CLI 等）では同じ選択肢を通常のテキスト質問として提示する確認に読み替える。
+
 ## ドキュメント構成
 
 ### ⚛️ React 19 新機能

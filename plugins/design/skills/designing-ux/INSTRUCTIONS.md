@@ -121,7 +121,7 @@ Reference the specific documents (GUIDELINES-UI-DESIGN.md or GUIDELINES-UX-DESIG
 
 ### ユーザー確認の原則（AskUserQuestion）
 
-**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**（AskUserQuestion が使えない環境〈Codex CLI 等〉では、同じ選択肢を通常のテキスト質問として提示して確認する。references/ 内の同型指示も同様）
 
 | 確認項目 | 例 |
 |---|---|

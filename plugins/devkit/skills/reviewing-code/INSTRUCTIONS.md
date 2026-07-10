@@ -436,7 +436,7 @@ cr review --prompt-only --type uncommitted
 
 **Info レベルは許容**: 特に要求がない限り修正不要。
 
-**修正が不明確またはリスクがある場合**: `AskUserQuestion` でユーザーに確認してから適用。
+**修正が不明確またはリスクがある場合**: `AskUserQuestion` でユーザーに確認してから適用（AskUserQuestion が使えない環境では、同じ選択肢を通常のテキスト質問として提示する）。
 
 詳細ワークフロー・全オプション → **[references/CODERABBIT-INTEGRATION.md](./references/CODERABBIT-INTEGRATION.md)**
 

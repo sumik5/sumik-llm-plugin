@@ -339,7 +339,7 @@ fi
 
 ## AskUserQuestion指示
 
-スクリプト作成時に判断分岐がある場合、AskUserQuestionツールで確認すること。
+スクリプト作成時に判断分岐がある場合、AskUserQuestionツールで確認すること。（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ選択肢を通常のテキスト質問として提示する）
 
 ### 確認すべき判断ポイント
 

@@ -534,7 +534,7 @@ Device 4:                   [MB1] [MB2] [MB3] [MB4]
 
 ## AskUserQuestion指針
 
-以下の状況ではAskUserQuestionで確認する：
+以下の状況ではAskUserQuestionで確認する（AskUserQuestion が使えない環境では、同じ選択肢を通常のテキスト質問として提示する）：
 
 ### スケーリング戦略の選定
 

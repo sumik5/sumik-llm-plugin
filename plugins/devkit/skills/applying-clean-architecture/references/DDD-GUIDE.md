@@ -262,7 +262,7 @@ Read Model構築（CQRS）
 
 ## ユーザー確認の原則（AskUserQuestion）
 
-以下の判断が必要な場合、AskUserQuestionツールで確認してください。
+以下の判断が必要な場合、AskUserQuestionツールで確認してください（AskUserQuestion が使えない環境では、同じ選択肢を通常のテキスト質問として提示する）。
 
 ### 1. 業務領域分類の確認
 

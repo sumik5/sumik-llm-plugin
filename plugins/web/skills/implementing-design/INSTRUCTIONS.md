@@ -134,7 +134,7 @@ When in doubt, defer to the project's established design system patterns. The de
 
 ## ユーザー確認の原則（AskUserQuestion）
 
-**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ確認項目を通常のテキスト質問として提示して回答を待つ）
 
 ### 確認すべき場面
 

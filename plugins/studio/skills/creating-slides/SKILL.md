@@ -5,7 +5,8 @@ description: >-
   HTMLプレゼンデッキの作成・テーマカスタマイズ・ソース素材変換をガイド。認知科学・ロジック構築（接続関係診断・基本ロジック図）・ストーリーテリング・聴衆分析・スライドデザイン・ビジュアルデザイン実践・提案書構成術（ロジック3つの力・MECE・メッセージマップ）・デリバリー（実践Tips集含む）・準備プロセスの9リファレンスで品質を担保。国際学会・学術研究発表（Q&A・ネットワーキング・ポスター発表・英語表現・発音）向け専門リファレンス6本も収録。
   Use when creating HTML slide decks, converting source materials to slides, customizing slide themes,
   initializing new slide projects, or preparing international conference presentations and academic
-  research talks. Delegates actual slide creation to the tachikoma-doc-slide agent.
+  research talks. Delegates actual slide creation to the tachikoma-doc-slide agent (falls back to
+  direct creation when subagents are unavailable, e.g. Codex CLI).
   For presentation quality improvement (storytelling, delivery, engagement) use designing-training.
   For text polishing use devkit:writing-effective-prose. For marketing copy use creating-content. For
   consultant-quality single-slide PowerPoint (.pptx) use creating-pptx. For Google Slides editing via

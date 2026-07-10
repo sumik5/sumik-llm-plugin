@@ -95,7 +95,7 @@ curl http://127.0.0.1:3141/
 
 > 🔴 **toolkit があっても parse は使い捨て**: 共通化したのは「ソースに依らない投入インフラ」だけ。`parse()` 本体をジェネリック化してはならない（Step 3 の警告参照: 同シリーズ・同一級でも pandoc 後の構造は変異し、汎用パーサーはサイレント抽出漏れを起こす）。toolkit 導入で parse が楽になったと誤解しないこと。
 
-`scripts/` ディレクトリの詳細な契約（`QAPair` フィールド・公開API シグネチャ・機械可読の CONTRACT ブロック）は本ファイル末尾の「scripts ディレクトリ（投入インフラの契約）」節を参照。
+`scripts/` ディレクトリの詳細な契約（`QAPair` フィールド・公開API シグネチャ・機械可読の CONTRACT ブロック）は [SCRIPTS-CONTRACT.md](references/SCRIPTS-CONTRACT.md) を参照（scaffold の `parse()` 実装時・toolkit 修正時・契約変更時に必読）。
 
 ### Step 1: ファイル形式の検出と変換
 
@@ -313,99 +313,9 @@ AskUserQuestion(
 
 判定結果に応じて以下のHTMLフォーマットを使い分ける。
 
-#### HTMLフォーマットルール（選択肢型）
+#### HTMLフォーマットルール（選択肢型・○×型）
 
-**Frontフィールド（問題）:**
-
-- 問題番号ヘッダー（「問 N」等）は**含めない**。問題の内容のみ
-- 選択肢は以下の形式:
-
-```html
-<ol style="list-style-type: none; padding-left: 0;">
-  <li>A. 選択肢テキスト</li>
-  <li>B. 選択肢テキスト</li>
-  <li>C. 選択肢テキスト</li>
-  <li>D. 選択肢テキスト</li>
-</ol>
-```
-
-- `list-style-type: none` でデフォルト番号を非表示にし、`A.` `B.` 等のプレフィックスを `<li>` 内に保持
-- 問題文と選択肢の間は `<br><br>` で分離
-- **選択肢形式の正規化**: ソースの選択肢がバレットポイント（`-`）形式の場合、A./B./C./D./E. のレターを自動付与する
-- **複数正解対応**: 「二つ選択」等の問題では、正解の選択肢を全てBackフィールドに表示する
-
-**Backフィールド（解答）:**
-
-```html
-<b>正解の選択肢:</b><br><br>
-[正解テキスト]<br><br>
-<b>解説:</b><br><br>
-[解説テキスト]<br><br>
-<b>不正解の選択肢の解説:</b><br><br>
-<b>B:</b> [不正解解説テキスト]<br><br>
-<b>C:</b> [不正解解説テキスト]
-```
-
-- **比較テーブル**: 解説に含まれるプレーンテキストの比較テーブルは、HTMLテーブル（`<table>`）に変換してAnkiで見やすく表示する。🔴 この変換は **scaffold の `parse()` がソース固有に行い**、組み立てた `<table>` を `QAPair.back` に注入する。`anki_toolkit.build_back_html()` は `back` 本文を **raw HTML として素通し**（escape しない）するだけで、プレーンテキスト→`<table>` の自動変換は行わない（表構造の検出はソース依存のため toolkit の責務にしない）
-- **出典付与（Step 5c で情報を取得した場合）**: Back フィールド末尾に以下の出典 div を付与する:
-
-  ```html
-  <div style="text-align:right;font-size:0.8em;color:#888;margin-top:1em;">
-    📖 [書名] p.[ページ番号]
-  </div>
-  ```
-
-  | 取得状況 | 出力形式 |
-  |---------|---------|
-  | 書籍名・ページ番号ともに取得済み | `📖 [書名] p.[ページ番号]` |
-  | 書籍名のみ取得（ページ番号不明） | `📖 [書名]` |
-  | ページ番号のみ取得（書籍名不明） | `📖 p.[ページ番号]` |
-  | 両方不明 | 出典 div を出力しない |
-
-#### HTMLフォーマットルール（○×型 / True/False型）
-
-**Frontフィールド（問題）:**
-
-- 問題番号ヘッダー（「問題 N」「問 N」等）は**含めない**。問題文（平叙文）のみ
-- 末尾に判定指示を補助表示するため `<br><br><i>（○か✕で答えよ）</i>` を付与する
-- `**重要!**` `**重要！**` バッジが付いている問題は、Frontの末尾（判定指示の前）に `<br><span style="color:#c00;font-weight:bold;">⭐ 重要</span>` を追加して視認性を高める
-
-```html
-[問題文（平叙文）]<br><br>
-<span style="color:#c00;font-weight:bold;">⭐ 重要</span><br><br>
-<i>（○か✕で答えよ）</i>
-```
-
-**Backフィールド（解答）:**
-
-```html
-<div style="font-size:2em;font-weight:bold;text-align:center;">[○ または ✕]</div>
-<br>
-<b>解説:</b><br>
-[解説テキスト]
-```
-
-- 先頭に判定結果（`○` or `✕`）を大きく表示して即座に確認できるようにする
-- ソースの `×` は表記揺れがあるため `✕`（U+2715 MULTIPLICATION X）に正規化する
-- 解説が複数段落にわたる場合は段落間を `<br><br>` で分離する
-- 解説中に条文参照（例: `民法90条`）が含まれる場合はそのまま保持する
-- **出典付与（Step 5c で情報を取得した場合）**: 選択肢型と同様に Back フィールド末尾に出典 div を付与する（書籍名・ページ番号の取得状況に応じた出力形式は選択肢型の規則に準ずる）
-
-**タグ生成（○×型・選択肢型共通の補足）:**
-
-ソースのメタ情報をAnkiタグとして自動付与する。タグはAnkiで検索・絞り込みに利用される:
-
-| メタ情報 | タグ例 |
-|---------|--------|
-| 章 | `章:第1章-私法の基本原則と法律の基礎知識` |
-| 節 | `節:第1節-コンプライアンスと私法の基本原則` |
-| テーマ | `テーマ:契約と約束の違い` |
-| 難易度 | `難易度:★` `難易度:★★` `難易度:★★★` |
-| 重要マーカー | `重要` （`**重要!**` が付与された問題のみ） |
-
-> ⚠️ Ankiタグは空白を含めず、`-` でつなぐ。スラッシュ `/` は階層タグになる（必要に応じて活用）。
-
-詳細なフォーマットルールは [CONTENT-COMMON.md](references/CONTENT-COMMON.md) の「フォーマット変換ルール」を参照。書籍タイプ別のパース戦略は [CONTENT-BY-TYPE.md](references/CONTENT-BY-TYPE.md)、判別マトリクスは [CONTENT-DETECTION.md](references/CONTENT-DETECTION.md) を参照。
+🔴 **カードHTMLを組み立てる（`QAPair` を設計する）前に必読**: 選択肢型・○×型それぞれの Front/Back テンプレート（選択肢の `<ol>` リスト化・正解/解説/不正解解説の構成・○×大表示・⭐重要バッジ・`✕` 正規化・比較テーブルのHTML変換・出典div・タグ生成）は [CONTENT-COMMON.md](references/CONTENT-COMMON.md) の「フォーマット変換ルール」に集約されている。実装は `anki_toolkit.py` の `build_front_html()` / `build_back_html()` が担う（契約は [SCRIPTS-CONTRACT.md](references/SCRIPTS-CONTRACT.md) 参照）。書籍タイプ別のパース戦略は [CONTENT-BY-TYPE.md](references/CONTENT-BY-TYPE.md)、判別マトリクスは [CONTENT-DETECTION.md](references/CONTENT-DETECTION.md) を参照。
 
 #### 一括作成（バッチAPI推奨）
 
@@ -528,7 +438,7 @@ scaffold が `extract_images()` で返した `[{"filename","data_b64"}]` を `QA
    |------------|------|-----------|--------|
    | `addNotes` の新しいエラー形式 / 冪等性の穴 / HTML整形の出力バグ | ソース非依存・不変 | `scripts/anki_toolkit.py` をコード修正 | PATCH |
    | 新しい pandocアーティファクト / 構造パターン / 判定マーカー表記揺れ / 章見出し変異 | ソース固有・パース時判断 | references に散文追記（従来どおり） | PATCH |
-   | `QAPair` に新フィールドが必要（例: 新しい問題種別） | 契約変更 | 🔴 3箇所同時更新（toolkit / scaffold / INSTRUCTIONS の CONTRACT ブロック）。本体に相談 | PATCH or MINOR |
+   | `QAPair` に新フィールドが必要（例: 新しい問題種別） | 契約変更 | 🔴 3箇所同時更新（toolkit / scaffold / [SCRIPTS-CONTRACT.md](references/SCRIPTS-CONTRACT.md) の CONTRACT ブロック）。本体に相談 | PATCH or MINOR |
 
    > 🔴 scaffold の `parse()` TODO や共通ヘルパ（`clean_pandoc` 等）の regex は**自動修正しない**（ソース固有のため）。scaffold に普遍的に効く改善（新しい共通クリーニングヘルパの追加等）のみ scaffold を編集対象に含めてよいが、`parse()` 本体は触らない。
 
@@ -561,72 +471,9 @@ scaffold が `extract_images()` で返した `[{"filename","data_b64"}]` を `QA
 
 ---
 
-## scripts ディレクトリ（投入インフラの契約）
+## 関連リファレンス
 
-`${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/` の2層構成（[投入インフラの利用](#投入インフラの利用毎回の作業の前提)節の概説を参照）の**契約定義**をここに集約する。`anki_toolkit.py` の実コード・`parser_scaffold.py` の雛形・本節の3者で、`QAPair` フィールド名と公開API名は**完全一致**させる（ズレると投入が壊れる）。
-
-### `QAPair` 中間表現（IR）スキーマ
-
-`parse()` が返す問題1件の中間表現。`anki_toolkit.py` に `@dataclass` で定義されている。
-
-| フィールド | 型 | 既定 | 用途 |
-|-----------|-----|------|------|
-| `front` | `str` | （必須・非空） | 整形前の問題本文。問題番号ヘッダー（「問N」等）は含めない |
-| `back` | `str` | `""` | 整形前の解答/解説本文。🔴 raw HTML 素通し（toolkit は escape しない。`<table>` 等は parse 側が注入） |
-| `qtype` | `str` | `"basic"` | `"choice"` / `"truefalse"` / `"basic"` のいずれか（他は `ValueError`） |
-| `choices` | `list[str]` | `[]` | 選択肢型用。`["A. テキスト", "B. テキスト", ...]`（レター付き） |
-| `correct` | `list[str]` | `[]` | 正解レター（`["A"]` / 複数正解 `["A","C"]`） |
-| `wrong_explanations` | `dict` | `{}` | `{"B": "不正解解説", ...}`（レター→解説） |
-| `verdict` | `str` | `""` | ○×型用。`"○"` / `"✕"` / `""`（空=判定マーカー欠落。`×→✕` / `〇→○` は toolkit が正規化） |
-| `tags` | `list[str]` | `[]` | Anki タグ（階層は `::`、空白は `-`） |
-| `knowledge_area` | `str` | `""` | 補助フィールド（`field_map["extra"]` の投入先） |
-| `source_book` | `str` | `""` | 出典書籍名（Step5c）。空なら出典div出力しない |
-| `source_page` | `str` | `""` | 出典ページ番号（Step5c）。空可 |
-| `important` | `bool` | `False` | 重要マーカー（⭐重要表示 + タグ「重要」） |
-| `needs_fix` | `bool` | `False` | 不完全カード（`_要手修正` タグ + 警告div） |
-| `original_front` | `str` | `""` | 多言語用・原文問題（`<details>` 折りたたみ） |
-| `original_back` | `str` | `""` | 多言語用・原文解答（`<details>` 折りたたみ） |
-| `media` | `list[dict]` | `[]` | `[{"filename","data_b64"}]`。本文に `<img src="<filename>">` を埋めた上で実体を載せる。空なら `storeMediaFile` を呼ばない |
-
-`RenderOptions`（HTMLレンダリング方針。Step5b の `modelTemplates` 確認結果を反映）:
-
-| フィールド | 型 | 既定 | 用途 |
-|-----------|-----|------|------|
-| `choice_list_style` | `str` | `"ol"` | メイン選択肢の出力。`"ol"`=`<ol style="list-style-type:none"><li>`（シャッフルJS活用） / `"br"`=`<br>`区切り（li倍増テンプレ向け） |
-| `details_choice_style` | `str` | `"br"` | `<details>` 原文内の選択肢。常に `"br"`（`<ol><li>` 倍増回避の固定ガード） |
-| `front_field_is_choice_shuffle` | `bool` | `True` | 選択肢頭にレター（「ア.」「A.」等）を付与し、シャッフル後も内容で正解判定可能にする |
-
-### `anki_toolkit.py` 公開API（サマリ）
-
-| 関数 | シグネチャ（要点） | 役割 |
-|------|------------------|------|
-| `anki_request` | `(action, params=None) -> object` | AnkiConnect へ POST。error が配列なら `{"per_note_errors":[...]}`、文字列なら `RuntimeError` |
-| `ensure_deck` | `(deck_name) -> None` | `createDeck`（冪等）。`addNotes` 前に必須 |
-| `existing_fronts` | `(deck_name, front_field) -> set[str]` | 既存 Front 集合を実フィールド名で取得 |
-| `filter_new` | `(notes, deck_name, front_field) -> (list, int)` | 既存と重複しない note のみ返す（実フィールド名で差分） |
-| `dedup_deck` | `(deck_name, front_field) -> int` | 最古 noteId 残しで重複削除（事後 dedup の保険） |
-| `build_note` | `(qa, deck_name, model_name, field_map, render=RenderOptions()) -> dict` | `QAPair` を addNotes 用 note に変換。`options` に `allowDuplicate:True`+`duplicateScope:"deck"` 自動付与 |
-| `store_media` | `(qas) -> int` | `QAPair.media` を `storeMediaFile` で投入（同名上書き=冪等）。🔴 接頭辞なし filename は `ValueError` |
-| `upload` | `(qas, deck_name, model_name, field_map, render=RenderOptions(), skip_existing=True) -> dict` | ensure_deck→store_media→build_note(全件)→filter_new→addNotes(50件ずつ)。戻り値 `{added, skipped_existing, media_stored, errors}` |
-| `build_front_html` | `(qa, render=RenderOptions()) -> str` | Front HTML 生成（純関数） |
-| `build_back_html` | `(qa, render=RenderOptions()) -> str` | Back HTML 生成（純関数・back は raw HTML 素通し） |
-| `build_tags` | `(qa) -> list[str]` | `important→"重要"` / `needs_fix→"_要手修正"` を補完 |
-| `is_code_like` | `(text) -> bool` | 翻訳スキップ判定 |
-| `sample_cards` | `(deck_name, head=5, mid=5) -> list[dict]` | 先頭/中盤サンプル取得（Step7 用） |
-
-モジュール定数: `BATCH_SIZE = 50`（投入バッチ件数）／ `MEDIA_PREFIX_RE = ^(?!image_rsrc)[A-Za-z0-9][A-Za-z0-9_-]*_`（メディア接頭辞の許可パターン。接頭辞なし汎用名 `image_rsrcXXX` を拒否し別ソースとのメディア衝突を防ぐ）。`field_map` のキーは `"front"`・`"back"` が必須、`"extra"`（`knowledge_area` の投入先）は任意。
-
-### 🔴 機械可読 CONTRACT ブロック
-
-以下のブロックは `QAPair` フィールド・`RenderOptions` フィールド・公開API名の**単一の真実**であり、`anki_toolkit.py` の実コードと完全一致する（検証コマンドがこのブロックを抽出して実コードと突き合わせる）。契約変更時はこのブロックと実コードを同時に更新する。
-
-<!-- CONTRACT:BEGIN -->
-QAPAIR_FIELDS: front,back,qtype,choices,correct,wrong_explanations,verdict,tags,knowledge_area,source_book,source_page,important,needs_fix,original_front,original_back,media
-RENDEROPTIONS_FIELDS: choice_list_style,details_choice_style,front_field_is_choice_shuffle
-PUBLIC_API: anki_request,ensure_deck,existing_fronts,filter_new,dedup_deck,build_note,store_media,upload,build_front_html,build_back_html,build_tags,is_code_like,sample_cards
-<!-- CONTRACT:END -->
-
----
+- **[SCRIPTS-CONTRACT.md](references/SCRIPTS-CONTRACT.md)**: `scripts/` の投入インフラの契約定義（`QAPair` IR スキーマ・`RenderOptions`・`anki_toolkit.py` 公開API・🔴 機械可読 CONTRACT ブロック）。scaffold の `parse()` 実装時・toolkit 修正時・契約変更時に必読
 
 ## 関連スキル
 

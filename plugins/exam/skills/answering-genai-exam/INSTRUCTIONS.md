@@ -50,7 +50,7 @@
 
 ### Step 2: 曖昧点を AskUserQuestion で一括解消（🔴 subagent 起動前に必ず）
 
-**ここがユーザー要求「subagent 起動前に全解消」の実装ポイント。** background で起動する exam-solver は AskUserQuestion を使えないため、確認は必ず呼び出し側（本体）がこの時点で済ませる。明確な場合は飛ばし、**推測で進めない**。
+**ここがユーザー要求「subagent 起動前に全解消」の実装ポイント。** background で起動する exam-solver は AskUserQuestion を使えないため、確認は必ず呼び出し側（本体）がこの時点で済ませる。明確な場合は飛ばし、**推測で進めない**。AskUserQuestion ツールが使えない環境（Codex 等・経路C）では、同じ確認項目を通常のテキスト質問として提示して回答を得る。
 
 確認候補と、実際に呼べる AskUserQuestion の例:
 

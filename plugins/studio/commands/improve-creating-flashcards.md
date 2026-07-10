@@ -63,6 +63,7 @@ argument-hint: "[追記したい知見の補足メモ]"
 - `plugins/studio/skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
 - `plugins/studio/skills/creating-flashcards/references/ANKI-MCP-GUIDE.md`
 - `plugins/studio/skills/creating-flashcards/references/ANKI-MCP-TOOLS.md`
+- `plugins/studio/skills/creating-flashcards/references/SCRIPTS-CONTRACT.md`（scripts 投入インフラの契約定義・機械可読 CONTRACT ブロック）
 - `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py`（投入インフラの実装本体。(g) の不変バグ判定時に既存実装を確認）
 
 ### Step 3: 追記案の構造化と振り分け
@@ -84,7 +85,7 @@ argument-hint: "[追記したい知見の補足メモ]"
 |------------|------|-----------|--------|
 | `addNotes` の新しいエラー形式 / 冪等性の穴 / HTML整形の出力バグ | ソース非依存・不変 | `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` を **Edit でコード修正** | PATCH |
 | 新しい pandocアーティファクト / 構造パターン / 判定マーカー表記揺れ / 章見出し変異 | ソース固有・パース時判断 | references（CONTENT-DETECTION / BY-TYPE / COMMON）に**散文追記**（従来どおり） | PATCH |
-| `QAPair` に新フィールドが必要（例: 新しい問題種別） | 契約変更 | 🔴 3箇所同時更新（`anki_toolkit.py` / `parser_scaffold.py` / INSTRUCTIONS.md の CONTRACT ブロック）。本体に相談 | PATCH or MINOR |
+| `QAPair` に新フィールドが必要（例: 新しい問題種別） | 契約変更 | 🔴 3箇所同時更新（`anki_toolkit.py` / `parser_scaffold.py` / `references/SCRIPTS-CONTRACT.md` の CONTRACT ブロック）。本体に相談 | PATCH or MINOR |
 
 - **(a)〜(f) のうちソース固有のもの**（pandocアーティファクト・構造パターン・判定マーカー表記揺れ等）は references 散文へ（従来どおり）。
 - **(g) toolkit の不変バグ・(f) のうち投入インフラの不変な罠**は `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` のコード修正へ。
@@ -152,7 +153,7 @@ grep -nE "『|』|TAC|オライリー|オーム社|技術評論|翔泳社|日経
 
 検出ゼロを確認する。検出された場合は該当知見をユーザーへ返送し、汎用表現への置換を求める。
 
-> 🔴 `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` をコード修正した場合、INSTRUCTIONS.md の CONTRACT ブロック（`<!-- CONTRACT:BEGIN -->`〜`END`）と実コードの整合を確認する。`QAPair` フィールド・公開API名を変えた場合は CONTRACT ブロックも同時更新する（契約は3箇所一致が必須）。`parse()` TODO や共通ヘルパの regex は自動修正しない。
+> 🔴 `plugins/studio/skills/creating-flashcards/scripts/anki_toolkit.py` をコード修正した場合、`plugins/studio/skills/creating-flashcards/references/SCRIPTS-CONTRACT.md` の CONTRACT ブロック（`<!-- CONTRACT:BEGIN -->`〜`END`）と実コードの整合を確認する。`QAPair` フィールド・公開API名を変えた場合は CONTRACT ブロックも同時更新する（契約は3箇所一致が必須）。`parse()` TODO や共通ヘルパの regex は自動修正しない。
 
 ### Step 6: バージョン更新・コミット・タグ付与
 

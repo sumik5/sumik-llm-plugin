@@ -261,7 +261,7 @@ func process(item *Item) error {
 
 ## ユーザー確認の原則（AskUserQuestion）
 
-**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ選択肢を通常のテキスト質問として提示する）
 
 ### 確認すべき場面
 

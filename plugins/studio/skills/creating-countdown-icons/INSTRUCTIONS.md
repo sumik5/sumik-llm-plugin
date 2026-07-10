@@ -71,6 +71,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/generate_icon.py \
 
 ## Step 4: AskUserQuestion — 絵文字を4択で選ぶ
 
+> AskUserQuestion ツールが使えない環境（Codex CLI 等）では、Step 4/5 の同じ4択を番号付きテキストで提示し、回答を `selected_emoji` / `selected_palette` として受け取る。
+
 ```
 question: アイコンの絵文字を選択してください。
 

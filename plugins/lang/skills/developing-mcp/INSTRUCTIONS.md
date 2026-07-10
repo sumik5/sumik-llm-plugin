@@ -287,7 +287,7 @@ node server.js
 
 ## ユーザー確認の原則（AskUserQuestion）
 
-MCP開発で判断が必要な場合、**必ずAskUserQuestionで確認**してください:
+MCP開発で判断が必要な場合、**必ずAskUserQuestionで確認**してください（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ選択肢を通常のテキスト質問として提示する）:
 
 ### 確認すべき典型的シナリオ
 

@@ -114,7 +114,7 @@
 
 ### AskUserQuestion配置指示
 
-以下の判断分岐箇所では、AskUserQuestionツールを使用してユーザーに選択肢を提示してください：
+以下の判断分岐箇所では、AskUserQuestionツールを使用してユーザーに選択肢を提示してください（AskUserQuestion が使えない環境では、同じ選択肢を通常のテキスト質問として提示する）：
 
 **Read-Side戦略選択時**:
 ```

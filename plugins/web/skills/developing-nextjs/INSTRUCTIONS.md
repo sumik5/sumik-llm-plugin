@@ -178,6 +178,8 @@ pnpm add -D vitest @vitejs/plugin-react vite-tsconfig-paths jsdom
 
 **判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
 
+> AskUserQuestion ツールが使えない環境（Codex CLI 等）では、同じ選択肢を通常のテキスト質問として提示して確認する。references/（SAAS-GUIDE.md・TESTING.md・DOCKER.md 等）の同種の確認指示もこの原則を継承する。
+
 ### 確認すべき場面
 
 | 確認項目 | 例 |

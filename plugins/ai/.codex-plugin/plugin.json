@@ -1,6 +1,6 @@
 {
   "name": "ai",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "AI/LLM/エージェント開発スキル群を提供するプラグイン。6個のスキル（GenAIデザインパターン・AIエージェント構築・Web AI統合・promptfoo評価/レッドチーミング・AI支援開発方法論・AI開発セキュリティ戦略）を含む。",
   "author": {
     "name": "sumik5"

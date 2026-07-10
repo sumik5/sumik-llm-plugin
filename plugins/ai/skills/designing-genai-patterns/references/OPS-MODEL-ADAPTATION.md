@@ -740,6 +740,8 @@ trainer.fit(model, train_dataloader, val_dataloader)
 
 ## AskUserQuestion指針
 
+> AskUserQuestion が使えない環境では、同じ選択肢を通常のテキスト質問として提示する。
+
 ### ファインチューニング vs プロンプトエンジニアリング選択時
 
 **質問例:**

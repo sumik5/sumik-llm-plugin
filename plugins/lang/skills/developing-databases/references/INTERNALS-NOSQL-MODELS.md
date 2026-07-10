@@ -376,7 +376,7 @@ Temporal Database（時間データベース）は、時間インスタンスに
 
 **Uni-temporal（単時間軸）**:
 - Valid TimeまたはTransaction Timeのいずれか1つの軸を持つ
-- 例: Valid Timeのみで「John Doeは1975年4月3日から1994年8月26日までSmalllvilleに住んでいた」
+- 例: Valid Timeのみで「John Doeは1975年4月3日から1994年8月26日までSmallvilleに住んでいた」
 
 **Bi-temporal（二時間軸）**:
 - Valid TimeとTransaction Time（またはDecision Time）の2つの軸を持つ

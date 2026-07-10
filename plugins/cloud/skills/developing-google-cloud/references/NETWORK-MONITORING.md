@@ -253,7 +253,7 @@ sudo tcpdump -i ens4 -n "(icmp or port 80) and net 172.21.0.0/24"
 
 ## ユーザー確認の原則（AskUserQuestion）
 
-以下の判断が必要な場合はAskUserQuestionツールで確認すること。
+以下の判断が必要な場合はAskUserQuestionツールで確認すること（AskUserQuestion が使えない環境では、同じ選択肢を通常のテキスト質問として提示する）。
 
 ### 確認すべき場面
 

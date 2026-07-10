@@ -295,14 +295,14 @@ detect-project-skills.sh は以下のスキルグループで構成される:
 
 | グループ | 検出条件 | 含まれるスキル |
 |---------|---------|--------------|
-| ALWAYS_SKILLS | 常時 | writing-clean-code, mastering-typescript, testing-code, securing-code, writing-effective-prose |
-| COMMON_DEV_SKILLS | 言語プロジェクト検出時 | researching-libraries, architecting-infrastructure |
-| 個別検出 | ファイル・依存関係 | developing-nextjs, developing-go 等（ファイルベースで1対1検出） |
-| WRITING_SKILLS | .tex 検出時 | writing-latex, writing-effective-prose, searching-web |
-| DESIGN_SKILLS | components.json/.stories.*/tailwind.config.* 検出時 | applying-design-guidelines, applying-behavior-design, implementing-design |
-| DATABASE_SKILLS | schema.prisma/.sql/DB関連パッケージ検出時 | avoiding-sql-antipatterns, understanding-database-internals |
-| OBSERVABILITY_SKILLS | @opentelemetry/*/prometheus.yml 検出時 | designing-monitoring |
-| MCP_DEV_SKILLS | @modelcontextprotocol/sdk/fastmcp 検出時 | developing-mcp |
+| ALWAYS_SKILLS | 常時 | writing-clean-code, mastering-typescript, testing-code, securing-code, writing-effective-prose, applying-semantic-versioning, writing-conventional-commits |
+| COMMON_DEV_SKILLS | 言語プロジェクト検出時 | researching-libraries, cloud:architecting-infrastructure, cloud:implementing-observability |
+| 個別検出 | ファイル・依存関係 | web:developing-nextjs, lang:developing-go 等（ファイルベースで1対1検出） |
+| WRITING_SKILLS | .tex 検出時 | studio:writing-latex, writing-effective-prose, searching-web |
+| DESIGN_SKILLS | components.json/.stories.*/tailwind.config.* 検出時 | design:designing-ux, design:applying-behavior-design, web:implementing-design |
+| DATABASE_SKILLS | schema.prisma/.sql/DB関連パッケージ検出時 | lang:developing-databases |
+| OBSERVABILITY_SKILLS | @opentelemetry/*/prometheus.yml 検出時 | cloud:implementing-observability |
+| MCP_DEV_SKILLS | @modelcontextprotocol/sdk/fastmcp 検出時 | lang:developing-mcp |
 
 #### detect-project-skills.sh 更新の判断基準
 
@@ -310,10 +310,10 @@ detect-project-skills.sh は以下のスキルグループで構成される:
 
 | 条件 | アクション | 例 |
 |------|----------|-----|
-| **特定ファイル/依存関係で確実にトリガーすべき** | 個別検出関数を追加 | .cedar → implementing-dynamic-authorization |
+| **特定ファイル/依存関係で確実にトリガーすべき** | 個別検出関数を追加 | .cedar → cloud:implementing-dynamic-authorization |
 | **既存のスキルグループに属する** | 該当グループの配列にスキルを追加 | DB関連スキル → DATABASE_SKILLS に追加 |
 | **新しいスキルグループが必要** | グループ変数・フラグ・検出関数・出力セクションを追加 | 新ドメインのスキル群 |
-| **ユーザー要求でのみ使用** | detect-project-skills.sh は変更不要 | crafting-ai-copywriting |
+| **ユーザー要求でのみ使用** | detect-project-skills.sh は変更不要 | studio:creating-content |
 | **内部Agent用** | detect-project-skills.sh は変更不要 | implementing-as-tachikoma |
 
 #### 更新時の必須手順（チェックリスト）

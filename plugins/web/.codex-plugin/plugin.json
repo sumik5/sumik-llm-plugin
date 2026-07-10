@@ -1,6 +1,6 @@
 {
   "name": "web",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Web・フロントエンド実装スキル群を提供するプラグイン。11個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
   "author": {
     "name": "sumik5"

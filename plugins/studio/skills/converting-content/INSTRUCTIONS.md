@@ -139,6 +139,8 @@ done < "$WORK_DIR/page-order.txt"
 
 #### Step 6: AskUserQuestionで変換確認
 
+> AskUserQuestion が使えない環境（Codex CLI 等）では、同内容（ファイル名・画像枚数・出力先）をテキストで提示して変換開始の可否を質問する（Step 7 のモデル選択にも準用）。
+
 ```
 AskUserQuestion:
   question: "画像ベースEPUBを検出しました。LM StudioでOCR変換を開始しますか？

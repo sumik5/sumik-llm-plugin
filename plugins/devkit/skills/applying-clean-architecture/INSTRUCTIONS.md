@@ -220,7 +220,7 @@ class CreateOrderUseCase {
 
 ### ユーザー確認の原則（AskUserQuestion）
 
-**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**
+**判断分岐がある場合、推測で進めず必ずAskUserQuestionツールでユーザーに確認する。**（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ確認項目を通常のテキスト質問として提示する）
 
 確認すべき場面:
 - 何層の同心円にするか（最小4層 or プロジェクト規模に合わせた拡張）

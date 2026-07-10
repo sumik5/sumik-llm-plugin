@@ -176,7 +176,7 @@ Identity Providers > Add provider > Google
 
 ## AskUserQuestionパターン
 
-Keycloakの設計・実装時に判断が必要な場合、以下のパターンでユーザーに確認してください。
+Keycloakの設計・実装時に判断が必要な場合、以下のパターンでユーザーに確認してください。（AskUserQuestion ツールが無い環境（Codex CLI 等）では、以下の各質問と選択肢を通常のテキストで提示して確認する）
 
 ### 1. 認証プロトコル選択
 

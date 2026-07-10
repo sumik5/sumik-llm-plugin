@@ -213,7 +213,7 @@ pip install git+https://github.com/google/adk-python.git@main
 
 ## AskUserQuestion使用指示
 
-以下の判断が必要な場合、**必ずAskUserQuestionツールでユーザーに確認**すること:
+以下の判断が必要な場合、**必ずAskUserQuestionツールでユーザーに確認**すること（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ選択肢を通常のテキスト質問として提示して回答を待つ）:
 
 ### モデル選択
 

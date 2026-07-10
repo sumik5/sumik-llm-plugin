@@ -104,7 +104,7 @@ rm -rf "$SAMPLE_TMP"
 
 ### Step 4: AskUserQuestion で圧縮レベルを選択させる
 
-サンプリング結果をもとに AskUserQuestion を呼び出す。
+サンプリング結果をもとに AskUserQuestion を呼び出す。（AskUserQuestion が使えない環境（Codex CLI 等）では、同じ選択肢と予測サイズを番号付きテキストで提示し、ユーザーの返答を待ってから続行する）
 
 **AskUserQuestion 第 1 問: 圧縮レベル**
 
