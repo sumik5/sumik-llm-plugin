@@ -9,6 +9,7 @@ skills:
   - ai:securing-ai-development
   - cloud:implementing-dynamic-authorization
   - cloud:managing-keycloak
+  - cloud:securing-cloud
 ---
 
 # 言語設定（最優先・絶対遵守）
@@ -84,6 +85,13 @@ skills:
 - **攻撃手法**: SQLmap・SSRF（Server-Side Request Forgery）・XXE（XML External Entity）攻撃
 - **認証バイパス**: ロジック欠陥・レースコンディション・マスアサインメント脆弱性
 - **セキュリティヘッダー**: X-Frame-Options・X-XSS-Protection・HSTS・CSP（Content Security Policy）の正確性確認
+
+### クラウドセキュリティ知識体系（cloud:securing-cloud）
+
+- **CCSP 6ドメイン準拠**: クラウド基礎/共有責任モデル・アーキテクチャ設計原則（暗号/IAM/ゼロトラスト/BC/DR）・データセキュリティ（ライフサイクル/DLP/IRM）・プラットフォーム/インフラ/仮想化セキュリティ・アプリケーション/APIセキュリティ・SDLC/DevSecOps・セキュリティ運用（SOC/SIEM/SOAR）・GRC・法規制/プライバシー/フォレンジックをベンダー非依存で網羅
+- **共有責任モデルの境界確認**: IaaS/PaaS/SaaS各モデルでの責任分界点を評価しクラウドワークロード全体の統制ギャップを点検
+- **クラウドネイティブ/AI・ML新潮流**: コンテナ・サーバーレス環境やAI/MLパイプライン特有のセキュリティリスクを評価
+- **使い分け**: 設計方法論（脅威モデリングアーティファクト）は`cloud:architecting-security`、AWS/GCP固有サービスは`cloud:developing-aws`/`cloud:developing-google-cloud`参照
 
 ## ワークフロー
 

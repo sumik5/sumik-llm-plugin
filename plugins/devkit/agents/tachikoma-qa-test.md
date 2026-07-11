@@ -5,6 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - testing-code
+  - testing-strategies
   - web:testing-with-vitest
   - writing-clean-code
   - mastering-typescript
@@ -111,6 +112,12 @@ skills:
 - **テストデータ生成**: AIでエッジケース・境界値のテストデータを生成
 - **探索的テスト**: AIによる未テストパスの発見
 - **テストリファクタリング**: 既存テストのAAAパターン準拠・可読性改善
+
+### フルスタックテスト戦略（testing-strategies）
+
+- **10次元の品質戦略**: 手動探索的テスト（同値分割/境界値/状態遷移/デシジョンテーブル）・機能自動化戦略（マイクロ/マクロテスト・契約テスト）・継続的テスト（CI作法・DORA）・データ層テスト（DB/キャッシュ/バッチ/イベントストリーム・Testcontainers）・ビジュアルテスト・セキュリティテスト（STRIDE/脅威モデリング/OWASPツール）・性能テスト（KPI/負荷パターン/JMeter/Gatling/RAIL）・アクセシビリティテスト（WCAG/axe）・CFR（カオス/アーキテクチャ/コンプライアンス）・モバイルテストの10軸で単体テストを超えた戦略を設計
+- **AI活用テスト**: エージェント型テスト作成・MCPベースの探索的テストで戦略立案を補助
+- **使い分け**: TDD/単体テスト方法論は`testing-code`、Playwright実装は`web:testing-e2e-with-playwright`、本スキルはスタック横断の戦略選定・テスト種別の意思決定に用いる
 
 ## ワークフロー
 

@@ -382,6 +382,9 @@ resume のキャッシュはドキュメント記載どおり「**agent() 呼び
 - 中断復旧は「resume で全再生」より**残タスク特定→新規 remainder workflow** が確実で安価（キャッシュ prefix 崩れの影響を受けない）。
 - 部分編集の検出は `git status --porcelain` と「標準イディオム文の出現回数 grep」（二重追記検出）で機械化する。
 
+### 続報（2026-07-11 再発確認・Recurrence-Count: 2）
+EPUB→スキル蒸留の 46体 Workflow でも同パターンが再現（45体 failed だが蒸留エージェントは死亡前に Write 完了済み＝book1 11/11・book2 3/11 のドラフトが scratchpad に生存）。復旧は既定どおり resume ではなく**残タスクだけの remainder workflow**（欠損8章の蒸留＋未検証分の verify のみ）で無駄撃ちゼロ。「1エージェント=1出力ファイル Write」型の蒸留ワークフローでは、`ls` による**出力ファイル実在チェックだけで残タスクを機械特定できる**（git status 不要・scratchpad でも可）。二度目の上限到達（終盤4体 failed）でも同手順で3段目の finish workflow により収束。
+
 ### メタデータ
 - 再現可否: yes（上限到達時に一般に再現）
 - 関連(See Also): ERR-20260702-001, ERR-20260703-001
@@ -407,3 +410,40 @@ resume のキャッシュはドキュメント記載どおり「**agent() 呼び
 ### メタデータ
 - 再現可否: yes（上限到達時に一般に再現）
 - 関連(See Also): ERR-20260710-001（Workflow 版・remainder 戦略）, memory: background-task-dies-across-session
+
+## [ERR-20260711-001] Codex marketplace 更新と plugin MCP 起動が競合し一時的に os error 2 になる
+
+**記録日時**: 2026-07-11T09:40:00+09:00
+**優先度**: medium
+**ステータス**: pending
+**領域**: config
+
+### 要約
+Codex CLI 0.144.1 で git marketplace の更新と MCP 起動が同時に走ると、versioned plugin cache の実行ファイルが作成される前に MCP を spawn し、devkit 同梱サーバーが一斉に `No such file or directory (os error 2)` で失敗する。cache 完成後の新規起動では同じ設定のまま正常化する。
+
+### エラー
+```
+MCP client for `serena` failed to start: MCP startup failed: No such file or directory (os error 2)
+MCP client for `fff` failed to start: MCP startup failed: No such file or directory (os error 2)
+MCP client for `puppeteer` failed to start: MCP startup failed: No such file or directory (os error 2)
+MCP client for `chrome-devtools` failed to start: MCP startup failed: No such file or directory (os error 2)
+MCP client for `sequentialthinking` failed to start: MCP startup failed: No such file or directory (os error 2)
+```
+
+### 状況
+- macOS arm64、Codex CLI 0.144.1。
+- 失敗した Codex プロセスの開始は 09:27:06。
+- `~/.codex/plugins/cache/sumik-marketplace/devkit/14.6.0/` と配下ランチャーの birth time は 09:27:15〜17、`config.toml` の marketplace `last_updated` は 09:27:16。つまり MCP 起動時点では対象実行ファイルがまだ存在しなかった。
+- cache 完成後の 09:28:10 に開始した別セッションでは同じ devkit 5サーバーが全て初期化成功。さらに同じ対象ディレクトリから新規 `codex exec` を実行しても5件の警告は再発しなかった。
+- installed cache 内の3ランチャーは実在・実行可能で、登録済み `cwd` から直接 spawn すると成功した。静的な command typo、実行ビット欠落、mise/npx/uvx 未導入は反証された。
+- 同時に出た `node_repl` は別原因。global `~/.codex/config.toml` が旧パス `/Applications/Codex.app/Contents/Resources/node_repl` を指す一方、Codex.app 26.623.141536 の実体は `Resources/cua_node/bin/node_repl` へ移動しており、devkit plugin 由来ではない。
+
+### 推奨修正
+- Codex 側: marketplace の versioned cache を一時ディレクトリへ完全展開して atomic rename した後に plugin MCP を起動する。または初回 `ENOENT` 時に cache materialization 完了後の再試行を行う。
+- 運用回避: marketplace 更新直後にこの一斉 `os error 2` が出た場合は、cache の実在を `codex mcp list` と `test -x` で確認して Codex を新規起動する。設定ファイルを先に書き換えない。
+- `node_repl` は plugin 問題と混同せず、Codex.app の現行 `Resources/cua_node/bin/` 配置に合わせて再登録するか不要なら無効化する。
+
+### メタデータ
+- 再現可否: yes（初回更新中の起動で発生、cache 完成後の新規起動で解消）
+- 関連ファイル: .mcp-codex.json, .codex-plugin/plugin.json, ~/.codex/config.toml, ~/.codex/plugins/cache/sumik-marketplace/devkit/14.6.0/
+- 関連(See Also): ERR-20260627-001

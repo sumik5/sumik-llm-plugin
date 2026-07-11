@@ -173,3 +173,5 @@ description: >-
 | ABAC / ReBAC / Cedar による認可モデル実装 | `cloud:implementing-dynamic-authorization` |
 | AWS 固有のセキュリティサービス（IAM・GuardDuty・KMS 等） | `cloud:developing-aws` |
 | Google Cloud 固有のセキュリティサービス | `cloud:developing-google-cloud` |
+
+ベンダー非依存のクラウドセキュリティ知識体系（CCSP 6ドメイン: 基礎/データ/インフラ/アプリ/運用/GRC/法規制）は `securing-cloud` を参照。
