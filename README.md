@@ -207,7 +207,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
-| `/consume-learnings` | `.learnings/` の蓄積知見を恒久化先（スキルreferences・CLAUDE.md・dotfiles・memory）へ消費し処理済みエントリを削除（実ファイル裏取り→ルーティング→機械検証→version bump→コミット確認） |
+| `/consume-learnings` | `.learnings/` の蓄積知見を恒久化先へ消費し処理済みエントリを削除（実ファイル裏取り→ルーティング→機械検証→リリース）。恒久化先は実行コンテキストで決まる: 一般プロジェクトはプロジェクトCLAUDE.md・`.claude/`配下・`~/.claude`/`~/.codex`のグローバル設定・memory、sumik-claude-plugin repo では加えてスキルreferences・version bump |
 
 ### Skills (31個)
 
