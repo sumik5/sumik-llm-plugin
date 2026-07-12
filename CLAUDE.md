@@ -176,7 +176,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョン管理
 
-- **11 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.7.1・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.1・university / google は 1.0.0）
+- **11 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.8.0・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.1・university / google は 1.0.0）
 - devkit の version は `plugins/devkit/.claude-plugin/plugin.json` の `version` フィールドで管理（**devkit の 3 ファイルを必ず同期**→下記参照）
 - studio の version は `plugins/studio/.claude-plugin/plugin.json` の `version` フィールドで管理（**studio の 3 ファイルを必ず同期**→下記参照）
 - lang / web / cloud / ai / design / product / exam / university / google の version は各 `plugins/<plugin>/.claude-plugin/plugin.json` の `version` フィールドで管理（**各プラグインの 3 ファイルを必ず同期**→下記参照）
@@ -215,7 +215,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 #### 同期チェック
 
-コミット前に 11 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.7.1・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.1・university / google は 1.0.0:
+コミット前に 11 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.8.0・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.1・university / google は 1.0.0:
 
 ```bash
 python3 - <<'PY'
@@ -277,7 +277,7 @@ checks = {
         (".agents/plugins/marketplace.json",          lambda d: next(p["version"] for p in d["plugins"] if p["name"]=="google")),
     ],
 }
-expected = {"devkit": "14.7.1", "studio": "1.2.2", "lang": "2.2.1", "web": "1.2.0",
+expected = {"devkit": "14.8.0", "studio": "1.2.2", "lang": "2.2.1", "web": "1.2.0",
             "cloud": "1.2.0", "ai": "1.2.3", "design": "1.0.2",
             "product": "1.0.2", "exam": "1.2.1", "university": "1.0.0",
             "google": "1.0.0"}
