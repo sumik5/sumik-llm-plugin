@@ -160,6 +160,13 @@ Hook JSON output validation failed — hookSpecificOutput is missing required fi
 > `updatedInput` だけを返すと `PreToolUse hook returned updatedInput without permissionDecision:allow`
 > で検証失敗する。ユーザー確認に回したい場合は `updatedInput` を返さず `exit 0` で元入力を通す。
 
+### 🔴 Stop / SubagentStop の stdout は JSON 契約（plain text ではない）
+
+`Stop` / `SubagentStop` の stdout は**自由テキストではなく JSON 契約として解釈される**。通知だけが目的の hook が `echo "完了"` 等を stdout に出すと、その文字列が Stop hook JSON としてパースされ `hook returned invalid stop hook JSON output` で失敗する。
+
+- 通知系 hook は stdout を**完全無出力**にして `exit 0` で終える。ログが必要な場合は `>&2`（stderr）またはファイルへ書く
+- `SessionStart` / `UserPromptSubmit` の plain stdout 型（本節冒頭の (a)）とは**真逆の契約**なので取り違えないこと
+
 ### 最小例：PostToolUse で additionalContext を注入する
 
 ```json
@@ -196,12 +203,13 @@ Hook JSON output validation failed — hookSpecificOutput is missing required fi
 
 ## 4. Codex 差分
 
-Codex CLI では hook の配布方式・対応イベント・パス解決規則が Claude Code と異なる。本セクションは概要のみを示す。詳細は [MANAGING-MULTI-PLUGIN.md](MANAGING-MULTI-PLUGIN.md) と `.learnings/LEARNINGS.md [LRN-20260625-001]` を参照。
+Codex CLI では hook の配布方式・対応イベント・パス解決規則が Claude Code と異なる。詳細は [MANAGING-MULTI-PLUGIN.md](MANAGING-MULTI-PLUGIN.md) も参照。
 
 ### 配布方式の差異
 
 - Codex はプラグイン root 直下の **`hooks-codex.json`**（または明示宣言したパス）で hook を配布する
-- `.codex-plugin/plugin.json` に `"hooks": "./hooks-codex.json"` で明示宣言が可能
+- plugin root 直下の `hooks.json`（または devkit のように明示宣言した `hooks-codex.json`）は、`.codex-plugin/plugin.json` に `hooks` キーが無くても**自動発見される**。ただし公式ドキュメントは既定パスを `./hooks/hooks.json` と記す一方、実出荷プラグインは root 直下 `hooks.json`（または同等の明示パス）を使っており、**ドキュメントと実態に乖離がある**
+- 曖昧さを避けるため、`.codex-plugin/plugin.json` に `"hooks": "./<path>"` で**明示宣言**するのが安全（宣言が自動発見を上書きする）
 - devkit では `hooks-codex.json`（repo root）＋ `.codex-plugin/plugin.json` の `"hooks"` 宣言を使用
 
 ### 対応イベントは Claude Code の部分集合
@@ -215,10 +223,22 @@ Codex が対応するイベント（SessionStart / SubagentStart / PreToolUse / 
 - devkit の `hooks-codex.json` では `"bash \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?}}/plugins/devkit/hooks/<name>.sh\""` 形式にして、repo root 以外の cwd でも同じ hook を呼び出す
 - Claude Code 側の `plugins/devkit/.claude-plugin/plugin.json` は従来通り `"bash ${CLAUDE_PLUGIN_ROOT}/hooks/<name>.sh"` 形式を使う。Claude plugin root は `plugins/devkit` なので Codex とパス末尾が異なる
 
-### その他
+### stdin/出力契約の互換性
 
-- `config.toml` の `[features] hooks = true` が必要（opt-in）
-- プラグイン同梱 hook は非管理 hook 扱いで、ユーザーが明示的に trust するまでスキップされる
+- stdin JSON のフィールド名は Claude Code と**一致**する（`.tool_input.command` / `stop_hook_active` / `last_assistant_message`。SubagentStop は加えて `agent_type` / `agent_id` / `agent_transcript_path`）
+- 出力契約も同形（`exit 0` + JSON、または `exit 2` + stderr で block）
+
+### opt-in と trust
+
+- `config.toml` の `[features] hooks = true` が正。**`codex_hooks` は deprecated alias**（Windows では無効）
+- プラグイン同梱の hook は「non-managed」扱いで、install/enable だけでは実行されない。**ユーザーが明示的に review & trust するまでスキップ**される
+- trust 状態は `~/.codex/config.toml` の `[hooks.state]` に hook ごとの `trusted_hash` と `enabled = true` として永続化される
+- Codex で plugin hook が発火する3条件: (a) hooks 定義同梱版が marketplace 経由で反映済み（**push 済み main が実体**）、(b) `[features] hooks = true`、(c) trust 承認
+- trust review の常用回避には公式フラグ `--dangerously-bypass-hook-trust` があるが常用非推奨。hook 内容を変更した直後は bypass を外して `/hooks` の差分を安全確認する
+
+### 実アクティブパスの確認方法
+
+プラグインの版・hook 内容を確認する時は `~/.codex/plugins/cache/...` を信用しない（**陳腐化した別キャッシュ**）。`codex plugin list` の **PATH 列**が示す実体パス（marketplace チェックアウト）の `.codex-plugin/plugin.json` / hooks 定義を読む（[MANAGING-MULTI-PLUGIN.md](MANAGING-MULTI-PLUGIN.md) §(e) と同じ確認手順）。
 
 ---
 
@@ -249,3 +269,5 @@ Codex が対応するイベント（SessionStart / SubagentStart / PreToolUse / 
 - [ ] Codex 向けに配布する場合、`hooks-codex.json` の command が `PLUGIN_ROOT` / `CLAUDE_PLUGIN_ROOT` ベースで cwd 非依存になっているか
 - [ ] Codex 非対応イベント（`Notification`・`SessionEnd`・`TeammateIdle`）を `hooks-codex.json` に誤って含めていないか
 - [ ] 編集後のソースを push + プラグイン再インストールして動作確認を行ったか
+- [ ] 通知系 Stop / SubagentStop hook が stdout 無出力になっているか（ログは stderr またはファイルへ）
+- [ ] Codex 向け hook の発火3条件（marketplace 反映・[features] hooks・trust 承認）を確認したか

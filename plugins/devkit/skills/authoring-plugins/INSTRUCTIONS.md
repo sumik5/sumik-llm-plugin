@@ -665,8 +665,10 @@ git commit -m "feat(skill-name): 変更内容の要約"
 ### 3. タグ付与
 
 ```bash
-git tag v{new-version}
+git tag -m "<変更内容の短い要約>" v{new-version}
 ```
+
+> `tag.gpgsign=true` 環境ではタグは常に annotated 扱いになりメッセージ必須。`-m` なしの軽量タグは非対話実行下で `fatal: no tag message?` になる。
 
 **⚠️ git書き込み操作（commit / tag）はユーザー確認必須。** タチコマが直接実行してはならない。Claude Code本体がユーザーに確認した上で実行する。
 

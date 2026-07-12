@@ -176,7 +176,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョン管理
 
-- **11 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.7.0・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.1・university / google は 1.0.0）
+- **11 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.7.1・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.1・university / google は 1.0.0）
 - devkit の version は `plugins/devkit/.claude-plugin/plugin.json` の `version` フィールドで管理（**devkit の 3 ファイルを必ず同期**→下記参照）
 - studio の version は `plugins/studio/.claude-plugin/plugin.json` の `version` フィールドで管理（**studio の 3 ファイルを必ず同期**→下記参照）
 - lang / web / cloud / ai / design / product / exam / university / google の version は各 `plugins/<plugin>/.claude-plugin/plugin.json` の `version` フィールドで管理（**各プラグインの 3 ファイルを必ず同期**→下記参照）
@@ -215,7 +215,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 #### 同期チェック
 
-コミット前に 11 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.7.0・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.1・university / google は 1.0.0:
+コミット前に 11 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.7.1・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.1・university / google は 1.0.0:
 
 ```bash
 python3 - <<'PY'
@@ -277,7 +277,7 @@ checks = {
         (".agents/plugins/marketplace.json",          lambda d: next(p["version"] for p in d["plugins"] if p["name"]=="google")),
     ],
 }
-expected = {"devkit": "14.7.0", "studio": "1.2.2", "lang": "2.2.1", "web": "1.2.0",
+expected = {"devkit": "14.7.1", "studio": "1.2.2", "lang": "2.2.1", "web": "1.2.0",
             "cloud": "1.2.0", "ai": "1.2.3", "design": "1.0.2",
             "product": "1.0.2", "exam": "1.2.1", "university": "1.0.0",
             "google": "1.0.0"}
@@ -319,6 +319,8 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 | `.cache/` 配下のパス（marketplace の source.path symlink 等）を追加/リネームする時 | `.gitignore` の `.cache/**` を打ち消す `!` 例外行も新パスへ追加/更新する（現状は `!.cache/sumik-marketplace/devkit`・`studio`・`lang`・`web`・`cloud`・`ai`・`design`・`product`・`exam`・`university`・`google` の**11行**）。漏れると新パスが黙って ignore され commit されず、git clone に含まれず Codex の `source.path` が壊れる。**commit 後に `git ls-tree -r HEAD --name-only \| /usr/bin/grep '^.cache/'` で 11 symlink（ai / cloud / design / devkit / exam / google / lang / product / studio / university / web）全ての同梱を必ず検証**（`git check-ignore` は negation でも exit 0 を返すため判定に使わない） |
 | Codex marketplace / plugin の名称 | marketplace = `sumik-marketplace`（`.agents/plugins/marketplace.json` の `name`）／ plugin = `devkit`・`studio`・`lang`・`web`・`cloud`・`ai`・`design`・`product`・`exam`・`university`・`google`（同 `plugins[].name` + 各 `.codex-plugin/plugin.json` の `name`）。インストールは `codex plugin add <plugin>@sumik-marketplace` を 11 プラグイン分実行 |
 | Codex プラグインを追加/更新する時 | git 方式。**repo 変更を push 後**に `~/dotfiles/codex/install-sumik-codex-plugin.sh` を実行（marketplace add/upgrade → plugin add → agents/・AGENTS.md を `~/.codex/` へ symlink）→ Codex 再起動。**同スクリプトは devkit / studio / lang / web / cloud / ai / design / product / exam / university / google の 11 プラグインを学習する必要がある（各 `codex plugin add <plugin>@sumik-marketplace` 行の追加・studio/lang/web/cloud/ai/design/product/university/google は agent 0 体・exam は agent を Claude 専用とし Codex へ配布しないため、いずれも agent symlink 行は不要）。repo 外・dotfiles 側で対応（本タスクの範囲外）** |
+| Codex プラグインの版・hook・MCP の実体を確認する時 | `~/.codex/plugins/cache/...` を信用しない（**陳腐化した別キャッシュ**）。`codex plugin list` の **PATH 列**が示す実体パス（marketplace チェックアウト）の `.codex-plugin/plugin.json`・hooks 定義を読む。marketplace 更新直後に同梱 MCP が一斉に `No such file or directory (os error 2)` で失敗する場合は versioned cache 生成中の一時競合＝**設定を書き換えず**、cache 完成後に Codex を新規起動すれば解消する |
+| symlink 追跡ツール（Serena の activate 等）が `File name too long` で失敗する時 | devkit の `.cache/sumik-marketplace/devkit -> ../..` が**自己再帰パス**（`.cache/.../devkit/.cache/.../devkit/...`）を作るため。ツール側に `.cache/` 除外を設定して回避する（subdirectory 方式の他 10 プラグインでは構造的に発生しない） |
 
 ---
 
@@ -403,6 +405,8 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 |------|--------|
 | version bump + commit + tag + push を実行する時 | `git commit`/`tag`/`push` 等の .git 書込はサンドボックス下で**偽の `exit=0` を返して不発**になることがある。**`dangerouslyDisableSandbox: true`** で実行する（git 書込はユーザー明示依頼時のみ） |
 | commit/tag メッセージに全角記号（`「」（）→`）や `<...>` を含む時 | `-m` 直渡しはパース崩れで不発。**Write でメッセージファイルを作り `-F <file>`** で渡す |
+| `git commit`/`git tag -a` が `gpg: signing failed`＋`PINENTRY_LAUNCHED ... not a tty` で不発になる時 | `commit.gpgsign=true` 環境で非 tty の Bash が pinentry を起動できないため（`dangerouslyDisableSandbox` でも解消しない）。ユーザー自身の tty（`! ` 実行）で署名付き実行してもらうか、`--no-gpg-sign`・lightweight で回避し必要時に `--amend -S`。失敗後も index は保持され再 add 不要 |
+| `git tag <name>` が `fatal: no tag message?` で失敗する時 | `tag.gpgsign=true` のためタグは常に annotated 扱い＝メッセージ必須。**`git tag -m "<短い要約>" <name>`** で作成する（`-m` なしの軽量タグは非対話実行下で常に失敗） |
 | 複合コマンドで `cd <dir> &&` を先頭に置く時 | パーミッションプロンプトを誘発しチェーン全体が不発になる。`cd` を使わず作業ディレクトリ既定のまま実行する |
 | コマンドの `exit=0`/`RC=0` を見た時 | 鵜呑みにせず `git log -1 --format='%H %s'`・`git tag --points-at HEAD`・`git status --porcelain` で**実体検証**する |
 | `grep -h`・`rm -f` 等のフラグが化ける／`git diff` 出力にノイズが混入する時 | rtk プロキシ起因。`/usr/bin/grep`・`/bin/rm` 等の絶対パスで呼ぶ |
