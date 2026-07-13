@@ -1,0 +1,36 @@
+{
+  "name": "mobile",
+  "version": "1.1.0",
+  "description": "iPhone/iPad アプリ開発スキル群を提供するプラグイン。2個のスキル（applying-apple-hig: Apple Human Interface Guidelines 準拠のデザイン指針・developing-ios-apps: SwiftUI/UIKit 選定から App Store 審査・プライバシー・配布までの開発実務）を含む。",
+  "author": {
+    "name": "sumik5"
+  },
+  "keywords": [
+    "claude-code",
+    "skills",
+    "mobile",
+    "ios",
+    "ipados",
+    "apple-hig",
+    "swiftui"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sumik Mobile",
+    "shortDescription": "iPhone/iPad アプリ開発スキル（Apple HIG 準拠デザイン・iOS 開発実務）を提供するプラグイン",
+    "longDescription": "Apple Human Interface Guidelines に準拠した iPhone/iPad アプリのデザイン指針と、SwiftUI/UIKit の選定・アプリライフサイクル・App Store 審査ガイドライン・プライバシー要件・配布までの開発実務知識を提供します。各トピックには Apple 公式ドキュメントへの参照 URL を併記し、最新仕様の確認先を案内します。",
+    "developerName": "sumik5",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash"
+    ],
+    "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
+    "defaultPrompt": [
+      "applying-apple-hig で iPhone アプリの画面設計を HIG 準拠でレビュー"
+    ],
+    "brandColor": "#0A84FF"
+  }
+}

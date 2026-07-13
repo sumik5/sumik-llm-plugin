@@ -14,3 +14,4 @@ node_modules/
 !.cache/sumik-marketplace/web
 !.cache/sumik-marketplace/product
 !.cache/sumik-marketplace/google
+!.cache/sumik-marketplace/mobile

@@ -59,6 +59,11 @@
       "name": "google",
       "source": "./plugins/google",
       "description": "sumik Claude Code Plugin (google) — Google Analytics (GA4) 公式 MCP サーバー analytics-mcp と GA4 データ分析スキル"
+    },
+    {
+      "name": "mobile",
+      "source": "./plugins/mobile",
+      "description": "sumik Claude Code Plugin (mobile) — モバイル/iOS スキル群（Apple HIG 準拠デザイン・iPhone/iPad アプリ開発実務）"
     }
   ]
 }

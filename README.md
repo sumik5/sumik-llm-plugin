@@ -26,6 +26,8 @@ LLMの開発効率を最大化するためのプラグイン。Agent、コマン
 /plugin install product@sumik
 /plugin install exam@sumik
 /plugin install university@sumik
+/plugin install google@sumik
+/plugin install mobile@sumik
 ```
 
 ### Codex
@@ -42,6 +44,8 @@ codex plugin add design@sumik-marketplace
 codex plugin add product@sumik-marketplace
 codex plugin add exam@sumik-marketplace
 codex plugin add university@sumik-marketplace
+codex plugin add google@sumik-marketplace
+codex plugin add mobile@sumik-marketplace
 ```
 
 ---
@@ -52,7 +56,7 @@ codex plugin add university@sumik-marketplace
 sumik-llm-plugin/                      # GitHub repo（Codex はここを git clone）
 ├── .agents/
 │   └── plugins/
-│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university）
+│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university + google + mobile）
 ├── .cache/
 │   └── sumik-marketplace/
 │       ├── devkit -> ../..               # Codex marketplace から repo root の plugin を指す symlink
@@ -64,9 +68,11 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 │       ├── design -> ../../plugins/design  # Codex marketplace から design plugin を指す symlink
 │       ├── product -> ../../plugins/product  # Codex marketplace から product plugin を指す symlink
 │       ├── exam -> ../../plugins/exam       # Codex marketplace から exam plugin を指す symlink
-│       └── university -> ../../plugins/university  # Codex marketplace から university plugin を指す symlink
+│       ├── university -> ../../plugins/university  # Codex marketplace から university plugin を指す symlink
+│       ├── google -> ../../plugins/google   # Codex marketplace から google plugin を指す symlink
+│       └── mobile -> ../../plugins/mobile   # Codex marketplace から mobile plugin を指す symlink
 ├── .claude-plugin/
-│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university / source ./plugins/<p>）
+│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university + google + mobile / source ./plugins/<p>）
 ├── .codex-plugin/
 │   └── plugin.json                       # Codex CLI プラグインマニフェスト（plugin 名 devkit / skills ./plugins/devkit/skills/ / version 同期必須）
 ├── .mcp-codex.json                       # Codex 用 MCPサーバー設定（command ./plugins/devkit/bin/... / cwd "."）
@@ -145,13 +151,30 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── agents/                       # Agent定義 (exam-solver・1体・Claude専用)
     │   ├── README.md
     │   └── skills/                       # ナレッジスキル (1個)
-    └── university/                       # 大学用 Processing 開発プラグイン（skills-only）
+    ├── university/                       # 大学用 Processing 開発プラグイン（skills-only）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 university / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 university / skills ./skills/ / mcpServers なし）
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (1個: developing-processing)
+    ├── google/                           # Google サービス連携プラグイン（GA4公式MCP）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 google / version 同期必須）
+    │   ├── .mcp.json                     # Claude 用 MCPサーバー設定（analytics-mcp）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 google / skills ./skills/ + mcpServers）
+    │   ├── .mcp-codex.json               # Codex 用 MCPサーバー設定（analytics-mcp）
+    │   ├── README.md
+    │   ├── bin/                          # MCPサーバー起動ラッパー
+    │   └── skills/                       # ナレッジスキル (1個: analyzing-with-google-analytics)
+    └── mobile/                           # iPhone/iPad アプリ開発プラグイン（skills-only）
         ├── .claude-plugin/
-        │   └── plugin.json               # プラグインメタデータ（plugin 名 university / version 同期必須）
+        │   └── plugin.json               # プラグインメタデータ（plugin 名 mobile / version 同期必須）
         ├── .codex-plugin/
-        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 university / skills ./skills/ / mcpServers なし）
+        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 mobile / skills ./skills/ / mcpServers なし）
         ├── README.md
-        └── skills/                       # ナレッジスキル (1個: developing-processing)
+        └── skills/                       # ナレッジスキル (2個: applying-apple-hig, developing-ios-apps)
 ```
 
 ---
