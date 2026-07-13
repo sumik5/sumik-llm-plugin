@@ -1,37 +1,58 @@
 # Agent Team オーケストレーション
 
-**Claude Code本体はファイル読み込みや分析を一切行わず、即座にplanner（`sumik:tachikoma-str-product-mgr`）に委譲する。plannerがユーザー価値・優先順位を整理し、現状把握・計画策定を行い、その計画に基づき**ドメイン別専門タチコマ**が並列実装する。**
+**Claude Code本体はファイル読み込みや分析を一切行わない。最初に `HERDR_ENV` を判定し、herdr 管理下では `operating-herdr`、herdr 外では Agent Teams API を使って、planner（`sumik:tachikoma-str-product-mgr`）へ即座に委譲する。**
 
 ---
 
 ## 概要
 
-### このスキル方式（2フェーズ）
+### このスキル方式（2フェーズ・実行バックエンド分岐）
 ```
 Claude Code（このスキルをロード）
-    ├─ Phase 1: Agent（planner, sumik:tachikoma-str-product-mgr, model: opus）→ 要件分析・コードベース分析・docs/plan作成
+    ├─ 実行バックエンド判定
+    │    ├─ HERDR_ENV=1: operating-herdr + herdr agent start/read/send/wait
+    │    └─ HERDR_ENV!=1: Agent / TaskCreate / SendMessage / TaskList
+    ├─ Phase 1: planner → 要件分析・コードベース分析・docs/plan作成
     ├─ 計画レビュー・承認（ユーザー確認）
-    └─ Phase 2: Agent（ドメイン別専門タチコマ, run_in_background: true）← 並列実行
-                 → 進捗管理 → 統合 → クリーンアップ
+    └─ Phase 2: ドメイン別専門タチコマを選択したバックエンドで並列実行
+                 → 進捗管理 → 統合 → ペイン/メンバーのクリーンアップ
 ```
 
 **Claude Code本体は最小限の判断（並列化の要否）のみ行い、計画策定から実装までAgentに委譲します。**
 
 ---
 
-## 前提条件
+## 🔴 Step 0: 実行バックエンド判定
 
-### 環境要件
-- `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`（settings.jsonの `env` セクション）
-- `teammateMode: "tmux"` でClaude Codeを起動
-- settings.json設定: `"teammateMode": "tmux"`
-- tmuxがインストール済みであること
+最初に `HERDR_ENV` を確認し、1つのタスク中にバックエンドを混在させない。
 
----
+```bash
+if [ "${HERDR_ENV:-}" = "1" ]; then
+  echo herdr
+else
+  echo agent-teams
+fi
+```
 
-## 🔴 Step 0: 遅延ツールのロード（最初に必ず実行）
+### `HERDR_ENV=1`: herdr バックエンド
 
-**SendMessage / Task 系ツール（TaskCreate, TaskUpdate, TaskList）は「遅延ツール（deferred tools）」であり、ToolSearch で事前にロードしないと呼び出せない。Agent ツール自体は遅延ツールではなく最初から使用可能。**
+- `operating-herdr` をロードし、`HERDR_WORKSPACE_ID` / `HERDR_TAB_ID` / `HERDR_PANE_ID` を確認する
+- Claude Code の `teammateMode` は `in-process` にする。`tmux` / `iterm2` / `auto` の split-pane を使わない
+- planner と implementer は `herdr agent start --split right|down --no-focus -- claude ...` で起動する
+- `docs/plan-*.md` をタスク・依存関係・実行ログの正本とし、更新はリーダーに集約する
+- `herdr agent list/read/send/wait` と `herdr wait agent-status` で進捗を管理する
+- `TaskCreate` / `TaskList` / `SendMessage` の状態は、別ペインの独立Claude CLIセッションと共有されない
+
+### `HERDR_ENV!=1`: Agent Teams バックエンド
+
+- herdr CLI でペインを操作・検査しない
+- `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` を有効化する
+- Agent（`run_in_background: true`）/ TaskCreate / TaskList / SendMessage を使う
+- ペイン表示の有無は Claude Code の設定に従う。このスキルから iTerm2 / tmux を直接操作しない
+
+## Agent Teams バックエンド: 遅延ツールのロード
+
+**この節は `HERDR_ENV!=1` の場合だけ実行する。** SendMessage / Task 系ツール（TaskCreate, TaskUpdate, TaskList）は「遅延ツール（deferred tools）」であり、ToolSearch で事前にロードしないと呼び出せない。Agent ツール自体は遅延ツールではなく最初から使用可能。
 
 SendMessage / Task 系を使用する直前に以下を実行:
 
@@ -48,21 +69,21 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 
 並列化の判断基準・単体起動条件は `references/PARALLEL-DECISION-CRITERIA.md` を参照。
 
-**このスキル固有の起動アクション:** 条件に該当したら即座に **Agent ツールで planner（`sumik:tachikoma-str-product-mgr`, model: opus）** を起動する。
+**このスキル固有の起動アクション:** 条件に該当したら、herdrでは `herdr agent start`、非herdrではAgentツールを使い、planner（`sumik:tachikoma-str-product-mgr`, model: opus）を起動する。
 
 ---
 
 ## クイックスタート（2フェーズ方式）
 
 ### Phase 1: 計画策定（planner タチコマに全委譲）
-1. **Agent ツールで planner タチコマ起動（model: opus, run_in_background: true）** - ユーザー要求をそのまま渡す。現状把握・コードベース分析・要件整理・チーム編成設計・`docs/plan-{feature}.md` 作成・**Codex プランレビューループ**を全てplannerが実行
+1. **planner タチコマ起動** - herdr では `herdr agent start`、非herdrでは Agent ツール（model: opus, run_in_background: true）を使う。ユーザー要求をそのまま渡し、現状把握・コードベース分析・要件整理・チーム編成設計・`docs/plan-{feature}.md` 作成・**Codex プランレビューループ**を全てplannerが実行
 2. **計画レビュー・承認** - plannerがCodexレビュー済みのdocs/planをユーザーに提示して確認
 
 ### Phase 2: 実装（implementer タチコマ並列起動）
-3. **TaskCreate + Agent ツール（`run_in_background: true`）** - plan に基づきドメイン別専門タチコマを並列起動
-4. **進捗管理 → 統合 → クリーンアップ** - SendMessage、TaskList。セッション終了で自動解散（明示的に閉じる場合のみ shutdown_request）
+3. **implementer タチコマ並列起動** - herdr では同一Waveの全員を `herdr agent start` で待たずに起動し、非herdrでは TaskCreate + Agent ツール（`run_in_background: true`）を使う
+4. **進捗管理 → 統合 → クリーンアップ** - herdr では agent read/wait と pane close、非herdrでは SendMessage / TaskList / shutdown_request を使う
 
-**🔴 Claude Code本体はファイルを読まない・分析しない。** ユーザー要求を受け取ったら即座に Agent ツールで planner を起動。現状把握から計画策定まで全てplannerの責務。
+**🔴 Claude Code本体はファイルを読まない・分析しない。** ユーザー要求を受け取ったら、選択済みバックエンドでplannerを起動する。現状把握から計画策定まで全てplannerの責務。
 
 ---
 
@@ -95,8 +116,11 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 
 ## 🔴 絶対に避けるべきこと
 
-- **Bash toolでメンバーを起動しない**（`--team` 等のCLIオプションは存在しない）
-- **🔴 `run_in_background: true` を省略しない**（省略すると前景で逐次実行になる。`team_name` は無視されるため不要）
+- **herdr 環境で Claude Code の `--tmux`、iTerm2、素のtmuxを使ってペインを作らない**
+- **herdr 環境で Agent Teams API と独立herdrエージェントの管理状態を混在させない**
+- **非herdr環境で Bash toolからメンバーを起動しない**（`--team` 等のCLIオプションは存在しない）
+- **非herdr環境で `run_in_background: true` を省略しない**（省略すると前景で逐次実行になる。`team_name` は無視されるため不要）
+- **herdr環境で `herdr agent start` 以外のCLI経路からエージェントを起動しない**
 - **Task toolに存在しないパラメータを使用しない**（`task`, `additional_instructions` は無効）
 - **同一ファイルへの同時書き込み**（サイレントな上書きが発生）
 - **`docs/plan-*.md` なしでチーム作成しない**（回復不能になる）
@@ -119,6 +143,7 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 
 ## 関連スキル
 
+- `operating-herdr` - `HERDR_ENV=1` でのworkspace/tab/pane・agent操作（必須）
 - `rules/skill-triggers.md` - **サブエージェントルーティング表**（専門タチコマ選択の判断基準）
 - `implementing-as-tachikoma` - タチコマAgent運用ガイド
 - `using-serena` - トークン効率化開発

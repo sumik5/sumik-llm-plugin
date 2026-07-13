@@ -133,18 +133,20 @@ Agent Team実行前に必ず `docs/plan-{feature-name}.md` を作成します。
    - タスクリストで `- [ ]`（未完了）のタスクを特定
    - 実行ログで最後に完了したタスクを確認
 
-2. **未完了タスクのTaskCreate**（TeamCreate は不要・廃止済み）
-   - 完了済みタスクは作成しない
-   - 未完了タスクのみを TaskCreate で作成
-   - 依存関係（`blockedBy`）も再設定
+2. **実行バックエンドを再判定**
+   - `HERDR_ENV=1`: `operating-herdr` をロードし、TaskCreateは使わない。このファイルをタスク・依存関係の正本にする
+   - `HERDR_ENV!=1`: 未完了タスクだけをTaskCreateで再作成し、依存関係（`blockedBy`）も再設定する
 
 3. **メンバーをスポーン**
    - 未完了タスクを担当するメンバーのみをスポーン
-   - Agent ツールで `run_in_background: true` で起動（`team_name` は不要）
+   - herdr: `herdr agent list` で既存agentを確認し、不在の担当だけ `herdr agent start` で再起動する
+   - Agent Teams: Agent ツールで `run_in_background: true` で起動する（`team_name` は不要）
+   - pane/tab/workspace IDはcompactされ得るため、このファイルへ保存せず操作直前に再取得する
 
 4. **タスクリスト更新**
    - 完了したら `- [x]` に変更
    - 実行ログに再開時刻・完了時刻を記録
+   - herdrでは複数agentの同時編集を避け、リーダーだけが更新する
 
 ### 例（タスク5-8が未完了の場合）
 

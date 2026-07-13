@@ -1,14 +1,31 @@
-# Agent Team ワークフローガイド
+# Agent Team / herdr ワークフローガイド
 
-Claude Code本体がAgent Team APIを操作する2フェーズ方式のワークフロー。**Phase 1（計画策定）はplanner タチコマに委譲し、Phase 2（実装）でimplementer タチコマを並列起動**します。
+Claude Code本体が実行バックエンドを選び、2フェーズで進めるワークフロー。**Phase 1（計画策定）はplanner タチコマに委譲し、Phase 2（実装）でimplementer タチコマを並列起動**します。
+
+## Step 0: 実行バックエンドを固定する
+
+```bash
+if [ "${HERDR_ENV:-}" = "1" ]; then
+  echo herdr
+else
+  echo agent-teams
+fi
+```
+
+| 条件 | 起動 | タスク正本 | 連絡・監視 | 終了 |
+|------|------|-----------|-----------|------|
+| `HERDR_ENV=1` | `herdr agent start` | `docs/plan-*.md` | `herdr agent read/send/wait` | `herdr pane close` |
+| `HERDR_ENV!=1` | Agent tool | TaskCreate + `docs/plan-*.md` | TaskList / SendMessage | shutdown_request |
+
+`HERDR_ENV=1` では `operating-herdr` をロードし、Claude Code の `teammateMode` を `in-process` にする。`--tmux`、iTerm2、素のtmuxによるペイン分割は使わない。独立したherdrエージェントは Agent Teams API のタスク・メッセージ状態を共有しないため、1タスク中に2つのバックエンドを混在させない。
 
 ---
 
 ## Phase 1: 計画策定
 
-### Step 0: 遅延ツールのロード（🔴 使用前に必ず実行）
+### Step 0.1: 遅延ツールのロード（Agent Teams バックエンドのみ）
 
-**SendMessage / Task 系（TaskCreate, TaskUpdate, TaskList）は遅延ツール（deferred tools）。ToolSearch でロードしないと呼び出せない。Agent ツール自体は遅延ツールではなく最初から使用可能。TeamCreate/TeamDelete は v2.1.178 で廃止済み（ToolSearch しても "No matching deferred tools found" となる）。**
+**`HERDR_ENV!=1` の場合だけ実行する。** SendMessage / Task 系（TaskCreate, TaskUpdate, TaskList）は遅延ツール（deferred tools）。ToolSearch でロードしないと呼び出せない。Agent ツール自体は遅延ツールではなく最初から使用可能。TeamCreate/TeamDelete は v2.1.178 で廃止済み（ToolSearch しても "No matching deferred tools found" となる）。
 
 各ツールを使用する直前に以下を実行:
 
@@ -25,7 +42,7 @@ ToolSearch("SendMessage message")   → SendMessage がロード
 
 **🔴 Claude Code本体はファイルを読まない・コードベースを分析しない。**
 
-ユーザー要求を受け取ったら、即座に Agent ツールで planner タチコマを起動する（TeamCreate は v2.1.178 で廃止済み・不要）:
+ユーザー要求を受け取ったら、選択したバックエンドで planner タチコマを起動する（TeamCreate は v2.1.178 で廃止済み・不要）。
 
 ---
 
@@ -33,7 +50,40 @@ ToolSearch("SendMessage message")   → SendMessage がロード
 
 **Claude Code本体はファイル読み込み・コードベース分析・要件整理を一切行わず、ユーザー要求をそのまま planner タチコマに渡す。** 現状把握から計画策定まで全てplannerの責務。
 
-planner タチコマの起動:
+#### herdr バックエンド
+
+`PLANNER_PROMPT` に下記Agent Teams版の `prompt` と同じ内容を入れ、herdrが注入したworkspace/tabへ起動する。`agent start` の応答で新しいペインIDは `result.agent.pane_id` にある。
+
+```bash
+PLANNER_START=$(herdr agent start feature-planner \
+  --cwd "$PWD" \
+  --workspace "$HERDR_WORKSPACE_ID" \
+  --tab "$HERDR_TAB_ID" \
+  --split right \
+  --no-focus \
+  -- claude \
+  --agent sumik:tachikoma-str-product-mgr \
+  --model opus \
+  --permission-mode bypassPermissions \
+  --name feature-planner)
+
+PLANNER_PANE=$(printf '%s' "$PLANNER_START" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
+
+herdr agent wait feature-planner --status idle --timeout 30000
+herdr agent send feature-planner "$PLANNER_PROMPT"
+herdr pane send-keys "$PLANNER_PANE" Enter
+```
+
+- agent名はライブセッション内で一意にする（例: `{feature}-planner`）
+- `herdr integration status` で Claude 統合が current か確認する
+- `herdr wait agent-status "$PLANNER_PANE" --status working --timeout 30000` で開始を確認してから、`herdr agent wait feature-planner --status idle --timeout 1800000` で完了を待つ。`working` を取り逃した場合は `agent get/read` で状態と出力を確認する
+- 完了後は `herdr agent read feature-planner --source recent --lines 100` で結果を確認する
+- workspace/tab/pane IDはcompactされ得るため、`docs/plan` に永続保存しない
+
+#### Agent Teams バックエンド
+
+Agent toolで planner タチコマを起動する:
 
 ```json
 {
@@ -82,15 +132,24 @@ AskUserQuestion(
 )
 ```
 
-修正が必要な場合は、planner タチコマに SendMessage でフィードバックを送信。
+修正が必要な場合はバックエンドごとにフィードバックする。
+
+- herdr: `herdr agent send feature-planner "$FEEDBACK"` の後、`herdr pane send-keys "$PLANNER_PANE" Enter` で送信を確定する。`agent send` 単体はEnterを送らない
+- Agent Teams: SendMessage でplannerへ送信する
 
 ---
 
 ## Phase 2: 実装
 
-### Step 4: TaskCreate でタスク一覧作成
+### Step 4: タスク一覧を準備する
 
-**planner が作成した `docs/plan-*.md` のタスクリストに基づいて作成**
+#### herdr バックエンド
+
+planner が作成した `docs/plan-*.md` をそのままタスク・依存関係の正本にする。TaskCreate / TaskUpdate は使わない。複数の独立Claude CLIセッションが同じ計画書を同時編集しないよう、チェックリストと実行ログの更新はリーダーが行う。
+
+#### Agent Teams バックエンド
+
+planner が作成した `docs/plan-*.md` のタスクリストに基づき、TaskCreateで作成する。
 
 ```json
 {
@@ -123,13 +182,39 @@ AskUserQuestion(
 
 ---
 
-### Step 5: implementer タチコマ並列起動（Task tool）
+### Step 5: implementer タチコマ並列起動
 
-### 🔴 重要: 必ずTask toolを使用（Bash経由禁止）
+#### herdr バックエンド
 
-**Claude Code本体が Task tool を直接呼び出し、planner の計画に基づいてimplementer タチコマを並列起動します。**
+同一Waveの全メンバーを `herdr agent start` で起動し終えてから待機する。Claude Codeの `--tmux` やAgent toolのsplit-paneは使わない。以下はfrontendの例で、backend/testerも一意なagent名・専用ファイル所有権・適切な `--agent` を指定して同様に起動する。
 
-### 5.1 Task tool パラメータ
+```bash
+FRONTEND_START=$(herdr agent start feature-frontend \
+  --cwd "$PWD" \
+  --workspace "$HERDR_WORKSPACE_ID" \
+  --tab "$HERDR_TAB_ID" \
+  --split right \
+  --no-focus \
+  -- claude \
+  --agent sumik:tachikoma-fw-nextjs \
+  --permission-mode bypassPermissions \
+  --name feature-frontend)
+
+FRONTEND_PANE=$(printf '%s' "$FRONTEND_START" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
+
+herdr agent wait feature-frontend --status idle --timeout 30000
+herdr agent send feature-frontend "$FRONTEND_PROMPT"
+herdr pane send-keys "$FRONTEND_PANE" Enter
+```
+
+起動後は `herdr wait agent-status "$FRONTEND_PANE" --status working --timeout 30000` で開始を確認し、`herdr agent wait feature-frontend --status idle --timeout 1800000` でターン完了を待つ。`working` を取り逃した場合は `herdr agent get feature-frontend` と `herdr agent read feature-frontend --source recent --lines 100` で状態と出力を確認する。
+
+#### Agent Teams バックエンド
+
+**Claude Code本体が Agent tool を直接呼び出し、planner の計画に基づいてimplementer タチコマを並列起動する。Bash経由で起動しない。**
+
+##### Agent tool パラメータ
 
 | パラメータ | 必須 | 説明 |
 |-----------|------|------|
@@ -137,10 +222,10 @@ AskUserQuestion(
 | `prompt` | ✅ | タスクの詳細指示（Spawn Prompt全文を含める） |
 | `subagent_type` | ✅ | **ドメイン別専門タチコマ**を選択（`rules/skill-triggers.md` ルーティング表参照）。例: `"sumik:tachikoma-fw-nextjs"`, `"sumik:tachikoma-qa-e2e-test"` |
 | `name` | 任意 | メンバー名（例: "frontend", "backend"） |
-| `run_in_background` | ✅ | `true` で並列実行（**必須**）。これだけで pane 表示される（`team_name` は不要） |
+| `run_in_background` | ✅ | `true` で並列実行（**必須**）。`team_name` は不要。ペイン表示の有無はClaude Codeの設定に従う |
 | `mode` | 任意 | `"bypassPermissions"` で権限確認をスキップ |
 
-### 5.2 並列起動例（3メンバー）
+##### 並列起動例（3メンバー）
 
 **1つのメッセージ内で複数のTask tool呼び出しを並列実行:**
 
@@ -176,7 +261,7 @@ AskUserQuestion(
 }
 ```
 
-### 5.3 Spawn Prompt テンプレート
+#### 共通のSpawn Promptテンプレート
 
 **`prompt` パラメータに記述する内容:**
 
@@ -198,18 +283,31 @@ AskUserQuestion(
 - 他メンバーのタスクに介入しない
 - git書込操作（git commit, git push）を実行しない
 
-docs/plan チェックリスト:
-- 作業完了後、担当タスクのチェックリストを `- [x]` に更新
-- 完了報告をClaude Code本体に送信
+完了報告:
+- 変更ファイル、検証結果、未解決事項をリーダーへ報告
+- Agent Teamsバックエンドでは担当タスクのチェックリストを `- [x]` に更新
+- herdrバックエンドでは `docs/plan` を編集せず、リーダーが報告を反映する
 ```
 
 ---
 
 ## Step 6: 進捗管理（planner シャットダウン → implementer 監視）
 
-**Step 5 で implementer タチコマを起動したら、不要になった planner タチコマをシャットダウンしてリソースを解放する。**
+**Step 5 で implementer タチコマを起動したら、不要になった planner を閉じてリソースを解放する。** herdrではライブな `herdr agent list` からplannerのペインIDを再取得して `herdr pane close`、Agent Teamsではshutdown_requestを使う。
 
-### 6.1 TaskList で進捗確認
+### 6.1 進捗確認
+
+#### herdr バックエンド
+
+```bash
+herdr agent list
+herdr agent read feature-frontend --source recent --lines 80
+herdr agent wait feature-frontend --status idle --timeout 1800000
+```
+
+複数の対話型Claude agentの完了を待つときは、各agentに対して `herdr agent wait <name> --status idle` を使う。`done` はプロセス完了を表すため、ターン完了後も対話を継続するClaudeの待機条件には使わない。ペインIDは保存値を盲信せず、agent名と `herdr agent list` で現在値を照合する。
+
+#### Agent Teams バックエンド
 
 定期的に TaskList を呼び出して進捗を確認:
 
@@ -226,7 +324,16 @@ TaskList()
 ]
 ```
 
-### 6.2 SendMessage でメンバー間調整
+### 6.2 メンバー間調整
+
+herdrでは `agent send` とEnterを組み合わせる。
+
+```bash
+herdr agent send feature-frontend "$MESSAGE"
+herdr pane send-keys "$FRONTEND_PANE" Enter
+```
+
+Agent TeamsではSendMessageを使う。
 
 **type: "message"（特定メンバーに送信）:**
 
@@ -251,8 +358,7 @@ TaskList()
 
 ### 6.3 docs/plan-*.md のタスクリスト更新
 
-**🔴 重要: 各タチコマは自身のタスク完了時に `docs/plan-*.md` のチェックリストを `- [x]` に更新する。**
-Claude Code本体は完了報告受領時にリストが更新されていることを確認する。
+**🔴 herdrではリーダーだけが `docs/plan-*.md` を更新する。** 独立セッションの同時編集を防ぐため、implementerは完了報告だけを返す。Agent Teamsでは各タチコマが担当タスクを `- [x]` に更新し、リーダーが確認する。
 
 メンバーからの完了報告を受けたら、計画ドキュメントのタスクリストを更新:
 
@@ -280,7 +386,7 @@ Claude Code本体は完了報告受領時にリストが更新されているこ
 
 ### 7.1 全タスク完了の確認
 
-TaskList で全タスクが "completed" になったことを確認:
+herdrでは `herdr agent list` / `agent read` で全agentの完了と成果報告を確認し、`docs/plan-*.md` の全項目へ反映する。Agent TeamsではTaskListで全タスクが "completed" になったことを確認する。
 
 ```json
 TaskList()
@@ -325,7 +431,19 @@ software-security スキル
 
 ## Step 8: クリーンアップ
 
-### 8.1 各メンバーをシャットダウン
+### 8.1 herdr バックエンド
+
+agent名から現在のペインIDを取り直し、成果物と出力を確認してから閉じる。
+
+```bash
+AGENT_INFO=$(herdr agent get feature-frontend)
+CURRENT_PANE=$(printf '%s' "$AGENT_INFO" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
+herdr agent read feature-frontend --source recent --lines 100
+herdr pane close "$CURRENT_PANE"
+```
+
+### 8.2 Agent Teams バックエンド
 
 **SendMessage で shutdown_request を送信:**
 
@@ -339,26 +457,36 @@ software-security スキル
 
 各メンバー（frontend, backend, tester）に対して個別に送信。
 
-### 8.2 後始末（TeamDelete は不要）
+### 8.3 後始末（TeamDelete は不要）
 
 **セッション終了で全メンバーは自動解散される（TeamDelete は v2.1.178 で廃止済み）。**
 能動的に特定メンバーを閉じたい場合のみ、shutdown_request 後に `teammate_terminated` 通知を確認する。
 
 ---
 
-## Agent Teams API 制限（重要）
+## バックエンド別の制限（重要）
 
-### 制限事項
+### herdr
+
+- 別ペインのClaude CLIは独立セッションであり、TaskCreate / TaskList / SendMessageを共有しない
+- タスク状態と依存関係は `docs/plan-*.md` に集約する
+- pane/tab/workspace IDはclose後にcompactされ得る。操作直前にagent名から現在値を取得する
+- `agent send` はEnterを送らない。送信確定には `pane send-keys <pane_id> Enter` が必要
+- agent spawn・監視はagent系、サーバー・テスト・ログはpane系を使う
+
+### Agent Teams API
+
+#### 制限事項
 - **ネストされたチーム不可**（メンバーは独自のサブエージェントチームを持てない）
 - **リーダー固定**（譲渡不可）
 - **各メンバーは独自コンテキスト**（リーダーの会話履歴は継承しない）
 
-### アイドル状態
+#### アイドル状態
 - チームメンバーはターンごとにアイドルになる（**正常動作**）
 - アイドル = 入力待ち状態であり、メッセージ送信で即座に復帰
 - アイドル通知は自動送信されるため、エラーとして扱わない
 
-### タスク自動取得（Self-claiming）
+#### タスク自動取得（Self-claiming）
 - チームメンバーがタスクを完了すると、次の未割り当て・ブロック解除済みタスクを自動的に取得可能
 - タスク取得はファイルロックで競合を防止
 - **各メンバーに5-6タスクを用意すれば、自動取得で効率的に作業が進む**
