@@ -1,6 +1,6 @@
 ---
 description: >-
-  .learnings/（LEARNINGS.md・ERRORS.md）の蓄積エントリを実ファイル裏取りのうえ恒久化先へ消費し、処理済みエントリを削除する。恒久化先は実行コンテキストで決まる（一般プロジェクト: プロジェクトCLAUDE.md・.claude/配下・~/.claude/CLAUDE.md・~/.codex/AGENTS.md・memory ／ sumik-claude-plugin repo: 加えてスキルreferences・version bump）。capturing-learnings（捕捉）と対になる消費側コマンド
+  .learnings/（LEARNINGS.md・ERRORS.md）の蓄積エントリを実ファイル裏取りのうえ恒久化先へ消費し、処理済みエントリを削除する。恒久化先は実行コンテキストで決まる（一般プロジェクト: プロジェクトCLAUDE.md・.claude/配下・~/.claude/CLAUDE.md・~/.claude/rules・~/.codex/AGENTS.md・memory ／ sumik-claude-plugin repo: 加えて authoring-plugins スキルに従いAgent/Skill/Command/Hook/plugin.json/READMEを整合修正しversion bump）。capturing-learnings（捕捉）と対になる消費側コマンド
 allowed-tools: Bash, Read, Grep, Glob, Edit, Write, Agent, AskUserQuestion, SendMessage, ToolSearch, Skill
 argument-hint: "[追加指示（例: スキルのみ / コミットなし）省略可]"
 user-invocable: true
@@ -22,7 +22,8 @@ user-invocable: true
 
 - 本コマンドの発動は「CLAUDE.md・dotfiles（`~/.claude` 配下）を改善してよい」というユーザー確認に相当する（無断編集にはあたらない）。ただし **git 書込（commit / tag / push）は別途 AskUserQuestion で確認必須**。
 - 編集は必ずソースリポジトリに対して行う（`~/.claude/plugins/cache/...` は読取専用コピー）。
-- sumik-claude-plugin repo で実行する場合は、作業開始時に `authoring-plugins` スキルをロードする（規約・検証ゲートの参照元。一般プロジェクトでは不要）。
+- 🔴 sumik-claude-plugin repo で実行する場合は、作業開始時に `authoring-plugins` スキルをロードする。これはスキル references への追記だけでなく、**Agent・Command・Hook・plugin.json・README を含むプラグインコンポーネント全般の修正**における規約（命名規則・description 三部構成・cross-reference 整合性・version 3 ファイル同期・README 同期）の唯一の参照元とする。一般プロジェクトでは不要。
+- 🔴 1 件の学びが「dotfiles（`~/.claude/CLAUDE.md`・`~/.claude/rules/*.md`）」と「sumik-claude-plugin repo のプラグインコンポーネント」の**両方**の修正を要する場合（例: Agent/Skill の改名・移動でルーティング表とプラグイン内参照の両方がずれている）、authoring-plugins の「外部dotfiles同期」節（INSTRUCTIONS.md）に従い**同一タスク内で両方を整合**させる。片方のみ直して他方を放置しない。
 
 ## 対象と棲み分け
 
@@ -64,7 +65,10 @@ user-invocable: true
 | ユーザー横断の事実（反復 ≥3・2 タスク以上・30 日内で昇格） | Claude Code memory ＋ MEMORY.md 索引 | 本体直接 |
 | rtk・dotfiles 系の罠 | `~/dotfiles/claude-code/RTK.md`・`rules/*.md` | 本体直接 |
 | スキルの手順・ガイドに載せるべき知見（**sumik-claude-plugin repo のみ**） | 該当スキルの INSTRUCTIONS.md / references/ | tachikoma-doc-document へ委譲 |
+| **sumik-claude-plugin repo の Agent（.md）・Command（.md）定義の規約違反・命名・description不整合**（**sumik-claude-plugin repo のみ**） | authoring-plugins の品質チェックリスト（命名規則・description三部構成・親ディレクトリ名一致等）に照らして本体が要修正箇所を特定 | tachikoma-doc-document（または内容に応じた該当ドメインタチコマ）へ委譲 |
+| **sumik-claude-plugin repo の plugin.json（version）・README.md の追従漏れ** | authoring-plugins の「完了ワークフロー」（version 3 ファイル同期・README同期）に従い実行 | 本体直接 or tachikoma-doc-document へ委譲 |
 | hook・スクリプトのコード修正 | 該当 `.sh` 等 | tachikoma-lang-bash 等へ委譲 |
+| **dotfiles と sumik-claude-plugin repo の双方にまたがる整合性崩れ**（Agent/Skill改名・プラグイン間移動等） | authoring-plugins の「外部dotfiles同期」手順（4層スキャン＋dotfiles）に従い両方を1タスクで整合 | dotfiles側は本体直接／repo側は該当タチコマへ委譲 |
 
 - 🔴 dotfiles のファイルは symlink のことがあり、Edit が「Refusing to write through symlink」で拒否する → `readlink -f` で実体を解決してから編集する（例: RTK.md の実体は `~/.claude/RTK.md`・通常と逆向きの symlink。`~/.codex/AGENTS.md` の実体は `~/dotfiles/codex/AGENTS.md`）
 - 🔴 スキル等のドキュメントが `.learnings` のエントリ ID やパスを参照している場合、**エントリ削除より先に参照をインライン化**する（ダングリング防止）
@@ -76,6 +80,7 @@ user-invocable: true
 - 書籍名・著者名・出版社名の禁止（公開リポジトリ）
 - `.learnings` への参照（`[LRN-...]`・ファイルパス）を新規に書かない（知見は本文へインライン化）
 - ファイル所有権の明示（担当外ファイルの編集禁止）・既存文体の維持・既存の正しい記述を削らない
+- 🔴 sumik-claude-plugin repo のプラグインコンポーネント編集時は、authoring-plugins の品質チェックリスト該当項目（命名規則／description三部構成・1,024字以内／親ディレクトリ名一致／cross-reference整合性／README・skill-triggers.md等の外部設定同期）を委譲プロンプトに明記する
 
 ## Phase 4: 機械検証（タチコマ報告を鵜呑みにしない）
 
@@ -91,10 +96,13 @@ user-invocable: true
 /usr/bin/git diff --stat && /usr/bin/git diff -U0 | /usr/bin/grep '^-' | /usr/bin/grep -v '^---'
 ```
 
+- 🔴（sumik-claude-plugin repo でコンポーネントの改名・移動・削除を伴う場合）authoring-plugins の CROSS-REFERENCE-INTEGRITY.md 記載の検出スクリプトで4層（他スキルfrontmatter・本文・hook・README/rules/dotfiles）のダングリング参照を追加検証する
+- （sumik-claude-plugin repo で version bump した場合）repo CLAUDE.md 記載の同期チェックスクリプト（12プラグイン3ファイル一致）を実行する
+
 ## Phase 5: エントリ削除・リリース
 
 1. 消費済みエントリを削除し、ヘッダ＋「恒久化先」の注記を残す（作業中に生まれた新知見は、その場で新エントリとして記録してよい）
-2. **（sumik-claude-plugin repo のみ）**変更したプラグインを version bump（コミット type 基準: fix → PATCH / feat → MINOR）し、3 ファイル同期・repo CLAUDE.md の期待値更新・同期チェックスクリプトを実行する
+2. **（sumik-claude-plugin repo のみ）**変更したプラグインを version bump（コミット type 基準: fix → PATCH / feat → MINOR）し、3 ファイル同期・repo CLAUDE.md の期待値更新・同期チェックスクリプトを実行する（authoring-plugins の「完了ワークフロー」節と同一手順。新規コンポーネント追加を伴う場合は README.md 自動同期も同時に行う）
 3. AskUserQuestion で git 書込を確認 → 承認後に実行:
    - コミットメッセージは Write でファイル化して `git commit -F <file>`（全角記号の `-m` 直渡しはパース崩れで不発）
    - 一般プロジェクトでは `.learnings/` を版管理しているか（`git ls-files .learnings` が非空か）で commit に含めるかを判断する（既定はローカル留置）。sumik-claude-plugin repo では commit に含める——global `~/.gitignore` に ignore されているため **`git add -f .learnings/...`**（tracked 済みなので安全）
