@@ -204,3 +204,4 @@ skills:
 | tachikoma-doc-training.md | tachikoma-doc-training | sonnet | 研修設計・プレゼン改善（自己進化型） |
 | tachikoma-str-architecture.md | tachikoma-str-architecture | opus[1m] | 設計・DDD（読取専用） |
 | tachikoma-str-product-mgr.md | tachikoma-str-product-mgr | opus[1m] | 要件分析・計画策定（読取専用） |
+| tachikoma-mobile-ios.md | tachikoma-mobile-ios | sonnet | iOS/iPadOS/macOS・SwiftUI/UIKit |

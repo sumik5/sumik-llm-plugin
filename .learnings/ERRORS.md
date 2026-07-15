@@ -72,3 +72,32 @@ Create a plan?  shift + tab use Plan mode   esc dismiss
 
 - 再現可否: yes
 - 関連ファイル: plugins/devkit/skills/operating-herdr/INSTRUCTIONS.md
+
+---
+
+## [ERR-20260715-001] agent-config
+
+**記録日時**: 2026-07-15T00:00:00+09:00
+**優先度**: medium
+**ステータス**: open（要・LEARNINGS.md側の記載修正）
+**領域**: agent-config
+
+### 要約
+
+`.learnings/LEARNINGS.md` の `[LRN-20260714-001]` は「対象24ファイル（`plugins/devkit/agents/*.md` 中 `model: sonnet` 指定の23件 + `plugins/exam/agents/exam-solver.md`）は `model: claude-sonnet-5` に統一済み（2026-07-14）」と記載しているが、2026-07-15 に実ファイルを `grep -n "^model:" plugins/devkit/agents/*.md` で確認したところ、**全25体の sonnet 系エージェントが依然として `model: sonnet`（エイリアス表記）のまま**であり、記載された移行は適用されていなかった。
+
+### 状況
+
+新規Agent `tachikoma-mobile-ios` を追加する作業で、model フィールドの表記規則を確認するために memory/LEARNINGS.md を参照 → 実ファイルと突き合わせたところ矛盾を検出。おそらく移行作業自体は別セッションで検討・記録だけされ、実際の一括置換コミットが行われなかった（またはその後の何らかの変更で巻き戻った）と推測される。
+
+### 推奨修正
+
+- `.learnings/LEARNINGS.md` の `[LRN-20260714-001]` のステータスを `resolved` から `open`（未適用）に訂正するか、実際に24ファイルへ `model: claude-sonnet-5` を適用してから `resolved` に戻す。
+- 今後 memory・LEARNINGS.md 由来の「〜済み」という記載を実装の根拠にする際は、**必ず対象ファイルを実際に `grep`/`Read` して現状を検証してから使う**（本エントリはその実践example）。
+- 本件は次回の `.learnings/` 消化（`/consume-learnings`）時に本体または担当タチコマが判断すること（本エントリ自体はその場しのぎの実装回避〈`model: sonnet` のまま新規作成〉で対応済み）。
+
+### メタデータ
+
+- 再現可否: yes（`/usr/bin/grep -n "^model:" plugins/devkit/agents/*.md` で即再現）
+- 関連ファイル: .learnings/LEARNINGS.md（LRN-20260714-001）, plugins/devkit/agents/*.md
+- タグ: model-alias, learnings-integrity, agent-config
