@@ -1,7 +1,7 @@
 {
   "name": "mobile",
-  "version": "1.2.0",
-  "description": "iPhone/iPad/Mac アプリ開発スキル群を提供するプラグイン。3個のスキル（applying-apple-hig: Apple Human Interface Guidelines 準拠のデザイン指針・developing-ios-apps: SwiftUI/UIKit 選定から App Store 審査・プライバシー・配布までの開発実務・auditing-app-store-compliance: コードベース監査によるApp Store提出可否判定、StoreKit 2 IAP実装準拠、macOS/Mac App Store固有要件）を含む。",
+  "version": "1.3.0",
+  "description": "iPhone/iPad/Mac アプリおよび Flutter/Dart クロスプラットフォームアプリ開発スキル群を提供するプラグイン。5個のスキル（applying-apple-hig: Apple Human Interface Guidelines 準拠のデザイン指針・developing-ios-apps: SwiftUI/UIKit 選定から App Store 審査・プライバシー・配布までの開発実務・auditing-app-store-compliance: コードベース監査によるApp Store提出可否判定、StoreKit 2 IAP実装準拠、macOS/Mac App Store固有要件・developing-dart: Dart言語の型システム・null安全性・関数型/OOPプログラミング・非同期処理・テストなど言語仕様全般・developing-flutter-apps: Widget/状態管理/ナビゲーション/ネットワーキング/アーキテクチャパターン/パッケージエコシステム/テスト/性能最適化/ストア公開までのFlutterアプリ開発実務）を含む。",
   "author": {
     "name": "sumik5"
   },
@@ -14,13 +14,15 @@
     "macos",
     "apple-hig",
     "swiftui",
-    "app-store-review"
+    "app-store-review",
+    "flutter",
+    "dart"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Sumik Mobile",
-    "shortDescription": "iPhone/iPad/Mac アプリ開発スキル（Apple HIG 準拠デザイン・iOS 開発実務・App Store 審査対応監査）を提供するプラグイン",
-    "longDescription": "Apple Human Interface Guidelines に準拠した iPhone/iPad アプリのデザイン指針、SwiftUI/UIKit の選定・アプリライフサイクル・App Store 審査ガイドライン・プライバシー要件・配布までの開発実務知識、そしてコードベース監査による App Store 提出可否判定（StoreKit 2 IAP 実装準拠・macOS/Mac App Store 固有要件を含む）を提供します。各トピックには Apple 公式ドキュメントへの参照 URL を併記し、最新仕様の確認先を案内します。",
+    "shortDescription": "iPhone/iPad/Mac アプリ開発スキル（Apple HIG 準拠デザイン・iOS 開発実務・App Store 審査対応監査）および Flutter/Dart クロスプラットフォーム開発スキルを提供するプラグイン",
+    "longDescription": "Apple Human Interface Guidelines に準拠した iPhone/iPad アプリのデザイン指針、SwiftUI/UIKit の選定・アプリライフサイクル・App Store 審査ガイドライン・プライバシー要件・配布までの開発実務知識、コードベース監査による App Store 提出可否判定（StoreKit 2 IAP 実装準拠・macOS/Mac App Store 固有要件を含む）、そして Dart 言語仕様と Flutter による iOS/Android/Web/デスクトップ向けクロスプラットフォームアプリ開発実務（Widget・状態管理・ナビゲーション・アーキテクチャ・パッケージ選定・ストア公開）を提供します。各トピックには Apple または Flutter/Dart 公式ドキュメントへの参照 URL を併記し、最新仕様の確認先を案内します。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": [
@@ -31,7 +33,8 @@
     ],
     "websiteURL": "https://github.com/sumik5/sumik-claude-plugin",
     "defaultPrompt": [
-      "applying-apple-hig で iPhone アプリの画面設計を HIG 準拠でレビュー"
+      "applying-apple-hig で iPhone アプリの画面設計を HIG 準拠でレビュー",
+      "developing-flutter-apps で Flutter アプリの状態管理方式を選定"
     ],
     "brandColor": "#0A84FF"
   }

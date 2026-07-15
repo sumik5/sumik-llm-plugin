@@ -1,7 +1,7 @@
 {
   "name": "mobile",
-  "description": "sumik Claude Code Plugin (mobile) — モバイル/iOS スキル群（Apple HIG 準拠デザイン・iPhone/iPad アプリ開発実務）",
-  "version": "1.2.0",
+  "description": "sumik Claude Code Plugin (mobile) — モバイル/iOS/Flutter スキル群（Apple HIG 準拠デザイン・iPhone/iPad アプリ開発実務・Flutter/Dart クロスプラットフォーム開発）",
+  "version": "1.3.0",
   "author": {
     "name": "sumik5"
   }

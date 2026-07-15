@@ -6,7 +6,7 @@ sumik Claude Code Plugin のプロジェクト固有開発ルール。
 
 ## ディレクトリ構成
 
-このリポジトリは `plugins/` 配下に **12 個の兄弟プラグイン** を持つ。**devkit**（開発ワークフロー特化・agents/commands/hooks/MCP を含む本体・ユニバーサルコア＋オーケストレーション＋ワークフロー＋設計/レビュー practices 系 31 スキル）と、スキル/MCP 特化の 11 プラグイン: **studio**（コンテンツ制作・12）・**lang**（言語: Python/Go/R/Bash/DB/MCP/アルゴリズム・7 スキル）・**web**（Web/フロントエンド実装: Next.js/React/フルスタックJS/Web API/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築・13 スキル）・**cloud**（クラウド/インフラ/IaC/認可/セキュリティアーキテクチャ/クラウドセキュリティ知識体系・13 スキル）・**ai**（GenAI設計/AIエージェント/Web AI統合/LLM評価/AI支援開発/AI開発セキュリティ・6 スキル）・**design**（UX/デザイン思考/AI体験/データ可視化/デザインシステム・6 スキル）・**product**（プロダクトマネジメント/要件定義・2 スキル）・**university**（大学で使う Processing (Java Mode) 開発・1 スキル `developing-processing`）・**mobile**（Apple HIG と iPhone/iPad/Mac アプリ開発・3 スキル `applying-apple-hig` / `developing-ios-apps` / `auditing-app-store-compliance`）、そして **exam**（生成AI活用試験の問題画像を解く・1 スキル `answering-genai-exam` ＋ 1 agent `exam-solver`）、さらに **google**（Google サービス連携: Google Analytics GA4 公式 MCP サーバー `analytics-mcp` を `pipx run` で同梱・1 スキル `analyzing-with-google-analytics`。MCP を持つため studio と同型の subdirectory + MCP 方式）。lang/web/cloud/ai/design/product/university/mobile は **skills-only**（agents/commands/hooks/MCP/bin を持たず `.claude-plugin/plugin.json`・`.codex-plugin/plugin.json`・README.md・skills/ のみ。university は検証ヘルパー `scripts/verify-sketch.sh` をスキル内に bundle するが plugin レベルの bin は持たない）で、Codex 配布は **studio と同じ subdirectory-root 方式**。exam は **agent 入りだが commands/hooks/MCP/bin を持たない subdirectory 方式**（agent は Claude Code 専用で、Codex には skills のみ配布する）。全プラグインは同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から配布され、常にセットでインストールされる前提（devkit の agent が `studio:<skill>`・`lang:<skill>`・`web:<skill>`・`cloud:<skill>`・`ai:<skill>`・`design:<skill>`・`product:<skill>` の修飾名でクロスプラグイン preload するため）。Claude Code プラグイン本体を `plugins/` 配下へ隔離しているのは、claude.ai の marketplace 同期が repo 丸ごとを取り込む際に Codex 異物が混入しないようにするため。ルートには claude.ai / Codex が最初に読む marketplace 定義と Codex 用マニフェストのみを残す。
+このリポジトリは `plugins/` 配下に **12 個の兄弟プラグイン** を持つ。**devkit**（開発ワークフロー特化・agents/commands/hooks/MCP を含む本体・ユニバーサルコア＋オーケストレーション＋ワークフロー＋設計/レビュー practices 系 31 スキル）と、スキル/MCP 特化の 11 プラグイン: **studio**（コンテンツ制作・12）・**lang**（言語: Python/Go/R/Bash/DB/MCP/アルゴリズム・7 スキル）・**web**（Web/フロントエンド実装: Next.js/React/フルスタックJS/Web API/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築・13 スキル）・**cloud**（クラウド/インフラ/IaC/認可/セキュリティアーキテクチャ/クラウドセキュリティ知識体系・13 スキル）・**ai**（GenAI設計/AIエージェント/Web AI統合/LLM評価/AI支援開発/AI開発セキュリティ・6 スキル）・**design**（UX/デザイン思考/AI体験/データ可視化/デザインシステム・6 スキル）・**product**（プロダクトマネジメント/要件定義・2 スキル）・**university**（大学で使う Processing (Java Mode) 開発・1 スキル `developing-processing`）・**mobile**（Apple HIG と iPhone/iPad/Mac アプリ開発・Flutter/Dart クロスプラットフォーム開発・5 スキル `applying-apple-hig` / `developing-ios-apps` / `auditing-app-store-compliance` / `developing-dart` / `developing-flutter-apps`）、そして **exam**（生成AI活用試験の問題画像を解く・1 スキル `answering-genai-exam` ＋ 1 agent `exam-solver`）、さらに **google**（Google サービス連携: Google Analytics GA4 公式 MCP サーバー `analytics-mcp` を `pipx run` で同梱・1 スキル `analyzing-with-google-analytics`。MCP を持つため studio と同型の subdirectory + MCP 方式）。lang/web/cloud/ai/design/product/university/mobile は **skills-only**（agents/commands/hooks/MCP/bin を持たず `.claude-plugin/plugin.json`・`.codex-plugin/plugin.json`・README.md・skills/ のみ。university は検証ヘルパー `scripts/verify-sketch.sh` をスキル内に bundle するが plugin レベルの bin は持たない）で、Codex 配布は **studio と同じ subdirectory-root 方式**。exam は **agent 入りだが commands/hooks/MCP/bin を持たない subdirectory 方式**（agent は Claude Code 専用で、Codex には skills のみ配布する）。全プラグインは同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から配布され、常にセットでインストールされる前提（devkit の agent が `studio:<skill>`・`lang:<skill>`・`web:<skill>`・`cloud:<skill>`・`ai:<skill>`・`design:<skill>`・`product:<skill>` の修飾名でクロスプラグイン preload するため）。Claude Code プラグイン本体を `plugins/` 配下へ隔離しているのは、claude.ai の marketplace 同期が repo 丸ごとを取り込む際に Codex 異物が混入しないようにするため。ルートには claude.ai / Codex が最初に読む marketplace 定義と Codex 用マニフェストのみを残す。
 
 ```
 plugins/devkit/              # ★ Claude Code プラグイン本体（開発ワークフロー特化・${CLAUDE_PLUGIN_ROOT}）
@@ -89,8 +89,8 @@ plugins/google/              # ★ Google サービス連携プラグイン（Go
 ├── .codex-plugin/plugin.json   # プラグインマニフェスト（Codex CLI 用・plugin名 google・skills ./skills/ ＋ mcpServers）
 └── .mcp-codex.json          # MCPサーバー設定（Codex 用・command "./bin/pipx-mise.sh" + cwd "."・env はシェル継承）
 
-plugins/mobile/              # ★ iPhone/iPad/Mac アプリ開発プラグイン（skills-only・subdirectory 方式）
-├── skills/                  # ナレッジスキル（3個・applying-apple-hig / developing-ios-apps / auditing-app-store-compliance）
+plugins/mobile/              # ★ iPhone/iPad/Mac アプリ開発 + Flutter/Dart クロスプラットフォーム開発プラグイン（skills-only・subdirectory 方式）
+├── skills/                  # ナレッジスキル（5個・applying-apple-hig / developing-ios-apps / auditing-app-store-compliance / developing-dart / developing-flutter-apps）
 ├── README.md                # mobile プラグインの README
 ├── .claude-plugin/plugin.json  # プラグインマニフェスト（Claude Code 用・plugin名 mobile・version 独立同期）
 └── .codex-plugin/plugin.json   # プラグインマニフェスト（Codex CLI 用・plugin名 mobile・skills ./skills/）※MCP/bin/agents/hooks なし → .mcp* なし
@@ -183,7 +183,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョン管理
 
-- **12 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.9.2・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.2.0）
+- **12 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.9.2・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0）
 - devkit の version は `plugins/devkit/.claude-plugin/plugin.json` の `version` フィールドで管理（**devkit の 3 ファイルを必ず同期**→下記参照）
 - studio の version は `plugins/studio/.claude-plugin/plugin.json` の `version` フィールドで管理（**studio の 3 ファイルを必ず同期**→下記参照）
 - lang / web / cloud / ai / design / product / exam / university / google / mobile の version は各 `plugins/<plugin>/.claude-plugin/plugin.json` の `version` フィールドで管理（**各プラグインの 3 ファイルを必ず同期**→下記参照）
@@ -222,7 +222,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 #### 同期チェック
 
-コミット前に 12 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.9.2・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.2.0:
+コミット前に 12 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.9.2・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0:
 
 ```bash
 python3 - <<'PY'
@@ -292,7 +292,7 @@ checks = {
 expected = {"devkit": "14.9.2", "studio": "1.2.2", "lang": "2.2.1", "web": "1.2.0",
             "cloud": "1.2.0", "ai": "1.2.3", "design": "1.0.2",
             "product": "1.0.2", "exam": "1.2.2", "university": "1.0.0",
-            "google": "1.0.0", "mobile": "1.2.0"}
+            "google": "1.0.0", "mobile": "1.3.0"}
 all_ok = True
 for plugin, files in checks.items():
     vals = [getter(json.load(open(path))) for path, getter in files]
