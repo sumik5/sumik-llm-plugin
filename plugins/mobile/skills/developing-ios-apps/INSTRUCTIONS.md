@@ -418,6 +418,7 @@ SDKを含め、次をデータ種別ごとに記録する。
 | Privacy Manifest、Required Reason API、ATT、権限、削除 | [PRIVACY.md](references/PRIVACY.md) |
 | 署名、App Store Connect、TestFlight、version、release | [DISTRIBUTION.md](references/DISTRIBUTION.md) |
 | App Review Guidelines、IAP、metadata、reject対応 | [APP-STORE-REVIEW.md](references/APP-STORE-REVIEW.md) |
+| コードベース監査（Info.plist/entitlements/ソースコード検査とpass/fail判定）、IAP実装レベル準拠、macOS/Mac App Store固有要件 | auditing-app-store-compliance（別スキル） |
 
 referenceはすべてINSTRUCTIONS.mdから1階層で到達する。referenceから別referenceをたどる前提にしない。
 ## Apple公式の入口

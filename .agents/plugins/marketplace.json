@@ -164,8 +164,8 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/mobile"
       },
-      "version": "1.1.0",
-      "description": "iPhone/iPad アプリ開発スキル群を提供するプラグイン。2個のスキル（applying-apple-hig: Apple Human Interface Guidelines 準拠のデザイン指針・developing-ios-apps: SwiftUI/UIKit 選定から App Store 審査・プライバシー・配布までの開発実務）を含む。",
+      "version": "1.2.0",
+      "description": "iPhone/iPad/Mac アプリ開発スキル群を提供するプラグイン。3個のスキル（applying-apple-hig: Apple Human Interface Guidelines 準拠のデザイン指針・developing-ios-apps: SwiftUI/UIKit 選定から App Store 審査・プライバシー・配布までの開発実務・auditing-app-store-compliance: コードベース監査によるApp Store提出可否判定、StoreKit 2 IAP実装準拠、macOS/Mac App Store固有要件）を含む。",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"

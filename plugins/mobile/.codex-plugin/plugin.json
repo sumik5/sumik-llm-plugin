@@ -1,7 +1,7 @@
 {
   "name": "mobile",
-  "version": "1.1.0",
-  "description": "iPhone/iPad アプリ開発スキル群を提供するプラグイン。2個のスキル（applying-apple-hig: Apple Human Interface Guidelines 準拠のデザイン指針・developing-ios-apps: SwiftUI/UIKit 選定から App Store 審査・プライバシー・配布までの開発実務）を含む。",
+  "version": "1.2.0",
+  "description": "iPhone/iPad/Mac アプリ開発スキル群を提供するプラグイン。3個のスキル（applying-apple-hig: Apple Human Interface Guidelines 準拠のデザイン指針・developing-ios-apps: SwiftUI/UIKit 選定から App Store 審査・プライバシー・配布までの開発実務・auditing-app-store-compliance: コードベース監査によるApp Store提出可否判定、StoreKit 2 IAP実装準拠、macOS/Mac App Store固有要件）を含む。",
   "author": {
     "name": "sumik5"
   },
@@ -11,14 +11,16 @@
     "mobile",
     "ios",
     "ipados",
+    "macos",
     "apple-hig",
-    "swiftui"
+    "swiftui",
+    "app-store-review"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Sumik Mobile",
-    "shortDescription": "iPhone/iPad アプリ開発スキル（Apple HIG 準拠デザイン・iOS 開発実務）を提供するプラグイン",
-    "longDescription": "Apple Human Interface Guidelines に準拠した iPhone/iPad アプリのデザイン指針と、SwiftUI/UIKit の選定・アプリライフサイクル・App Store 審査ガイドライン・プライバシー要件・配布までの開発実務知識を提供します。各トピックには Apple 公式ドキュメントへの参照 URL を併記し、最新仕様の確認先を案内します。",
+    "shortDescription": "iPhone/iPad/Mac アプリ開発スキル（Apple HIG 準拠デザイン・iOS 開発実務・App Store 審査対応監査）を提供するプラグイン",
+    "longDescription": "Apple Human Interface Guidelines に準拠した iPhone/iPad アプリのデザイン指針、SwiftUI/UIKit の選定・アプリライフサイクル・App Store 審査ガイドライン・プライバシー要件・配布までの開発実務知識、そしてコードベース監査による App Store 提出可否判定（StoreKit 2 IAP 実装準拠・macOS/Mac App Store 固有要件を含む）を提供します。各トピックには Apple 公式ドキュメントへの参照 URL を併記し、最新仕様の確認先を案内します。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": [
