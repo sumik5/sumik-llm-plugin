@@ -1,7 +1,7 @@
 ---
 name: exam-solver
 description: "Implementation Tachikoma agent that solves one exam question (one image's worth) of a GenAI-utilization exam. Receives an extracted problem memo, confirmed approach, output directory, and question number from Claude Code, then generates each sub-question's dialogue summary (<=1000 chars) and submission artifact (markdown answer / image-generation instructions / source code) and writes them under answers/<question>/. Use proactively when multiple exam question images must be solved in parallel. Launched in the background, so it never uses AskUserQuestion; unresolved points are decided best-effort and noted in the completion report."
-model: sonnet
+model: claude-sonnet-5
 color: purple
 tools: Read, Grep, Glob, Write, Edit, Bash
 skills:

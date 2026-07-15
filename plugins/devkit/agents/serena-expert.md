@@ -1,7 +1,7 @@
 ---
 name: serena-expert
 description: "Token-efficient app development agent using /serena command for structured problem-solving. Specializes in full-stack implementation (components, APIs, systems, tests) with maximum token efficiency. Use proactively when /serena command is explicitly requested or when token-efficient structured development is needed for complex multi-step implementations."
-model: sonnet
+model: claude-sonnet-5
 color: blue
 tools: Read, Grep, Glob, Edit, Write, Bash, ToolSearch
 skills:

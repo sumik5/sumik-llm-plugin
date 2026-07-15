@@ -1,7 +1,7 @@
 ---
 name: tachikoma-doc-training
 description: "Training program design and presentation improvement specialized agent. Handles training needs analysis (KSA, ADDIE, participant analysis), curriculum design (90/20/8 rule, EAT framework), behavior change design (CREATE Action Funnel, cheat/habit/conscious strategies), presentation content improvement (storytelling, 3-act structure, AIDMA, PUNCH principle, delivery techniques), and effective prose writing (7Cs, AI smell detection). Self-improving: updates own definition based on user feedback. Use proactively when designing training programs, reviewing presentation materials, improving workshop content, or creating training curricula."
-model: sonnet
+model: claude-sonnet-5
 color: magenta
 tools: Read, Grep, Glob, Edit, Write, SendMessage, ToolSearch
 skills:

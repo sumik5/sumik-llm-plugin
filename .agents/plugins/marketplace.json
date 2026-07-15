@@ -10,7 +10,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/devkit"
       },
-      "version": "14.9.1",
+      "version": "14.9.2",
       "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。29体のタチコマAgent・31個のスキル・13個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
       "policy": {
         "installation": "AVAILABLE",
@@ -122,7 +122,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/exam"
       },
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "生成AI活用試験の問題画像を解くスキルを提供するプラグイン。1個のスキル（answering-genai-exam: 見開き問題画像から各小問の対話の要点と回答提出物を生成）と1体の並列求解 agent（exam-solver）を含む。",
       "policy": {
         "installation": "AVAILABLE",

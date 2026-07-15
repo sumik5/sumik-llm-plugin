@@ -1,7 +1,7 @@
 ---
 name: tachikoma
 description: "General-purpose Tachikoma execution agent for tasks not covered by specialized Tachikomas. Handles development, testing, documentation, and other technical tasks. Uses /serena for efficient development. When a task matches a specialized domain (Next.js, Python, AWS, etc.), prefer the domain-specific Tachikoma instead. PARALLEL EXECUTION: Claude Code can launch multiple Tachikoma instances for independent tasks."
-model: sonnet
+model: claude-sonnet-5
 color: orange
 tools: Read, Grep, Glob, Edit, Write, Bash, ToolSearch
 skills:

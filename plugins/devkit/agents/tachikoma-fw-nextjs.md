@@ -1,7 +1,7 @@
 ---
 name: tachikoma-fw-nextjs
 description: "Next.js/React specialized Tachikoma execution agent. Handles Next.js 16 App Router, Server Components, React 19 features, Turbopack, Cache Components, and next-devtools MCP integration. Use proactively when implementing Next.js pages, components, API routes, middleware, or React features in Next.js projects. Detects: package.json with 'next' dependency."
-model: sonnet
+model: claude-sonnet-5
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - web:developing-nextjs
