@@ -389,7 +389,7 @@ CDNキャッシュは静的コンテンツに最適です。
 ```markdown
 詳細な設定方法については、[環境構築](#環境構築)セクションを参照してください。
 
-7つのC原則の詳細は [PRINCIPLES.md](PRINCIPLES.md) を参照してください。
+7つのC原則の詳細は [TECHNICAL-DOCS-PRINCIPLES.md](TECHNICAL-DOCS-PRINCIPLES.md) を参照してください。
 ```
 
 ### 外部リソースへのリンク
@@ -417,6 +417,6 @@ CDNキャッシュは静的コンテンツに最適です。
 
 ## 関連セクション
 
-- [PRINCIPLES.md](PRINCIPLES.md): 7つのC原則
-- [REPORTS.md](REPORTS.md): 報告書での構造適用
+- [TECHNICAL-DOCS-PRINCIPLES.md](TECHNICAL-DOCS-PRINCIPLES.md): 7つのC原則
+- [TECHNICAL-DOCS-REPORTS.md](TECHNICAL-DOCS-REPORTS.md): 報告書での構造適用
 - [ANTI-PATTERNS.md](ANTI-PATTERNS.md): 構造上の誤り

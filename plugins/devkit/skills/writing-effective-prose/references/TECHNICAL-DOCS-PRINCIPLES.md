@@ -290,6 +290,6 @@ APIキーがないと動かない。
 
 ## 関連セクション
 
-- [STRUCTURE.md](STRUCTURE.md): 文章構造の実践
+- [TECHNICAL-DOCS-STRUCTURE.md](TECHNICAL-DOCS-STRUCTURE.md): 文章構造の実践
 - [ANTI-PATTERNS.md](ANTI-PATTERNS.md): よくある誤りの回避
-- [REPORTS.md](REPORTS.md): 報告書での7つのC適用例
+- [TECHNICAL-DOCS-REPORTS.md](TECHNICAL-DOCS-REPORTS.md): 報告書での7つのC適用例

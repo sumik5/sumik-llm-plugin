@@ -325,6 +325,6 @@
 ## 関連リファレンス
 
 - `PREPARATION.md`（書く前の準備・読者分析）
-- `REVISION-CHECKLIST.md`（AI臭除去・品質チェック）
+- `REVISION-CHECKLIST.md`（文章完全性・品質チェック）
 - `WEB-DIGITAL-WRITING.md`（Webコンテンツ・UXライティング）
 - `UX-COPYWRITING.md`（UXコピーライティング・キャッチフレーズ）

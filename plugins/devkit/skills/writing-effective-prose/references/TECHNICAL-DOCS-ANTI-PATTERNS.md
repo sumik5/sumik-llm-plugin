@@ -386,7 +386,7 @@ npm installを実行してください。
 
 ## 関連セクション
 
-- [PRINCIPLES.md](PRINCIPLES.md): 7つのC原則の詳細
-- [STRUCTURE.md](STRUCTURE.md): 正しい構造化手法
-- [REPORTS.md](REPORTS.md): 報告書での実践例
+- [TECHNICAL-DOCS-PRINCIPLES.md](TECHNICAL-DOCS-PRINCIPLES.md): 7つのC原則の詳細
+- [TECHNICAL-DOCS-STRUCTURE.md](TECHNICAL-DOCS-STRUCTURE.md): 正しい構造化手法
+- [TECHNICAL-DOCS-REPORTS.md](TECHNICAL-DOCS-REPORTS.md): 報告書での実践例
 - [SKILL.md](../SKILL.md): テクニカルライティング概要

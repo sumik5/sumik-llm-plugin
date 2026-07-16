@@ -374,6 +374,6 @@ class AuthService {
 
 ## 関連セクション
 
-- [PRINCIPLES.md](PRINCIPLES.md): 7つのC原則の適用
-- [STRUCTURE.md](STRUCTURE.md): 報告書の構造化
+- [TECHNICAL-DOCS-PRINCIPLES.md](TECHNICAL-DOCS-PRINCIPLES.md): 7つのC原則の適用
+- [TECHNICAL-DOCS-STRUCTURE.md](TECHNICAL-DOCS-STRUCTURE.md): 報告書の構造化
 - [ANTI-PATTERNS.md](ANTI-PATTERNS.md): よくある誤り
