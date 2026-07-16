@@ -101,6 +101,9 @@ KENTEI_LAB_MAX_N=10 scripts/collect-kentei-lab.sh https://kentei-lab.com/exams/s
 - `total_questions` は試験の総問題数 N。`KENTEI_LAB_MAX_N` で部分取得した場合、`questions` の要素数は N より少なくなる。
 - この JSON はそのまま `creating-flashcards` スキルへ渡せる（同スキルが `scripts/kentei_lab_import.py` で
   構造推測をスキップして Anki に一括登録する）。Anki デッキは既定で `kentei-lab::<試験名>` に登録される。
+- ⚠️ 同一会話内で直接ブリッジする場合の実務上の注意（`disable-model-invocation` によるSkillツール不可・
+  `${CLAUDE_PLUGIN_ROOT}` 未設定・デッキ名衝突確認等）は `creating-flashcards` の INSTRUCTIONS.md
+  「kentei-lab 収集済み JSON のファストパス」節を参照。
 
 ## 6. 中断・再開（resume）
 

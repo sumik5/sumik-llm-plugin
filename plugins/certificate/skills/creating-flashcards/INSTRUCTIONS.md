@@ -174,6 +174,22 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/kentei_lab_impo
 > スクリプトが自己管理する固定スキーマ**であり、その変異理由が存在しない。したがって固定スキーマ専用の
 > `kentei_lab_import.py` を恒久化するのが正しい。将来「使い捨てルール違反」として削除・scaffold 化しないこと。
 
+> 🔴 **`disable-model-invocation` とセッション内直接ブリッジ時の注意（2026-07-16 実運用で確認）**: `creating-flashcards`
+> は自身の SKILL.md フロントマターで `disable-model-invocation: true` を持つため、`collecting-kentei-lab-exams` の
+> JSON を同一会話内でそのまま渡そうとして `Skill(skill: "certificate:creating-flashcards", ...)` を呼ぶと**失敗する**
+> （ユーザーが `/certificate:creating-flashcards` を明示的に叩いた場合のみ起動可能）。同一会話内でこのファストパスへ
+> ブリッジする際は、Skill ツールを使わず以下の手順を踏む。
+>
+> 1. `${CLAUDE_PLUGIN_ROOT}` は実際のスラッシュコマンド実行コンテキスト外（アドホックな Bash 呼び出し）では**空**に
+>    なる。`find ~/.claude/plugins/cache -type d -path '*/certificate/*/skills/creating-flashcards'`（複数バージョン
+>    があれば最新を採用）で実体パスを解決してから `python3 <実体パス>/scripts/kentei_lab_import.py` を直接実行する。
+> 2. Step 5a/5b はインタラクティブな creating-flashcards セッションが誘導する前提で書かれているため、ブリッジ時は
+>    誘導役が不在になる。AnkiConnect（`modelNames`/`modelFieldNames`/`deckNames`）への問い合わせを自分で行い、特に
+>    `deckNames` で**同一試験名の既存デッキ階層**（書籍等の別ソース由来）が無いか確認し、あれば配置先を
+>    AskUserQuestion でユーザーに確認する（`kentei-lab::<exam_title>` 決め打ちにしない）。
+> 3. 本番投入前に `--dry-run` で `needs_fix` 件数とサンプル1件を確認してから実行する（`collect-kentei-lab.sh` 側の
+>    スモークテスト推奨と同じ安全策）。
+
 > ⚠️ **JSON には2系統ある（構造化Q&A vs ページ単位OCR）**: JSON ソースには (a) 問題・解答がフィールドとして構造化済みの Q&A JSON と、(b) VLM/`recognize` 系 OCR が出力する**ページ単位 JSON**（`[{"index","filename","text"}, ...]` で各ページの生テキストを保持）の2系統がある。(b) は「構造化済み」ではなく、各ページの `text` を Markdown 同様にパースする必要がある（科目見出しページ・問題ページ・解答ページの分類が要る）。実装は **JSON パスを `md_path` として渡し、`parse()` 冒頭で `json.loads(markdown_text)` してページ列を得る**と scaffold の `main()` をそのまま再利用できる。画像主体 EPUB を VLM で逐次OCRしたケースで観測。
 
 > ⚠️ **pandocアーティファクト**: pandocはEPUB変換時にCSSクラスマーカー（`{.class_sXXX}`）、ページマーカー（`[]{#cXXX.xhtml}`）、divマーカー（`:::`）、ゼロ幅スペース付きリストマーカー等を生成する。これらはStep 6で除去する。
