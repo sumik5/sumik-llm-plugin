@@ -86,7 +86,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 devkit / .codex-plugin/ と version 同期必須）
     │   ├── .mcp.json                     # Claude 用 MCPサーバー設定（${CLAUDE_PLUGIN_ROOT}/bin/...）
-    │   ├── agents/                       # Agent定義 (29体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str/mobile)
+    │   ├── agents/                       # Agent定義 (30体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str/mobile)
     │   ├── commands/                     # スラッシュコマンド (13個)
     │   ├── hooks/                        # イベントフック (12個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
@@ -192,7 +192,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 
 ## コンポーネント一覧
 
-### Agents (29体)
+### Agents (30体)
 
 | Agent | モデル | 説明 |
 |-------|--------|------|
@@ -202,6 +202,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | **タチコマ（Go）** (tachikoma-lang-go) | Sonnet | Go専門。concurrencyパターン・インターフェース設計・エラーハンドリング・GoFパターン・Go内部構造 |
 | **タチコマ（Bash）** (tachikoma-lang-bash) | Sonnet | Bashシェルスクリプト専門。strict mode・I/Oパイプライン・プロセス制御・セキュリティ・ShellCheck |
 | **タチコマ（TypeScript）** (tachikoma-lang-typescript) | Sonnet | TypeScript型システム専門。高度な型パターン・ジェネリクス・条件型・GoFデザインパターン |
+| **タチコマ（モバイル/Flutter）** (tachikoma-mobile-flutter) | Sonnet | Flutter/Dartクロスプラットフォーム専門。Widgetシステム・State management（Provider/Riverpod/BLoC等）・navigation/routing・networking/backend連携・architecture patterns |
 | **タチコマ（モバイル/iOS）** (tachikoma-mobile-ios) | Sonnet | iOS/iPadOS/macOS専門。SwiftUI/UIKit実装・Apple HIG準拠UI・App Store審査対応監査（StoreKit 2 IAP実装・macOS/Mac App Store固有要件） |
 | **タチコマ（Next.js）** (tachikoma-fw-nextjs) | Sonnet | Next.js 16/React 19専門。App Router・Server Components・Turbopack・next-devtools統合 |
 | **タチコマ（フルスタックJS）** (tachikoma-fw-fullstack-js) | Sonnet | フルスタックJS専門。NestJS/Express・REST API設計・構造化ログ |
