@@ -6,7 +6,7 @@
 
 ## 概要
 
-certificate は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。資格・検定の学習を支援する3つのスキルを提供します: kentei-lab.com の資格・検定 URL から全問題（問題文・選択肢・正解・解説）を巡回取得して Markdown へ保存する `collecting-kentei-lab-exams`、教材（EPUB/PDF/スキャン本）から Anki フラッシュカードを一括作成する `creating-flashcards`、画像ベース EPUB のテキスト OCR 変換とローカル翻訳を行う `converting-content` です。
+certificate は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。資格・検定の学習を支援する3つのスキルを提供します: kentei-lab.com の資格・検定 URL から全問題（問題文・選択肢・正解・解説）を巡回取得して 1 資格 1 JSON ファイルへ保存する `collecting-kentei-lab-exams`、教材（EPUB/PDF/スキャン本）から Anki フラッシュカードを一括作成する `creating-flashcards`、画像ベース EPUB のテキスト OCR 変換とローカル翻訳を行う `converting-content` です。`collecting-kentei-lab-exams` の JSON 出力は `creating-flashcards` の専用ブリッジ `kentei_lab_import.py` にそのまま渡せ、AI による構造推測を省いて `kentei-lab::<試験名>` デッキへ直接一括登録できます（収集から Anki 登録までの連携強化）。
 
 スキルに加えて、`creating-flashcards` の自己改善コマンド `improve-creating-flashcards` を持ちます。Codex 配布は skills のみ（commands は Codex マニフェストに宣言しません）で、studio などと同じ subdirectory 方式です。
 
@@ -40,8 +40,8 @@ plugins/certificate/
 ├── commands/
 │   └── improve-creating-flashcards.md   # creating-flashcards の自己改善コマンド（Claude Code 専用）
 └── skills/
-    ├── collecting-kentei-lab-exams/     # kentei-lab 問題収集スキル（収集スクリプトを bundle）
-    ├── creating-flashcards/             # Anki フラッシュカード一括作成スキル（pdf-to-markdown・OCR系スクリプトを bundle）
+    ├── collecting-kentei-lab-exams/     # kentei-lab 問題収集スキル（JSON出力の収集スクリプトを bundle）
+    ├── creating-flashcards/             # Anki フラッシュカード一括作成スキル（pdf-to-markdown・OCR系・kentei-lab JSONブリッジ kentei_lab_import.py を bundle）
     └── converting-content/              # 画像ベースEPUB→テキストOCR変換・LM Studio翻訳スキル
 ```
 
@@ -53,8 +53,8 @@ plugins/certificate/
 
 | スキル | 説明 |
 |--------|------|
-| `collecting-kentei-lab-exams` | kentei-lab.com の資格・検定 URL（概要ページ/開始ページ/問題ページのいずれでも可）を渡すと、その資格の全問題（問題文・選択肢・正解・解説）を巡回取得し、1 資格 1 Markdown ファイルに保存する。 |
-| `creating-flashcards` | EPUB/PDF/スキャン本から Anki フラッシュカードを Anki MCP Server または AnkiConnect API 経由で一括作成する（MCP設定・画像ベース教材の OCR: Apple Vision 優先/ローカル VLM フォールバック・デッキ/ノートタイプ管理・コンテンツ構造分析・HTML整形の一括インポート）。 |
+| `collecting-kentei-lab-exams` | kentei-lab.com の資格・検定 URL（概要ページ/開始ページ/問題ページのいずれでも可）を渡すと、その資格の全問題（問題文・選択肢・正解・解説）を巡回取得し、1 資格 1 JSON ファイル（Anki 登録に適した構造化データ）に保存する。出力はそのまま `creating-flashcards` へ渡して試験名ごとに Anki フラッシュカード化できる。 |
+| `creating-flashcards` | EPUB/PDF/スキャン本から Anki フラッシュカードを Anki MCP Server または AnkiConnect API 経由で一括作成する（MCP設定・画像ベース教材の OCR: Apple Vision 優先/ローカル VLM フォールバック・デッキ/ノートタイプ管理・コンテンツ構造分析・HTML整形の一括インポート）。`collecting-kentei-lab-exams` が収集した JSON（exam_title/slug/questions スキーマ）は専用ブリッジ `scripts/kentei_lab_import.py` でファストパス投入でき、AI による構造推測（言語検出・構造分析・サンプル確認）をスキップして `kentei-lab::<試験名>` デッキへ直接一括登録する。 |
 | `converting-content` | 画像ベース EPUB をテキストへ OCR 変換し、LM Studio によるローカル英日翻訳を行う（pandoc・OCR ワークフローを含む）。 |
 
 ### Commands (1個)
@@ -68,9 +68,9 @@ plugins/certificate/
 ## 依存関係メモ
 
 - **agent-browser CLI**（Rust ネイティブ・CDP 直結のブラウザ自動化 CLI）が必要です（`collecting-kentei-lab-exams`）。未導入の場合は `web:automating-browser` スキル同梱の `scripts/install.sh` で導入してください。
-- **jq**（JSON 整形・検証）が必要です（`collecting-kentei-lab-exams`）。
+- **jq**（JSON 整形・検証・最終成果物の組み立て）が必要です（`collecting-kentei-lab-exams`）。収集結果は `<slug>.json`（最終成果物）と `<slug>.jsonl`（進捗・resume の真実源）の2ファイルで出力されます。
 - **Anki MCP Server または AnkiConnect API**（`creating-flashcards`）が必要です。Anki 本体とのカード一括インポートに使用します。
-- **pdf-to-markdown バイナリ**は `creating-flashcards/scripts/` に skill-bundled 済みです（plugin レベルの `scripts/` には依存しません）。
+- **pdf-to-markdown バイナリ**は `creating-flashcards/scripts/` に skill-bundled 済みです（plugin レベルの `scripts/` には依存しません）。同ディレクトリには `collecting-kentei-lab-exams` の JSON 出力を Anki へ直接投入する専用ブリッジ `kentei_lab_import.py` も常設されています。
 - **ローカル OCR**: Apple Vision（`ocr-apple-vision`）を優先し、利用不可時はローカル VLM（`recognize-image-to-markdown` / `recognize-image.py`）にフォールバックします（`creating-flashcards`・`converting-content`）。
 - **LM Studio**（ローカル LLM 翻訳）が必要です（`converting-content`）。
 - kentei-lab.com は認証不要の公開無料サイトです。`collecting-kentei-lab-exams` は教育目的の節度ある利用（既定のリクエスト間隔・レート配慮）を前提としています。大規模な資格（問題数が多い試験）は取得に時間がかかるため、長時間実行を想定した運用（バックグラウンド実行・中断再開）に対応しています。

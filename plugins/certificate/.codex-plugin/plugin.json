@@ -1,7 +1,7 @@
 {
   "name": "certificate",
-  "version": "1.0.0",
-  "description": "資格・検定の学習支援プラグイン。3個のスキル（collecting-kentei-lab-exams: 指定 URL の資格から全問題・正解・解説を巡回取得し1資格1 Markdownに保存・creating-flashcards: EPUB/PDF/スキャン本からAnki MCP Server経由でフラッシュカードを一括作成・converting-content: 画像ベースEPUB→テキストOCR変換とLM Studioによるローカル翻訳）と1個のコマンド（improve-creating-flashcards: creating-flashcardsの自己改善）を含む。",
+  "version": "1.1.0",
+  "description": "資格・検定の学習支援プラグイン。3個のスキル（collecting-kentei-lab-exams: 指定 URL の資格から全問題・正解・解説を巡回取得し1資格1 JSONに保存・creating-flashcards: EPUB/PDF/スキャン本からAnki MCP Server経由でフラッシュカードを一括作成・converting-content: 画像ベースEPUB→テキストOCR変換とLM Studioによるローカル翻訳）と1個のコマンド（improve-creating-flashcards: creating-flashcardsの自己改善）を含む。",
   "author": {
     "name": "sumik5"
   },
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Sumik Certificate",
     "shortDescription": "資格・検定の学習支援（問題収集・フラッシュカード作成・教材変換）を提供するプラグイン",
-    "longDescription": "kentei-lab.com の資格・検定 URL から全問題（問題文・選択肢・正解・解説）を巡回取得して 1 資格 1 Markdown ファイルへ保存し、教材（EPUB/PDF/スキャン本）から Anki フラッシュカードを一括作成し、画像ベース EPUB のテキスト OCR 変換とローカル翻訳までをカバーする、資格・検定の学習支援スキル群を提供します。",
+    "longDescription": "kentei-lab.com の資格・検定 URL から全問題（問題文・選択肢・正解・解説）を巡回取得して 1 資格 1 JSON ファイルへ保存し、教材（EPUB/PDF/スキャン本）から Anki フラッシュカードを一括作成し、画像ベース EPUB のテキスト OCR 変換とローカル翻訳までをカバーする、資格・検定の学習支援スキル群を提供します。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": [

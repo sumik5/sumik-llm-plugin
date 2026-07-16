@@ -8,6 +8,9 @@ description: >-
   or when managing Anki cards via MCP tools.
   Covers full workflow: MCP setup → file conversion (pandoc / OCR) → content analysis → batch card
   creation. For MCP server/client development, use lang:developing-mcp instead.
+  Also supports a fast-path for pre-structured exam JSON collected by collecting-kentei-lab-exams
+  (kentei-lab schema: exam_title/slug/questions), importing directly via scripts/kentei_lab_import.py
+  and skipping AI structure inference.
   For EPUB image compression/size reduction use studio:compressing-epub-images; for standalone
   image-EPUB→text OCR conversion (no flashcard creation) use converting-content.
 argument-hint: "<file-path>"

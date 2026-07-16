@@ -83,6 +83,12 @@ curl http://127.0.0.1:3141/
 | `scripts/anki_toolkit.py` | 🔴 **不変・育てる側** | ソースに依らず毎回同じ部分（AnkiConnect クライアント・`addNotes` バッチ投入・冪等性・HTML整形・タグ生成・`QAPair` 中間表現契約・翻訳スキップ判定・品質検証）を全格納する。投入時に書き換えない。発見した不変バグはここを1箇所修正する |
 | `scripts/parser_scaffold.py` | **雛形・コピーして使う側** | ソース固有の `parse()` だけを毎回埋める使い捨てパーサーの雛形。共通前処理ヘルパ（pandocアーティファクト除去・NFKC正規化・smart_join・ページ番号抽出・セクションマーカーgrep・画像抽出）に加え、OCR残存フォールバック用の `collapse_repeated_lines(text, max_repeat=3)`（反復崩壊圧縮・消費側閾値3）・`strip_thinking_logs(text)`（メタ思考ログ除去・○×単独行保護）を「素材」として持つ。呼ぶ/呼ばない/regexの差し替えは毎回ソースを見て判断する（一括統合関数にはしない） |
 
+> 🔵 **kentei-lab 収集 JSON は第 3 のスクリプトを使う（固定スキーマ専用の例外）**: 上記 2 層（不変 toolkit +
+> 使い捨て scaffold）に加え、`scripts/kentei_lab_import.py` が `collecting-kentei-lab-exams` の固定スキーマ JSON
+> 専用の**恒久ブリッジ**として常設されている。kentei-lab JSON は自己管理された固定構造のため「使い捨て parse()」の
+> 前提（構造変異）が当てはまらず、ジェネリックパーサー禁止ルールの明示的な例外として扱う（詳細は Step 1 の
+> 「kentei-lab 収集済み JSON のファストパス」節）。
+
 **毎回の作業フロー:**
 
 1. `parser_scaffold.py` を /tmp にソース固有名でコピーする（例: `cp "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/parser_scaffold.py" /tmp/parse-<descriptive-name>.py`）
@@ -137,6 +143,36 @@ ${CLAUDE_SKILL_DIR}/scripts/pdf-to-markdown <input.pdf> /tmp/<descriptive-name>.
 **JSON（構造化済みQ&Aデータ）:**
 
 JSON形式の場合はMarkdown変換不要。ファイルを読み込み、問題と解答の構造を直接解析する。Step 3のコンテンツ構造分析でJSONスキーマ（フィールド名、ネスト構造）を自動判定し、各問題のフィールドをHTMLフォーマットルールに従ってマッピングする。
+
+#### kentei-lab 収集済み JSON のファストパス（AI 構造推測をスキップ）
+
+`collecting-kentei-lab-exams` スキルが出力した JSON（トップレベルに `exam_title`・`slug`・`questions`
+の3キーを持ち、各 `questions[]` 要素が `number`・`question`・`choices`・`answer`・`explanation` を持つ）
+を受け取った場合、このソースは**収集時に DOM から確定取得済みの完全構造化データ**であり、書籍のように
+AI が構造を推測する必要がない。以下のファストパスを取る。
+
+1. Step 2（言語検出）・Step 3（コンテンツ構造の自動分析）・Step 4（サンプル確認による AI 推測）を
+   **すべてスキップ**する（構造は既知・曖昧さなし）。
+2. `parser_scaffold.py` を**コピーしない**。専用ブリッジ `scripts/kentei_lab_import.py` を使う。
+3. Step 5（デッキ・ノートタイプ選択）へ直行する。デッキ選択（Step 5a）では `exam_title` から算出した
+   `kentei-lab::<exam_title>` を「推奨」の先頭選択肢として提示する。ノートタイプ選択（Step 5b）は通常どおり
+   `modelNames`/`modelFieldNames`/`modelTemplates` を確認する（既存の必須ワークフローは崩さない）。
+4. Step 5 で確定したデッキ名・ノートタイプ名・フィールド名・`choice_list_style` を CLI 引数として渡す。
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/kentei_lab_import.py" \
+    <slug>.json \
+    --deck "kentei-lab::<exam_title>" \
+    --model "<ノートタイプ名>" \
+    --front-field <Question 等> --back-field <Answer 等> \
+    [--extra-field "<Knowledge Area 等>"] \
+    [--choice-list-style ol|br]
+```
+
+> 🔴 **なぜ恒久スクリプトなのか（ジェネリックパーサー禁止ルールの例外根拠）**: 通常 `parse()` を使い捨てに
+> するのは、書籍の構造がソースごとに予測不能に変異するため。kentei-lab JSON は**本プラグインの collect
+> スクリプトが自己管理する固定スキーマ**であり、その変異理由が存在しない。したがって固定スキーマ専用の
+> `kentei_lab_import.py` を恒久化するのが正しい。将来「使い捨てルール違反」として削除・scaffold 化しないこと。
 
 > ⚠️ **JSON には2系統ある（構造化Q&A vs ページ単位OCR）**: JSON ソースには (a) 問題・解答がフィールドとして構造化済みの Q&A JSON と、(b) VLM/`recognize` 系 OCR が出力する**ページ単位 JSON**（`[{"index","filename","text"}, ...]` で各ページの生テキストを保持）の2系統がある。(b) は「構造化済み」ではなく、各ページの `text` を Markdown 同様にパースする必要がある（科目見出しページ・問題ページ・解答ページの分類が要る）。実装は **JSON パスを `md_path` として渡し、`parse()` 冒頭で `json.loads(markdown_text)` してページ列を得る**と scaffold の `main()` をそのまま再利用できる。画像主体 EPUB を VLM で逐次OCRしたケースで観測。
 

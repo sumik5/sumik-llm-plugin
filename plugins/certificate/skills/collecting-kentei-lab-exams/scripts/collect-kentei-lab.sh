@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # kentei-lab.com の資格試験ページを直接URL反復で巡回し、
-# 問題文・選択肢・正解・解説を1資格1Markdownファイルへ逐次追記する。
+# 問題文・選択肢・正解・解説を JSON（<slug>.json）へ保存し、進捗を <slug>.jsonl に逐次追記する。
 set -euo pipefail
 
 usage() {
@@ -9,7 +9,8 @@ Usage: collect-kentei-lab.sh <input-url> [output-dir]
 
   <input-url>   kentei-lab.com の URL。/exams/<slug> ・ /exams/<slug>/start ・
                 /quiz/<slug>/<n> のいずれの形式でも slug を抽出できる（必須）
-  [output-dir]  出力先ディレクトリ（省略時 ./kentei-lab-output）
+  [output-dir]  出力先ディレクトリ（省略時 ./kentei-lab-output）。
+                <slug>.json（最終成果物）と <slug>.jsonl（進捗）を出力する。
 
 環境変数:
   KENTEI_LAB_WAIT_MS   問題間の待機ミリ秒（既定 300・サイトへのレート配慮）
@@ -54,8 +55,8 @@ if [ -z "${SLUG}" ]; then
 fi
 
 mkdir -p "${OUTPUT_DIR}"
-MD_FILE="${OUTPUT_DIR}/${SLUG}.md"
-PROGRESS_FILE="${OUTPUT_DIR}/${SLUG}.progress"
+JSONL_FILE="${OUTPUT_DIR}/${SLUG}.jsonl"   # 進捗（resume の真実源・1問1行）
+JSON_FILE="${OUTPUT_DIR}/${SLUG}.json"     # 最終成果物
 
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/kentei-lab.XXXXXX")"
 cleanup() { rm -rf "${TMP_DIR}"; }
@@ -149,32 +150,46 @@ if [ "${KENTEI_LAB_MAX_N}" -gt 0 ] 2>/dev/null && [ "${KENTEI_LAB_MAX_N}" -lt "$
   END_N="${KENTEI_LAB_MAX_N}"
 fi
 
-# --- 出力ファイル初期化 / resume 開始位置決定 ---
-START_N=1
-if [ -f "${PROGRESS_FILE}" ]; then
-  LAST_DONE="$(cat "${PROGRESS_FILE}")"
-  if [[ "${LAST_DONE}" =~ ^[0-9]+$ ]]; then
-    START_N=$((LAST_DONE + 1))
-  fi
-elif [ -f "${MD_FILE}" ]; then
-  LAST_DONE="$(grep -oE '^## 第[0-9]+問' "${MD_FILE}" | grep -oE '[0-9]+' | sort -n | tail -1 || true)"
-  if [[ "${LAST_DONE}" =~ ^[0-9]+$ ]]; then
-    START_N=$((LAST_DONE + 1))
-  fi
-fi
+# --- 最終 JSON 組み立て（.jsonl 全行から再構築する派生物） ---
+build_final_json() {
+  [ -f "${JSONL_FILE}" ] || return 0
+  local collected_at
+  collected_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  jq -n \
+    --arg exam_title "${EXAM_TITLE}" \
+    --arg slug "${SLUG}" \
+    --arg source_url "${BASE_URL}/exams/${SLUG}" \
+    --arg collected_at "${collected_at}" \
+    --argjson total_questions "${N}" \
+    --slurpfile questions "${JSONL_FILE}" \
+    '{
+       exam_title: $exam_title,
+       slug: $slug,
+       source_url: $source_url,
+       collected_at: $collected_at,
+       total_questions: $total_questions,
+       questions: ($questions | sort_by(.number))
+     }' > "${JSON_FILE}"
+}
 
-if [ ! -f "${MD_FILE}" ]; then
-  {
-    printf '# %s（%s）\n\n' "${EXAM_TITLE}" "${SLUG}"
-    printf -- '- 出典: %s/exams/%s\n' "${BASE_URL}" "${SLUG}"
-    printf -- '- 総問題数: %s\n' "${N}"
-    printf -- '- 取得日時: %s\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    printf -- '---\n'
-  } >> "${MD_FILE}"
+# --- resume 開始位置決定（JSONL が唯一の真実源） ---
+START_N=1
+if [ -f "${JSONL_FILE}" ] && [ -s "${JSONL_FILE}" ]; then
+  # 末尾行が破損（プロセス強制終了による書き込み途中）なら 1 行だけ除去。
+  # append-only のため破損しうるのは末尾行のみ。sed '$d' は BSD/GNU 両対応。
+  if ! tail -n 1 "${JSONL_FILE}" | jq -e . >/dev/null 2>&1; then
+    TMP_SANITIZE="$(mktemp)"
+    sed '$d' "${JSONL_FILE}" > "${TMP_SANITIZE}" && mv "${TMP_SANITIZE}" "${JSONL_FILE}"
+  fi
+  LAST_DONE="$(jq -s 'map(.number) | max // 0' "${JSONL_FILE}")"
+  if [[ "${LAST_DONE}" =~ ^[0-9]+$ ]] && [ "${LAST_DONE}" -ge 1 ]; then
+    START_N=$((LAST_DONE + 1))
+  fi
 fi
 
 if [ "${START_N}" -gt "${END_N}" ]; then
   log "[info] ${SLUG}: 第${END_N}問まで取得済みです。追加取得なし。"
+  build_final_json
   exit 0
 fi
 
@@ -200,31 +215,20 @@ while [ "${n}" -le "${END_N}" ]; do
   fi
 
   QUESTION="$(printf '%s' "${BEFORE_JSON}" | jq -r '.question')"
-  ANSWER="$(printf '%s' "${AFTER_JSON}" | jq -r '.answer' | sed 's/^正解は//')"
+  CHOICES_JSON="$(printf '%s' "${BEFORE_JSON}" | jq -c '.choices')"
+  # 「正解は」接頭辞 + 先頭空白（半角/全角）を除去（[ ] 内の全角空白はリテラル）
+  ANSWER="$(printf '%s' "${AFTER_JSON}" | jq -r '.answer' | sed 's/^正解は[[:space:]　]*//')"
   EXPLANATION="$(printf '%s' "${AFTER_JSON}" | jq -r '.explanation')"
-  CHOICES_MD="$(printf '%s' "${BEFORE_JSON}" | jq -r '.choices[] | "- " + .')"
 
-  BLOCK="$(cat <<MDBLOCK
-
-## 第${n}問
-
-${QUESTION}
-
-**選択肢**
-
-${CHOICES_MD}
-
-**正解**:${ANSWER}
-
-**解説**
-
-${EXPLANATION}
-
----
-MDBLOCK
-)"
-  printf '%s\n' "${BLOCK}" >> "${MD_FILE}"
-  printf '%s' "${n}" > "${PROGRESS_FILE}"
+  # 1 問 = 1 行の JSON を jsonl へ追記（jq が文字列を安全にエスケープする）
+  jq -nc \
+    --argjson number "${n}" \
+    --arg question "${QUESTION}" \
+    --argjson choices "${CHOICES_JSON}" \
+    --arg answer "${ANSWER}" \
+    --arg explanation "${EXPLANATION}" \
+    '{number: $number, question: $question, choices: $choices, answer: $answer, explanation: $explanation}' \
+    >> "${JSONL_FILE}"
 
   log "[${n}/${END_N}] 第${n}問 saved"
 
@@ -235,4 +239,5 @@ MDBLOCK
 done
 
 ab close >&2 || true
-log "[done] ${SLUG}: 第${START_N}問〜第${END_N}問を ${MD_FILE} に保存しました。"
+build_final_json
+log "[done] ${SLUG}: 第${START_N}問〜第${END_N}問を収集し、${JSON_FILE} を生成しました（進捗: ${JSONL_FILE}）。"

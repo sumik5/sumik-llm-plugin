@@ -4,7 +4,8 @@
 
 kentei-lab.com は認証不要・全問無料公開の資格・検定問題集サイト（147 資格・58,950 問収録・教育目的）。
 このスキルは、指定された資格の URL から**その資格の全問題**（問題文・選択肢・正解・解説）を巡回取得し、
-1 資格 1 Markdown ファイルへ保存する。
+1 資格 1 JSON ファイル（`<slug>.json`）へ保存する。出力はそのまま `creating-flashcards` スキルへ渡して
+Anki フラッシュカード化できる。
 
 対応する入力 URL の形式（いずれでも可）:
 
@@ -68,53 +69,53 @@ KENTEI_LAB_MAX_N=10 scripts/collect-kentei-lab.sh https://kentei-lab.com/exams/s
 大規模資格（数百〜1015 問）は取得に時間がかかる。**`run_in_background: true` での実行を推奨する**。
 中断しても resume（§6）により安全に再開できる。
 
-## 5. 出力 Markdown フォーマット
+## 5. 出力フォーマット（JSON）
 
-- 1 資格 = 1 ファイル: `<output-dir>/<slug>.md`
-- ファイル先頭にメタ見出し、以降 1 問 1 セクション
+- 1 資格 = 1 最終成果物: `<output-dir>/<slug>.json`
+- 加えて内部の進捗（resume）用サイドカー（JSON Lines・1 問 1 行）: `<output-dir>/<slug>.jsonl`
 
-```markdown
-# <試験名>（<slug>）
+最終成果物 `<slug>.json` のスキーマ:
 
-- 出典: https://kentei-lab.com/exams/<slug>
-- 総問題数: <N>
-- 取得日時: <ISO8601>
-
----
-
-## 第1問
-
-<問題文>
-
-**選択肢**
-
-- A. <選択肢A>
-- B. <選択肢B>
-- C. <選択肢C>
-- D. <選択肢D>
-
-**正解**: C. 1972年
-
-**解説**
-
-<解説文>
-
----
+```json
+{
+  "exam_title": "<試験名>",
+  "slug": "<slug>",
+  "source_url": "https://kentei-lab.com/exams/<slug>",
+  "collected_at": "<ISO8601 UTC>",
+  "total_questions": 30,
+  "questions": [
+    {
+      "number": 1,
+      "question": "<問題文>",
+      "choices": ["A. <選択肢A>", "B. <選択肢B>", "C. <選択肢C>", "D. <選択肢D>"],
+      "answer": "C. 1972年",
+      "explanation": "<解説文>"
+    }
+  ]
+}
 ```
 
-選択肢は取得できた数だけ列挙する（A–D 決め打ちではなく試験により可変）。「正解」行はサイトの
-「正解は …」の完全文言をそのまま採用する。
+- `choices` は取得できた数だけ格納する（A–D 決め打ちではなく試験により可変）。各要素はサイト表示のレター付き
+  文字列をそのまま保持する。
+- `answer` はサイトの「正解は…」から接頭辞「正解は」と先頭空白を除去した残り（レター＋本文の結合文字列）。
+- `total_questions` は試験の総問題数 N。`KENTEI_LAB_MAX_N` で部分取得した場合、`questions` の要素数は N より少なくなる。
+- この JSON はそのまま `creating-flashcards` スキルへ渡せる（同スキルが `scripts/kentei_lab_import.py` で
+  構造推測をスキップして Anki に一括登録する）。Anki デッキは既定で `kentei-lab::<試験名>` に登録される。
 
 ## 6. 中断・再開（resume）
 
-サイドカー進捗ファイル `<output-dir>/<slug>.progress` に「最後に保存成功した問題番号 n」を記録する。
+進捗用サイドカー `<output-dir>/<slug>.jsonl` が唯一の真実源（single source of truth）。1 問 1 行の JSON Lines で、
+各問題の読み取り・開示・検証が完了した時点で 1 行を追記する。
 
-- 起動時、progress ファイルがあればその値 +1 から再開する
-- progress ファイルが無く既存 `<slug>.md` があれば、`## 第<n>問` 見出しの最大値 +1 から再開する
-- どちらも無ければ第1問から開始する
+- 起動時、`<slug>.jsonl` があればその中の `number` の最大値 +1 から再開する。
+- 破損した末尾行（プロセス強制終了などによる書き込み途中の行）は、起動時に末尾行の JSON 妥当性を検証し、
+  無効なら 1 行だけ除去してから再開する（append-only のため破損しうるのは末尾行のみ）。
+- `<slug>.jsonl` が無ければ第 1 問から開始する。
+- 各問題を追記した後、スクリプト末尾（および全問取得済みでの早期終了時）に `<slug>.jsonl` 全行から最終成果物
+  `<slug>.json` を再構築する。したがって任意のタイミングで中断しても次回実行時にその続きから安全に再開でき、
+  最終 JSON も常に最新の全収集分を反映する（同一問題の重複保存は起きない）。
 
-各問題は 1 問読み取り・開示・検証が完了してから Markdown へ追記し、直後に progress を更新する。
-そのため任意のタイミングで中断しても、次回実行時にその続きから安全に再開できる（同一問題の重複保存は起きない）。
+> 旧バージョンの `.md`／`.progress` 方式は廃止した。旧 `.md`/`.progress` からの再開は行わない（JSON 出力への破壊的変更）。
 
 ## 7. サイトへの配慮
 
