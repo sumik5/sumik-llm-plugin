@@ -135,21 +135,21 @@ Agent Team編成の4つのパターンとモデル戦略を提供します。
 **例: 複数ページの同時実装**
 ```
 HERDR_ENV!=1: Agent ツール × 3（1メッセージで同時発行, run_in_background: true）
-  1. sumik:tachikoma-fw-nextjs, name: "page-dashboard", prompt: "ダッシュボードページ実装"
-  2. sumik:tachikoma-fw-nextjs, name: "page-settings", prompt: "設定ページ実装"
-  3. sumik:tachikoma-fw-nextjs, name: "page-profile", prompt: "プロフィールページ実装"
+  1. devkit:tachikoma-fw-nextjs, name: "page-dashboard", prompt: "ダッシュボードページ実装"
+  2. devkit:tachikoma-fw-nextjs, name: "page-settings", prompt: "設定ページ実装"
+  3. devkit:tachikoma-fw-nextjs, name: "page-profile", prompt: "プロフィールページ実装"
 
 HERDR_ENV=1: `herdr agent start` × 3（全員を起動してから待機）
-  1. feature-page-dashboard --split right -- claude --agent sumik:tachikoma-fw-nextjs ...
-  2. feature-page-settings  --split right -- claude --agent sumik:tachikoma-fw-nextjs ...
-  3. feature-page-profile   --split right -- claude --agent sumik:tachikoma-fw-nextjs ...
+  1. feature-page-dashboard --split right -- claude --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
+  2. feature-page-settings  --split right -- claude --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
+  3. feature-page-profile   --split right -- claude --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
 → herdrが3つのペインを管理し、リーダーはagent read/waitで進捗確認
 ```
 
 **例: 複数テストスイートの同時作成**
 ```
-  1. sumik:tachikoma-qa-test, name: "test-auth", prompt: "認証モジュールのテスト作成"
-  2. sumik:tachikoma-qa-test, name: "test-api", prompt: "APIエンドポイントのテスト作成"
+  1. devkit:tachikoma-qa-test, name: "test-auth", prompt: "認証モジュールのテスト作成"
+  2. devkit:tachikoma-qa-test, name: "test-api", prompt: "APIエンドポイントのテスト作成"
 ```
 
 **scale-outの判断基準:**
@@ -195,7 +195,7 @@ Agent Teamsバックエンド:
 
 ```json
 {
-  "subagent_type": "sumik:tachikoma-fw-nextjs",  // ドメインに応じた専門タチコマを選択
+  "subagent_type": "devkit:tachikoma-fw-nextjs",  // ドメインに応じた専門タチコマを選択
   "name": "frontend",
   "run_in_background": true
 }
@@ -210,7 +210,7 @@ herdr agent start feature-frontend \
   --tab "$HERDR_TAB_ID" \
   --split right \
   --no-focus \
-  -- claude --agent sumik:tachikoma-fw-nextjs --name feature-frontend
+  -- claude --agent devkit:tachikoma-fw-nextjs --permission-mode auto --name feature-frontend
 ```
 
 起動後、`herdr agent wait` でidleを確認し、`herdr agent send` + `herdr pane send-keys <pane_id> Enter` でプロンプトを渡す。完全な手順は [WORKFLOW-GUIDE.md](WORKFLOW-GUIDE.md) を参照。
@@ -224,13 +224,13 @@ herdr agent start feature-frontend \
 
 | 役割 | 推奨 subagent_type | 用途 |
 |------|-------------------|------|
-| planner | `sumik:tachikoma-str-product-mgr` | 要件分析・計画策定（model: opus） |
-| frontend | `sumik:tachikoma-fw-nextjs` / `sumik:tachikoma-fe-frontend` | React/UI実装 |
-| backend | `sumik:tachikoma-fw-fullstack-js` / `sumik:tachikoma-lang-python` / `sumik:tachikoma-lang-go` | API/ビジネスロジック |
-| tester | `sumik:tachikoma-qa-test` / `sumik:tachikoma-qa-e2e-test` | テスト作成 |
-| infra | `sumik:tachikoma-cloud-infra` / `sumik:tachikoma-cloud-terraform` / `sumik:tachikoma-cloud-aws` | インフラ構築 |
-| researcher | `sumik:tachikoma-str-architecture` / `sumik:tachikoma-qa-security` | 調査・分析（読取専用） |
-| documenter | `sumik:tachikoma-doc-document` | 技術文書作成 |
+| planner | `devkit:tachikoma-str-product-mgr` | 要件分析・計画策定（model: opus） |
+| frontend | `devkit:tachikoma-fw-nextjs` / `devkit:tachikoma-fe-frontend` | React/UI実装 |
+| backend | `devkit:tachikoma-fw-fullstack-js` / `devkit:tachikoma-lang-python` / `devkit:tachikoma-lang-go` | API/ビジネスロジック |
+| tester | `devkit:tachikoma-qa-test` / `devkit:tachikoma-qa-e2e-test` | テスト作成 |
+| infra | `devkit:tachikoma-cloud-infra` / `devkit:tachikoma-cloud-terraform` / `devkit:tachikoma-cloud-aws` | インフラ構築 |
+| researcher | `devkit:tachikoma-str-architecture` / `devkit:tachikoma-qa-security` | 調査・分析（読取専用） |
+| documenter | `devkit:tachikoma-doc-document` | 技術文書作成 |
 
 **選択判断の基準:**
 - プロジェクトの技術スタック（package.json, go.mod等）から判定
@@ -245,7 +245,7 @@ Agent Teamsバックエンド:
 
 ```json
 {
-  "subagent_type": "sumik:serena-expert",
+  "subagent_type": "devkit:serena-expert",
   "name": "optimizer",
   "run_in_background": true
 }
@@ -260,7 +260,7 @@ herdr agent start feature-optimizer \
   --tab "$HERDR_TAB_ID" \
   --split right \
   --no-focus \
-  -- claude --agent sumik:serena-expert --name feature-optimizer
+  -- claude --agent devkit:serena-expert --permission-mode auto --name feature-optimizer
 ```
 
 起動後のプロンプト送信・待機は [WORKFLOW-GUIDE.md](WORKFLOW-GUIDE.md) のherdrバックエンド手順に従う。
@@ -281,6 +281,6 @@ herdr agent start feature-optimizer \
 `rules/skill-triggers.md` のサブエージェントルーティング表を参照し、プロジェクト構成に基づいて適切な**専門タチコマ**をメンバーとして割り当てる。各専門タチコマにはドメインスキルがプリロード済みのため、追加のスキルロード指示は不要。
 
 **例:**
-- `package.json` に `next` → メンバーに `sumik:tachikoma-fw-nextjs` を起用
-- `package.json` に `@playwright/test` → テスターに `sumik:tachikoma-qa-e2e-test` を起用
-- `.tf` ファイル → インフラに `sumik:tachikoma-cloud-terraform` を起用
+- `package.json` に `next` → メンバーに `devkit:tachikoma-fw-nextjs` を起用
+- `package.json` に `@playwright/test` → テスターに `devkit:tachikoma-qa-e2e-test` を起用
+- `.tf` ファイル → インフラに `devkit:tachikoma-cloud-terraform` を起用

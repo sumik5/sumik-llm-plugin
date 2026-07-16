@@ -195,7 +195,7 @@ herdr agent rename reviewer "review-api"            # リネーム（--clear で
 
 ```bash
 herdr agent start reviewer --cwd ~/project --split right -- pi
-herdr agent start docs --workspace w1 --tab w1:t1 -- claude
+herdr agent start docs --workspace w1 --tab w1:t1 -- claude --permission-mode auto
 ```
 
 主なオプション: `--cwd PATH`（起動ディレクトリ）・`--workspace ID` / `--tab ID`（配置先）・`--split right|down`（分割方向）・`--env KEY=VALUE`・`--focus` / `--no-focus`。
@@ -203,10 +203,12 @@ herdr agent start docs --workspace w1 --tab w1:t1 -- claude
 `agent start` の応答では、新しいpane IDは `result.agent.pane_id` にある。`pane split` の `result.pane.pane_id` とは階層が異なる。
 
 ```bash
-START_JSON=$(herdr agent start reviewer --cwd ~/project --split right --no-focus -- claude)
+START_JSON=$(herdr agent start reviewer --cwd ~/project --split right --no-focus -- claude --permission-mode auto)
 AGENT_PANE=$(printf '%s' "$START_JSON" | python3 -c \
   'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
 ```
+
+> **⚠️ permission mode は明示指定する**: `-- claude` で起動する際は `--permission-mode auto` を明示する。省略すると起動先 `--cwd` の settings.json 解決結果に依存し、Claude Code のステータス表示が「auto mode on」にならないことがある（`acceptEdits`/`dontAsk`/`bypassPermissions`/無指定はそれぞれ別のステータス表示になり `auto` とは異なる）。`auto` は内蔵classifierが安全な操作を自動承認しつつ `git push`/`git reset`/`rm -rf` 等の危険操作は引き続きブロックする準自動モードで、`bypassPermissions`（全許可）より安全。
 
 ### エージェントの出力を読む・指示を送る
 
@@ -327,7 +329,7 @@ herdr agent read reviewer --source recent --lines 80
 ### 新規エージェントを spawn してタスクを与える
 
 ```bash
-START_JSON=$(herdr agent start reviewer --cwd ~/project --split right --no-focus -- claude)
+START_JSON=$(herdr agent start reviewer --cwd ~/project --split right --no-focus -- claude --permission-mode auto)
 AGENT_PANE=$(printf '%s' "$START_JSON" | python3 -c \
   'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
 herdr agent wait reviewer --status idle --timeout 30000

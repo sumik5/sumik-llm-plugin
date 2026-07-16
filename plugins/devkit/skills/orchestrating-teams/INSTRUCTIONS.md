@@ -1,6 +1,6 @@
 # Agent Team オーケストレーション
 
-**Claude Code本体はファイル読み込みや分析を一切行わない。最初に `HERDR_ENV` を判定し、herdr 管理下では `operating-herdr`、herdr 外では Agent Teams API を使って、planner（`sumik:tachikoma-str-product-mgr`）へ即座に委譲する。**
+**Claude Code本体はファイル読み込みや分析を一切行わない。最初に `HERDR_ENV` を判定し、herdr 管理下では `operating-herdr`、herdr 外では Agent Teams API を使って、planner（`devkit:tachikoma-str-product-mgr`）へ即座に委譲する。**
 
 ---
 
@@ -72,7 +72,7 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 
 並列化の判断基準・単体起動条件は `references/PARALLEL-DECISION-CRITERIA.md` を参照。
 
-**このスキル固有の起動アクション:** 条件に該当したら、herdrでは `herdr agent start`、非herdrではAgentツールを使い、planner（`sumik:tachikoma-str-product-mgr`, model: opus）を起動する。
+**このスキル固有の起動アクション:** 条件に該当したら、herdrでは `herdr agent start`、非herdrではAgentツールを使い、planner（`devkit:tachikoma-str-product-mgr`, model: opus）を起動する。
 
 ---
 
@@ -127,7 +127,7 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 - **Task toolに存在しないパラメータを使用しない**（`task`, `additional_instructions` は無効）
 - **同一ファイルへの同時書き込み**（サイレントな上書きが発生）
 - **`docs/plan-*.md` なしでチーム作成しない**（回復不能になる）
-- **汎用タチコマ（`sumik:tachikoma`）を安易に使わない** → `rules/skill-triggers.md` のルーティング表から適切な専門タチコマを選択
+- **汎用タチコマ（`devkit:tachikoma`）を安易に使わない** → `rules/skill-triggers.md` のルーティング表から適切な専門タチコマを選択
 
 ---
 
