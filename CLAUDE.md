@@ -6,7 +6,7 @@ sumik Claude Code Plugin のプロジェクト固有開発ルール。
 
 ## ディレクトリ構成
 
-このリポジトリは `plugins/` 配下に **12 個の兄弟プラグイン** を持つ。**devkit**（開発ワークフロー特化・agents/commands/hooks/MCP を含む本体・ユニバーサルコア＋オーケストレーション＋ワークフロー＋設計/レビュー practices 系 31 スキル）と、スキル/MCP 特化の 11 プラグイン: **studio**（コンテンツ制作・12）・**lang**（言語: Python/Go/R/Bash/DB/MCP/アルゴリズム・7 スキル）・**web**（Web/フロントエンド実装: Next.js/React/フルスタックJS/Web API/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築・13 スキル）・**cloud**（クラウド/インフラ/IaC/認可/セキュリティアーキテクチャ/クラウドセキュリティ知識体系・13 スキル）・**ai**（GenAI設計/AIエージェント/Web AI統合/LLM評価/AI支援開発/AI開発セキュリティ・6 スキル）・**design**（UX/デザイン思考/AI体験/データ可視化/デザインシステム・6 スキル）・**product**（プロダクトマネジメント/要件定義・2 スキル）・**university**（大学で使う Processing (Java Mode) 開発・1 スキル `developing-processing`）・**mobile**（Apple HIG と iPhone/iPad/Mac アプリ開発・Flutter/Dart クロスプラットフォーム開発・5 スキル `applying-apple-hig` / `developing-ios-apps` / `auditing-app-store-compliance` / `developing-dart` / `developing-flutter-apps`）、そして **exam**（生成AI活用試験の問題画像を解く・1 スキル `answering-genai-exam` ＋ 1 agent `exam-solver`）、さらに **google**（Google サービス連携: Google Analytics GA4 公式 MCP サーバー `analytics-mcp` を `pipx run` で同梱・1 スキル `analyzing-with-google-analytics`。MCP を持つため studio と同型の subdirectory + MCP 方式）。lang/web/cloud/ai/design/product/university/mobile は **skills-only**（agents/commands/hooks/MCP/bin を持たず `.claude-plugin/plugin.json`・`.codex-plugin/plugin.json`・README.md・skills/ のみ。university は検証ヘルパー `scripts/verify-sketch.sh` をスキル内に bundle するが plugin レベルの bin は持たない）で、Codex 配布は **studio と同じ subdirectory-root 方式**。exam は **agent 入りだが commands/hooks/MCP/bin を持たない subdirectory 方式**（agent は Claude Code 専用で、Codex には skills のみ配布する）。全プラグインは同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から配布され、常にセットでインストールされる前提（devkit の agent が `studio:<skill>`・`lang:<skill>`・`web:<skill>`・`cloud:<skill>`・`ai:<skill>`・`design:<skill>`・`product:<skill>` の修飾名でクロスプラグイン preload するため）。Claude Code プラグイン本体を `plugins/` 配下へ隔離しているのは、claude.ai の marketplace 同期が repo 丸ごとを取り込む際に Codex 異物が混入しないようにするため。ルートには claude.ai / Codex が最初に読む marketplace 定義と Codex 用マニフェストのみを残す。
+このリポジトリは `plugins/` 配下に **13 個の兄弟プラグイン** を持つ。**devkit**（開発ワークフロー特化・agents/commands/hooks/MCP を含む本体・ユニバーサルコア＋オーケストレーション＋ワークフロー＋設計/レビュー practices 系 31 スキル）と、スキル/MCP 特化の 12 プラグイン: **studio**（コンテンツ制作・10）・**lang**（言語: Python/Go/R/Bash/DB/MCP/アルゴリズム・7 スキル）・**web**（Web/フロントエンド実装: Next.js/React/フルスタックJS/Web API/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築・13 スキル）・**cloud**（クラウド/インフラ/IaC/認可/セキュリティアーキテクチャ/クラウドセキュリティ知識体系・13 スキル）・**ai**（GenAI設計/AIエージェント/Web AI統合/LLM評価/AI支援開発/AI開発セキュリティ・6 スキル）・**design**（UX/デザイン思考/AI体験/データ可視化/デザインシステム・6 スキル）・**product**（プロダクトマネジメント/要件定義・2 スキル）・**university**（大学で使う Processing (Java Mode) 開発・1 スキル `developing-processing`）・**mobile**（Apple HIG と iPhone/iPad/Mac アプリ開発・Flutter/Dart クロスプラットフォーム開発・5 スキル `applying-apple-hig` / `developing-ios-apps` / `auditing-app-store-compliance` / `developing-dart` / `developing-flutter-apps`）、そして **exam**（生成AI活用試験の問題画像を解く・1 スキル `answering-genai-exam` ＋ 1 agent `exam-solver`）、さらに **google**（Google サービス連携: Google Analytics GA4 公式 MCP サーバー `analytics-mcp` を `pipx run` で同梱・1 スキル `analyzing-with-google-analytics`。MCP を持つため studio と同型の subdirectory + MCP 方式）、そして **certificate**（資格・検定の学習支援: kentei-lab.com 問題巡回取得・Anki フラッシュカード作成・教材 OCR/翻訳変換・3 スキル `collecting-kentei-lab-exams` / `creating-flashcards` / `converting-content` ＋ 1 コマンド `improve-creating-flashcards`）。lang/web/cloud/ai/design/product/university/mobile は **skills-only**（agents/commands/hooks/MCP/bin を持たず `.claude-plugin/plugin.json`・`.codex-plugin/plugin.json`・README.md・skills/ のみ。university は検証ヘルパー `scripts/verify-sketch.sh` をスキル内に bundle するが plugin レベルの bin は持たない）で、Codex 配布は **studio と同じ subdirectory-root 方式**。exam は **agent 入りだが commands/hooks/MCP/bin を持たない subdirectory 方式**（agent は Claude Code 専用で、Codex には skills のみ配布する）。certificate は **commands 入りだが agents/hooks/MCP/bin を持たない subdirectory 方式**（コマンド `improve-creating-flashcards` は Claude Code 専用で、Codex には skills のみ配布する）。全プラグインは同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から配布され、常にセットでインストールされる前提（devkit の agent が `studio:<skill>`・`lang:<skill>`・`web:<skill>`・`cloud:<skill>`・`ai:<skill>`・`design:<skill>`・`product:<skill>`・`certificate:<skill>` の修飾名でクロスプラグイン preload するため）。Claude Code プラグイン本体を `plugins/` 配下へ隔離しているのは、claude.ai の marketplace 同期が repo 丸ごとを取り込む際に Codex 異物が混入しないようにするため。ルートには claude.ai / Codex が最初に読む marketplace 定義と Codex 用マニフェストのみを残す。
 
 ```
 plugins/devkit/              # ★ Claude Code プラグイン本体（開発ワークフロー特化・${CLAUDE_PLUGIN_ROOT}）
@@ -22,10 +22,10 @@ plugins/devkit/              # ★ Claude Code プラグイン本体（開発ワ
 └── .mcp-codex.json          # ※ devkit の Codex MCP は root の .mcp-codex.json を共有（plugin root = repo root のため）
 
 plugins/studio/              # ★ Claude Code プラグイン（コンテンツ制作特化・agents/・hooks/ なし）
-├── commands/                # スラッシュコマンド（.md）— improve-creating-flashcards / epub-fix-cover
+├── commands/                # スラッシュコマンド（.md）— epub-fix-cover
 ├── bin/                     # MCPサーバー起動ラッパー（npx-mise.sh・devkit から複製）
-├── scripts/                 # ヘルパースクリプト（pdf-to-markdown 複製・epub-fix-cover.sh）
-├── skills/                  # ナレッジスキル（12個・ディレクトリ/SKILL.md）
+├── scripts/                 # ヘルパースクリプト（epub-fix-cover.sh）
+├── skills/                  # ナレッジスキル（10個・ディレクトリ/SKILL.md）
 ├── .claude-plugin/plugin.json  # プラグインマニフェスト（Claude Code 用・plugin名 studio・version 独立同期）
 ├── .mcp.json                # MCPサーバー設定（Claude Code 用・${CLAUDE_PLUGIN_ROOT}/bin/... 使用・drawio のみ）
 ├── .codex-plugin/plugin.json   # プラグインマニフェスト（Codex CLI 用・plugin名 studio・skills ./skills/）
@@ -95,9 +95,16 @@ plugins/mobile/              # ★ iPhone/iPad/Mac アプリ開発 + Flutter/Dar
 ├── .claude-plugin/plugin.json  # プラグインマニフェスト（Claude Code 用・plugin名 mobile・version 独立同期）
 └── .codex-plugin/plugin.json   # プラグインマニフェスト（Codex CLI 用・plugin名 mobile・skills ./skills/）※MCP/bin/agents/hooks なし → .mcp* なし
 
-.claude-plugin/marketplace.json   # claude.ai が読む marketplace（marketplace名 sumik・12 プラグイン devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile を列挙）
+plugins/certificate/         # ★ 資格・検定学習支援プラグイン（commands 入り・subdirectory 方式・agents/hooks/MCP/bin なし）
+├── commands/                # スラッシュコマンド（.md）— improve-creating-flashcards（creating-flashcards の自己改善・Claude Code 専用）
+├── skills/                  # ナレッジスキル（3個・collecting-kentei-lab-exams / creating-flashcards / converting-content）
+├── README.md                # certificate プラグインの README
+├── .claude-plugin/plugin.json  # プラグインマニフェスト（Claude Code 用・plugin名 certificate・version 独立同期）
+└── .codex-plugin/plugin.json   # プラグインマニフェスト（Codex CLI 用・plugin名 certificate・skills ./skills/）※commands/MCP/bin/agents/hooks なし → .mcp* なし
+
+.claude-plugin/marketplace.json   # claude.ai が読む marketplace（marketplace名 sumik・13 プラグイン devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate を列挙）
 .codex-plugin/plugin.json         # プラグインマニフェスト（Codex CLI 用・devkit・skills ./plugins/devkit/skills/・version 同期必須）
-.agents/plugins/marketplace.json  # Codex marketplace マニフェスト（marketplace名 sumik-marketplace・12 エントリ devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile・version）
+.agents/plugins/marketplace.json  # Codex marketplace マニフェスト（marketplace名 sumik-marketplace・13 エントリ devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate・version）
 .cache/sumik-marketplace/devkit  -> ../..                  # devkit の source.path symlink（repo root を指す・mode 120000・git 同梱）
 .cache/sumik-marketplace/studio  -> ../../plugins/studio   # studio の source.path symlink（studio root を指す・mode 120000・git 同梱）
 .cache/sumik-marketplace/lang    -> ../../plugins/lang     # lang の source.path symlink（lang root を指す・mode 120000・git 同梱）
@@ -110,10 +117,11 @@ plugins/mobile/              # ★ iPhone/iPad/Mac アプリ開発 + Flutter/Dar
 .cache/sumik-marketplace/university -> ../../plugins/university  # university の source.path symlink（university root を指す・mode 120000・git 同梱）
 .cache/sumik-marketplace/google  -> ../../plugins/google   # google の source.path symlink（google root を指す・mode 120000・git 同梱）
 .cache/sumik-marketplace/mobile  -> ../../plugins/mobile   # mobile の source.path symlink（mobile root を指す・mode 120000・git 同梱）
+.cache/sumik-marketplace/certificate -> ../../plugins/certificate  # certificate の source.path symlink（certificate root を指す・mode 120000・git 同梱）
 .mcp-codex.json                   # MCPサーバー設定（Codex 用・devkit・command "./plugins/devkit/bin/..." + cwd "."）
 ```
 
-> **各プラグインの Codex plugin root の違い**: devkit は歴史的経緯で plugin root = **repo root**（symlink ターゲット `../..`・manifest は root の `.codex-plugin/plugin.json`・`.mcp-codex.json`）。studio / lang / web / cloud / ai / design / product / exam / university / google / mobile は **subdirectory 方式** で plugin root = `plugins/<p>/` 自体（symlink ターゲット `../../plugins/<p>`・manifest は `plugins/<p>/` 内・各 plugin root 基準の相対パス）。skills-only の lang/web/cloud/ai/design/product/university/mobile と exam（agent入りだが MCP/bin なし）は MCP を持たないため `.mcp-codex.json` も存在しない（studio は drawio MCP・google は analytics-mcp を持つため `.mcp-codex.json` あり）。exam は agent（exam-solver）を持つが Codex には skills のみ配布する（agent は Claude Code 専用）。詳細は「Codex プラグイン配布の注意点」参照。
+> **各プラグインの Codex plugin root の違い**: devkit は歴史的経緯で plugin root = **repo root**（symlink ターゲット `../..`・manifest は root の `.codex-plugin/plugin.json`・`.mcp-codex.json`）。studio / lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate は **subdirectory 方式** で plugin root = `plugins/<p>/` 自体（symlink ターゲット `../../plugins/<p>`・manifest は `plugins/<p>/` 内・各 plugin root 基準の相対パス）。skills-only の lang/web/cloud/ai/design/product/university/mobile と exam（agent入りだが MCP/bin なし）・certificate（commands 入りだが MCP/bin なし）は MCP を持たないため `.mcp-codex.json` も存在しない（studio は drawio MCP・google は analytics-mcp を持つため `.mcp-codex.json` あり）。exam は agent（exam-solver）を持つが Codex には skills のみ配布する（agent は Claude Code 専用）。certificate は command（improve-creating-flashcards）を持つが Codex には skills のみ配布する（command は Claude Code 専用）。詳細は「Codex プラグイン配布の注意点」参照。
 
 ---
 
@@ -183,10 +191,10 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョン管理
 
-- **12 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.9.2・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0）
+- **13 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.9.2・studio 2.0.0・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0・certificate は 1.0.0）
 - devkit の version は `plugins/devkit/.claude-plugin/plugin.json` の `version` フィールドで管理（**devkit の 3 ファイルを必ず同期**→下記参照）
 - studio の version は `plugins/studio/.claude-plugin/plugin.json` の `version` フィールドで管理（**studio の 3 ファイルを必ず同期**→下記参照）
-- lang / web / cloud / ai / design / product / exam / university / google / mobile の version は各 `plugins/<plugin>/.claude-plugin/plugin.json` の `version` フィールドで管理（**各プラグインの 3 ファイルを必ず同期**→下記参照）
+- lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate の version は各 `plugins/<plugin>/.claude-plugin/plugin.json` の `version` フィールドで管理（**各プラグインの 3 ファイルを必ず同期**→下記参照）
 - Semantic Versioning (semver) に従う:
   - **MAJOR**: 破壊的変更（スキルの大幅な構成変更等。プラグインからのコンポーネント削除も該当）
   - **MINOR**: 新規コンポーネント追加（新スキル、新コマンド等）
@@ -194,7 +202,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョンファイルの同期（🔴 重要）
 
-各プラグインの `version` を更新する際は、必ずそのプラグインの **3ファイルすべてを同じ値に同期**すること。Claude Code / Codex CLI / Codex marketplace カタログがそれぞれ別ファイルを参照するため、一部だけ更新すると配布物の整合性が崩れる（過去 marketplace.json の version が取り残された実績あり）。**12 プラグインは別系列のため、互いの version を揃える必要はない**（それぞれ自分の 3 ファイル内で一致させる）。
+各プラグインの `version` を更新する際は、必ずそのプラグインの **3ファイルすべてを同じ値に同期**すること。Claude Code / Codex CLI / Codex marketplace カタログがそれぞれ別ファイルを参照するため、一部だけ更新すると配布物の整合性が崩れる（過去 marketplace.json の version が取り残された実績あり）。**13 プラグインは別系列のため、互いの version を揃える必要はない**（それぞれ自分の 3 ファイル内で一致させる）。
 
 **devkit の 3 ファイル**
 
@@ -212,7 +220,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 | `plugins/studio/.codex-plugin/plugin.json` の `version` | Codex CLI の参照 version |
 | `.agents/plugins/marketplace.json` の studio エントリ `version` | Codex marketplace カタログ version（**更新漏れしやすい**） |
 
-**lang / web / cloud / ai / design / product / exam / university / google / mobile の 3 ファイル**（`<plugin>` を該当プラグイン名に置換）
+**lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate の 3 ファイル**（`<plugin>` を該当プラグイン名に置換）
 
 | ファイル | 役割 |
 |---------|------|
@@ -222,7 +230,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 #### 同期チェック
 
-コミット前に 12 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.9.2・studio 1.2.2・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0:
+コミット前に 13 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.9.2・studio 2.0.0・lang 2.2.1・web 1.2.0・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0・certificate は 1.0.0:
 
 ```bash
 python3 - <<'PY'
@@ -288,11 +296,16 @@ checks = {
         ("plugins/mobile/.codex-plugin/plugin.json",  lambda d: d["version"]),
         (".agents/plugins/marketplace.json",          lambda d: next(p["version"] for p in d["plugins"] if p["name"]=="mobile")),
     ],
+    "certificate": [
+        ("plugins/certificate/.claude-plugin/plugin.json", lambda d: d["version"]),
+        ("plugins/certificate/.codex-plugin/plugin.json",  lambda d: d["version"]),
+        (".agents/plugins/marketplace.json",          lambda d: next(p["version"] for p in d["plugins"] if p["name"]=="certificate")),
+    ],
 }
-expected = {"devkit": "14.9.2", "studio": "1.2.2", "lang": "2.2.1", "web": "1.2.0",
+expected = {"devkit": "14.9.2", "studio": "2.0.0", "lang": "2.2.1", "web": "1.2.0",
             "cloud": "1.2.0", "ai": "1.2.3", "design": "1.0.2",
             "product": "1.0.2", "exam": "1.2.2", "university": "1.0.0",
-            "google": "1.0.0", "mobile": "1.3.0"}
+            "google": "1.0.0", "mobile": "1.3.0", "certificate": "1.0.0"}
 all_ok = True
 for plugin, files in checks.items():
     vals = [getter(json.load(open(path))) for path, getter in files]
@@ -319,6 +332,8 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 
 > **配布方式⑥（google・確定）**: ② と同じ **subdirectory + MCP 方式**（studio 同型）。symlink ターゲット `../../plugins/google`・manifest は `plugins/google/.codex-plugin/plugin.json`・`skills: "./skills/"`。google は **MCP（analytics-mcp）を持つ**ため `.mcp-codex.json` を持ち（`command: "./bin/pipx-mise.sh"` + `cwd: "."`・`pipx run analytics-mcp` で起動）、`.codex-plugin/plugin.json` に `mcpServers: "./.mcp-codex.json"` を記述する。認証情報（`GOOGLE_APPLICATION_CREDENTIALS` / `GOOGLE_PROJECT_ID`）は Claude/Codex とも **`env` ブロックを持たず**（devkit/studio と同じ慣習）、シェルで `export` した値を MCP サーバーが親プロセス環境として継承する（秘匿値はコミットしない・空文字で ADC を壊す罠も回避）。**devkit・studio・他プラグインの symlink・manifest は一切変更しない**。
 
+> **配布方式⑦（certificate・確定）**: ③ と同じ **subdirectory 方式**（symlink ターゲット `../../plugins/certificate`・manifest は `plugins/certificate/.codex-plugin/plugin.json`・`skills: "./skills/"`）。certificate は **command（improve-creating-flashcards）を持つが Codex には skills のみ配布**し、`.codex-plugin/plugin.json` に `commands`/`mcpServers` キーを記述しない（コマンドは Claude Code 専用の自己改善コマンドで、creating-flashcards スキル自身を編集・version bump する）。MCP/bin/hooks/agents を持たないため `.mcp-codex.json` も持たない。studio の `creating-flashcards`・`converting-content` スキルと `improve-creating-flashcards` コマンドを移動して新設（studio は MAJOR bump 1.2.2→2.0.0）。**devkit・studio・他 skills-only の symlink・manifest は一切変更しない**。
+
 | If X | then Y |
 |------|--------|
 | devkit の Codex 用 MCP サーバーを定義する時 | **`${CLAUDE_PLUGIN_ROOT}` を使わない**（Codex は非展開で `os error 2`）。`.mcp-codex.json`（root）に `command: "./plugins/devkit/bin/..."` の**相対パス + `"cwd": "."`**（= repo root 基準）で記述し、`.codex-plugin/plugin.json` の `"mcpServers": "./.mcp-codex.json"` で宣言する。Claude Code 用 `plugins/devkit/.mcp.json`（`${CLAUDE_PLUGIN_ROOT}/bin/...` 使用）は別ファイルとして温存し両者を混ぜない |
@@ -328,9 +343,10 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 | lang/web/cloud/ai/design/product/mobile の Codex 用 `.codex-plugin/plugin.json` の skills パス | 各 plugin root = `plugins/<p>/` のため、`"skills": "./skills/"`（studio と同形）。**skills-only のため `mcpServers` キーは記述しない**（`.mcp-codex.json` も持たない） |
 | google の Codex 用 MCP サーバーを定義する時 | studio と同型（**`${CLAUDE_PLUGIN_ROOT}` を使わない**）。plugin root = `plugins/google/` のため、`plugins/google/.mcp-codex.json` に `command: "./bin/pipx-mise.sh"` の**相対パス + `"cwd": "."`**（= google root 基準）で記述し、`plugins/google/.codex-plugin/plugin.json` の `"mcpServers": "./.mcp-codex.json"` で宣言する。Claude 用 `plugins/google/.mcp.json` は `command: "${CLAUDE_PLUGIN_ROOT}/bin/pipx-mise.sh"` を使う。**両者とも `env` ブロックを置かない**（devkit/studio と同じ慣習）。認証情報はシェルで `export` した `GOOGLE_APPLICATION_CREDENTIALS` / `GOOGLE_PROJECT_ID` を MCP サーバーが親プロセス環境として継承する |
 | google の Codex 用 `.codex-plugin/plugin.json` の skills パス | plugin root = `plugins/google/` のため、`"skills": "./skills/"`（studio と同形）。**MCP を持つため `mcpServers: "./.mcp-codex.json"` を記述する**（skills-only との違い） |
-| `.cache/` 配下のパス（marketplace の source.path symlink 等）を追加/リネームする時 | `.gitignore` の `.cache/**` を打ち消す `!` 例外行も新パスへ追加/更新する（現状は `!.cache/sumik-marketplace/devkit`・`studio`・`lang`・`web`・`cloud`・`ai`・`design`・`product`・`exam`・`university`・`google`・`mobile` の**12行**）。漏れると新パスが黙って ignore され commit されず、git clone に含まれず Codex の `source.path` が壊れる。**commit 後に `git ls-tree -r HEAD --name-only \| /usr/bin/grep '^.cache/'` で 12 symlink（ai / cloud / design / devkit / exam / google / lang / mobile / product / studio / university / web）全ての同梱を必ず検証**（`git check-ignore` は negation でも exit 0 を返すため判定に使わない） |
-| Codex marketplace / plugin の名称 | marketplace = `sumik-marketplace`（`.agents/plugins/marketplace.json` の `name`）／ plugin = `devkit`・`studio`・`lang`・`web`・`cloud`・`ai`・`design`・`product`・`exam`・`university`・`google`・`mobile`（同 `plugins[].name` + 各 `.codex-plugin/plugin.json` の `name`）。インストールは `codex plugin add <plugin>@sumik-marketplace` を 12 プラグイン分実行 |
-| Codex プラグインを追加/更新する時 | git 方式。**repo 変更を push 後**に `~/dotfiles/codex/install-sumik-codex-plugin.sh` を実行（marketplace add/upgrade → plugin add → agents/・AGENTS.md を `~/.codex/` へ symlink）→ Codex 再起動。**同スクリプトは devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile の 12 プラグインを学習する必要がある（各 `codex plugin add <plugin>@sumik-marketplace` 行の追加・studio/lang/web/cloud/ai/design/product/university/google/mobile は agent 0 体・exam は agent を Claude 専用とし Codex へ配布しないため、いずれも agent symlink 行は不要）。repo 外・dotfiles 側で対応（本タスクの範囲外）** |
+| certificate の Codex 用 `.codex-plugin/plugin.json` の skills パス | plugin root = `plugins/certificate/` のため、`"skills": "./skills/"`（studio と同形）。**command（improve-creating-flashcards）は Claude Code 専用のため `commands` キーを記述しない・MCP も無いため `mcpServers` キーも記述しない**（`.mcp-codex.json` も持たない） |
+| `.cache/` 配下のパス（marketplace の source.path symlink 等）を追加/リネームする時 | `.gitignore` の `.cache/**` を打ち消す `!` 例外行も新パスへ追加/更新する（現状は `!.cache/sumik-marketplace/devkit`・`studio`・`lang`・`web`・`cloud`・`ai`・`design`・`product`・`exam`・`university`・`google`・`mobile`・`certificate` の**13行**）。漏れると新パスが黙って ignore され commit されず、git clone に含まれず Codex の `source.path` が壊れる。**commit 後に `git ls-tree -r HEAD --name-only \| /usr/bin/grep '^.cache/'` で 13 symlink（ai / certificate / cloud / design / devkit / exam / google / lang / mobile / product / studio / university / web）全ての同梱を必ず検証**（`git check-ignore` は negation でも exit 0 を返すため判定に使わない） |
+| Codex marketplace / plugin の名称 | marketplace = `sumik-marketplace`（`.agents/plugins/marketplace.json` の `name`）／ plugin = `devkit`・`studio`・`lang`・`web`・`cloud`・`ai`・`design`・`product`・`exam`・`university`・`google`・`mobile`・`certificate`（同 `plugins[].name` + 各 `.codex-plugin/plugin.json` の `name`）。インストールは `codex plugin add <plugin>@sumik-marketplace` を 13 プラグイン分実行 |
+| Codex プラグインを追加/更新する時 | git 方式。**repo 変更を push 後**に `~/dotfiles/codex/install-sumik-codex-plugin.sh` を実行（marketplace add/upgrade → plugin add → agents/・AGENTS.md を `~/.codex/` へ symlink）→ Codex 再起動。**同スクリプトは devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate の 13 プラグインを学習する必要がある（各 `codex plugin add <plugin>@sumik-marketplace` 行の追加・studio/lang/web/cloud/ai/design/product/university/google/mobile/certificate は agent 0 体・exam は agent を Claude 専用とし Codex へ配布しないため、いずれも agent symlink 行は不要）。repo 外・dotfiles 側（`PLUGINS=(...)` 配列＋コメント）は certificate 追加時に対応済み** |
 | Codex プラグインの版・hook・MCP の実体を確認する時 | `~/.codex/plugins/cache/...` を信用しない（**陳腐化した別キャッシュ**）。`codex plugin list` の **PATH 列**が示す実体パス（marketplace チェックアウト）の `.codex-plugin/plugin.json`・hooks 定義を読む。marketplace 更新直後に同梱 MCP が一斉に `No such file or directory (os error 2)` で失敗する場合は versioned cache 生成中の一時競合＝**設定を書き換えず**、cache 完成後に Codex を新規起動すれば解消する |
 | symlink 追跡ツール（Serena の activate 等）が `File name too long` で失敗する時 | devkit の `.cache/sumik-marketplace/devkit -> ../..` が**自己再帰パス**（`.cache/.../devkit/.cache/.../devkit/...`）を作るため。ツール側に `.cache/` 除外を設定して回避する（subdirectory 方式の他 11 プラグインでは構造的に発生しない） |
 

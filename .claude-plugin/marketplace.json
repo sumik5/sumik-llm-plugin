@@ -13,7 +13,7 @@
     {
       "name": "studio",
       "source": "./plugins/studio",
-      "description": "sumik Claude Code Plugin (studio) — スライド・図表・フラッシュカード・LaTeX 等のコンテンツ制作スキル群"
+      "description": "sumik Claude Code Plugin (studio) — スライド・図表・EPUB圧縮・LaTeX 等のコンテンツ制作スキル群"
     },
     {
       "name": "lang",
@@ -64,6 +64,11 @@
       "name": "mobile",
       "source": "./plugins/mobile",
       "description": "sumik Claude Code Plugin (mobile) — モバイル/iOS スキル群（Apple HIG 準拠デザイン・iPhone/iPad アプリ開発実務）"
+    },
+    {
+      "name": "certificate",
+      "source": "./plugins/certificate",
+      "description": "sumik Claude Code Plugin (certificate) — 資格・検定の学習支援スキル群（kentei-lab問題収集・Ankiフラッシュカード作成・教材OCR/翻訳変換）"
     }
   ]
 }

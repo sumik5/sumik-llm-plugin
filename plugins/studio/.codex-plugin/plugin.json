@@ -1,7 +1,7 @@
 {
   "name": "studio",
-  "version": "1.2.2",
-  "description": "コンテンツ制作スキル群を提供するプラグイン。12個のスキル（スライド・PPTX・図表・フラッシュカード・LaTeX・コンテンツ生成・EPUB圧縮/変換・カウントダウンアイコン・研修設計・検索可視性最適化(SEO/GEO)）と2個のコマンドを含む。",
+  "version": "2.0.0",
+  "description": "コンテンツ制作スキル群を提供するプラグイン。10個のスキル（スライド・PPTX・図表・LaTeX・コンテンツ生成・EPUB圧縮・カウントダウンアイコン・研修設計・検索可視性最適化(SEO/GEO)）と1個のコマンドを含む。",
   "author": {
     "name": "sumik5"
   },
@@ -10,15 +10,14 @@
     "skills",
     "slides",
     "diagrams",
-    "flashcards",
     "content-creation"
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp-codex.json",
   "interface": {
     "displayName": "Sumik Studio",
-    "shortDescription": "スライド・図表・フラッシュカード・LaTeX 等のコンテンツ制作スキルを提供するプラグイン",
-    "longDescription": "12個のコンテンツ制作スキルと2個のスラッシュコマンドを提供。HTMLスライド・PPTX・図表（Mermaid/draw.io）・Ankiフラッシュカード・LaTeX文書・マーケティングコピー・EPUB圧縮/変換・研修設計・検索可視性最適化（SEO/GEO/AI検索）をカバーします。",
+    "shortDescription": "スライド・図表・EPUB圧縮・LaTeX 等のコンテンツ制作スキルを提供するプラグイン",
+    "longDescription": "10個のコンテンツ制作スキルと1個のスラッシュコマンドを提供。HTMLスライド・PPTX・図表（Mermaid/draw.io）・LaTeX文書・マーケティングコピー・EPUB圧縮・研修設計・検索可視性最適化（SEO/GEO/AI検索）をカバーします。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write", "Edit", "Bash"],
@@ -26,7 +25,6 @@
     "privacyPolicyURL": "https://example.com/privacy",
     "termsOfServiceURL": "https://example.com/terms",
     "defaultPrompt": [
-      "creating-flashcards でカードを作成",
       "creating-slides でスライドを作成",
       "creating-diagrams で図を作成"
     ],

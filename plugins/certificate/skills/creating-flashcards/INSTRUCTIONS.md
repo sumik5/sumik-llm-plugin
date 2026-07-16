@@ -76,7 +76,7 @@ curl http://127.0.0.1:3141/
 
 ### 投入インフラの利用（毎回の作業の前提）
 
-このスキルは `${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/`（= `plugins/studio/skills/creating-flashcards/scripts/`）に**2層構成の Python**を常備している。投入・整形・冪等性のインフラは毎回 /tmp に書き起こさず、これらを再利用する。
+このスキルは `${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/`（= `plugins/certificate/skills/creating-flashcards/scripts/`）に**2層構成の Python**を常備している。投入・整形・冪等性のインフラは毎回 /tmp に書き起こさず、これらを再利用する。
 
 | ファイル | 性質 | 役割 |
 |---------|------|------|
@@ -123,7 +123,7 @@ ${CLAUDE_SKILL_DIR}/scripts/ocr-apple-vision <input.pdf> -o /tmp/<descriptive-na
 # 構造（表・複雑レイアウト）の忠実再現が要るソースのみ: VLM-OCR（低速・要 LM Studio）
 ${CLAUDE_SKILL_DIR}/scripts/recognize-image-to-markdown <input.pdf> -o /tmp/<descriptive-name>.md --model "<vision-model-key>" --pdf-force-ocr
 # テキストPDFと確定している軽量ケースのみ pdf-to-markdown も可（OCR不要・高速）
-${CLAUDE_PLUGIN_ROOT}/scripts/pdf-to-markdown <input.pdf> /tmp/<descriptive-name>.md
+${CLAUDE_SKILL_DIR}/scripts/pdf-to-markdown <input.pdf> /tmp/<descriptive-name>.md
 ```
 
 > 🔴 **画像ベースかの検証を怠らない**: `pdf-to-markdown`/`pandoc` の出力が「ページ数の割に極端に小さい（例: 529ページで 4KB・目次のみ・Q&A 0件）」なら本文は画像。`ocr-apple-vision`（既定）でOCRし直す。詳細・列再構成・モデル選択・resume・既知の罠は [OCR-CONVERSION.md](references/OCR-CONVERSION.md)。
@@ -423,10 +423,10 @@ scaffold が `extract_images()` で返した `[{"filename","data_b64"}]` を `QA
 **作業中に発見した新たな知見（パーサーのバグ修正、新しいpandocアーティファクトパターン、構造の変異等）があった場合、完了報告後に以下を実施する。**
 
 1. 現在のスキルファイルを読み込む:
-   - `plugins/studio/skills/creating-flashcards/SKILL.md`
-   - `plugins/studio/skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
-   - `plugins/studio/skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
-   - `plugins/studio/skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
+   - `plugins/certificate/skills/creating-flashcards/SKILL.md`
+   - `plugins/certificate/skills/creating-flashcards/references/CONTENT-DETECTION.md`（書籍タイプ判別・マーカー検出）
+   - `plugins/certificate/skills/creating-flashcards/references/CONTENT-BY-TYPE.md`（タイプ別パース戦略・サブパターン）
+   - `plugins/certificate/skills/creating-flashcards/references/CONTENT-COMMON.md`（共通処理・HTMLフォーマット・品質チェック）
 2. 今回の作業で発見した知見を整理する:
    - 新しいpandocアーティファクトパターン
    - パーサーで発生したバグとその修正方法

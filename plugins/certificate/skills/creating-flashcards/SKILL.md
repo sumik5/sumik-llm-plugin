@@ -8,7 +8,7 @@ description: >-
   or when managing Anki cards via MCP tools.
   Covers full workflow: MCP setup → file conversion (pandoc / OCR) → content analysis → batch card
   creation. For MCP server/client development, use lang:developing-mcp instead.
-  For EPUB image compression/size reduction use compressing-epub-images; for standalone
+  For EPUB image compression/size reduction use studio:compressing-epub-images; for standalone
   image-EPUB→text OCR conversion (no flashcard creation) use converting-content.
 argument-hint: "<file-path>"
 context: fork

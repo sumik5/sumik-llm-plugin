@@ -28,6 +28,7 @@ LLMの開発効率を最大化するためのプラグイン。Agent、コマン
 /plugin install university@sumik
 /plugin install google@sumik
 /plugin install mobile@sumik
+/plugin install certificate@sumik
 ```
 
 ### Codex
@@ -46,6 +47,7 @@ codex plugin add exam@sumik-marketplace
 codex plugin add university@sumik-marketplace
 codex plugin add google@sumik-marketplace
 codex plugin add mobile@sumik-marketplace
+codex plugin add certificate@sumik-marketplace
 ```
 
 ---
@@ -56,7 +58,7 @@ codex plugin add mobile@sumik-marketplace
 sumik-llm-plugin/                      # GitHub repo（Codex はここを git clone）
 ├── .agents/
 │   └── plugins/
-│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university + google + mobile）
+│       └── marketplace.json              # Codex marketplace manifest（marketplace 名 sumik-marketplace / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university + google + mobile + certificate）
 ├── .cache/
 │   └── sumik-marketplace/
 │       ├── devkit -> ../..               # Codex marketplace から repo root の plugin を指す symlink
@@ -70,9 +72,10 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 │       ├── exam -> ../../plugins/exam       # Codex marketplace から exam plugin を指す symlink
 │       ├── university -> ../../plugins/university  # Codex marketplace から university plugin を指す symlink
 │       ├── google -> ../../plugins/google   # Codex marketplace から google plugin を指す symlink
-│       └── mobile -> ../../plugins/mobile   # Codex marketplace から mobile plugin を指す symlink
+│       ├── mobile -> ../../plugins/mobile   # Codex marketplace から mobile plugin を指す symlink
+│       └── certificate -> ../../plugins/certificate  # Codex marketplace から certificate plugin を指す symlink
 ├── .claude-plugin/
-│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university + google + mobile / source ./plugins/<p>）
+│   └── marketplace.json                  # claude.ai が読む（marketplace 名 sumik / plugin 名 devkit + studio + lang + web + cloud + ai + design + product + exam + university + google + mobile + certificate / source ./plugins/<p>）
 ├── .codex-plugin/
 │   └── plugin.json                       # Codex CLI プラグインマニフェスト（plugin 名 devkit / skills ./plugins/devkit/skills/ / version 同期必須）
 ├── .mcp-codex.json                       # Codex 用 MCPサーバー設定（command ./plugins/devkit/bin/... / cwd "."）
@@ -89,7 +92,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (4個)
     │   └── skills/                       # ナレッジスキル (31個)
-    ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/flashcards/LaTeX 等）
+    ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/EPUB圧縮/LaTeX 等）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
     │   ├── .mcp.json                     # Claude 用 MCPサーバー設定（drawio・${CLAUDE_PLUGIN_ROOT}/bin/...）
@@ -168,13 +171,21 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── README.md
     │   ├── bin/                          # MCPサーバー起動ラッパー
     │   └── skills/                       # ナレッジスキル (1個: analyzing-with-google-analytics)
-    └── mobile/                           # iPhone/iPad アプリ開発プラグイン（skills-only）
+    ├── mobile/                           # iPhone/iPad アプリ開発プラグイン（skills-only）
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json               # プラグインメタデータ（plugin 名 mobile / version 同期必須）
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 mobile / skills ./skills/ / mcpServers なし）
+    │   ├── README.md
+    │   └── skills/                       # ナレッジスキル (2個: applying-apple-hig, developing-ios-apps)
+    └── certificate/                      # 資格・検定学習支援プラグイン（kentei-lab問題収集/Ankiフラッシュカード/教材変換）
         ├── .claude-plugin/
-        │   └── plugin.json               # プラグインメタデータ（plugin 名 mobile / version 同期必須）
+        │   └── plugin.json               # プラグインメタデータ（plugin 名 certificate / version 同期必須）
         ├── .codex-plugin/
-        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 mobile / skills ./skills/ / mcpServers なし）
+        │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 certificate / skills ./skills/ / mcpServers なし）
         ├── README.md
-        └── skills/                       # ナレッジスキル (2個: applying-apple-hig, developing-ios-apps)
+        ├── commands/                     # スラッシュコマンド (1個: improve-creating-flashcards・Claude Code専用)
+        └── skills/                       # ナレッジスキル (3個: collecting-kentei-lab-exams, creating-flashcards, converting-content)
 ```
 
 ---

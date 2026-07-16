@@ -1,7 +1,7 @@
 {
   "name": "studio",
-  "description": "sumik Claude Code Plugin (studio) — slides, diagrams, flashcards, EPUB/PDF conversion, LaTeX, content & training creation",
-  "version": "1.2.2",
+  "description": "sumik Claude Code Plugin (studio) — slides, diagrams, EPUB cover/compression, LaTeX, content & training creation",
+  "version": "2.0.0",
   "author": {
     "name": "sumik5"
   }

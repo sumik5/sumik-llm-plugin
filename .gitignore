@@ -15,3 +15,4 @@ node_modules/
 !.cache/sumik-marketplace/product
 !.cache/sumik-marketplace/google
 !.cache/sumik-marketplace/mobile
+!.cache/sumik-marketplace/certificate

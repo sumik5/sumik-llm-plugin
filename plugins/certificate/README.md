@@ -1,0 +1,76 @@
+# certificate
+
+**資格・検定の学習支援（kentei-lab問題収集・Ankiフラッシュカード作成・教材OCR/翻訳変換）プラグイン**
+
+---
+
+## 概要
+
+certificate は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。資格・検定の学習を支援する3つのスキルを提供します: kentei-lab.com の資格・検定 URL から全問題（問題文・選択肢・正解・解説）を巡回取得して Markdown へ保存する `collecting-kentei-lab-exams`、教材（EPUB/PDF/スキャン本）から Anki フラッシュカードを一括作成する `creating-flashcards`、画像ベース EPUB のテキスト OCR 変換とローカル翻訳を行う `converting-content` です。
+
+スキルに加えて、`creating-flashcards` の自己改善コマンド `improve-creating-flashcards` を持ちます。Codex 配布は skills のみ（commands は Codex マニフェストに宣言しません）で、studio などと同じ subdirectory 方式です。
+
+---
+
+## インストール
+
+### Claude Code
+
+```bash
+/plugin install certificate@sumik
+```
+
+### Codex
+
+```bash
+codex plugin add certificate@sumik-marketplace
+```
+
+---
+
+## ディレクトリ構成
+
+```
+plugins/certificate/
+├── .claude-plugin/
+│   └── plugin.json          # Claude Code 用 manifest（plugin 名 certificate / version 同期必須）
+├── .codex-plugin/
+│   └── plugin.json          # Codex CLI 用 manifest（skills "./skills/"・MCP なし）
+├── README.md
+├── commands/
+│   └── improve-creating-flashcards.md   # creating-flashcards の自己改善コマンド（Claude Code 専用）
+└── skills/
+    ├── collecting-kentei-lab-exams/     # kentei-lab 問題収集スキル（収集スクリプトを bundle）
+    ├── creating-flashcards/             # Anki フラッシュカード一括作成スキル（pdf-to-markdown・OCR系スクリプトを bundle）
+    └── converting-content/              # 画像ベースEPUB→テキストOCR変換・LM Studio翻訳スキル
+```
+
+---
+
+## コンポーネント一覧
+
+### Skills (3個)
+
+| スキル | 説明 |
+|--------|------|
+| `collecting-kentei-lab-exams` | kentei-lab.com の資格・検定 URL（概要ページ/開始ページ/問題ページのいずれでも可）を渡すと、その資格の全問題（問題文・選択肢・正解・解説）を巡回取得し、1 資格 1 Markdown ファイルに保存する。 |
+| `creating-flashcards` | EPUB/PDF/スキャン本から Anki フラッシュカードを Anki MCP Server または AnkiConnect API 経由で一括作成する（MCP設定・画像ベース教材の OCR: Apple Vision 優先/ローカル VLM フォールバック・デッキ/ノートタイプ管理・コンテンツ構造分析・HTML整形の一括インポート）。 |
+| `converting-content` | 画像ベース EPUB をテキストへ OCR 変換し、LM Studio によるローカル英日翻訳を行う（pandoc・OCR ワークフローを含む）。 |
+
+### Commands (1個)
+
+| コマンド | 説明 |
+|---------|------|
+| `/improve-creating-flashcards` | `creating-flashcards` セッション後の知見（パーサー罠・OCRアーティファクト・構造パターン・判定マーカー表記揺れ等）を自動抽出し、スキル配下の参照ファイルへ追記してスキルを自己進化させる（Claude Code 専用）。 |
+
+---
+
+## 依存関係メモ
+
+- **agent-browser CLI**（Rust ネイティブ・CDP 直結のブラウザ自動化 CLI）が必要です（`collecting-kentei-lab-exams`）。未導入の場合は `web:automating-browser` スキル同梱の `scripts/install.sh` で導入してください。
+- **jq**（JSON 整形・検証）が必要です（`collecting-kentei-lab-exams`）。
+- **Anki MCP Server または AnkiConnect API**（`creating-flashcards`）が必要です。Anki 本体とのカード一括インポートに使用します。
+- **pdf-to-markdown バイナリ**は `creating-flashcards/scripts/` に skill-bundled 済みです（plugin レベルの `scripts/` には依存しません）。
+- **ローカル OCR**: Apple Vision（`ocr-apple-vision`）を優先し、利用不可時はローカル VLM（`recognize-image-to-markdown` / `recognize-image.py`）にフォールバックします（`creating-flashcards`・`converting-content`）。
+- **LM Studio**（ローカル LLM 翻訳）が必要です（`converting-content`）。
+- kentei-lab.com は認証不要の公開無料サイトです。`collecting-kentei-lab-exams` は教育目的の節度ある利用（既定のリクエスト間隔・レート配慮）を前提としています。大規模な資格（問題数が多い試験）は取得に時間がかかるため、長時間実行を想定した運用（バックグラウンド実行・中断再開）に対応しています。
