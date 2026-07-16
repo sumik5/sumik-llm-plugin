@@ -186,9 +186,10 @@ planner が作成した `docs/plan-*.md` のタスクリストに基づき、Tas
 
 #### herdr バックエンド
 
-同一Waveの全メンバーを `herdr agent start` で起動し終えてから待機する。Claude Codeの `--tmux` やAgent toolのsplit-paneは使わない。以下はfrontendの例で、backend/testerも一意なagent名・専用ファイル所有権・適切な `--agent` を指定して同様に起動する。
+同一Waveの全メンバーを `herdr agent start` で起動し終えてから待機する。Claude Codeの `--tmux` やAgent toolのsplit-paneは使わない。🔴 **`--split` は常に現在フォーカス中のpaneを分割するため、全員を同じ `--split right` で起動すると親paneが繰り返し分割されレイアウトが乱れる**（詳細: `operating-herdr` スキルの「複数エージェントを整列よく起動する」）。1体目のみ親の右に分割し、2体目以降は直前に起動したメンバーを `agent focus` してから下に分割して縦一列に連鎖させる。以下はfrontend/backend/testerの3メンバー例で、他の役割構成でも一意なagent名・専用ファイル所有権・適切な `--agent` を指定して同様に連鎖起動する。
 
 ```bash
+# 1体目（frontend）: 親の右に分割
 FRONTEND_START=$(herdr agent start feature-frontend \
   --cwd "$PWD" \
   --workspace "$HERDR_WORKSPACE_ID" \
@@ -203,12 +204,48 @@ FRONTEND_START=$(herdr agent start feature-frontend \
 FRONTEND_PANE=$(printf '%s' "$FRONTEND_START" | python3 -c \
   'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
 
+# 2体目（backend）: 直前のメンバー（frontend）をfocusしてから下に分割
+herdr agent focus feature-frontend
+BACKEND_START=$(herdr agent start feature-backend \
+  --cwd "$PWD" \
+  --workspace "$HERDR_WORKSPACE_ID" \
+  --tab "$HERDR_TAB_ID" \
+  --split down \
+  --no-focus \
+  -- claude \
+  --agent devkit:tachikoma-fw-fullstack-js \
+  --permission-mode auto \
+  --name feature-backend)
+
+BACKEND_PANE=$(printf '%s' "$BACKEND_START" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
+
+# 3体目（tester）: 直前のメンバー（backend）をfocusしてから下に分割
+herdr agent focus feature-backend
+TESTER_START=$(herdr agent start feature-tester \
+  --cwd "$PWD" \
+  --workspace "$HERDR_WORKSPACE_ID" \
+  --tab "$HERDR_TAB_ID" \
+  --split down \
+  --no-focus \
+  -- claude \
+  --agent devkit:tachikoma-qa-e2e-test \
+  --permission-mode auto \
+  --name feature-tester)
+
+TESTER_PANE=$(printf '%s' "$TESTER_START" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
+
+# 全員起動後、親にフォーカスを戻す（親 | 右列の2カラム構成なので left で一発戻れる）
+herdr pane focus --direction left --current
+
+# 各メンバーの起動確認とプロンプト送信（frontendの例。backend/testerも同様に行う）
 herdr agent wait feature-frontend --status idle --timeout 30000
 herdr agent send feature-frontend "$FRONTEND_PROMPT"
 herdr pane send-keys "$FRONTEND_PANE" Enter
 ```
 
-起動後は `herdr wait agent-status "$FRONTEND_PANE" --status working --timeout 30000` で開始を確認し、`herdr agent wait feature-frontend --status idle --timeout 1800000` でターン完了を待つ。`working` を取り逃した場合は `herdr agent get feature-frontend` と `herdr agent read feature-frontend --source recent --lines 100` で状態と出力を確認する。
+起動後は各メンバーについて `herdr wait agent-status "$FRONTEND_PANE" --status working --timeout 30000` で開始を確認し、`herdr agent wait feature-frontend --status idle --timeout 1800000` でターン完了を待つ。`working` を取り逃した場合は `herdr agent get feature-frontend` と `herdr agent read feature-frontend --source recent --lines 100` で状態と出力を確認する。
 
 #### Agent Teams バックエンド
 
