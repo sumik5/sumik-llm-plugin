@@ -100,7 +100,8 @@ KENTEI_LAB_MAX_N=10 scripts/collect-kentei-lab.sh https://kentei-lab.com/exams/s
 - `answer` はサイトの「正解は…」から接頭辞「正解は」と先頭空白を除去した残り（レター＋本文の結合文字列）。
 - `total_questions` は試験の総問題数 N。`KENTEI_LAB_MAX_N` で部分取得した場合、`questions` の要素数は N より少なくなる。
 - この JSON はそのまま `creating-flashcards` スキルへ渡せる（同スキルが `scripts/kentei_lab_import.py` で
-  構造推測をスキップして Anki に一括登録する）。Anki デッキは既定で `kentei-lab::<試験名>` に登録される。
+  構造推測をスキップして Anki に一括登録する）。Anki デッキは既定で
+  `検定試験::<検定名>::<級>::kentei-lab`（級を検出できない試験は `検定試験::<検定名>::kentei-lab`）に登録される。
 - ⚠️ 同一会話内で直接ブリッジする場合の実務上の注意（`disable-model-invocation` によるSkillツール不可・
   `${CLAUDE_PLUGIN_ROOT}` 未設定・デッキ名衝突確認等）は `creating-flashcards` の INSTRUCTIONS.md
   「kentei-lab 収集済み JSON のファストパス」節を参照。

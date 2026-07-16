@@ -19,6 +19,7 @@ from kentei_lab_import import (
     is_kentei_lab_json,
     load_and_convert,
     question_to_qapair,
+    split_exam_title,
 )
 
 
@@ -104,10 +105,100 @@ class TestIsKenteiLabJson(unittest.TestCase):
 
 
 class TestDefaultDeckName(unittest.TestCase):
-    def test_namespaced_with_kentei_lab_prefix(self):
+    def test_grade_numeric(self):
         self.assertEqual(
-            default_deck_name("世界遺産検定2級"), "kentei-lab::世界遺産検定2級"
+            default_deck_name("世界遺産検定2級"),
+            "検定試験::世界遺産検定::2級::kentei-lab",
         )
+
+    def test_grade_jun_number(self):
+        self.assertEqual(
+            default_deck_name("サンプル検定准1級"),
+            "検定試験::サンプル検定::准1級::kentei-lab",
+        )
+
+    def test_grade_jun_alt_kanji(self):
+        self.assertEqual(
+            default_deck_name("サンプル検定準2級"),
+            "検定試験::サンプル検定::準2級::kentei-lab",
+        )
+
+    def test_grade_roman_type(self):
+        self.assertEqual(
+            default_deck_name("サンプル試験II種"),
+            "検定試験::サンプル試験::II種::kentei-lab",
+        )
+
+    def test_grade_kanji_type_ko(self):
+        self.assertEqual(
+            default_deck_name("サンプル試験甲種"),
+            "検定試験::サンプル試験::甲種::kentei-lab",
+        )
+
+    def test_grade_kanji_type_otsu(self):
+        self.assertEqual(
+            default_deck_name("サンプル試験乙種"),
+            "検定試験::サンプル試験::乙種::kentei-lab",
+        )
+
+    def test_grade_dai_n_type_kanji_number(self):
+        self.assertEqual(
+            default_deck_name("サンプル試験第一種"),
+            "検定試験::サンプル試験::第一種::kentei-lab",
+        )
+
+    def test_grade_dai_n_type_arabic_number(self):
+        self.assertEqual(
+            default_deck_name("サンプル試験第2種"),
+            "検定試験::サンプル試験::第2種::kentei-lab",
+        )
+
+    def test_grade_level_words_beginner(self):
+        self.assertEqual(
+            default_deck_name("サンプル検定初級"),
+            "検定試験::サンプル検定::初級::kentei-lab",
+        )
+
+    def test_grade_level_words_advanced(self):
+        self.assertEqual(
+            default_deck_name("サンプル検定上級"),
+            "検定試験::サンプル検定::上級::kentei-lab",
+        )
+
+    def test_no_grade_three_levels(self):
+        self.assertEqual(
+            default_deck_name("TOEIC"),
+            "検定試験::TOEIC::kentei-lab",
+        )
+
+    def test_whitespace_separated_halfwidth(self):
+        self.assertEqual(
+            default_deck_name("世界遺産検定 2級"),
+            "検定試験::世界遺産検定::2級::kentei-lab",
+        )
+
+    def test_whitespace_separated_fullwidth(self):
+        self.assertEqual(
+            default_deck_name("世界遺産検定　2級"),
+            "検定試験::世界遺産検定::2級::kentei-lab",
+        )
+
+
+class TestSplitExamTitle(unittest.TestCase):
+    def test_name_and_grade_split(self):
+        self.assertEqual(split_exam_title("世界遺産検定2級"), ("世界遺産検定", "2級"))
+
+    def test_whitespace_not_left_in_name(self):
+        self.assertEqual(split_exam_title("世界遺産検定 2級"), ("世界遺産検定", "2級"))
+
+    def test_no_grade_returns_empty_grade(self):
+        self.assertEqual(split_exam_title("TOEIC"), ("TOEIC", ""))
+
+    def test_dai_n_type_split(self):
+        self.assertEqual(split_exam_title("サンプル試験第一種"), ("サンプル試験", "第一種"))
+
+    def test_grade_only_input_falls_back(self):
+        self.assertEqual(split_exam_title("2級"), ("2級", ""))
 
 
 class TestLoadAndConvert(unittest.TestCase):

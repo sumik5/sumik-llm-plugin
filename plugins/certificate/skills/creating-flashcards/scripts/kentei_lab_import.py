@@ -32,6 +32,21 @@ _CORRECT_LETTER_RE = re.compile(
     r"^\s*([A-Za-zＡ-Ｚａ-ｚ0-9０-９①-⑳ア-ン])\s*[.．：:、)）]"
 )
 
+# 級（グレード）を表す末尾トークンの alternation。
+# 各行が 1 パターン。左から順に試行される（相互排他なので順序依存の副作用は無い）。
+_GRADE_ALT = (
+    r"[准準]?[0-9０-９]+級"                     # 数字級・准/準+数字級（例: 1級, 2級, 3級, 准1級, 準2級）
+    r"|[初中上]級"                              # 初級・中級・上級
+    r"|[甲乙丙丁]種"                            # 甲種・乙種・丙種・丁種
+    r"|第[0-9０-９一二三四五六七八九十百]+種"    # 第N種（算用/漢数字混在可・例: 第一種, 第1種, 第二種, 第4種）
+    r"|[IVXivxⅠ-Ⅹ]+種"                         # ローマ数字+種（半角I/V/X・全角Ⅰ-Ⅹ・例: I種, II種, III種, Ⅱ種）
+)
+
+# 「（検定名）（空白?）（級トークン）」を末尾アンカーで捕捉する。
+#   - name は非貪欲（.*?）にし、級トークンを末尾からできるだけ長く取らせる。
+#   - \s* は半角/全角空白双方を許容する（Python の str 正規表現では \s が U+3000 も含む）。
+_GRADE_SUFFIX_RE = re.compile(rf"^(?P<name>.*?)\s*(?P<grade>{_GRADE_ALT})$")
+
 
 def is_kentei_lab_json(data: object) -> bool:
     """トップレベルが dict で exam_title / slug / questions(list) を持てば True。
@@ -47,9 +62,36 @@ def is_kentei_lab_json(data: object) -> bool:
     )
 
 
+def split_exam_title(exam_title: str) -> tuple[str, str]:
+    """exam_title を (検定名, 級) に分割する。
+
+    級が末尾に検出できなければ (exam_title, "") を返す（級レベルを省略し、
+    検定名として exam_title 全体を使う 3 階層フォールバック）。
+    """
+    title = (exam_title or "").strip()
+    m = _GRADE_SUFFIX_RE.match(title)
+    if not m:
+        return (title, "")
+    name = m.group("name").strip()
+    grade = m.group("grade").strip()
+    # 級トークンだけで検定名が空になる異常入力（例: "2級" 単独）は
+    # 検定名として全体を使う 3 階層へフォールバックする。
+    if not name:
+        return (title, "")
+    return (name, grade)
+
+
 def default_deck_name(exam_title: str) -> str:
-    """既定デッキ名 f"kentei-lab::{exam_title}" を返す（出典で名前空間分離）。"""
-    return f"kentei-lab::{exam_title}"
+    """既定デッキ名を返す。
+
+    級を検出できれば 4 階層 "検定試験::<検定名>::<級>::kentei-lab"、
+    検出できなければ 3 階層 "検定試験::<検定名>::kentei-lab" を返す
+    （カテゴリ=検定試験 / 検定名 / 級 / 出典=kentei-lab の階層構成）。
+    """
+    name, grade = split_exam_title(exam_title)
+    if grade:
+        return f"検定試験::{name}::{grade}::kentei-lab"
+    return f"検定試験::{name}::kentei-lab"
 
 
 def extract_correct_letters(answer: str) -> list[str]:
