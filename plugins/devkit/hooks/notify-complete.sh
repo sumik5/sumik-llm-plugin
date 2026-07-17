@@ -74,3 +74,8 @@ display notification "${MESSAGE_SAFE}" \
     sound name "${SOUND}"
 EOF
 fi
+
+# herdr環境向け完了報告（screen-manifestの推測を待たず即座に完了を伝える）
+if [ "${HERDR_ENV:-}" = "1" ] && [ -n "${HERDR_PANE_ID:-}" ] && command -v herdr &>/dev/null; then
+    herdr pane report-agent "$HERDR_PANE_ID" --source devkit:notify-complete --agent claude --state done --message "$MESSAGE_SAFE" >/dev/null 2>&1 || true
+fi
