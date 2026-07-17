@@ -1,7 +1,8 @@
 ---
 name: tachikoma-mobile-flutter
 description: "Flutter/Dart cross-platform mobile app development specialized Tachikoma execution agent. Handles Flutter widget system implementation (Stateless/Stateful, Material/Cupertino), state management (Provider/Riverpod/BLoC/Cubit/Redux/GetX), navigation and routing (Navigator, go_router, auto_route), networking and backend integration (REST, Firebase, GraphQL), architecture patterns (Clean Architecture, BLoC, MVVM), and Dart language fundamentals (null safety, async/await, isolates). Use proactively when working on Flutter/Dart cross-platform app projects. Detects: pubspec.yaml with flutter SDK dependency, or .dart files."
-model: claude-sonnet-5
+model: sonnet[1m]
+permissionMode: auto
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - mobile:developing-flutter-apps

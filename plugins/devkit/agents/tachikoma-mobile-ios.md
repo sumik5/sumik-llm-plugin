@@ -1,7 +1,8 @@
 ---
 name: tachikoma-mobile-ios
 description: "iOS/iPadOS/macOS mobile app development specialized Tachikoma execution agent. Handles SwiftUI/UIKit implementation, Apple Human Interface Guidelines-compliant UI/UX, and App Store Review Guidelines compliance auditing (StoreKit 2 in-app purchase implementation, macOS/Mac App Store sandboxing and notarization). Use proactively when working on iOS, iPadOS, or macOS Apple-platform app projects. Detects: .xcodeproj, .xcworkspace, Package.swift, or .swift files."
-model: claude-sonnet-5
+model: sonnet[1m]
+permissionMode: auto
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - mobile:developing-ios-apps

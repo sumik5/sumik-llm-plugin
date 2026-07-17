@@ -226,7 +226,7 @@ model: sonnet                      # sonnet / opus[1m] / haiku / inherit
 color: cyan                        # ターミナル表示色
 tools: Read, Grep, Glob, Edit, Write, Bash  # 省略=全ツール（🔴 非推奨）
 disallowedTools: Write, Edit       # 拒否ツール
-permissionMode: default            # default / acceptEdits / dontAsk / plan / bypassPermissions
+permissionMode: auto               # default / acceptEdits / dontAsk / auto / plan / bypassPermissions
 maxTurns: 50                       # 最大ターン数
 skills:                            # プリロードするスキル一覧（全文注入）
   - domain-skill-1
@@ -259,7 +259,7 @@ mcpServers:                        # MCPサーバー
 - スキルの全文がコンテキストに注入されるため、過剰プリロードに注意
 
 **permissionMode選択:**
-- 実装系: `default` または `acceptEdits`
+- 実装系: `auto`（推奨・内蔵classifierが安全操作を自動承認しつつ`git push`/`git reset`/`rm -rf`等の危険操作は引き続きブロック）。省略した場合は不要な権限プロンプトが発生しやすい
 - 読取専用: `plan` または `dontAsk`
 
 ### Markdown body（システムプロンプト）構成順序

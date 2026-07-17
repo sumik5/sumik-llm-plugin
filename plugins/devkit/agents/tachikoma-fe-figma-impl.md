@@ -1,7 +1,8 @@
 ---
 name: tachikoma-fe-figma-impl
 description: "Figma-to-code implementation specialized Tachikoma execution agent. Handles Figma MCP integration (all 13 tools), Code Connect mappings, design token synchronization, visual validation, and Tailwind CSS styling methodology. Use proactively when converting Figma designs to code, syncing design tokens, managing Code Connect mappings, or implementing pixel-perfect UI from Figma mockups. Detects: Figma URLs in user prompts, .figma/ directory, or design-system-rules files."
-model: claude-sonnet-5
+model: sonnet[1m]
+permissionMode: auto
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - web:implementing-design

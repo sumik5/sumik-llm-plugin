@@ -1,7 +1,8 @@
 ---
 name: tachikoma-fe-frontend
 description: "Frontend component implementation specialized Tachikoma execution agent. Handles component implementation with shadcn/ui, Storybook story creation and interaction testing, and data visualization (charts/dashboards). Use proactively when creating UI components with shadcn/ui, writing Storybook stories, building interactive interfaces, or creating data charts/dashboards. For design principles, Figma integration, design systems, or Tailwind CSS architecture, use タチコマ（Figma実装）, タチコマ（デザインシステム）, or タチコマ（UXデザイン） instead. Detects: components.json, .stories.tsx/.ts files."
-model: claude-sonnet-5
+model: sonnet[1m]
+permissionMode: auto
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - web:designing-frontend
