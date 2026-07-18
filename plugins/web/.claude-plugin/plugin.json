@@ -1,7 +1,7 @@
 {
   "name": "web",
-  "description": "sumik Claude Code Plugin (web) — Web/フロントエンド実装スキル群（Next.js/React/フルスタックJS/Web API/フロントエンド設計/Tailwind/Figma実装/ブラウザ自動化/next-devtools/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築）",
-  "version": "1.2.0",
+  "description": "sumik Claude Code Plugin (web) — Web/フロントエンド実装スキル群（Next.js/React/フルスタックJS/Web API/APIセキュリティ/フロントエンド設計/Tailwind/Figma実装/ブラウザ自動化/next-devtools/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築）",
+  "version": "1.3.0",
   "author": {
     "name": "sumik5"
   }

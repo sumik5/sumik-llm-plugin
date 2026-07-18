@@ -6,7 +6,7 @@
 
 ## 概要
 
-web は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。Next.js・React・フルスタック JavaScript・Web API・フロントエンド設計・Tailwind・Figma 実装・ブラウザ自動化・next-devtools・Vitest テスト・Playwright E2E テストといった Web/フロントエンド実装系スキルを集約します。devkit のタチコマ Agent がこれらのスキルを `web:<skill>` 修飾名で preload するため、devkit と常にセットでインストールされる前提です。
+web は devkit と同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から併設配布される兄弟プラグインです。Next.js・React・フルスタック JavaScript・Web API・API セキュリティ・フロントエンド設計・Tailwind・Figma 実装・ブラウザ自動化・next-devtools・Vitest テスト・Playwright E2E テストといった Web/フロントエンド実装系スキルを集約します。devkit のタチコマ Agent がこれらのスキルを `web:<skill>` 修飾名で preload するため、devkit と常にセットでインストールされる前提です。
 
 ---
 
@@ -44,14 +44,14 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
         ├── .codex-plugin/
         │   └── plugin.json              # Codex CLI プラグインマニフェスト（skills ./skills/・MCP なし）
         ├── README.md
-        └── skills/                      # ナレッジスキル (13個)
+        └── skills/                      # ナレッジスキル (14個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Skills (13個)
+### Skills (14個)
 
 | スキル | 説明 |
 |--------|------|
@@ -60,6 +60,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `developing-fullstack-javascript` | フルスタックJS開発（NestJS/Express・React・CI/CD・品質）＋JavaScript言語基礎（型・クロージャ・プロトタイプ・async/await・モジュール・メタプログラミング）を包括カバー。V8内部・イベントループ・Express 5 + Drizzle ORM CRUDも収録 |
 | `developing-web-apis` | Web API開発統合ガイド（API設計ベストプラクティス・Spec First開発方法論・APIテスト戦略）。エンドポイント設計・HTTPスペック・バージョニング・セキュリティ・コントラクトテスト・自動化を網羅 |
 | `choosing-api-styles` | APIスタイル選定・比較の意思決定ガイド（REST/GraphQL/gRPC/Webhook/WebSocket/メッセージング/Webフィードの7スタイル）。通信モード・プロトコル基盤(HTTP/1.1/2/3・QUIC)・スタイル別トレードオフ・6次元選定マトリクスと決定木を収録 |
+| `securing-web-apis` | OWASP API Security Top 10 (2023)準拠のAPIセキュリティ実装ガイド。BOLA/BOPLA/BFLA/SSRF等の脆弱性検出・修正、APIの脅威モデリング、secure-by-design、JWT/OAuth 2.0/OIDC/RBAC実装、FAPI、APIセキュリティテストを網羅 |
 | `building-nodejs-services` | Fastify による Node.js サービス/CLI/実プロジェクト構築（Fastifyコア: ルーティング/フック/プラグイン/スキーマ検証・Nodeランタイム内部: イベントループ/libuv/streams/clustering・REST実装・永続化: Mongoose/Sequelize/SQLite/Redis・認証フロー・SSR・メッセージング: RabbitMQ・CLIツール・外部データ統合/スクレイピング・メール/生成AI統合・scaffolding・品質チェックリスト、12リファレンスファイル） |
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合・オブジェクト指向UI設計（OOUI）：オブジェクト抽出・ビュー/ナビゲーション・レイアウトパターン・マイクロフロントエンドアーキテクチャ） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |

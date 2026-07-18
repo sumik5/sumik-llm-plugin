@@ -52,8 +52,8 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/web"
       },
-      "version": "1.2.0",
-      "description": "Web・フロントエンド実装スキル群を提供するプラグイン。13個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・choosing-api-styles・building-nodejs-services・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
+      "version": "1.3.0",
+      "description": "Web・フロントエンド実装スキル群を提供するプラグイン。14個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・choosing-api-styles・securing-web-apis・building-nodejs-services・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"

@@ -272,6 +272,7 @@ X-RateLimit-Reset: 1735689600
 | ブローカー型 | メッセージ認証・TLS・ACL（アクセス制御リスト） |
 
 > 詳細な脅威モデルと対策は `developing-web-apis/references/DESIGN-SECURITY.md` を参照。
+> 体系的な各項目の検出・修正は `web:securing-web-apis` を参照。
 
 ---
 

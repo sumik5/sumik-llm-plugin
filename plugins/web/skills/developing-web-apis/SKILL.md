@@ -12,6 +12,9 @@ description: >-
   For choosing among API styles (REST vs GraphQL vs gRPC vs webhooks vs WebSocket vs messaging) and their trade-offs before implementation, use choosing-api-styles.
   For Fastify framework implementation (routing, plugins, schema validation), use building-nodejs-services.
 disable-model-invocation: false
+when_to_use: >-
+  For API security hardening (OWASP API Security Top 10, API threat modeling, secure-by-design,
+  authn/authz, FAPI, API security testing), use securing-web-apis.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

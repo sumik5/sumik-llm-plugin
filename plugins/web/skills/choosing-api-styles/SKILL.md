@@ -18,6 +18,8 @@ description: >-
 disable-model-invocation: false
 when_to_use: >-
   For Fastify service implementation (routing, plugins, schema validation), use web:building-nodejs-services.
+  For deep API security engineering (OWASP API Security Top 10 remediation, authn/authz, FAPI), use
+  securing-web-apis.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

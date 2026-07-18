@@ -11,6 +11,8 @@ description: >-
   devkit:securing-code instead. For Keycloak identity and access management (OIDC/SAML, SSO,
   authorization policies), use managing-keycloak instead.
   For end-to-end security architecture design use architecting-security instead.
+  For applying authorization inside HTTP APIs (RBAC/scopes, JWT/OAuth enforcement), use
+  web:securing-web-apis.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
