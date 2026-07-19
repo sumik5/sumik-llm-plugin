@@ -14,6 +14,24 @@
 > ERR-20260715-001（model移行の未適用矛盾）は plugins/devkit/agents/*.md 24件 + plugins/exam/agents/exam-solver.md 1件（実測25件）へ
 > `model: claude-sonnet-5` を実適用して解消（grep実証済み・LRN-20260714-001と同時消費）。
 
+## [ERR-20260719-001] collecting-whizlabs-exams
+
+**記録日時**: 2026-07-19T14:35:00+09:00
+**優先度**: low
+**ステータス**: pending
+**領域**: scripts/collect-whizlabs.sh(正解抽出)
+
+### 要約
+CCSP コース全205問収集で204問は正常、1問（Practice Test 1 第118問, choice_type=single）のみ `correct` が空配列になった。原因は "Correct Answer: X" の HTML 表記ゆれ。通常は `<strong>Correct Answer: X</strong>`（単一 strong タグ内）だが、この1問だけ `<strong>Correct</strong>&nbsp;<strong>Answer: A</strong>`（"Correct" と "Answer: A" が別々の strong タグに分割され間に `&nbsp;` が挟まる）という構造だった。スクリプトの正解抽出正規表現は単一 strong タグ内完結パターンを前提にしており、分割パターンにマッチしなかった。
+
+### 影響
+- `explanation_html` 自体には情報が無傷で残っている（Anki化時も解説文からは読める）ため実害は軽微。`correct` フィールドのみ空。
+- 205問中1問(0.5%)のみで発生、頻度は低い。
+
+### 対処
+- 今回は手動で正解=A と確認済み（該当JSONは未修正のまま運用側で許容）。
+- スキル側の恒久対応（正規表現を "Correct" と "Answer: X" が別タグに分かれるケースにも対応させる）は certificate:collecting-whizlabs-exams の改善提案として別途起票要（本エントリはその根拠ログとして保持）。
+
 ## [ERR-20260716-001] collecting-kentei-lab-exams
 
 **記録日時**: 2026-07-16T20:10:00+09:00

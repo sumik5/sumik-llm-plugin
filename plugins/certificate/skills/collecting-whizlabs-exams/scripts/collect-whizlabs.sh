@@ -254,10 +254,10 @@ cat > "${TMP_DIR}/read-explanation.js" <<'JS'
   if (!block) return { error: 'explanation-block-not-found' };
   const clone = block.cloneNode(true);
   const ps = Array.from(clone.querySelectorAll('p'));
-  const correctP = ps.find((p) => /correct answer\s*:/i.test(p.textContent || ''));
+  const correctP = ps.find((p) => /correct\s+answer\s*:/i.test(p.textContent || ''));
   let correctText = '';
   if (correctP) {
-    correctText = (correctP.textContent || '').replace(/^.*correct answer\s*:\s*/i, '').trim();
+    correctText = (correctP.textContent || '').replace(/^.*correct\s+answer\s*:\s*/i, '').trim();
     correctP.remove();
   }
   const html = clone.innerHTML.trim();
