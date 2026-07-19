@@ -194,6 +194,56 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/kentei_lab_impo
 > 3. 本番投入前に `--dry-run` で `needs_fix` 件数とサンプル1件を確認してから実行する（`collect-kentei-lab.sh` 側の
 >    スモークテスト推奨と同じ安全策）。
 
+#### whizlabs 収集済み JSON のファストパス（AI 構造推測をスキップ）
+
+`collecting-whizlabs-exams` スキルが出力した JSON（トップレベルに `course_title`・`course_url`・`quiz_title`・
+`quiz_id`・`questions` を持ち、各 `questions[]` 要素が `number`・`domain`・`question`・`choices`・
+`choice_type`・`correct`・`explanation_html` を持つ）を受け取った場合も、kentei-lab 同様に**収集時に DOM から
+確定取得済みの完全構造化データ**であり、AI が構造を推測する必要がない。以下のファストパスを取る。
+
+1. Step 2（言語検出）・Step 3（コンテンツ構造の自動分析）・Step 4（サンプル確認による AI 推測）を
+   **すべてスキップ**する（構造は既知・曖昧さなし）。
+2. `parser_scaffold.py` を**コピーしない**。専用ブリッジ `scripts/whizlabs_import.py` を使う。
+3. Step 5（デッキ・ノートタイプ選択）へ直行する。デッキ選択（Step 5a）では `default_deck_name` が算出する
+   `資格試験::<course_title>::<quiz_title>::whizlabs`（クイズ単位でサブデッキを分ける既定案）を「推奨」の
+   先頭選択肢として提示しつつ、**コース単位で 1 デッキにまとめるかクイズ単位で分けるかは好みが分かれるため
+   必ず AskUserQuestion で確認する**（kentei-lab の級検出フォールバックのような自動判定はせず、常に確認を
+   挟む）。ノートタイプ選択（Step 5b）は通常どおり `modelNames`/`modelFieldNames`/`modelTemplates` を確認する
+   （既存の必須ワークフローは崩さない）。
+4. Step 5 で確定したデッキ名・ノートタイプ名・フィールド名・`choice_list_style` を CLI 引数として渡す。
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/whizlabs_import.py" \
+    <course-slug>__<quiz-slug>.json \
+    --deck "資格試験::<コース名>::<クイズ名>::whizlabs" \
+    --model "<ノートタイプ名>" \
+    --front-field <Question 等> --back-field <Answer 等> \
+    [--extra-field "<Knowledge Area 等>"] \
+    [--choice-list-style ol|br]
+```
+
+> `--deck` を省略すると `default_deck_name(course_title, quiz_title)` が上記形式を自動算出する。
+> ただし前述のとおりコース単位/クイズ単位の判断は AskUserQuestion で確認したうえで `--deck` を明示するのが
+> 安全（省略時の自動算出をそのまま採用してよいかも含めて確認する）。
+
+> 🔴 **なぜ恒久スクリプトなのか（ジェネリックパーサー禁止ルールの例外根拠）**: kentei-lab 同様、whizlabs JSON
+> も**本プラグインの collect スクリプトが自己管理する固定スキーマ**であり、書籍のような構造変異が起きる
+> 理由が存在しない。したがって固定スキーマ専用の `whizlabs_import.py` を恒久化するのが正しい。将来
+> 「使い捨てルール違反」として削除・scaffold 化しないこと。
+
+> 🔴 **`disable-model-invocation` とセッション内直接ブリッジ時の注意**: kentei-lab 版と同じ制約が適用される。
+> `creating-flashcards` は自身の SKILL.md フロントマターで `disable-model-invocation: true` を持つため、
+> `collecting-whizlabs-exams` の JSON を同一会話内でそのまま渡そうとして
+> `Skill(skill: "certificate:creating-flashcards", ...)` を呼ぶと**失敗する**（ユーザーが
+> `/certificate:creating-flashcards` を明示的に叩いた場合のみ起動可能）。同一会話内でこのファストパスへ
+> ブリッジする際は、Skill ツールを使わず kentei-lab 版と同じ手順（`${CLAUDE_PLUGIN_ROOT}` 未設定時の実体パス
+> 解決・Step 5a/5b の代行・`--dry-run` での事前確認）を踏む。
+
+> ⚠️ **MCMR（複数選択）の `correct` 抽出は実例未確認**: `collecting-whizlabs-exams` 側で "Correct Answer: A, C"
+> 等の表記から `correct` を複数要素配列として抽出する設計だが、収集時点で実例が見つかっていない。
+> `whizlabs_import.py` は `correct` が空配列の場合 `needs_fix=True`（`_要手修正` タグ付与）にフォールバックする
+> ため、投入前に `--dry-run` で `needs_fix` 件数を必ず確認すること。
+
 > ⚠️ **JSON には2系統ある（構造化Q&A vs ページ単位OCR）**: JSON ソースには (a) 問題・解答がフィールドとして構造化済みの Q&A JSON と、(b) VLM/`recognize` 系 OCR が出力する**ページ単位 JSON**（`[{"index","filename","text"}, ...]` で各ページの生テキストを保持）の2系統がある。(b) は「構造化済み」ではなく、各ページの `text` を Markdown 同様にパースする必要がある（科目見出しページ・問題ページ・解答ページの分類が要る）。実装は **JSON パスを `md_path` として渡し、`parse()` 冒頭で `json.loads(markdown_text)` してページ列を得る**と scaffold の `main()` をそのまま再利用できる。画像主体 EPUB を VLM で逐次OCRしたケースで観測。
 
 > ⚠️ **pandocアーティファクト**: pandocはEPUB変換時にCSSクラスマーカー（`{.class_sXXX}`）、ページマーカー（`[]{#cXXX.xhtml}`）、divマーカー（`:::`）、ゼロ幅スペース付きリストマーカー等を生成する。これらはStep 6で除去する。
