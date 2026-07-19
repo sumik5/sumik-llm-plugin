@@ -24,7 +24,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/studio"
       },
-      "version": "2.0.0",
+      "version": "2.1.0",
       "description": "コンテンツ制作スキル群を提供するプラグイン。10個のスキル（スライド・PPTX・図表・LaTeX・コンテンツ生成・EPUB圧縮・カウントダウンアイコン・研修設計・検索可視性最適化(SEO/GEO)）と1個のコマンドを含む。",
       "policy": {
         "installation": "AVAILABLE",
