@@ -229,8 +229,9 @@ STUDYING_MAX_N=2 scripts/collect-studying.sh <course-list-url> /tmp/studying-tes
   標準エラー出力に記録する。
 
 この JSON はそのまま `creating-flashcards` スキルへ渡せる（同スキルが `scripts/studying_import.py` で
-構造推測をスキップして Anki に一括登録する）。デッキ名は既定で
-`資格試験::<course_title>::<category>::<subject_title>::studying` に登録される（詳細は
+構造推測をスキップして Anki に一括登録する）。デッキ名は既定で `course_title` を「検定名」「級」に
+分解したうえで `検定試験::<検定名>::<級>::studying::<category>::<subject_title>`（級を検出できない
+コースは `検定試験::<検定名>::studying::<category>::<subject_title>`）に登録される（詳細は
 `creating-flashcards` の INSTRUCTIONS.md「studying 収集済み JSON のファストパス」節を参照）。
 
 ## 6. サイトへの配慮

@@ -17,6 +17,7 @@ from studying_import import (
     is_studying_json,
     load_and_convert,
     question_to_qapair,
+    split_course_title,
 )
 
 
@@ -160,19 +161,78 @@ class TestIsStudyingJson(unittest.TestCase):
         self.assertFalse(is_studying_json(["not", "a", "dict"]))
 
 
-class TestDefaultDeckName(unittest.TestCase):
-    def test_basic_format(self):
+class TestSplitCourseTitle(unittest.TestCase):
+    def test_grade_and_trademark_and_bracket_suffix(self):
+        # 実機データでの検証済み実例（本体確認済み）。
         self.assertEqual(
-            default_deck_name("サンプルコース", "サンプルカテゴリ", "サンプル科目1"),
-            "資格試験::サンプルコース::サンプルカテゴリ::サンプル科目1::studying",
+            split_course_title(
+                "サンプル検定® 2級合格コース［2026年11月～2027年7月試験対応］"
+            ),
+            ("サンプル検定", "2級"),
+        )
+
+    def test_no_grade_returns_course_title_as_name(self):
+        self.assertEqual(
+            split_course_title("サンプル対策コース"),
+            ("サンプル対策コース", ""),
+        )
+
+    def test_trademark_removed_without_grade(self):
+        self.assertEqual(
+            split_course_title("サンプル講座®"),
+            ("サンプル講座", ""),
+        )
+
+    def test_bracket_suffix_removed_without_grade(self):
+        self.assertEqual(
+            split_course_title("サンプル対策コース［2026年対応］"),
+            ("サンプル対策コース", ""),
+        )
+
+    def test_whitespace_between_name_and_grade(self):
+        self.assertEqual(
+            split_course_title("サンプル検定 2級"),
+            ("サンプル検定", "2級"),
+        )
+
+    def test_dai_n_type_grade(self):
+        self.assertEqual(
+            split_course_title("サンプル試験第一種講座"),
+            ("サンプル試験", "第一種"),
+        )
+
+    def test_grade_only_input_falls_back(self):
+        self.assertEqual(split_course_title("2級"), ("2級", ""))
+
+    def test_empty_input(self):
+        self.assertEqual(split_course_title(""), ("", ""))
+
+
+class TestDefaultDeckName(unittest.TestCase):
+    def test_format_with_grade(self):
+        # 実機データでの検証済み実例（本体確認済み）:
+        # "検定試験::知的財産管理技能検定::2級::studying::スマート問題集::商標法"
+        self.assertEqual(
+            default_deck_name(
+                "サンプル検定® 2級合格コース［2026年11月～2027年7月試験対応］",
+                "サンプルカテゴリ",
+                "サンプル科目1",
+            ),
+            "検定試験::サンプル検定::2級::studying::サンプルカテゴリ::サンプル科目1",
+        )
+
+    def test_format_without_grade_falls_back_to_5_layers(self):
+        self.assertEqual(
+            default_deck_name("サンプル対策コース", "サンプルカテゴリ", "サンプル科目1"),
+            "検定試験::サンプル対策コース::studying::サンプルカテゴリ::サンプル科目1",
         )
 
     def test_strips_surrounding_whitespace(self):
         self.assertEqual(
             default_deck_name(
-                "  サンプルコース  ", "  サンプルカテゴリ  ", "  サンプル科目1  "
+                "  サンプル検定 2級  ", "  サンプルカテゴリ  ", "  サンプル科目1  "
             ),
-            "資格試験::サンプルコース::サンプルカテゴリ::サンプル科目1::studying",
+            "検定試験::サンプル検定::2級::studying::サンプルカテゴリ::サンプル科目1",
         )
 
 

@@ -20,9 +20,57 @@ import 方式が異なる）。
 from __future__ import annotations
 
 import json
+import re
 import sys
 
 from anki_toolkit import QAPair, RenderOptions, upload
+
+# 級（グレード）を表すトークンの alternation。kentei_lab_import.py の _GRADE_ALT と同一
+# （studying のコース名にも「2級」等の級表記が現れるため同じ判定基準を再利用する）。
+_GRADE_ALT = (
+    r"[准準]?[0-9０-９]+級"                     # 数字級・准/準+数字級（例: 1級, 2級, 3級, 准1級, 準2級）
+    r"|[初中上]級"                              # 初級・中級・上級
+    r"|[甲乙丙丁]種"                            # 甲種・乙種・丙種・丁種
+    r"|第[0-9０-９一二三四五六七八九十百]+種"    # 第N種（算用/漢数字混在可・例: 第一種, 第1種, 第二種, 第4種）
+    r"|[IVXivxⅠ-Ⅹ]+種"                         # ローマ数字+種（半角I/V/X・全角Ⅰ-Ⅹ・例: I種, II種, III種, Ⅱ種）
+)
+
+# 末尾の全角/半角角括弧ブロック（例:「［2026年11月～2027年7月試験対応］」等の試験対応期間の
+# 注記）を除去する。studying のコースタイトルはこの角括弧サフィックスが付くことが多い。
+_BRACKET_SUFFIX_RE = re.compile(r"[［\[][^］\]]*[］\]]\s*$")
+
+# 「検定名＋（空白?）＋級トークン＋任意のコース種別文言（合格コース 等）」を捉える。
+# kentei_lab_import.py の _GRADE_SUFFIX_RE と異なり、級トークンの後ろに任意の文言
+# （studying の "合格コース" 等）が続くことを許容するため末尾アンカーにしない。
+_STUDYING_GRADE_RE = re.compile(rf"^(?P<name>.*?)\s*(?P<grade>{_GRADE_ALT})(?P<suffix>.*)$")
+
+# ®/™/© 等の商標記号除去（studying のコースタイトルに検定名直後で付与されることがある）。
+_TRADEMARK_RE = re.compile(r"[®™©]")
+
+
+def split_course_title(course_title: str) -> tuple[str, str]:
+    """course_title を (検定名, 級) に分割する。
+
+    studying の course_title は「検定名＋商標記号＋級＋"合格コース"等＋試験対応期間の
+    角括弧書き」という形式を取ることがある（例:
+    "知的財産管理技能検定® 2級合格コース［2026年11月～2027年7月試験対応］"）。
+    末尾の角括弧サフィックスを除去したうえで級トークンを検出し、(検定名, 級) を返す。
+    級を検出できなければ (検定名, "") を返す（studying_import.py 側の default_deck_name
+    で級なしフォールバックに使う）。
+    """
+    title = (course_title or "").strip()
+    title = _BRACKET_SUFFIX_RE.sub("", title).strip()
+    m = _STUDYING_GRADE_RE.match(title)
+    if not m:
+        name = _TRADEMARK_RE.sub("", title).strip()
+        return (name, "")
+    name = _TRADEMARK_RE.sub("", m.group("name")).strip()
+    grade = m.group("grade").strip()
+    # 級トークンだけで検定名が空になる異常入力（例: "2級" 単独）は
+    # 検定名として（角括弧除去後の）全体を使うフォールバックにする。
+    if not name:
+        return (title, "")
+    return (name, grade)
 
 
 def is_studying_json(data: object) -> bool:
@@ -44,15 +92,20 @@ def is_studying_json(data: object) -> bool:
 def default_deck_name(course_title: str, category: str, subject_title: str) -> str:
     """既定デッキ名を返す。
 
-    "資格試験::<course_title>::<category>::<subject_title>::studying" 形式（科目単位で
-    サブデッキを分ける）。コース単位でまとめたい場合や既存デッキ階層との整合が必要な場合は、
-    呼び出し側（creating-flashcards のブリッジ手順）で AskUserQuestion により --deck を
-    明示指定することを推奨する。
+    course_title を split_course_title() で (検定名, 級) に分割し、
+    級を検出できれば 6 階層 "検定試験::<検定名>::<級>::studying::<category>::<subject_title>"、
+    検出できなければ 5 階層 "検定試験::<検定名>::studying::<category>::<subject_title>" を返す
+    （kentei_lab_import.py と同じ "検定試験" トップカテゴリに統一し、出典="studying" を
+    カテゴリ・科目名の前＝級の直後に配置する構成）。コース単位でまとめたい場合や既存デッキ階層
+    との整合が必要な場合は、呼び出し側（creating-flashcards のブリッジ手順）で AskUserQuestion
+    により --deck を明示指定することを推奨する。
     """
-    course = (course_title or "").strip()
+    name, grade = split_course_title(course_title)
     cat = (category or "").strip()
     subject = (subject_title or "").strip()
-    return f"資格試験::{course}::{cat}::{subject}::studying"
+    if grade:
+        return f"検定試験::{name}::{grade}::studying::{cat}::{subject}"
+    return f"検定試験::{name}::studying::{cat}::{subject}"
 
 
 def question_to_qapair(q: dict, subject_title: str) -> QAPair:

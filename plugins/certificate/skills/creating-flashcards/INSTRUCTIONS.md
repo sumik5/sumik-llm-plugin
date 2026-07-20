@@ -256,9 +256,12 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/whizlabs_import
    **すべてスキップ**する（構造は既知・曖昧さなし）。
 2. `parser_scaffold.py` を**コピーしない**。専用ブリッジ `scripts/studying_import.py` を使う。
 3. Step 5（デッキ・ノートタイプ選択）へ直行する。デッキ選択（Step 5a）では `default_deck_name` が算出する
-   `資格試験::<course_title>::<category>::<subject_title>::studying`（科目単位でサブデッキを分ける既定案）
-   を「推奨」の先頭選択肢として提示しつつ、**コース単位で 1 デッキにまとめるか科目単位で分けるかは好みが
-   分かれるため必ず AskUserQuestion で確認する**（whizlabs 版と同じく自動判定はせず、常に確認を挟む）。
+   `検定試験::<検定名>::<級>::studying::<category>::<subject_title>`（`course_title` を `split_course_title`
+   で「検定名」「級」に分解し、級を検出できないコースは `検定試験::<検定名>::studying::<category>::
+   <subject_title>` にフォールバックする。kentei-lab の `検定試験::<検定名>::<級>::kentei-lab` と同じ
+   トップカテゴリに統一しつつ、出典="studying"を級の直後＝カテゴリ・科目名の前に配置する構成）を「推奨」の
+   先頭選択肢として提示しつつ、**コース単位で 1 デッキにまとめるか科目単位で分けるかは好みが分かれるため
+   必ず AskUserQuestion で確認する**（whizlabs 版と同じく自動判定はせず、常に確認を挟む）。
    ノートタイプ選択（Step 5b）は通常どおり `modelNames`/`modelFieldNames`/`modelTemplates` を確認する
    （既存の必須ワークフローは崩さない）。
 4. Step 5 で確定したデッキ名・ノートタイプ名・フィールド名・`choice_list_style` を CLI 引数として渡す。
@@ -266,7 +269,7 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/whizlabs_import
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/studying_import.py" \
     <course-slug>__<category-slug>__<subject-slug>.json \
-    --deck "資格試験::<コース名>::<カテゴリ名>::<科目名>::studying" \
+    --deck "検定試験::<検定名>::<級>::studying::<カテゴリ名>::<科目名>" \
     --model "<ノートタイプ名>" \
     --front-field <Question 等> --back-field <Answer 等> \
     [--extra-field "<Knowledge Area 等>"] \
@@ -274,8 +277,11 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/studying_import
 ```
 
 > `--deck` を省略すると `default_deck_name(course_title, category, subject_title)` が上記形式を自動算出
-> する。ただし前述のとおりコース単位/科目単位の判断は AskUserQuestion で確認したうえで `--deck` を明示する
-> のが安全（省略時の自動算出をそのまま採用してよいかも含めて確認する）。
+> する（例: `course_title` が「＜検定名＞® ＜N＞級合格コース［＜試験対応期間＞］」のような表記（検定名＋
+> 商標記号＋級＋"合格コース"＋試験対応期間の角括弧書き）なら、`検定試験::<検定名>::<N級>::studying::
+> <カテゴリ名>::<科目名>` のように「検定名」「級」を自動抽出する）。ただし前述のとおりコース単位/科目単位
+> の判断は AskUserQuestion で確認したうえで `--deck` を明示するのが安全（省略時の自動算出をそのまま採用
+> してよいかも含めて確認する）。
 
 > 🔴 **`choice_type` による `qtype` の振り分け**: studying JSON は `choice_type` が `"boolean"`（○×形式）
 > `"single"`（4択等）`"unknown"`（選択肢マーカー未検出のフォールバック）の3種を取る。`studying_import.py`
