@@ -1,7 +1,7 @@
 {
   "name": "certificate",
   "description": "sumik Claude Code Plugin (certificate) — 資格・検定の学習支援スキル群（kentei-lab問題収集・Ankiフラッシュカード作成・教材OCR/翻訳変換）",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "author": {
     "name": "sumik5"
   }

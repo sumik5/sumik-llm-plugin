@@ -244,6 +244,62 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/whizlabs_import
 > `whizlabs_import.py` は `correct` が空配列の場合 `needs_fix=True`（`_要手修正` タグ付与）にフォールバックする
 > ため、投入前に `--dry-run` で `needs_fix` 件数を必ず確認すること。
 
+#### studying 収集済み JSON のファストパス（AI 構造推測をスキップ）
+
+`collecting-studying-exams` スキルが出力した JSON（トップレベルに `course_title`・`course_url`・`category`・
+`subject_title`・`practice_id`・`questions` を持ち、各 `questions[]` 要素が `number`・`question`・
+`choice_type`・`choices`・`correct`・`explanation` を持つ）を受け取った場合も、kentei-lab・whizlabs 同様に
+**収集時に DOM から確定取得済みの完全構造化データ**であり、AI が構造を推測する必要がない。以下のファスト
+パスを取る。
+
+1. Step 2（言語検出）・Step 3（コンテンツ構造の自動分析）・Step 4（サンプル確認による AI 推測）を
+   **すべてスキップ**する（構造は既知・曖昧さなし）。
+2. `parser_scaffold.py` を**コピーしない**。専用ブリッジ `scripts/studying_import.py` を使う。
+3. Step 5（デッキ・ノートタイプ選択）へ直行する。デッキ選択（Step 5a）では `default_deck_name` が算出する
+   `資格試験::<course_title>::<category>::<subject_title>::studying`（科目単位でサブデッキを分ける既定案）
+   を「推奨」の先頭選択肢として提示しつつ、**コース単位で 1 デッキにまとめるか科目単位で分けるかは好みが
+   分かれるため必ず AskUserQuestion で確認する**（whizlabs 版と同じく自動判定はせず、常に確認を挟む）。
+   ノートタイプ選択（Step 5b）は通常どおり `modelNames`/`modelFieldNames`/`modelTemplates` を確認する
+   （既存の必須ワークフローは崩さない）。
+4. Step 5 で確定したデッキ名・ノートタイプ名・フィールド名・`choice_list_style` を CLI 引数として渡す。
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/studying_import.py" \
+    <course-slug>__<category-slug>__<subject-slug>.json \
+    --deck "資格試験::<コース名>::<カテゴリ名>::<科目名>::studying" \
+    --model "<ノートタイプ名>" \
+    --front-field <Question 等> --back-field <Answer 等> \
+    [--extra-field "<Knowledge Area 等>"] \
+    [--choice-list-style ol|br]
+```
+
+> `--deck` を省略すると `default_deck_name(course_title, category, subject_title)` が上記形式を自動算出
+> する。ただし前述のとおりコース単位/科目単位の判断は AskUserQuestion で確認したうえで `--deck` を明示する
+> のが安全（省略時の自動算出をそのまま採用してよいかも含めて確認する）。
+
+> 🔴 **`choice_type` による `qtype` の振り分け**: studying JSON は `choice_type` が `"boolean"`（○×形式）
+> `"single"`（4択等）`"unknown"`（選択肢マーカー未検出のフォールバック）の3種を取る。`studying_import.py`
+> は `"boolean"` を `qtype="truefalse"`（`verdict` に "○"/"×" を設定）、`"single"` を `qtype="choice"`
+> （`choices`/`correct` をそのまま設定）、それ以外を `qtype="basic"` + `needs_fix=True` にマッピングする。
+> 投入前に `--dry-run` で `needs_fix` 件数を確認し、"unknown" 判定された問題がないか確認すること。
+
+> 🔴 **なぜ恒久スクリプトなのか（ジェネリックパーサー禁止ルールの例外根拠）**: kentei-lab・whizlabs 同様、
+> studying JSON も**本プラグインの collect スクリプトが自己管理する固定スキーマ**であり、書籍のような
+> 構造変異が起きる理由が存在しない。したがって固定スキーマ専用の `studying_import.py` を恒久化するのが
+> 正しい。将来「使い捨てルール違反」として削除・scaffold 化しないこと。
+
+> 🔴 **`disable-model-invocation` とセッション内直接ブリッジ時の注意**: kentei-lab・whizlabs 版と同じ制約が
+> 適用される。`creating-flashcards` は自身の SKILL.md フロントマターで `disable-model-invocation: true` を
+> 持つため、`collecting-studying-exams` の JSON を同一会話内でそのまま渡そうとして
+> `Skill(skill: "certificate:creating-flashcards", ...)` を呼ぶと**失敗する**（ユーザーが
+> `/certificate:creating-flashcards` を明示的に叩いた場合のみ起動可能）。同一会話内でこのファストパスへ
+> ブリッジする際は、Skill ツールを使わず kentei-lab・whizlabs 版と同じ手順（`${CLAUDE_PLUGIN_ROOT}` 未設定時の
+> 実体パス解決・Step 5a/5b の代行・`--dry-run` での事前確認）を踏む。
+
+> ⚠️ **studying は著作権への配慮が必要なプラットフォーム**: `collecting-studying-exams` が収集した問題文・
+> 解説の実例を、投入作業中の会話・コミットメッセージ・スキル本文に引用しない（ユーザー自身の Anki 個人
+> 利用の範囲でのみ投入する）。
+
 > ⚠️ **JSON には2系統ある（構造化Q&A vs ページ単位OCR）**: JSON ソースには (a) 問題・解答がフィールドとして構造化済みの Q&A JSON と、(b) VLM/`recognize` 系 OCR が出力する**ページ単位 JSON**（`[{"index","filename","text"}, ...]` で各ページの生テキストを保持）の2系統がある。(b) は「構造化済み」ではなく、各ページの `text` を Markdown 同様にパースする必要がある（科目見出しページ・問題ページ・解答ページの分類が要る）。実装は **JSON パスを `md_path` として渡し、`parse()` 冒頭で `json.loads(markdown_text)` してページ列を得る**と scaffold の `main()` をそのまま再利用できる。画像主体 EPUB を VLM で逐次OCRしたケースで観測。
 
 > ⚠️ **pandocアーティファクト**: pandocはEPUB変換時にCSSクラスマーカー（`{.class_sXXX}`）、ページマーカー（`[]{#cXXX.xhtml}`）、divマーカー（`:::`）、ゼロ幅スペース付きリストマーカー等を生成する。これらはStep 6で除去する。
