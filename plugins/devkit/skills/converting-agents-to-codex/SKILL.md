@@ -19,7 +19,7 @@ disable-model-invocation: true
 | 項目 | 内容 |
 |-----|------|
 | 最終確認日 | 2026-06-07 |
-| 出典 URL | https://developers.openai.com/codex/subagents |
-|  | https://developers.openai.com/codex/config-reference |
+| 出典 URL | https://learn.chatgpt.com/docs/agent-configuration/subagents |
+|  | https://learn.chatgpt.com/docs/config-file/config-reference |
 
 このスキルを使って作業を始める前に、上記URLで最新仕様を確認すること。仕様変更（フィールド名・必須項目・起動メカニズム等）を検出した場合は、マッピングへの影響を評価してから変換作業に入る。

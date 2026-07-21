@@ -27,8 +27,8 @@ Claude Code＋Codex 両対応へ翻案したものです。
 | 項目 | 内容 |
 |-----|------|
 | 最終確認日 | 2026-06-28 |
-| Codex 設定リファレンス | https://developers.openai.com/codex/config-reference |
-| Codex サブエージェント仕様 | https://developers.openai.com/codex/subagents |
+| Codex 設定リファレンス | https://learn.chatgpt.com/docs/config-file/config-reference |
+| Codex サブエージェント仕様 | https://learn.chatgpt.com/docs/agent-configuration/subagents |
 | Agent Skills 標準 | https://agentskills.io/specification |
 
 このスキルを使って作業を始める前に、上記 URL で Codex 側の最新仕様を確認すること。

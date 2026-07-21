@@ -30,12 +30,12 @@ PDFが引数として渡された場合のフロー:
 |------|-----|---------|
 | Agent Skills 標準（最優先） | <https://agentskills.io/specification> | フロントマター全フィールド・description 文字数上限・name 制約 |
 | Agent Skills ドキュメントインデックス | <https://agentskills.io/llms.txt> | 仕様追加ページの検出 |
-| Codex Skills | <https://developers.openai.com/codex/skills> | Codex の探索場所・初期一覧予算・`agents/openai.yaml`・implicit invocation policy |
+| Codex Skills | <https://learn.chatgpt.com/docs/build-skills> | Codex の探索場所・初期一覧予算・`agents/openai.yaml`・implicit invocation policy |
 | Claude Code 拡張 | <https://code.claude.com/docs/en/skills> | 拡張フィールド（context / agent / when_to_use 等）の追加・変更 |
 
 ### 確認タイミング
 
-**最終確認日: 2026-07-03（Agent Skills 標準・Codex Skills・Claude Code 拡張を確認）**
+**最終確認日: 2026-07-21（Agent Skills 標準・Codex Skills・Claude Code 拡張を確認）**
 
 - **新規スキル作成時**（必須）
 - **既存スキル description 改修時**（必須）
