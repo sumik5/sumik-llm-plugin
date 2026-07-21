@@ -55,7 +55,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 
 | スキル | 説明 |
 |--------|------|
-| `developing-python` | Python 3.13開発（型安全性・uv/ruff/mypy・FastAPI/FastMCP・pytest・設計パターン・DDD・依存性注入・非同期処理・パッケージング） |
+| `developing-python` | Python 3.13開発（型安全性・uv/ruff/mypy・pytest・設計パターン・DDD・依存性注入・非同期処理・パッケージング）。FastAPI Web API開発は`web:developing-fastapi`、MCPサーバー実装は`lang:developing-mcp`を参照 |
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
 | `developing-r` | R開発包括ガイド（データ構造/coercion・ベクトル化・OOP(S3/S4/R5/R6)・デバッグ・データ入出力/文字列/正規表現・tidyverse/dplyr/tidyr/purrr・base graphics/ggplot2・記述統計/確率/分布/仮説検定/分散分析/回帰/GLM・シミュレーション・tidymodels/AI・LLM API/RAG・Shiny・Quarto/R Markdown・renv/testthat/パッケージ開発・性能/並列・C/C++/Python連携） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |

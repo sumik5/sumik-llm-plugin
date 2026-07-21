@@ -9,6 +9,7 @@ description: >-
   system internals (vector stores, chunking, LLMOps), use designing-genai-patterns. For MCP
   protocol/server development, use lang:developing-mcp. For Next.js framework specifics, use
   web:developing-nextjs. For Python LangChain/LangGraph agent development, use building-ai-agents.
+  For Python/FastAPI generative-AI service backends (model serving, streaming), use web:developing-fastapi.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

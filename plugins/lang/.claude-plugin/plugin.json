@@ -1,7 +1,7 @@
 {
   "name": "lang",
   "description": "sumik Claude Code Plugin (lang) — 言語スキル群（Python/Go/R/Bash/DB/MCP/アルゴリズム）。Web/フロントエンド実装は web プラグインへ分離。",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "author": {
     "name": "sumik5"
   }

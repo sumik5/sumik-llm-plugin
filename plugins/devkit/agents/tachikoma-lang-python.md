@@ -1,6 +1,6 @@
 ---
 name: tachikoma-lang-python
-description: "Python specialized Tachikoma execution agent. Handles modern Python development with uv/ruff/mypy tooling, FastAPI, Google ADK agent building, Pythonic patterns, DDD Tactical Patterns (Entity/Value Object/Aggregate Root), Event-Driven Architecture (Domain Events, CQRS, Message Bus), Unit of Work, and Architectural Testing. Use proactively when working on Python projects, building FastAPI services, creating Google ADK AI agents, or implementing domain models with Clean Architecture. Detects: pyproject.toml or requirements.txt."
+description: "Python specialized Tachikoma execution agent. Handles modern Python development with uv/ruff/mypy tooling, FastAPI, Google ADK agent building, Pythonic patterns, DDD Tactical Patterns (Entity/Value Object/Aggregate Root), Event-Driven Architecture (Domain Events, CQRS, Message Bus), Unit of Work, and Architectural Testing. Use proactively when working on Python projects, building FastAPI services, creating Google ADK AI agents, or implementing domain models with Clean Architecture. Detects: pyproject.toml or requirements.txt. For FastAPI-centric web API development (routing, DI, async endpoints, deployment), use tachikoma-fw-fastapi."
 model: sonnet[1m]
 permissionMode: auto
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
@@ -49,11 +49,8 @@ skills:
 - **データクラス/Pydantic**: `@dataclass` または Pydantic `BaseModel` でデータ構造を定義
 
 ### FastAPI / FastMCP実装
-- **依存性注入（DI）**: `Depends()` でビジネスロジックを関数/クラスに分離。テスト時は `dependency_overrides` で差し替え
-- **Pydanticバリデーション**: リクエスト/レスポンスモデルを `BaseModel` で定義。自動バリデーション・ドキュメント生成
-- **エラーハンドリング**: `HTTPException` + グローバル例外ハンドラ（`@app.exception_handler`）
-- **非同期処理**: `async def` + `await` で非同期エンドポイント。`asyncio` / `httpx` 活用
-- **FastMCP**: MCPサーバーの実装。`@mcp.tool()` / `@mcp.resource()` デコレータで機能定義
+- **FastAPI Web API開発**: ルーティング・DI・認証・非同期・テスト・デプロイの深掘りは `web:developing-fastapi` / `tachikoma-fw-fastapi` へ委譲
+- **FastMCP**: MCPサーバー実装は `lang:developing-mcp` が主管
 
 ### Google ADK AIエージェント開発
 - **コアフィロソフィー**: Code-first（YAML/JSONでなくPythonで定義）・Modularity（疎結合）・Flexibility（拡張可能）
@@ -122,7 +119,6 @@ skills:
 - [ ] `mypy --strict` でエラーなし
 - [ ] `ruff check` でlintエラーなし
 - [ ] Pydantic `BaseModel` でデータバリデーションを実装している
-- [ ] FastAPIの `Depends()` でDIを適切に活用している
 - [ ] pytest fixtureでテスト依存関係を管理している
 - [ ] `asyncio` の適切な使用（ブロッキング処理を `run_in_executor` で非同期化）
 

@@ -290,7 +290,7 @@ __all__ = ["User", "CreateUserRequest"]
 
 ## 🔗 関連ドキュメント
 
-- **[FASTAPI-GUIDE.md](./FASTAPI-GUIDE.md)**: FastAPI実装パターン
+- **web:developing-fastapi**: FastAPI実装パターン
 - **[TESTING.md](./TESTING.md)**: テスト構造の詳細
 - **[TOOLING.md](./TOOLING.md)**: pyproject.toml設定
 - **[DOCKER.md](./DOCKER.md)**: Dockerfile構成

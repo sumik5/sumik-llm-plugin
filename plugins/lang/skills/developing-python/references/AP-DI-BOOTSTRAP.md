@@ -2,7 +2,7 @@
 
 Pythonにおけるフレームワーク非依存のDependency Injection（DI）とBootstrapパターンのガイド。Composition RootとBootstrap関数による手動DIを解説する。
 
-> **棲み分け**: このファイルはフレームワーク非依存のDIパターンを扱う。FastAPI固有の `Depends()` / `lifespan` については **[DI-FASTAPI.md](./DI-FASTAPI.md)** を参照。
+> **棲み分け**: このファイルはフレームワーク非依存のDIパターンを扱う。FastAPI固有の `Depends()` / `lifespan` については **web:developing-fastapi** を参照。
 
 ---
 
@@ -306,7 +306,7 @@ def test_order_confirmation_email_sent(message_bus, fake_notifications):
 | 状況 | 推奨アプローチ |
 |------|--------------|
 | 小〜中規模アプリ | 手動DI + Bootstrap関数（このファイルのパターン） |
-| FastAPIアプリ | `Depends()` によるDI（[DI-FASTAPI.md](./DI-FASTAPI.md)） |
+| FastAPIアプリ | `Depends()` によるDI（web:developing-fastapi） |
 | Message Bus + Handlers | `functools.partial` による引数束縛 |
 | テスト時の差し替え | Bootstrap引数でFake実装を渡す |
 | 設定管理 | `AppConfig.from_env()` で環境変数から読み込み |
@@ -316,7 +316,7 @@ def test_order_confirmation_email_sent(message_bus, fake_notifications):
 
 ## 相互参照
 
-- **[DI-FASTAPI.md](./DI-FASTAPI.md)**: FastAPI固有のDI（Depends・lifespan・dependency_overrides）
+- **web:developing-fastapi**: FastAPI固有のDI（Depends・lifespan・dependency_overrides）
 - **[AP-EVENTS-CQRS.md](./AP-EVENTS-CQRS.md)**: Message Bus（Bootstrap対象のMessageBus実装）
 - **[AP-UOW-AGGREGATES.md](./AP-UOW-AGGREGATES.md)**: Unit of Work（Bootstrapで組み立てる対象）
 - **[CA-PYTHON.md](./CA-PYTHON.md)**: Clean Architecture全般（フレームワーク層とのDI統合）

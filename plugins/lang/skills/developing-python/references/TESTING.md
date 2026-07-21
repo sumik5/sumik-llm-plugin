@@ -403,6 +403,6 @@ def reset_state():
 
 ## 🔗 関連ドキュメント
 
-- **[FASTAPI-GUIDE.md](./FASTAPI-GUIDE.md)**: FastAPI/FastMCPのテスト対象
+- **web:developing-fastapi** / **lang:developing-mcp**: FastAPI/FastMCPのテスト対象
 - **[TOOLING.md](./TOOLING.md)**: pytest設定の詳細
 - **[EXAMPLES.md](./EXAMPLES.md)**: より複雑なテストパターン

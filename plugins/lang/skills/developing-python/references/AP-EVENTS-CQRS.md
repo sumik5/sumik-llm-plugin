@@ -477,7 +477,7 @@ class RedisEventPublisher(EventPublisher):
 - **[AP-UOW-AGGREGATES.md](./AP-UOW-AGGREGATES.md)**: Unit of Work、Aggregate、整合性境界
 - **[AP-DI-BOOTSTRAP.md](./AP-DI-BOOTSTRAP.md)**: DI & Bootstrapping（Message Busの組み立て方法）
 - **[CA-PYTHON.md](./CA-PYTHON.md)**: Clean Architecture全般（レイヤー構造・テスト戦略）
-- **[DI-FASTAPI.md](./DI-FASTAPI.md)**: FastAPI固有のDI（Depends・lifespan）
+- **web:developing-fastapi**: FastAPI固有のDI（Depends・lifespan）
 - **[applying-clean-architecture](../../applying-clean-architecture/SKILL.md)**: Clean Architecture原則
 
 ---

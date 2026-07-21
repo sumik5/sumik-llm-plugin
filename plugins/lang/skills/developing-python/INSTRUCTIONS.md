@@ -2,8 +2,6 @@
 
 ## 🎯 使用タイミング
 - **Pythonプロジェクト新規作成時**
-- **FastAPI + FastMCP実装時**
-- **FastAPI DI設計・テスト時**
 - **Python開発環境の構成時**
 - **CI/CDパイプライン構築時**
 - **Dockerイメージ作成時**
@@ -22,21 +20,8 @@ Pythonプロジェクトの推奨ディレクトリ構成：
 - 設定ファイルの配置
 - ドキュメント構成
 
-### 2. [FastAPI + FastMCPガイド](./references/FASTAPI-GUIDE.md)
-FastAPIとFastMCPを使用したベストプラクティス：
-- FastAPIアプリケーション構成
-- FastMCPサーバー実装パターン
-- 依存性注入（DI）の活用
-- エラーハンドリング戦略
-- Pydanticによるバリデーション
-
-### 2.5 [FastAPI DI パターン](./references/DI-FASTAPI.md)
-FastAPI の依存性注入を体系的に理解・設計するためのガイド：
-- IoC / DIP の概念とDIコンテナとしての `Depends`
-- 関数依存性・クラス依存性・サブ依存性チェーン
-- エラーハンドリング・バリデーション依存性パターン
-- スコープ管理（リクエストスコープ・Singleton・lifespan）
-- `dependency_overrides` と pytest fixtures によるテスト設計
+### 2. FastAPI Web API開発・MCPサーバー実装
+FastAPIによるWeb API開発（ルーティング・Pydanticモデル・DI・認証・非同期・テスト・デプロイ）の深掘りは `web:developing-fastapi` を参照。FastMCPによるMCPサーバー実装は `lang:developing-mcp` を参照。
 
 ### 3. [テスト戦略](./references/TESTING.md)
 pytest + カバレッジ80%以上を達成する方法：
@@ -78,17 +63,13 @@ uvマルチステージビルドの最適化：
 - **ruff**: 最速linter + formatter（Rust製）
 - **mypy**: 静的型チェッカー
 
-### Webフレームワーク
-- **FastAPI 0.115+**: 高性能非同期Webフレームワーク
-- **FastMCP 2.12+**: MCP (Model Context Protocol) SDK
-- **Pydantic 2.9+**: データバリデーション
-
 ### テスト
 - **pytest 8.3+**: テストフレームワーク
 - **pytest-asyncio**: 非同期テスト対応
 - **pytest-cov**: カバレッジ測定（目標80%以上）
 
 ### その他
+- **Pydantic 2.9+**: データバリデーション
 - **structlog**: 構造化ロギング
 - **SQLAlchemy 2.0+**: ORMとデータベース抽象化
 
@@ -247,6 +228,8 @@ class Team:
 
 ## 🔗 関連スキル
 
+- **web:developing-fastapi**: FastAPI Web API開発（ルーティング・DI・認証・非同期・テスト・デプロイ）
+- **lang:developing-mcp**: FastMCPを含むMCPサーバー/クライアント開発
 - **[writing-clean-code](../writing-clean-code/SKILL.md)**: SOLID原則とクリーンコード
 - **[mastering-typescript](../mastering-typescript/SKILL.md)**: TypeScript型安全性（TypeScript開発時）
 - **[testing-code](../testing-code/SKILL.md)**: テストファーストアプローチ
@@ -256,7 +239,7 @@ class Team:
 ## 📖 次のステップ
 
 1. **初めての方**: [プロジェクト構造](./references/PROJECT-STRUCTURE.md)から始めてください
-2. **FastAPI開発**: [FastAPI + FastMCPガイド](./references/FASTAPI-GUIDE.md)を参照
+2. **FastAPI Web API開発**: `web:developing-fastapi`を参照（MCPサーバー実装は`lang:developing-mcp`）
 3. **テスト作成**: [テスト戦略](./references/TESTING.md)でpytest設定を確認
 4. **ツール設定**: [開発ツール](./references/TOOLING.md)でuv/ruff/mypy設定
 5. **Docker化**: [Docker構成](./references/DOCKER.md)でマルチステージビルド

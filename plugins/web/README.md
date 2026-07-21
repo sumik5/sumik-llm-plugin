@@ -44,14 +44,14 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
         ├── .codex-plugin/
         │   └── plugin.json              # Codex CLI プラグインマニフェスト（skills ./skills/・MCP なし）
         ├── README.md
-        └── skills/                      # ナレッジスキル (14個)
+        └── skills/                      # ナレッジスキル (15個)
 ```
 
 ---
 
 ## コンポーネント一覧
 
-### Skills (14個)
+### Skills (15個)
 
 | スキル | 説明 |
 |--------|------|
@@ -62,6 +62,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `choosing-api-styles` | APIスタイル選定・比較の意思決定ガイド（REST/GraphQL/gRPC/Webhook/WebSocket/メッセージング/Webフィードの7スタイル）。通信モード・プロトコル基盤(HTTP/1.1/2/3・QUIC)・スタイル別トレードオフ・6次元選定マトリクスと決定木を収録 |
 | `securing-web-apis` | OWASP API Security Top 10 (2023)準拠のAPIセキュリティ実装ガイド。BOLA/BOPLA/BFLA/SSRF等の脆弱性検出・修正、APIの脅威モデリング、secure-by-design、JWT/OAuth 2.0/OIDC/RBAC実装、FAPI、APIセキュリティテストを網羅 |
 | `building-nodejs-services` | Fastify による Node.js サービス/CLI/実プロジェクト構築（Fastifyコア: ルーティング/フック/プラグイン/スキーマ検証・Nodeランタイム内部: イベントループ/libuv/streams/clustering・REST実装・永続化: Mongoose/Sequelize/SQLite/Redis・認証フロー・SSR・メッセージング: RabbitMQ・CLIツール・外部データ統合/スクレイピング・メール/生成AI統合・scaffolding・品質チェックリスト、12リファレンスファイル） |
+| `developing-fastapi` | FastAPI（Python）Web API開発ガイド（ルーティング・Pydantic v2・DI（Depends/dependency_overrides）・DB永続化(SQLAlchemy/SQLModel/MongoDB)・認証(OAuth2/JWT/CORS)・非同期/WebSocket/SSE・テスト(TestClient/pytest/httpx)・デプロイ/スケーリング(uvicorn/gunicorn/Docker)・生成AIサービング・マイクロサービス/GraphQL、9リファレンス）。Node.jsバックエンドは`building-nodejs-services`参照 |
 | `designing-frontend` | フロントエンド実装（shadcn/ui統合・オブジェクト指向UI設計（OOUI）：オブジェクト抽出・ビュー/ナビゲーション・レイアウトパターン・マイクロフロントエンドアーキテクチャ） |
 | `styling-with-tailwind` | Tailwind CSSスタイリング方法論（v4プライマリ・ユーティリティファースト思想・セットアップ・モディファイア・コンポーネント設計・カスタマイズ・デザインシステム構築） |
 | `implementing-design` | デザイン→コード変換総合スキル（汎用原則: デザインシステム統合・視覚的整合性・レスポンシブ・a11y ＋ Figma MCP: 全13ツール・基本/高度ワークフロー・Code Connect・デザイントークン同期・ビジュアル検証 ＋ Figma UIデザイン: ワイヤーフレーム→ハンドオフ・8ptグリッド・UIStack） |

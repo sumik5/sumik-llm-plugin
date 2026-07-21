@@ -14,6 +14,8 @@ description: >-
   →cloud:implementing-dynamic-authorization. For threat-modeling methodology (STRIDE/LINDDUN)
   →cloud:architecting-security.
 disable-model-invocation: false
+when_to_use: >-
+  For FastAPI (Python) framework implementation beyond security, use web:developing-fastapi.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

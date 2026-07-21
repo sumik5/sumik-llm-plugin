@@ -638,6 +638,6 @@ def test_email_validation(email: str, expected_valid: bool):
 
 ## 🔗 関連ドキュメント
 
-- **[FASTAPI-GUIDE.md](./FASTAPI-GUIDE.md)**: FastAPI設計原則
+- **web:developing-fastapi**: FastAPI設計原則
 - **[TESTING.md](./TESTING.md)**: テスト戦略
 - **[PROJECT-STRUCTURE.md](./PROJECT-STRUCTURE.md)**: コード配置

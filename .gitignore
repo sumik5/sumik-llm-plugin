@@ -16,3 +16,6 @@ node_modules/
 !.cache/sumik-marketplace/google
 !.cache/sumik-marketplace/mobile
 !.cache/sumik-marketplace/certificate
+
+# FastAPI skill conversion 作業ディレクトリ(書籍全文・コミット禁止)
+/docs/conversion-fastapi/

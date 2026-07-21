@@ -11,6 +11,8 @@ description: >-
   For application logging design, use cloud:implementing-observability.
   For Clean Architecture in Python, see references/CA-PYTHON.md.
   For general Clean Architecture principles, use devkit:applying-clean-architecture.
+when_to_use: >-
+  For FastAPI web API deep-dive (routing, Pydantic request/response, DI, async/WebSocket endpoints, testing, deployment), use web:developing-fastapi.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
