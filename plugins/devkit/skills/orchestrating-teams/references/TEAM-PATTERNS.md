@@ -139,11 +139,11 @@ HERDR_ENV!=1: Agent ツール × 3（1メッセージで同時発行, run_in_bac
   2. devkit:tachikoma-fw-nextjs, name: "page-settings", prompt: "設定ページ実装"
   3. devkit:tachikoma-fw-nextjs, name: "page-profile", prompt: "プロフィールページ実装"
 
-HERDR_ENV=1: `herdr agent start` × 3（1体目は親の右、2体目以降は直前のagentをfocusしてから下に連鎖。詳細: operating-herdrスキルの「複数エージェントを整列よく起動する」）
-  1. feature-page-dashboard --split right --no-focus -- claude --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
-  2. herdr agent focus feature-page-dashboard の後、feature-page-settings --split down --no-focus -- claude --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
-  3. herdr agent focus feature-page-settings の後、feature-page-profile --split down --no-focus -- claude --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
-→ herdrが親の右列に3ペインを縦一列で管理し、リーダーはagent read/waitで進捗確認
+HERDR_ENV=1: `herdr pane split` でpane確保 → `herdr agent start --kind claude --pane <id>` で起動 × 3（1体目は親の右、2体目以降は直前に確保したpaneを対象に下方向へ分割して連鎖。詳細: operating-herdrスキルの「複数エージェントを整列よく起動する」）
+  1. pane split --current --direction right → 得たpane_idで agent start feature-page-dashboard --kind claude --pane <id> -- --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
+  2. pane split --pane <直前のpane_id> --direction down → 得たpane_idで agent start feature-page-settings --kind claude --pane <id> -- --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
+  3. pane split --pane <直前のpane_id> --direction down → 得たpane_idで agent start feature-page-profile --kind claude --pane <id> -- --agent devkit:tachikoma-fw-nextjs --permission-mode auto ...
+→ herdrが親の右列に3ペインを縦一列で管理し、リーダーはagent read/wait --untilで進捗確認
 ```
 
 **例: 複数テストスイートの同時作成**
@@ -201,19 +201,21 @@ Agent Teamsバックエンド:
 }
 ```
 
-herdrバックエンド:
+herdrバックエンド（0.7.5: pane確保とエージェント起動の2段階方式）:
 
 ```bash
+FRONTEND_SPLIT=$(herdr pane split --current --direction right --cwd "$PWD" --no-focus)
+FRONTEND_PANE=$(printf '%s' "$FRONTEND_SPLIT" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["pane"]["pane_id"])')
+
 herdr agent start feature-frontend \
-  --cwd "$PWD" \
-  --workspace "$HERDR_WORKSPACE_ID" \
-  --tab "$HERDR_TAB_ID" \
-  --split right \
-  --no-focus \
-  -- claude --agent devkit:tachikoma-fw-nextjs --permission-mode auto --name feature-frontend
+  --kind claude \
+  --pane "$FRONTEND_PANE" \
+  --timeout 30000 \
+  -- --agent devkit:tachikoma-fw-nextjs --permission-mode auto --name feature-frontend
 ```
 
-起動後、`herdr agent wait` でidleを確認し、`herdr agent send` + `herdr pane send-keys <pane_id> Enter` でプロンプトを渡す。完全な手順は [WORKFLOW-GUIDE.md](WORKFLOW-GUIDE.md) を参照。
+起動後、`herdr agent wait --until idle` でidleを確認し、`herdr agent prompt` でプロンプト送信+Enter確定を1コマンドで行う。完全な手順は [WORKFLOW-GUIDE.md](WORKFLOW-GUIDE.md) を参照。
 
 - タスクベース分散方式: 各タチコマに具体的なタスクを割り当て
 - 報告フォーマット: タチコマは完了報告でファイル一覧と品質チェック結果を返す
@@ -251,16 +253,18 @@ Agent Teamsバックエンド:
 }
 ```
 
-herdrバックエンド:
+herdrバックエンド（0.7.5: pane確保とエージェント起動の2段階方式）:
 
 ```bash
+OPTIMIZER_SPLIT=$(herdr pane split --current --direction right --cwd "$PWD" --no-focus)
+OPTIMIZER_PANE=$(printf '%s' "$OPTIMIZER_SPLIT" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["pane"]["pane_id"])')
+
 herdr agent start feature-optimizer \
-  --cwd "$PWD" \
-  --workspace "$HERDR_WORKSPACE_ID" \
-  --tab "$HERDR_TAB_ID" \
-  --split right \
-  --no-focus \
-  -- claude --agent devkit:serena-expert --permission-mode auto --name feature-optimizer
+  --kind claude \
+  --pane "$OPTIMIZER_PANE" \
+  --timeout 30000 \
+  -- --agent devkit:serena-expert --permission-mode auto --name feature-optimizer
 ```
 
 起動後のプロンプト送信・待機は [WORKFLOW-GUIDE.md](WORKFLOW-GUIDE.md) のherdrバックエンド手順に従う。

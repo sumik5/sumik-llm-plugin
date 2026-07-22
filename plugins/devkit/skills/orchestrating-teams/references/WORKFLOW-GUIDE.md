@@ -14,7 +14,7 @@ fi
 
 | 条件 | 起動 | タスク正本 | 連絡・監視 | 終了 |
 |------|------|-----------|-----------|------|
-| `HERDR_ENV=1` | `herdr agent start` | `docs/plan-*.md` | `herdr agent read/send/wait` | `herdr pane close` |
+| `HERDR_ENV=1` | `herdr pane split` → `herdr agent start --kind <kind> --pane <id>` | `docs/plan-*.md` | `herdr agent read/prompt/wait --until` | `herdr pane close` |
 | `HERDR_ENV!=1` | Agent tool | TaskCreate + `docs/plan-*.md` | TaskList / SendMessage | shutdown_request |
 
 `HERDR_ENV=1` では `operating-herdr` をロードし、Claude Code の `teammateMode` を `in-process` にする。`--tmux`、iTerm2、素のtmuxによるペイン分割は使わない。独立したherdrエージェントは Agent Teams API のタスク・メッセージ状態を共有しないため、1タスク中に2つのバックエンドを混在させない。
@@ -52,34 +52,32 @@ ToolSearch("SendMessage message")   → SendMessage がロード
 
 #### herdr バックエンド
 
-`PLANNER_PROMPT` に下記Agent Teams版の `prompt` と同じ内容を入れ、herdrが注入したworkspace/tabへ起動する。`agent start` の応答で新しいペインIDは `result.agent.pane_id` にある。
+`PLANNER_PROMPT` に下記Agent Teams版の `prompt` と同じ内容を入れる。🔴 herdr 0.7.5では「pane生成+配置+起動」の1コマンドが廃止され、`herdr pane split` で pane を確保してから `herdr agent start --kind <kind> --pane <id>` で既存paneに起動する2段階方式になった。pane確保の段階で新しいpane IDは `result.pane.pane_id` にある。
 
 ```bash
-PLANNER_START=$(herdr agent start feature-planner \
-  --cwd "$PWD" \
-  --workspace "$HERDR_WORKSPACE_ID" \
-  --tab "$HERDR_TAB_ID" \
-  --split right \
-  --no-focus \
-  -- claude \
+PLANNER_SPLIT=$(herdr pane split --current --direction right --cwd "$PWD" --no-focus)
+PLANNER_PANE=$(printf '%s' "$PLANNER_SPLIT" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["pane"]["pane_id"])')
+
+herdr agent start feature-planner \
+  --kind claude \
+  --pane "$PLANNER_PANE" \
+  --timeout 30000 \
+  -- \
   --agent devkit:tachikoma-str-product-mgr \
   --model opus \
   --permission-mode auto \
-  --name feature-planner)
+  --name feature-planner
 
-PLANNER_PANE=$(printf '%s' "$PLANNER_START" | python3 -c \
-  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
-
-herdr agent wait feature-planner --status idle --timeout 30000
-herdr agent send feature-planner "$PLANNER_PROMPT"
-herdr pane send-keys "$PLANNER_PANE" Enter
+herdr agent wait feature-planner --until idle --timeout 30000
+herdr agent prompt feature-planner "$PLANNER_PROMPT"
 ```
 
 - agent名はライブセッション内で一意にする（例: `{feature}-planner`）
 - `herdr integration status` で Claude 統合が current か確認する
-- `herdr wait agent-status "$PLANNER_PANE" --status working --timeout 30000` で開始を確認してから、`herdr agent wait feature-planner --status idle --timeout 1800000` で完了を待つ。`working` を取り逃した場合は `agent get/read` で状態と出力を確認する
+- `herdr agent wait feature-planner --until working --timeout 30000` で開始を確認してから、`herdr agent wait feature-planner --until idle --timeout 1800000` で完了を待つ。`working` を取り逃した場合は `agent get/read` で状態と出力を確認する
 - 完了後は `herdr agent read feature-planner --source recent --lines 100` で結果を確認する
-- workspace/tab/pane IDはcompactされ得るため、`docs/plan` に永続保存しない
+- pane IDはcompactされ得るため、`docs/plan` に永続保存しない
 
 #### Agent Teams バックエンド
 
@@ -134,7 +132,7 @@ AskUserQuestion(
 
 修正が必要な場合はバックエンドごとにフィードバックする。
 
-- herdr: `herdr agent send feature-planner "$FEEDBACK"` の後、`herdr pane send-keys "$PLANNER_PANE" Enter` で送信を確定する。`agent send` 単体はEnterを送らない
+- herdr: `herdr agent prompt feature-planner "$FEEDBACK"` でテキスト送信+Enter確定を1コマンドで実行する（0.7.5で `agent send` + `pane send-keys Enter` の2段階操作が `agent prompt` 1コマンドに統合された）
 - Agent Teams: SendMessage でplannerへ送信する
 
 ---
@@ -186,66 +184,60 @@ planner が作成した `docs/plan-*.md` のタスクリストに基づき、Tas
 
 #### herdr バックエンド
 
-同一Waveの全メンバーを `herdr agent start` で起動し終えてから待機する。Claude Codeの `--tmux` やAgent toolのsplit-paneは使わない。🔴 **`--split` は常に現在フォーカス中のpaneを分割するため、全員を同じ `--split right` で起動すると親paneが繰り返し分割されレイアウトが乱れる**（詳細: `operating-herdr` スキルの「複数エージェントを整列よく起動する」）。1体目のみ親の右に分割し、2体目以降は直前に起動したメンバーを `agent focus` してから下に分割して縦一列に連鎖させる。以下はfrontend/backend/testerの3メンバー例で、他の役割構成でも一意なagent名・専用ファイル所有権・適切な `--agent` を指定して同様に連鎖起動する。
+🔴 herdr 0.7.5では「pane生成+配置+起動」の1コマンドが廃止され、`herdr pane split` で pane を確保してから `herdr agent start --kind <kind> --pane <id>` で既存paneに起動する2段階方式になった。同一Waveの全メンバーをこの2段階で起動し終えてから待機する。Claude Codeの `--tmux` やAgent toolのsplit-paneは使わない。`pane split` は `--pane <ID>` / `--current` で分割元paneを明示指定できるため、1体目のみ親の右に分割し、2体目以降は直前に確保したpaneを対象に下方向へ分割して縦一列に連鎖させる（詳細: `operating-herdr` スキルの「複数エージェントを整列よく起動する」）。以下はfrontend/backend/testerの3メンバー例で、他の役割構成でも一意なagent名・専用ファイル所有権・適切な `--agent` を指定して同様に連鎖起動する。
 
 ```bash
-# 1体目（frontend）: 親の右に分割
-FRONTEND_START=$(herdr agent start feature-frontend \
-  --cwd "$PWD" \
-  --workspace "$HERDR_WORKSPACE_ID" \
-  --tab "$HERDR_TAB_ID" \
-  --split right \
-  --no-focus \
-  -- claude \
+# 1体目（frontend）: 親の右にpaneを確保してから起動
+FRONTEND_SPLIT=$(herdr pane split --current --direction right --cwd "$PWD" --no-focus)
+FRONTEND_PANE=$(printf '%s' "$FRONTEND_SPLIT" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["pane"]["pane_id"])')
+
+herdr agent start feature-frontend \
+  --kind claude \
+  --pane "$FRONTEND_PANE" \
+  --timeout 30000 \
+  -- \
   --agent devkit:tachikoma-fw-nextjs \
   --permission-mode auto \
-  --name feature-frontend)
+  --name feature-frontend
 
-FRONTEND_PANE=$(printf '%s' "$FRONTEND_START" | python3 -c \
-  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
+# 2体目（backend）: 直前に確保したpane（frontend）を対象に下方向へpaneを確保してから起動
+BACKEND_SPLIT=$(herdr pane split --pane "$FRONTEND_PANE" --direction down --cwd "$PWD" --no-focus)
+BACKEND_PANE=$(printf '%s' "$BACKEND_SPLIT" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["pane"]["pane_id"])')
 
-# 2体目（backend）: 直前のメンバー（frontend）をfocusしてから下に分割
-herdr agent focus feature-frontend
-BACKEND_START=$(herdr agent start feature-backend \
-  --cwd "$PWD" \
-  --workspace "$HERDR_WORKSPACE_ID" \
-  --tab "$HERDR_TAB_ID" \
-  --split down \
-  --no-focus \
-  -- claude \
+herdr agent start feature-backend \
+  --kind claude \
+  --pane "$BACKEND_PANE" \
+  --timeout 30000 \
+  -- \
   --agent devkit:tachikoma-fw-fullstack-js \
   --permission-mode auto \
-  --name feature-backend)
+  --name feature-backend
 
-BACKEND_PANE=$(printf '%s' "$BACKEND_START" | python3 -c \
-  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
+# 3体目（tester）: 直前に確保したpane（backend）を対象に下方向へpaneを確保してから起動
+TESTER_SPLIT=$(herdr pane split --pane "$BACKEND_PANE" --direction down --cwd "$PWD" --no-focus)
+TESTER_PANE=$(printf '%s' "$TESTER_SPLIT" | python3 -c \
+  'import json,sys; print(json.load(sys.stdin)["result"]["pane"]["pane_id"])')
 
-# 3体目（tester）: 直前のメンバー（backend）をfocusしてから下に分割
-herdr agent focus feature-backend
-TESTER_START=$(herdr agent start feature-tester \
-  --cwd "$PWD" \
-  --workspace "$HERDR_WORKSPACE_ID" \
-  --tab "$HERDR_TAB_ID" \
-  --split down \
-  --no-focus \
-  -- claude \
+herdr agent start feature-tester \
+  --kind claude \
+  --pane "$TESTER_PANE" \
+  --timeout 30000 \
+  -- \
   --agent devkit:tachikoma-qa-e2e-test \
   --permission-mode auto \
-  --name feature-tester)
-
-TESTER_PANE=$(printf '%s' "$TESTER_START" | python3 -c \
-  'import json,sys; print(json.load(sys.stdin)["result"]["agent"]["pane_id"])')
+  --name feature-tester
 
 # 全員起動後、親にフォーカスを戻す（親 | 右列の2カラム構成なので left で一発戻れる）
 herdr pane focus --direction left --current
 
 # 各メンバーの起動確認とプロンプト送信（frontendの例。backend/testerも同様に行う）
-herdr agent wait feature-frontend --status idle --timeout 30000
-herdr agent send feature-frontend "$FRONTEND_PROMPT"
-herdr pane send-keys "$FRONTEND_PANE" Enter
+herdr agent wait feature-frontend --until idle --timeout 30000
+herdr agent prompt feature-frontend "$FRONTEND_PROMPT"
 ```
 
-起動後は各メンバーについて `herdr wait agent-status "$FRONTEND_PANE" --status working --timeout 30000` で開始を確認し、`herdr agent wait feature-frontend --status idle --timeout 1800000` でターン完了を待つ。`working` を取り逃した場合は `herdr agent get feature-frontend` と `herdr agent read feature-frontend --source recent --lines 100` で状態と出力を確認する。
+起動後は各メンバーについて `herdr agent wait feature-frontend --until working --timeout 30000` で開始を確認し、`herdr agent wait feature-frontend --until idle --timeout 1800000` でターン完了を待つ。`working` を取り逃した場合は `herdr agent get feature-frontend` と `herdr agent read feature-frontend --source recent --lines 100` で状態と出力を確認する。
 
 #### Agent Teams バックエンド
 
@@ -339,10 +331,10 @@ herdr pane send-keys "$FRONTEND_PANE" Enter
 ```bash
 herdr agent list
 herdr agent read feature-frontend --source recent --lines 80
-herdr agent wait feature-frontend --status idle --timeout 1800000
+herdr agent wait feature-frontend --until idle --timeout 1800000
 ```
 
-複数の対話型Claude agentの完了を待つときは、各agentに対して `herdr agent wait <name> --status idle` を使う。`done` はプロセス完了を表すため、ターン完了後も対話を継続するClaudeの待機条件には使わない。ペインIDは保存値を盲信せず、agent名と `herdr agent list` で現在値を照合する。
+複数の対話型Claude agentの完了を待つときは、各agentに対して `herdr agent wait <name> --until idle` を使う。`done` はプロセス完了を表すため、ターン完了後も対話を継続するClaudeの待機条件には使わない（`--until` にdoneを含めたい場合は `--until idle --until done` のように複数指定する）。ペインIDは保存値を盲信せず、agent名と `herdr agent list` で現在値を照合する。
 
 #### Agent Teams バックエンド
 
@@ -363,11 +355,10 @@ TaskList()
 
 ### 6.2 メンバー間調整
 
-herdrでは `agent send` とEnterを組み合わせる。
+herdrでは `agent prompt` でテキスト送信+Enter確定を1コマンドで行う。
 
 ```bash
-herdr agent send feature-frontend "$MESSAGE"
-herdr pane send-keys "$FRONTEND_PANE" Enter
+herdr agent prompt feature-frontend "$MESSAGE"
 ```
 
 Agent TeamsではSendMessageを使う。
@@ -508,7 +499,7 @@ herdr pane close "$CURRENT_PANE"
 - 別ペインのClaude CLIは独立セッションであり、TaskCreate / TaskList / SendMessageを共有しない
 - タスク状態と依存関係は `docs/plan-*.md` に集約する
 - pane/tab/workspace IDはclose後にcompactされ得る。操作直前にagent名から現在値を取得する
-- `agent send` はEnterを送らない。送信確定には `pane send-keys <pane_id> Enter` が必要
+- 🔴 0.7.5では `agent send` + `pane send-keys Enter` の2段階操作が廃止され、`herdr agent prompt <target> <text>` 1コマンドでテキスト送信とEnter確定が完結する
 - agent spawn・監視はagent系、サーバー・テスト・ログはpane系を使う
 
 ### Agent Teams API

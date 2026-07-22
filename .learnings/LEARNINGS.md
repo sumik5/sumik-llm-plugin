@@ -78,3 +78,12 @@
 - **対処**: EPUBが画像スキャン形式（xhtmlが`<img>`参照のみでpandoc変換結果がほぼ空）と判明した時点で、まずtesseractで1ページ試してから判断する（今回のように読めない場合は即座にVLM-OCR方式へ切り替える）。ページ数が多い場合はAgent並列（1体あたり40〜60ページ程度）で分担する。
 - **恒久化先**: 未実施（`certificate:converting-content` スキルのOCRワークフローに「まずtesseractで1ページ試し、文字化けする場合はVLM-OCRへ切り替える」という判断基準を追記する余地があるが、本セッションでは未対応）。
 - **Recurrence-Count**: 1（新規）
+
+## [LRN-20260722-001] herdr 0.7.4→0.7.5でagent系コマンド体系が破壊的変更（`agent start`の2段階化・`wait`系統合・`agent send`廃止）
+
+- **type**: knowledge_gap
+- **発見経緯**: ユーザーから「herdrのバージョンが変わってオプション体系が変わっているようだ」と報告を受け、まず手元の実機（brew経由、0.7.4）の`--help`と各スキルファイルの記述を突き合わせたが完全一致し、ズレが見当たらなかった。WebFetchでGitHub releasesページを確認したところ0.7.5が2026-07-21付で安定版としてリリース済みと判明（手元は0.7.4のまま）。`brew upgrade herdr`で0.7.5へ実際にアップグレードし、`--help`の再取得で以下の破壊的変更を確定した: ①`herdr agent start <name> --cwd/--workspace/--tab/--split/--env/--focus/--no-focus -- <argv>`（pane生成+配置+起動の1コマンド）が廃止され、`herdr pane split`でpaneを確保してから`herdr agent start <name> --kind <kind> --pane <id> [-- <agent_arg>...]`で既存paneに起動する2段階方式に変更。②`herdr agent wait --status`（doneなし）とトップレベル`herdr wait agent-status --status`（doneあり）の2系統が`herdr agent wait --until <state>...`（複数指定可、doneも含む）に統合、トップレベル`herdr wait`名前空間自体が廃止。③`herdr wait output`が`herdr pane wait-output`に移動し、`--match`（リテラル）と`--regex`（正規表現）が完全に別オプション化（旧仕様は`--match`に正規表現文字列を渡し`--regex`をブールフラグとして添える方式だった）。④`herdr agent send`（Enter送らないテキスト書込）+`pane send-keys Enter`の2段階操作が廃止され、`herdr agent prompt <target> <text> [--wait --until <state>... --timeout MS]`1コマンドに統合（新設）。さらに実装検証時、`--kind`で実行ファイル種別を指定した場合`--`以降にはその実行ファイルへの追加引数のみを渡すべきで実行ファイル名自体を重複させてはいけない（公式ドキュメント原文: "The kind selects Herdr's canonical interactive executable, while arguments after `--` are passed to that executable."）という仕様も、初回のタチコマ実装で見落として`-- claude --permission-mode auto`のように重複記載していたため、追加のフィードバックループで修正した。
+- **対処**: `plugins/devkit/skills/operating-herdr/INSTRUCTIONS.md`・`SKILL.md`、`plugins/devkit/skills/orchestrating-teams/INSTRUCTIONS.md`・`SKILL.md`・`references/TEAM-PATTERNS.md`・`references/WORKFLOW-GUIDE.md`の全herdrコマンド例を新体系に書き換え済み。
+- **予防策**: herdrのようなアクティブ開発中のCLIツールにバージョン差分の疑いがある場合、スキル記述と手元の実機`--help`を突き合わせるだけでは不十分（手元のバージョンが最新とは限らない）。GitHub releasesページ等で最新安定版の有無を確認し、必要なら実際にアップグレードしてから実機ヘルプで検証するのが確実（WebFetchによる二次情報要約だけでは`--kind`/`--`の関係のような細部を見落とす、または逆に不正確な要約を返すことがあるため、公式ドキュメント原文の直接引用で裏取りする）。
+- **恒久化先**: 上記6ファイルに反映済み（本セッションで対応）。
+- **Recurrence-Count**: 1（新規）

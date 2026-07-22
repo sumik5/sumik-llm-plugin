@@ -10,7 +10,7 @@
 ```
 Claude Code（このスキルをロード）
     ├─ 実行バックエンド判定
-    │    ├─ HERDR_ENV=1: operating-herdr + herdr agent start/read/send/wait
+    │    ├─ HERDR_ENV=1: operating-herdr + herdr pane split → agent start/read/prompt/wait --until
     │    └─ HERDR_ENV!=1: Agent / TaskCreate / SendMessage / TaskList
     ├─ Phase 1: planner → 要件分析・コードベース分析・docs/plan作成
     ├─ 計画レビュー・承認（ユーザー確認）
@@ -38,12 +38,12 @@ fi
 
 - `operating-herdr` をロードし、`HERDR_WORKSPACE_ID` / `HERDR_TAB_ID` / `HERDR_PANE_ID` を確認する
 - Claude Code の `teammateMode` は `in-process` にする。`tmux` / `iterm2` / `auto` の split-pane を使わない
-- planner と implementer は `herdr agent start --split right|down --no-focus -- claude ...` で起動する
-- 🔴 **起動前に、ユーザーが実行時のランタイムを限定していないか確認する**（例:「Claudeは使えない。Codexだけで行う」等の明示的な指定）。このスキル内の既定例（`-- claude`）はあくまでデフォルトであり、ユーザーがランタイムを限定している場合はそれに従い `herdr agent start --split right|down --no-focus -- codex ...` のみを使う
+- planner と implementer は `herdr pane split --current --direction right|down --no-focus` でpaneを確保してから `herdr agent start --kind claude --pane <id> -- --permission-mode auto ...` で起動する（`--kind` が起動する実行ファイルを決定し、`--` 以降には実行ファイル名を書かずその追加引数のみを書く。0.7.5でpane確保とエージェント起動が別コマンドに分離）
+- 🔴 **起動前に、ユーザーが実行時のランタイムを限定していないか確認する**（例:「Claudeは使えない。Codexだけで行う」等の明示的な指定）。このスキル内の既定例（`--kind claude`）はあくまでデフォルトであり、ユーザーがランタイムを限定している場合はそれに従い `herdr agent start --kind codex --pane <id> -- ...` のみを使う
 - 既にユーザーの制約に反するランタイムでペインを起動してしまっていた場合は直ちにそのペインを閉じ、以後の作業対象（planner/implementerの一員）に含めない
 - 一般原則として、スキル内の既定例よりユーザーが指定した実行環境の制約（ランタイム指定）が常に優先される
 - `docs/plan-*.md` をタスク・依存関係・実行ログの正本とし、更新はリーダーに集約する
-- `herdr agent list/read/send/wait` と `herdr wait agent-status` で進捗を管理する
+- `herdr agent list/read/prompt/wait --until` で進捗を管理する
 - `TaskCreate` / `TaskList` / `SendMessage` の状態は、別ペインの独立Claude CLIセッションと共有されない
 
 ### `HERDR_ENV!=1`: Agent Teams バックエンド
