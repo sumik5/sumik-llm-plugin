@@ -175,7 +175,42 @@ cat > "${TMP_DIR}/collect-practice-links.js" <<'JS'
     if (el) headings.push({ label, el });
   }
   if (headings.length === 0) {
-    return { error: 'no-category-headings-found' };
+    // 🔴 nosubcat フォールバック（実機確認済み・再検証済み: コースID 2722「判例ビジュアルチェック200」の
+    //    ような無料公開特別コンテンツ）: 通常コースの3セクション見出しが存在せず、カテゴリ見出しが
+    //    h2.m-ctop-course-d-list__title--nosubcat（例:「労働基準法」）として直接列挙される構造。
+    //    🔴 当初は h2 の祖先である .m-ctop-course-d-list__link（div, onclick="open_detail('practice',
+    //    <id>, event)"）の <id> を practice_id とみなして抽出していたが、これは誤りだった（実機再検証で
+    //    判明: このIDは「カテゴリ全体の開閉UI用の集約ID」であり、この ID で解説一覧表示ページ
+    //    （course/practice/list/id/<id>/a/on/）を開くと 404 になる）。
+    //    正しい practice_id は、見出しの closest('.m-ctop-course-d-list') 配下の
+    //    ul.m-ctop-course-d-list__list--nosubcat 内に**最初からDOM上に存在する**
+    //    a[href*="course/practice/index/id/"] リンクの href から取得する（クリック・展開待機は不要）。
+    //    🔴 注意: 見出しdiv・科目リンクaタグの両方に同じクラス名 m-ctop-course-d-list__link が
+    //    付与されているため、querySelectorAll では必ず 'a[href*="course/practice/index/id/"]' の
+    //    ようにタグ名で限定し、div要素（誤った集約ID）を拾わないようにする。
+    const NOSUBCAT_HEADING_SELECTOR = '.m-ctop-course-d-list__title--nosubcat';
+    const NOSUBCAT_LIST_SELECTOR = '.m-ctop-course-d-list__list--nosubcat';
+    const nosubcatResults = [];
+    const headingEls = Array.from(document.querySelectorAll(NOSUBCAT_HEADING_SELECTOR));
+    for (const headingEl of headingEls) {
+      const categoryLabel = (headingEl.textContent || '').trim();
+      const container = headingEl.closest('.m-ctop-course-d-list');
+      if (!container) continue;
+      const links = Array.from(
+        container.querySelectorAll(`${NOSUBCAT_LIST_SELECTOR} a[href*="course/practice/index/id/"]`)
+      );
+      for (const link of links) {
+        const subjectTitle = (link.textContent || '').trim();
+        const href = link.getAttribute('href') || '';
+        const m = href.match(/id\/(\d+)/);
+        if (!m) continue;
+        nosubcatResults.push({ category: categoryLabel, subject_title: subjectTitle, practice_id: m[1] });
+      }
+    }
+    if (nosubcatResults.length === 0) {
+      return { error: 'no-category-headings-found' };
+    }
+    return { items: nosubcatResults, errors: [], headingsFound: headingEls.length };
   }
 
   const isAfter = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
@@ -243,10 +278,122 @@ JS
 # 🔴 未確認: セレクト過去問集（実技試験対策）は今回検証対象外（学科試験対策のみ検証済み）。
 #    実技試験対策で `.list_question`/`.list_answer` 構造が異なる場合は INSTRUCTIONS.md §7 を参照して
 #    調整する。
+# 🔴 question/explanation は HTML保持で抽出する（実機確認済み: 「判例ビジュアルチェック200」等の
+#    判例学習系コンテンツで <span class="span-bold">（太字強調）/<span class="span-square">
+#    （空欄マーカー）/<br> 等の意味を持つHTML書式を確認したため。textContentでは失われる）。
+#    Anki投入側 anki_toolkit.py は raw HTML 素通し設計のため studying_import.py 側の変更は不要。
 cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
 (() => {
   function normWS(s) {
     return (s || '').replace(/[ \t]+/g, ' ').replace(/\s*\n\s*/g, '\n').trim();
+  }
+
+  // 🔴 実機確認済み（「判例ビジュアルチェック200」等の判例学習系コンテンツで確認）: 問題文・解説には
+  //    <p>/<br>/<span class="span-bold">（重要語句の太字強調）/<span class="span-square">
+  //    （空欄穴埋めマーカー）等のHTML書式が含まれ、これらは意味を持つ（強調箇所・空欄箇所の判別）。
+  //    textContentで平坦化すると失われるため、question/explanation は sanitizeHtml() で
+  //    HTML構造を保持したまま抽出する。Anki投入側の anki_toolkit.py は
+  //    「back(解説)・front(問題文)は raw HTML を素通し（HTML-escapeしない）」設計のため、
+  //    このまま Anki フィールドへ登録できる（studying_import.py・anki_toolkit.py の変更は不要）。
+  // 🔴 クライアントサイドWebセキュリティレビュー指摘に基づき修正（多層防御）: 当初はブラック
+  //    リスト方式（危険タグ・on*属性・javascript:スキームを列挙して除去）だったが、列挙漏れに
+  //    弱く「HTMLが必要な場合は厳格な許可リストでサニタイズする」という原則に反するため、以下の
+  //    厳格な許可リスト（allowlist）方式に全面書き換えした。
+  //    - タグ: 許可リスト（ALLOWED_TAGS）に無いタグは中身（子要素・テキスト）を保持したまま
+  //      タグ自体だけ除去（unwrap）する。ただし script/style/iframe 等の危険タグは
+  //      REMOVE_ENTIRELY_SELECTOR で中身ごと完全除去する（unwrapしない）。
+  //    - 属性: 要素ごとに許可リストを定義し、リスト外の属性（style 含む）は全て除去する。
+  //      全要素共通で class のみ許可し、値は英数字・ハイフン・アンダースコア・空白のみの
+  //      正規表現に一致する場合だけ保持する（それ以外の文字を含む場合は属性ごと除去）。
+  //      img は src（絶対URL化は維持）・alt のみ、a は href（http/https スキームのみ）のみ許可。
+  function sanitizeHtml(el) {
+    if (!el) return '';
+    const clone = el.cloneNode(true);
+
+    // 🔴 危険タグは中身ごと完全除去する（unwrap対象外・タグも子孫も丸ごと削除）
+    const REMOVE_ENTIRELY_SELECTOR =
+      'script, style, iframe, object, embed, svg, math, form, input, button, textarea, select, link, meta';
+    clone.querySelectorAll(REMOVE_ENTIRELY_SELECTOR).forEach((n) => n.remove());
+
+    // 🔴 許可リスト（allowlist）: ここに無いタグは中身を保持したままタグ自体だけ除去（unwrap）する
+    const ALLOWED_TAGS = new Set([
+      'p', 'br', 'span', 'strong', 'em', 'b', 'i', 'u', 'del',
+      'div', 'table', 'thead', 'tbody', 'tr', 'td', 'th', 'ol', 'ul', 'li', 'img', 'a',
+    ]);
+    const CLASS_VALUE_RE = /^[A-Za-z0-9_\- ]+$/;
+
+    function unwrap(node) {
+      const parent = node.parentNode;
+      if (!parent) return;
+      while (node.firstChild) {
+        parent.insertBefore(node.firstChild, node);
+      }
+      parent.removeChild(node);
+    }
+
+    function filterAttributes(node) {
+      const tag = node.tagName.toLowerCase();
+      const keep = new Set(['class']); // 全要素共通の許可属性
+      if (tag === 'img') {
+        keep.add('src');
+        keep.add('alt');
+      } else if (tag === 'a') {
+        keep.add('href');
+      }
+      for (const attr of Array.from(node.attributes)) {
+        const name = attr.name.toLowerCase();
+        if (!keep.has(name)) {
+          node.removeAttribute(attr.name);
+          continue;
+        }
+        if (name === 'class' && !CLASS_VALUE_RE.test(attr.value || '')) {
+          node.removeAttribute(attr.name);
+        }
+      }
+      // href は http/https スキームのみ許可（javascript:/data:/vbscript: 等は除去）
+      if (tag === 'a' && node.hasAttribute('href')) {
+        const href = node.getAttribute('href') || '';
+        if (!/^https?:\/\//i.test(href)) {
+          node.removeAttribute('href');
+        }
+      }
+      // src は javascript:/vbscript: スキームのみ拒否（data:/相対パス/http(s)は後続処理で扱う）
+      if (tag === 'img' && node.hasAttribute('src')) {
+        const src = node.getAttribute('src') || '';
+        if (/^\s*(javascript|vbscript):/i.test(src)) {
+          node.removeAttribute('src');
+        }
+      }
+    }
+
+    // 🔴 深い（子孫）要素から浅い（祖先）要素の順で処理する（querySelectorAllのdocumentOrderを
+    //    reverseする）。unwrap時に子孫側の処理が既に完了していることを保証するため。
+    const nodesDeepFirst = Array.from(clone.querySelectorAll('*')).reverse();
+    for (const node of nodesDeepFirst) {
+      if (!node.parentNode) continue; // 防御的チェック（通常は必ず親を持つ）
+      const tag = node.tagName.toLowerCase();
+      if (!ALLOWED_TAGS.has(tag)) {
+        unwrap(node);
+        continue;
+      }
+      filterAttributes(node);
+    }
+
+    // 🔴 実機確認済み: 解説内の <img src="skin/common/image/doc/..."> のような相対パス画像
+    //    （UIアイコン等）は、抽出元ページのURLを離れるAnki上ではそのままだとリンク切れになる。
+    //    document.baseURI を基準に絶対URL化してからHTML化する（data: スキームはそのまま）。
+    clone.querySelectorAll('img[src]').forEach((img) => {
+      const src = img.getAttribute('src') || '';
+      if (src && !/^(https?:)?\/\//i.test(src) && !/^data:/i.test(src)) {
+        try {
+          img.setAttribute('src', new URL(src, document.baseURI).href);
+        } catch (e) {
+          // 変換失敗時は元の src のまま維持する
+        }
+      }
+    });
+
+    return clone.innerHTML.trim();
   }
 
   const bodyText = document.body.innerText || '';
@@ -282,11 +429,21 @@ cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
   qEls.forEach((qEl, idx) => {
     const aEl = aEls[idx];
     const questionEditor = qEl.querySelector('.redactor-editor');
-    const question = normWS(questionEditor ? questionEditor.textContent : qEl.textContent);
+    // 🔴 question は HTML保持（sanitizeHtml）で抽出する（textContentでは強調・空欄マーカーが失われるため）
+    const question = sanitizeHtml(questionEditor || qEl);
 
     const markEl = aEl ? aEl.querySelector('h4 .notosans-mark') : null;
     const correctMark = markEl ? markEl.textContent.trim() : '';
-    if (!correctMark) {
+
+    // 🔴 question_multi（複数空欄穴埋め形式・実機確認済み: 「判例ビジュアルチェック200」で
+    //    全211問中約73%を占める形式）: `.notosans-mark` による単一正解が存在せず、代わりに
+    //    aEl 配下の `.question_multi table tbody tr` に「Ａ・Ｂ・Ｃ…」のような複数空欄それぞれの
+    //    正解（th=ラベル・td=正解テキスト）が並ぶ。行数は問題により2〜3行以上まで変動する
+    //    （実機確認済み）。この形式では `.notosans-mark` が存在しないのが正常なため、
+    //    `correct-mark-not-detected` 警告の判定からは除外する。
+    const questionMulti = aEl ? aEl.querySelector('.question_multi') : null;
+
+    if (!correctMark && !questionMulti) {
       warnings.push({ number: idx + 1, warning: 'correct-mark-not-detected' });
     }
 
@@ -311,14 +468,46 @@ cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
 
     // 🔴 kanalist の有無だけで ○×/4択 を判定すると、kanalist（かつ transtable）を持たない
     //    特殊設問で「correct: ["ア"] なのに choice_type: "boolean"」という矛盾データが
-    //    生成される不具合があった（実機確認済み）。優先順位: kanalist/transtable の
-    //    いずれかがあれば "single"、どちらも無くても正解マークが ○/× なら "boolean"、
-    //    それ以外（本当にどの構造にも当てはまらない場合）のみ "unknown"。
+    //    生成される不具合があった（実機確認済み）。優先順位: ①kanalist/transtable の
+    //    いずれかがあれば "single"、②question_multi があれば "multi_blank"、③notosans-mark に
+    //    値があり、その値が "○"/"×" なら "boolean"、④notosans-mark に値があり（○×以外の任意の
+    //    単語・フレーズ）なら "fill_in_single"（単一空欄穴埋め形式）、⑤それ以外（本当にどの構造にも
+    //    当てはまらない場合）のみ "unknown"。
+    // 🔴 実機再調査で判明（practice_id=223631の7・8問目）: correctMark 自体は取得できているのに
+    //    ○×以外の単語（例: 名詞・フレーズ）だと従来は "unknown" に落ちていた。これは第3の未知形式
+    //    ではなく、"boolean" 判定条件（○/×限定）が厳しすぎたことが原因だったため、この優先順位に
+    //    修正した。
     let choiceType;
+    let multiBlankCorrect = null;
     if (kanalist || transtable) {
       choiceType = 'single';
+    } else if (questionMulti) {
+      // 🔴 question_multi: table tbody tr の各行（th=ラベル・td=正解テキスト）から
+      //    "<ラベル>. <正解テキスト>" 形式の文字列を行ごとに1要素として correct に格納する。
+      //    正解テキストにも太字強調等のHTML書式が含まれうるため sanitizeHtml() を通す
+      //    （question/explanationと同じ扱い）。
+      choiceType = 'multi_blank';
+      const rows = Array.from(questionMulti.querySelectorAll('table tbody tr'));
+      multiBlankCorrect = rows
+        .map((tr) => {
+          const thEl = tr.querySelector('th');
+          const tdEl = tr.querySelector('td');
+          const label = thEl ? normWS(thEl.textContent) : '';
+          const value = tdEl ? sanitizeHtml(tdEl) : '';
+          return label || value ? `${label}. ${value}`.trim() : '';
+        })
+        .filter(Boolean);
+      if (multiBlankCorrect.length === 0) {
+        warnings.push({ number: idx + 1, warning: 'multi-blank-rows-not-found' });
+      }
     } else if (correctMark === '○' || correctMark === '×') {
       choiceType = 'boolean';
+    } else if (correctMark) {
+      // 🔴 fill_in_single: 単一の空欄に対する一問一答形式。kanalist/transtable/question_multiを
+      //    持たず、notosans-mark の値が ○/× 以外の単語・フレーズの場合がこれに該当する。
+      //    correct には既存ロジックのまま [correctMark] が入る（後続の共通処理で組み立てる）。
+      //    choices は元々存在しないため空配列のまま。
+      choiceType = 'fill_in_single';
     } else {
       choiceType = 'unknown';
       warnings.push({ number: idx + 1, warning: 'choice-structure-not-recognized', correctMark });
@@ -334,23 +523,30 @@ cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
     const gakusyuEl = aEl ? aEl.querySelector('table.gakusyu') : null;
     const aEditorEl = aEl ? aEl.querySelector('.redactor-editor') : null;
 
+    // 🔴 explanation も HTML保持（sanitizeHtml）で抽出する（ユーザー要望: 解説のHTML構造を
+    //    そのままAnki登録に使えるようにするため。区切りは textContent 版の '\n' 結合から
+    //    HTML表示で改行として機能する '<br>' 結合に変更）
     let explanation = '';
     if (aKanalist) {
-      const explSegments = Array.from(aKanalist.querySelectorAll(':scope > li')).map((li) => normWS(li.textContent));
-      const gakusyuText = gakusyuEl ? normWS(gakusyuEl.textContent) : '';
-      explanation = [explSegments.join('\n'), gakusyuText].filter(Boolean).join('\n');
+      const explSegments = Array.from(aKanalist.querySelectorAll(':scope > li')).map((li) => sanitizeHtml(li));
+      const gakusyuText = gakusyuEl ? sanitizeHtml(gakusyuEl) : '';
+      explanation = [explSegments.join('<br>'), gakusyuText].filter(Boolean).join('<br>');
     } else if (gakusyuEl) {
-      explanation = normWS(gakusyuEl.textContent);
+      explanation = sanitizeHtml(gakusyuEl);
     } else if (aEditorEl) {
-      explanation = normWS(aEditorEl.textContent);
+      explanation = sanitizeHtml(aEditorEl);
     }
+
+    // 🔴 multi_blank は複数空欄それぞれの正解一覧（multiBlankCorrect）を correct に格納する。
+    //    それ以外の choice_type は従来通り単一の correctMark をそのまま使う。
+    const correct = choiceType === 'multi_blank' ? (multiBlankCorrect || []) : (correctMark ? [correctMark] : []);
 
     questions.push({
       number: idx + 1,
       question,
       choice_type: choiceType,
       choices,
-      correct: correctMark ? [correctMark] : [],
+      correct,
       explanation,
     });
   });

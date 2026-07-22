@@ -284,10 +284,23 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/studying_import
 > してよいかも含めて確認する）。
 
 > 🔴 **`choice_type` による `qtype` の振り分け**: studying JSON は `choice_type` が `"boolean"`（○×形式）
-> `"single"`（4択等）`"unknown"`（選択肢マーカー未検出のフォールバック）の3種を取る。`studying_import.py`
-> は `"boolean"` を `qtype="truefalse"`（`verdict` に "○"/"×" を設定）、`"single"` を `qtype="choice"`
-> （`choices`/`correct` をそのまま設定）、それ以外を `qtype="basic"` + `needs_fix=True` にマッピングする。
-> 投入前に `--dry-run` で `needs_fix` 件数を確認し、"unknown" 判定された問題がないか確認すること。
+> `"single"`（4択等）`"multi_blank"`（複数空欄穴埋め形式）`"fill_in_single"`（単一空欄穴埋め形式）
+> `"unknown"`（選択肢マーカー未検出のフォールバック）の5種を取る。`studying_import.py` は `"boolean"` を
+> `qtype="truefalse"`（`verdict` に "○"/"×" を設定）、`"single"` を `qtype="choice"`（`choices`/`correct`
+> をそのまま設定）、`"multi_blank"`/`"fill_in_single"` を `qtype="basic"`（`anki_toolkit.py` の
+> `_VALID_QTYPES` は既存3値のみのため新値は追加しない）、それ以外（`"unknown"` 等）も `qtype="basic"` +
+> `needs_fix=True` にマッピングする。`"multi_blank"` は `correct`（`["Ａ. 正解テキスト", "Ｂ. 正解テキスト",
+> ...]` のように行ごとに1要素の配列）を `<br>` 区切りで連結し `"<b>解答:</b><br>"` 見出し付きで `back` に
+> 組み込み、`choices`（`{"Ａ": [...], "Ｂ": [...]}` 形式のラベル→選択肢配列の辞書）を各ラベルごとに
+> `"<b>[Ａの語群]</b><br>"` のような見出し＋`" / "` 区切りの選択肢一覧として `front` に組み込む
+> （`_build_multi_blank_front`/`_build_multi_blank_back`）。`choices` が空辞書・欠落・辞書以外の型の場合は
+> 語群セクション自体を出さない後方互換フォールバックがある。`"fill_in_single"` は `correct[0]`（単一の
+> 正解テキスト）を `"<b>正解:</b> "` 見出し付きで `back` に組み込み、`choices`（文字列配列）を
+> `"<b>[語群]</b><br>"` 見出し＋`" / "` 区切りの選択肢一覧として `front` に組み込む
+> （`_build_fill_in_single_front`/`_build_fill_in_single_back`）。こちらも `choices` が空リスト・欠落・
+> リスト以外の型の場合は語群セクションを出さない後方互換フォールバックがある。いずれの形式も
+> `explanation` があれば `"<b>解説:</b><br>"` 見出しを続ける。投入前に `--dry-run` で `needs_fix` 件数を
+> 確認し、`correct` が取得できていない問題（"unknown" 判定を含む）がないか確認すること。
 
 > 🔴 **なぜ恒久スクリプトなのか（ジェネリックパーサー禁止ルールの例外根拠）**: kentei-lab・whizlabs 同様、
 > studying JSON も**本プラグインの collect スクリプトが自己管理する固定スキーマ**であり、書籍のような

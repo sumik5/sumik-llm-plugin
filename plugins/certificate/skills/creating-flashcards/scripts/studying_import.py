@@ -108,6 +108,79 @@ def default_deck_name(course_title: str, category: str, subject_title: str) -> s
     return f"検定試験::{name}::studying::{cat}::{subject}"
 
 
+def _build_multi_blank_front(question: str, choices: object) -> str:
+    """multi_blank 用の front HTML を組み立てる。
+
+    question（問題文HTML）を先頭に置き、choices（{"Ａ": [...], "Ｂ": [...]} 形式の
+    ラベル→選択肢配列の辞書）を各ラベルごとに "<b>[<ラベル>の語群]</b><br>" 見出し＋
+    選択肢一覧（" / " 区切り）として問題文の後に追加する。ラベルの順序は辞書のキー順
+    （挿入順）に従う。
+
+    choices は object 型で受け取り isinstance で検証する（Any 禁止・型安全性維持）。
+    非空の dict でない場合（空辞書 {} ・未取得のまま残る旧形式の空リスト [] 等）は
+    語群セクション自体を出さず question のみを返す（後方互換性維持）。
+    """
+    parts: list[str] = [question]
+    if isinstance(choices, dict) and choices:
+        for label, options in choices.items():
+            parts.append(f"<br><br><b>[{label}の語群]</b><br>")
+            parts.append(" / ".join(options))
+    return "".join(parts)
+
+
+def _build_multi_blank_back(correct: list[str], explanation: str) -> str:
+    """multi_blank 用の back HTML を組み立てる。
+
+    correct（["Ａ. 正解テキスト", "Ｂ. 正解テキスト", ...] のように行ごとに1要素）を
+    <br> 区切りで連結し、"<b>解答:</b><br>" 見出しの下に配置する。correct が空なら
+    解答見出し自体を出さない。explanation があれば "<b>解説:</b><br>" 見出しを続ける
+    （空なら出さない）。
+    """
+    parts: list[str] = []
+    if correct:
+        parts.append("<b>解答:</b><br>" + "<br>".join(correct))
+    if explanation:
+        if parts:
+            parts.append("<br><br>")
+        parts.append("<b>解説:</b><br>" + explanation)
+    return "".join(parts)
+
+
+def _build_fill_in_single_front(question: str, choices: object) -> str:
+    """fill_in_single 用の front HTML を組み立てる。
+
+    question（問題文HTML）を先頭に置き、choices（["平均賃金", "付加金", ...] 形式の
+    文字列配列）が非空リストの場合、固定見出し "<b>[語群]</b><br>" ＋選択肢一覧
+    （" / " 区切り）を問題文の後に追加する（単一空欄のためラベルは持たず見出しは固定）。
+
+    choices は object 型で受け取り isinstance で検証する（Any 禁止・型安全性維持）。
+    非空の list でない場合（空リスト [] ・未取得のまま残る他形式等）は選択肢セクション
+    自体を出さず question のみを返す（後方互換性維持）。
+    """
+    parts: list[str] = [question]
+    if isinstance(choices, list) and choices:
+        parts.append("<br><br><b>[語群]</b><br>")
+        parts.append(" / ".join(choices))
+    return "".join(parts)
+
+
+def _build_fill_in_single_back(correct: list[str], explanation: str) -> str:
+    """fill_in_single 用の back HTML を組み立てる。
+
+    correct[0]（単一の正解テキスト）があれば "<b>正解:</b> " 見出しの下に配置する
+    （correct が空なら正解見出し自体を出さない）。explanation があれば
+    "<b>解説:</b><br>" 見出しを続ける（空なら出さない）。
+    """
+    parts: list[str] = []
+    if correct:
+        parts.append("<b>正解:</b> " + correct[0])
+    if explanation:
+        if parts:
+            parts.append("<br><br>")
+        parts.append("<b>解説:</b><br>" + explanation)
+    return "".join(parts)
+
+
 def question_to_qapair(q: dict, subject_title: str) -> QAPair:
     """questions[] の1要素を QAPair にマッピングする。
 
@@ -116,8 +189,24 @@ def question_to_qapair(q: dict, subject_title: str) -> QAPair:
       （anki_toolkit が "×"→"✕"/"〇"→"○" を正規化する）。
     - "single"（4択等）: qtype="choice"、choices/correct をそのまま渡す
       （correct は DOM の「適切。」/「不適切。」表記から確定取得済みのレター配列）。
+    - "multi_blank"（複数空欄穴埋め形式）: qtype="basic" とし（anki_toolkit._VALID_QTYPES
+      に新値を追加せず既存3値の契約を維持する）、choices（{"Ａ": [...], "Ｂ": [...]} 形式の
+      ラベル→選択肢配列の辞書）を各ラベルの語群見出し付きで front に組み込み
+      （_build_multi_blank_front。choices が非空 dict でない場合は語群セクションを出さない
+      後方互換フォールバック）、correct（["Ａ. 正解テキスト", "Ｂ. 正解テキスト", ...] のように
+      行ごとに1要素）を "<b>解答:</b><br>" 見出し付きで back に組み込む
+      （_build_multi_blank_back）。
+    - "fill_in_single"（単一空欄穴埋め形式）: 同じく qtype="basic" とし、choices
+      （["平均賃金", "付加金", ...] 形式の文字列配列）を固定見出し "<b>[語群]</b><br>"
+      付きで front に組み込み（_build_fill_in_single_front。choices が非空 list でない
+      場合は選択肢セクションを出さない後方互換フォールバック）、correct[0]
+      （単一の正解テキスト）を "<b>正解:</b> " 見出し付きで back に組み込む
+      （_build_fill_in_single_back）。
     - それ以外（"unknown" 等・選択肢マーカー未検出のフォールバック）: qtype="basic" とし
       needs_fix=True（"_要手修正" タグ付与）で投入し、後で手動確認できるようにする。
+
+    "multi_blank"/"fill_in_single" はいずれも needs_fix = not correct
+    （correct が取得できていれば手修正不要。取得できていなければ要手修正とする）。
 
     knowledge_area には科目名（subject_title）を設定する（studying JSON は1ファイル=1科目の
     ため、questions[] 内に科目名を持たない。呼び出し側から渡す）。
@@ -144,6 +233,26 @@ def question_to_qapair(q: dict, subject_title: str) -> QAPair:
             qtype="choice",
             choices=list(q.get("choices", [])),
             correct=correct,
+            tags=["studying"],
+            knowledge_area=subject_title,
+            needs_fix=not correct,
+        )
+
+    if choice_type == "multi_blank":
+        return QAPair(
+            front=_build_multi_blank_front(q.get("question", ""), q.get("choices", {})),
+            back=_build_multi_blank_back(correct, explanation),
+            qtype="basic",
+            tags=["studying"],
+            knowledge_area=subject_title,
+            needs_fix=not correct,
+        )
+
+    if choice_type == "fill_in_single":
+        return QAPair(
+            front=_build_fill_in_single_front(q.get("question", ""), q.get("choices", [])),
+            back=_build_fill_in_single_back(correct, explanation),
+            qtype="basic",
             tags=["studying"],
             knowledge_area=subject_title,
             needs_fix=not correct,

@@ -82,6 +82,191 @@ class TestQuestionToQAPair(unittest.TestCase):
         self.assertEqual(qa.correct, [])
         self.assertTrue(qa.needs_fix)
 
+    def test_multi_blank_choice_type_maps_to_basic_with_answer_in_back(self):
+        q = {
+            "number": 7,
+            "question": "サンプル複数空欄穴埋め問題です。",
+            "choice_type": "multi_blank",
+            "choices": [],
+            "correct": ["Ａ. サンプル正解テキストA", "Ｂ. サンプル正解テキストB"],
+            "explanation": "サンプル解説7。",
+        }
+        qa = question_to_qapair(q, "サンプル科目D")
+        self.assertEqual(qa.front, q["question"])
+        self.assertEqual(qa.qtype, "basic")
+        self.assertIn("<b>解答:</b><br>", qa.back)
+        self.assertIn(
+            "Ａ. サンプル正解テキストA<br>Ｂ. サンプル正解テキストB", qa.back
+        )
+        self.assertIn("<b>解説:</b><br>サンプル解説7。", qa.back)
+        self.assertEqual(qa.tags, ["studying"])
+        self.assertEqual(qa.knowledge_area, "サンプル科目D")
+        self.assertFalse(qa.needs_fix)
+
+    def test_multi_blank_choice_type_empty_correct_sets_needs_fix(self):
+        q = {
+            "number": 8,
+            "question": "サンプル複数空欄穴埋め問題2。",
+            "choice_type": "multi_blank",
+            "choices": [],
+            "correct": [],
+            "explanation": "解説8。",
+        }
+        qa = question_to_qapair(q, "サンプル科目D")
+        self.assertEqual(qa.qtype, "basic")
+        self.assertNotIn("<b>解答:</b>", qa.back)
+        self.assertIn("<b>解説:</b><br>解説8。", qa.back)
+        self.assertTrue(qa.needs_fix)
+
+    def test_multi_blank_choice_type_includes_word_bank_in_front(self):
+        q = {
+            "number": 11,
+            "question": "サンプル複数空欄穴埋め問題3。",
+            "choice_type": "multi_blank",
+            "choices": {
+                "Ａ": ["サンプル語群A1", "サンプル語群A2"],
+                "Ｂ": ["サンプル語群B1", "サンプル語群B2"],
+            },
+            "correct": ["Ａ. サンプル語群A1", "Ｂ. サンプル語群B2"],
+            "explanation": "サンプル解説11。",
+        }
+        qa = question_to_qapair(q, "サンプル科目F")
+        self.assertIn(q["question"], qa.front)
+        self.assertIn("<b>[Ａの語群]</b>", qa.front)
+        self.assertIn("サンプル語群A1 / サンプル語群A2", qa.front)
+        self.assertIn("<b>[Ｂの語群]</b>", qa.front)
+        self.assertIn("サンプル語群B1 / サンプル語群B2", qa.front)
+        self.assertEqual(qa.qtype, "basic")
+        self.assertFalse(qa.needs_fix)
+
+    def test_multi_blank_choice_type_empty_dict_choices_omits_word_bank(self):
+        q = {
+            "number": 12,
+            "question": "サンプル複数空欄穴埋め問題4。",
+            "choice_type": "multi_blank",
+            "choices": {},
+            "correct": ["Ａ. サンプル正解テキスト"],
+            "explanation": "サンプル解説12。",
+        }
+        qa = question_to_qapair(q, "サンプル科目F")
+        self.assertEqual(qa.front, q["question"])
+        self.assertNotIn("の語群", qa.front)
+
+    def test_multi_blank_choice_type_missing_choices_key_omits_word_bank(self):
+        q = {
+            "number": 13,
+            "question": "サンプル複数空欄穴埋め問題5。",
+            "choice_type": "multi_blank",
+            "correct": ["Ａ. サンプル正解テキスト"],
+            "explanation": "サンプル解説13。",
+        }
+        qa = question_to_qapair(q, "サンプル科目F")
+        self.assertEqual(qa.front, q["question"])
+        self.assertNotIn("の語群", qa.front)
+
+    def test_multi_blank_choice_type_list_choices_omits_word_bank(self):
+        # choices が未取得のまま旧形式（空リスト）で残る問題への後方互換性確認。
+        q = {
+            "number": 14,
+            "question": "サンプル複数空欄穴埋め問題6。",
+            "choice_type": "multi_blank",
+            "choices": [],
+            "correct": ["Ａ. サンプル正解テキスト"],
+            "explanation": "サンプル解説14。",
+        }
+        qa = question_to_qapair(q, "サンプル科目F")
+        self.assertEqual(qa.front, q["question"])
+        self.assertNotIn("の語群", qa.front)
+
+    def test_fill_in_single_choice_type_maps_to_basic_with_answer_in_back(self):
+        q = {
+            "number": 9,
+            "question": "サンプル単一空欄穴埋め問題です。",
+            "choice_type": "fill_in_single",
+            "choices": [],
+            "correct": ["サンプル正解テキスト"],
+            "explanation": "サンプル解説9。",
+        }
+        qa = question_to_qapair(q, "サンプル科目E")
+        self.assertEqual(qa.front, q["question"])
+        self.assertEqual(qa.qtype, "basic")
+        self.assertIn("<b>正解:</b> サンプル正解テキスト", qa.back)
+        self.assertIn("<b>解説:</b><br>サンプル解説9。", qa.back)
+        self.assertEqual(qa.tags, ["studying"])
+        self.assertEqual(qa.knowledge_area, "サンプル科目E")
+        self.assertFalse(qa.needs_fix)
+
+    def test_fill_in_single_choice_type_empty_correct_sets_needs_fix(self):
+        q = {
+            "number": 10,
+            "question": "サンプル単一空欄穴埋め問題2。",
+            "choice_type": "fill_in_single",
+            "choices": [],
+            "correct": [],
+            "explanation": "解説10。",
+        }
+        qa = question_to_qapair(q, "サンプル科目E")
+        self.assertEqual(qa.qtype, "basic")
+        self.assertNotIn("<b>正解:</b>", qa.back)
+        self.assertIn("<b>解説:</b><br>解説10。", qa.back)
+        self.assertTrue(qa.needs_fix)
+
+    def test_fill_in_single_choice_type_includes_word_bank_in_front(self):
+        q = {
+            "number": 15,
+            "question": "サンプル単一空欄穴埋め問題3。",
+            "choice_type": "fill_in_single",
+            "choices": ["サンプル語群1", "サンプル語群2", "サンプル語群3"],
+            "correct": ["サンプル語群2"],
+            "explanation": "サンプル解説15。",
+        }
+        qa = question_to_qapair(q, "サンプル科目G")
+        self.assertIn(q["question"], qa.front)
+        self.assertIn("<b>[語群]</b>", qa.front)
+        self.assertIn("サンプル語群1 / サンプル語群2 / サンプル語群3", qa.front)
+        self.assertEqual(qa.qtype, "basic")
+        self.assertFalse(qa.needs_fix)
+
+    def test_fill_in_single_choice_type_empty_list_choices_omits_word_bank(self):
+        q = {
+            "number": 16,
+            "question": "サンプル単一空欄穴埋め問題4。",
+            "choice_type": "fill_in_single",
+            "choices": [],
+            "correct": ["サンプル正解テキスト"],
+            "explanation": "サンプル解説16。",
+        }
+        qa = question_to_qapair(q, "サンプル科目G")
+        self.assertEqual(qa.front, q["question"])
+        self.assertNotIn("語群", qa.front)
+
+    def test_fill_in_single_choice_type_missing_choices_key_omits_word_bank(self):
+        q = {
+            "number": 17,
+            "question": "サンプル単一空欄穴埋め問題5。",
+            "choice_type": "fill_in_single",
+            "correct": ["サンプル正解テキスト"],
+            "explanation": "サンプル解説17。",
+        }
+        qa = question_to_qapair(q, "サンプル科目G")
+        self.assertEqual(qa.front, q["question"])
+        self.assertNotIn("語群", qa.front)
+
+    def test_fill_in_single_choice_type_non_list_choices_omits_word_bank(self):
+        # choices が list 以外の型（旧 multi_blank 由来の dict 等）で残っている場合の
+        # 後方互換性確認。
+        q = {
+            "number": 18,
+            "question": "サンプル単一空欄穴埋め問題6。",
+            "choice_type": "fill_in_single",
+            "choices": {"Ａ": ["サンプル語群"]},
+            "correct": ["サンプル正解テキスト"],
+            "explanation": "サンプル解説18。",
+        }
+        qa = question_to_qapair(q, "サンプル科目G")
+        self.assertEqual(qa.front, q["question"])
+        self.assertNotIn("語群", qa.front)
+
     def test_unknown_choice_type_maps_to_basic_and_always_needs_fix(self):
         q = {
             "number": 5,
