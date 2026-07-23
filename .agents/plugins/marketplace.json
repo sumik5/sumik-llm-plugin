@@ -178,7 +178,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/certificate"
       },
-      "version": "1.4.5",
+      "version": "1.4.6",
       "description": "資格・検定の学習支援プラグイン。5個のスキル（collecting-kentei-lab-exams: 指定 URL の資格から全問題・正解・解説を巡回取得し1資格1 JSONに保存・collecting-whizlabs-exams: Whizlabs のコース practice test 一覧 URL から配下の全クイズを practice mode で巡回取得し1クイズ1 JSONに保存・collecting-studying-exams: studying のコースレッスン一覧 URL から配下のスマート問題集・セレクト過去問集の全問題を科目単位で取得し1科目1 JSONに保存・creating-flashcards: EPUB/PDF/スキャン本からAnki MCP Server経由でフラッシュカードを一括作成・converting-content: 画像ベースEPUB→テキストOCR変換とLM Studioによるローカル翻訳）と1個のコマンド（improve-creating-flashcards）を含む。",
       "policy": {
         "installation": "AVAILABLE",

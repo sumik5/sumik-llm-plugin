@@ -30,3 +30,64 @@
 > `extractQuestionHtml()`・`numberOlChoices()` を追加して解消（`devkit:tachikoma-lang-bash` 実装・
 > 本体が差分とグレップ検証で確認済み）。certificate version 1.4.3→1.4.4（PATCH）。
 > CLAUDE.md inbox の対応 PROPOSAL エントリも削除済み。
+
+## [ERR-20260723-004] collecting-studying-exams: nosubcat見出し(lessonタイプ)混入によるCDPエラー
+
+社労士コース（`https://member.studying.jp/course/id/2301/`）収集時、`collect-studying.sh`
+（certificate 1.4.5、キャッシュ版）の`collect-practice-links.js`が`✗ CDP error (Runtime.evaluate):
+Inspected target navigated or closed`で2回連続失敗した。
+
+原因: コーストップページに「今日のまとめのまとめ」という見出しがあり、これは
+`h2.m-ctop-course-d-list__title m-ctop-course-d-list__title--nosubcat is-marked`という
+**2つのクラスを同時に持つ**要素だった。`HEADING_SELECTOR = 'h2.m-ctop-course-d-list__title'`は
+このクラス併記を想定しておらず、`EXCLUDE_HEADING_SUBSTR = ['講座']`の文字列除外もすり抜けるため、
+通常の問題集セクションとして扱われてしまう。この見出し配下のトグルは
+`onclick="open_detail('lesson', <id>, event)"`という**lessonタイプ**（動画/音声講座）であり、
+`practice`タイプの科目トグルと異なりクリックで実際のページ遷移を起こす。これがCDPエラーの直接原因。
+
+解決: `EXCLUDE_HEADING_SUBSTR`に見出しラベルの文字列マッチで除外を追加する方式が有効
+（`--nosubcat`クラスでの構造的除外は別の設計欠陥[ERR-20260723-005]を誘発するため非推奨）。
+
+汎用性: studyingの無料公開コンテンツ・特別企画コンテンツには通常の3セクション以外に
+`--nosubcat`クラス付きの見出しが混在しうる（「今日のまとめのまとめ」のように「講座」を
+含まないラベルもある）。見出し文字列だけでなく、配下トグルの`onclick`属性が`practice`か
+`lesson`かで判定する方がより堅牢（`EXCLUDE_HEADING_SUBSTR`のような固定文字列リストは
+新しいコースパターンで再度すり抜ける可能性がある）。
+
+## [ERR-20260723-005] collecting-studying-exams: 境界計算がフィルタ後配列基準で末尾セクションの境界喪失
+
+ERR-004の一次対策として`HEADING_SELECTOR`から`--nosubcat`要素を除外したところ、別の収集漏れ
+（かつ再度のCDPエラー）が発生した。
+
+原因: `collect-practice-links.js`のメインループは`nextHeadingEl = headings[i+1].el`で「次の
+見出し」を計算するが、`headings`は**EXCLUDE後のフィルタ済み配列**。除外対象の見出しが末尾に
+連続する構成（今回: スマート問題集→セレクト過去問集→選択式ポイント問題集→総まとめ講座(除外)→
+今日のまとめのまとめ(除外)）では、フィルタ後配列で最後に残る対象見出し「選択式ポイント問題集」の
+`nextHeadingEl`が`null`になる。`nextHeadingEl`が`null`だと`isAfter`による範囲フィルタが
+「見出し以降」だけになり、**ページ末尾までの全トグル**（除外したはずの「総まとめ講座」
+「今日のまとめのまとめ」配下のlessonタイプトグルも含む）を誤って対象化してしまう
+（実機確認: 本来9件のはずが27件検出）。
+
+解決: `nextHeadingEl`計算を、フィルタ前の全見出し配列（`allHeadings`）基準にする
+（`allHeadings.indexOf(headingEl) + 1`）。フィルタ後配列上のインデックスではなく、
+DOM上の実際の隣接関係を使う。
+
+汎用性: 「対象外要素を除外してから、除外後配列で次要素/境界を計算する」という2段階処理は、
+除外対象が配列の末尾に連続する場合に境界が消失する典型的な設計バグパターン。除外判定と
+境界計算は別々の配列基準で行う必要がある（フィルタ前配列で隣接関係を確定してから、
+フィルタ後の要素だけをループ対象にする）。同種のロジック（見出しでセクション分割する
+スクレイピングコード全般）に波及しうる。
+
+## [ERR-20260723-006] AnkiConnect大量連続リクエストでのConnection refused/reset
+
+`studying_import.py`を264ファイル分ループ実行（間隔なし）した際、82件が
+`ConnectionResetError: [Errno 54]`または`URLError: <urlopen error [Errno 61] Connection refused>`
+で失敗した。Anki本体プロセスは生存しており（`curl`での`version`アクション確認済み）、
+AnkiConnect側の一時的な過負荷・キューあふれが原因と推測される。
+
+解決: 失敗ファイルのみ抽出し、各リクエスト間に`sleep 0.5`を挟んで再実行したところ全件成功
+（82/82）。
+
+汎用性: AnkiConnect経由での大量一括投入（100件超）では、リクエスト間隔を空ける
+（0.5秒程度）か、初回失敗分を後段でリトライする設計を前提にすること。exit code非0の
+ファイルだけ抽出して再実行する運用パターンは他のバッチ投入作業にも流用できる。

@@ -26,7 +26,10 @@ Usage: collect-studying.sh <course-list-url> [output-dir]
   STUDYING_PASSWORD     ログイン用パスワード（state/Auth Vault未確立時に必須。agent-browser fill の引数として渡す）
   STUDYING_STATE_FILE   agent-browser state ファイルパス（既定 <output-dir>/.studying-state.json）
   STUDYING_AUTH_PROFILE Auth Vault のプロファイル名（既定 studying）
-  STUDYING_WAIT_MS      科目間の待機ミリ秒（既定 300・サイトへのレート配慮）
+  STUDYING_WAIT_MIN_MS  科目間の待機ミリ秒の下限（既定 15000・サイトへのレート配慮強化のためランダム化）
+  STUDYING_WAIT_MAX_MS  科目間の待機ミリ秒の上限（既定 30000）
+  STUDYING_WAIT_MS      科目間の待機ミリ秒（後方互換用の固定値。明示指定時のみ有効で
+                        STUDYING_WAIT_MIN_MS/MAX_MS 未指定なら固定待機として使う。既定 300）
   STUDYING_MAX_N        スモークテスト用の処理科目数上限（全カテゴリ合計・既定 0=全件）
   AGENT_BROWSER         agent-browser バイナリパス上書き（既定: which agent-browser）
 USAGE
@@ -40,7 +43,26 @@ OUTPUT_DIR="${2:-./studying-output}"
 
 BASE_URL="https://member.studying.jp"
 LOGIN_URL="${BASE_URL}/login/"
+# 🔴 ユーザー要望（サイトへの配慮強化）で科目間待機を固定値からランダム化した。優先順位:
+#    STUDYING_WAIT_MIN_MS/MAX_MS のどちらかが明示指定されていればランダム待機（範囲は指定側優先・
+#    未指定側は既定値）、どちらも未指定かつ STUDYING_WAIT_MS が明示指定されていれば後方互換の
+#    固定待機、どれも未指定なら既定のランダム待機（15000〜30000ms）を使う。
+STUDYING_WAIT_MS_EXPLICIT=0
+[ -n "${STUDYING_WAIT_MS+x}" ] && STUDYING_WAIT_MS_EXPLICIT=1
+STUDYING_WAIT_MIN_MS_EXPLICIT=0
+[ -n "${STUDYING_WAIT_MIN_MS+x}" ] && STUDYING_WAIT_MIN_MS_EXPLICIT=1
+STUDYING_WAIT_MAX_MS_EXPLICIT=0
+[ -n "${STUDYING_WAIT_MAX_MS+x}" ] && STUDYING_WAIT_MAX_MS_EXPLICIT=1
+
 STUDYING_WAIT_MS="${STUDYING_WAIT_MS:-300}"
+STUDYING_WAIT_MIN_MS="${STUDYING_WAIT_MIN_MS:-15000}"
+STUDYING_WAIT_MAX_MS="${STUDYING_WAIT_MAX_MS:-30000}"
+if [ "${STUDYING_WAIT_MIN_MS_EXPLICIT}" -eq 1 ] || [ "${STUDYING_WAIT_MAX_MS_EXPLICIT}" -eq 1 ] \
+  || [ "${STUDYING_WAIT_MS_EXPLICIT}" -eq 0 ]; then
+  STUDYING_USE_RANDOM_WAIT=1
+else
+  STUDYING_USE_RANDOM_WAIT=0
+fi
 STUDYING_MAX_N="${STUDYING_MAX_N:-0}"
 STUDYING_STATE_FILE="${STUDYING_STATE_FILE:-${OUTPUT_DIR}/.studying-state.json}"
 STUDYING_AUTH_PROFILE="${STUDYING_AUTH_PROFILE:-studying}"
@@ -74,7 +96,15 @@ TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/studying.XXXXXX")"
 cleanup() { rm -rf "${TMP_DIR}"; }
 trap cleanup EXIT
 
-WAIT_SEC="$(awk -v ms="${STUDYING_WAIT_MS}" 'BEGIN { printf "%.3f", ms / 1000 }')"
+# 🔴 待機秒数はループ内で毎回呼び直すこと（1回だけ算出してループ全体で使い回すと固定待機に戻ってしまう）。
+next_wait_sec() {
+  if [ "${STUDYING_USE_RANDOM_WAIT}" -eq 1 ]; then
+    awk -v min="${STUDYING_WAIT_MIN_MS}" -v max="${STUDYING_WAIT_MAX_MS}" -v seed="$RANDOM" \
+      'BEGIN { srand(seed); ms = min + rand() * (max - min); printf "%.3f", ms / 1000 }'
+  else
+    awk -v ms="${STUDYING_WAIT_MS}" 'BEGIN { printf "%.3f", ms / 1000 }'
+  fi
+}
 
 ab() { "${AGENT_BROWSER}" "$@"; }
 
@@ -159,7 +189,13 @@ cat > "${TMP_DIR}/collect-practice-links.js" <<'JS'
   //    問題集セクションとして扱う方式に変更する（「基礎/短答講座」「短答解法講座」等の動画/音声講座
   //    セクションのみを除外する）。
   const HEADING_SELECTOR = 'h2.m-ctop-course-d-list__title';
-  const EXCLUDE_HEADING_SUBSTR = ['講座']; // 動画/音声講座セクションの除外判定
+  // 🔴 実機確認済み（2026-07-23・社会保険労務士 合格コース course/id/2301、2回連続再現）:
+  //    「今日のまとめのまとめ」等の見出しは `h2.m-ctop-course-d-list__title
+  //    m-ctop-course-d-list__title--nosubcat` という2クラス併記で、配下トグルが
+  //    onclick="open_detail('lesson', <id>, event)" という**lessonタイプ**（動画/音声講座）を持つ。
+  //    practiceタイプと異なりクリックで実際にページ遷移し、agent-browser の CDP 接続が
+  //    「Inspected target navigated or closed」で落ちるため、'今日のまとめ'も除外対象に加える。
+  const EXCLUDE_HEADING_SUBSTR = ['講座', '今日のまとめ']; // 動画/音声講座セクション（lessonタイプ）の除外判定
   const TOGGLE_SELECTOR = '.m-ctop-course-d-list__link';
   const NAME_SELECTOR = '.m-ctop-course-d-list__name';
   // 🔴 実機確認済み: 科目トグル展開後のAjax読み込みは科目により所要時間が大きく異なる
@@ -227,7 +263,14 @@ cat > "${TMP_DIR}/collect-practice-links.js" <<'JS'
 
   for (let i = 0; i < headings.length; i++) {
     const { label, el: headingEl } = headings[i];
-    const nextHeadingEl = headings[i + 1] ? headings[i + 1].el : null;
+    // 🔴 実機確認済み（2026-07-23）: `headings[i+1]`（EXCLUDE後のフィルタ済み配列基準）で次見出しを
+    //    計算すると、除外対象の見出しが末尾に連続する構成（総まとめ講座→今日のまとめのまとめ、等）で
+    //    フィルタ後配列の最後に残る見出しの nextHeadingEl が null になり、isAfter の境界フィルタが
+    //    「見出し以降すべて」になって除外したはずのセクション配下まで誤って収集対象化する
+    //    （本来9件のところ27件検出される不具合として再現）。除外判定と境界計算を同じフィルタ後配列で
+    //    行わないよう、境界計算はフィルタ前の全見出し配列（allHeadings）でのDOM上の隣接関係を使う。
+    const rawIdx = allHeadings.indexOf(headingEl);
+    const nextHeadingEl = allHeadings[rawIdx + 1] || null;
 
     const toggles = Array.from(document.querySelectorAll(TOGGLE_SELECTOR)).filter((t) => {
       if (!isAfter(headingEl, t)) return false;
@@ -741,6 +784,8 @@ while [ "${SUBJECT_INDEX}" -lt "${PROCESS_LIMIT}" ]; do
   PRACTICE_ID="$(printf '%s' "${ITEM_JSON}" | jq -r '.practice_id')"
 
   if [ "${SUBJECT_INDEX}" -gt 0 ]; then
+    WAIT_SEC="$(next_wait_sec)"
+    log "[info] 次科目まで${WAIT_SEC}秒待機します..."
     sleep "${WAIT_SEC}"
   fi
 
