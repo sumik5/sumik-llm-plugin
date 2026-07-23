@@ -78,6 +78,33 @@ DOM上の実際の隣接関係を使う。
 フィルタ後の要素だけをループ対象にする）。同種のロジック（見出しでセクション分割する
 スクレイピングコード全般）に波及しうる。
 
+## [ERR-20260723-007] collecting-studying-exams: TOGGLE_SELECTORのaタグ誤マッチとページ遷移によるCDPエラー
+
+社労士系無料公開コース（`https://member.studying.jp/course/id/2797/`「白書統計厳選チェックテスト」）
+を収集しようとした際、ERR-004/005修正後の版でも別の構造が原因で同種のCDPエラーが起きうることが判明した
+（実行前に事前シミュレーションで検出・実収集は未発生）。
+
+原因: このコースは見出しが1件のみの nosubcat 構造（`headings.length === 0` にならないためメイン
+ループで処理される）。`TOGGLE_SELECTOR = '.m-ctop-course-d-list__link'` は div型トグル自体
+（`onclick="open_detail('practice', ...)"`・`is-open`クラス付き）だけでなく、**既に展開済みの
+`<a href="course/practice/index/id/<id>/...">`要素自体にも同じクラス名が付与されている**。今回の
+コースでは`isAfter`の境界判定でdivトグル（見出しh2を内包する祖先要素のため境界外）が除外され、
+`<a>`要素だけが`toggles`に残る。`<a>`要素は`is-open`クラスを持たないため`wasOpen`判定が`false`に
+なり`toggle.click()`が実行されるが、`<a href="...">`要素のクリックは実際にページ遷移を起こし
+agent-browserのCDP接続を落とす（ERR-004のlessonタイプ混入と症状は同じだが原因は別:
+今回は`TOGGLE_SELECTOR`自体がdivとaの両方にマッチすることが原因）。
+
+解決: メインループの`toggle`走査冒頭に`toggle.tagName === 'A'`の早期分岐を追加し、`<a>`要素で
+既に`course/practice/index/id/<id>`形式の`href`を持つ場合はクリックせず、hrefから直接
+`practice_id`を抽出して結果へ追加するよう修正した（div型トグルの既存ロジックは変更なし）。
+
+汎用性: 「同じクラス名がトグル(div)と展開済みリンク(a)の両方に付与されている」というパターンは
+studyingのnosubcat構造で複数回観測されている（nosubcatフォールバック側の既存教訓と同型のバグが
+メインループ側にも潜んでいた）。DOM要素をセレクタで一括取得してから`click()`する設計では、
+「クリック不要なリンク要素が同じセレクタに紛れ込んでいないか」を`tagName`で必ず確認すること。
+実行前に軽量な事前シミュレーション（実際にクリックせず、対象要素のtagName/onclick/hrefを一覧化
+するevalクエリ）を挟むと、実収集を汚さずに構造の異常を検出できる。
+
 ## [ERR-20260723-006] AnkiConnect大量連続リクエストでのConnection refused/reset
 
 `studying_import.py`を264ファイル分ループ実行（間隔なし）した際、82件が

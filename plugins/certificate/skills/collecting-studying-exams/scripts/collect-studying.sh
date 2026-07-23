@@ -279,6 +279,23 @@ cat > "${TMP_DIR}/collect-practice-links.js" <<'JS'
     });
 
     for (const toggle of toggles) {
+      // 🔴 実機確認済み（2026-07-23・course/id/2797「白書統計厳選チェックテスト」）: TOGGLE_SELECTOR
+      //    （.m-ctop-course-d-list__link）は div型トグル自体だけでなく、既に展開済みの<a>リンク要素
+      //    自体にも同じクラス名が付与されているケースがある（見出しが1件のみのnosubcat構造で、
+      //    isAfterの境界判定によりdivトグルが除外されaリンクのみがtogglesに残る場合に発生）。
+      //    <a href="...">要素はwasOpen判定でfalseになりtoggle.click()が実行されるが、これは実際に
+      //    ブラウザをそのリンク先へページ遷移させ、agent-browserのCDP接続を落とす
+      //    （「Inspected target navigated or closed」）。<a>要素で既にpracticeへのhrefを持つ場合は
+      //    クリックせず、hrefから直接practice_idを抽出する。
+      if (toggle.tagName === 'A') {
+        const directHref = toggle.getAttribute('href') || '';
+        const directMatch = directHref.match(/course\/practice\/index\/id\/(\d+)/);
+        if (directMatch) {
+          const directTitle = (toggle.textContent || '').trim();
+          results.push({ category: label, subject_title: directTitle, practice_id: directMatch[1] });
+          continue;
+        }
+      }
       const nameEl = toggle.querySelector(NAME_SELECTOR);
       const subjectTitle = ((nameEl ? nameEl.textContent : toggle.textContent) || '').trim();
       const wasOpen = toggle.classList.contains('is-open');
