@@ -150,14 +150,23 @@ JS
 #      構造そのものは実技側では未確認（INSTRUCTIONS.md §2参照）。
 cat > "${TMP_DIR}/collect-practice-links.js" <<'JS'
 (async () => {
-  const CATEGORIES = [
-    'スマート問題集',
-    'セレクト過去問集（学科試験対策）',
-    'セレクト過去問集（実技試験対策）',
-  ];
+  // 🔴 実機確認済み（2026-07-23・弁理士基礎・短答合格コース course/id/2442）: セクション見出しの
+  //    完全一致決め打ち（3カテゴリ固定）は、コースによって見出し名が異なる場合に検出漏れを起こす
+  //    （例: このコースは「セレクト過去問集」に学科/実技の区別が無く、「短答解法講座セレクト過去問」
+  //    という未知カテゴリを持つ）。見出しは一貫して h2.m-ctop-course-d-list__title
+  //    （nosubcat構造は別クラス h2.m-ctop-course-d-list__title--nosubcat）であることを実機確認済みのため、
+  //    固定リストとの完全一致ではなく、「見出しテキストに『講座』を含まない」セクションを自動的に
+  //    問題集セクションとして扱う方式に変更する（「基礎/短答講座」「短答解法講座」等の動画/音声講座
+  //    セクションのみを除外する）。
+  const HEADING_SELECTOR = 'h2.m-ctop-course-d-list__title';
+  const EXCLUDE_HEADING_SUBSTR = ['講座']; // 動画/音声講座セクションの除外判定
   const TOGGLE_SELECTOR = '.m-ctop-course-d-list__link';
   const NAME_SELECTOR = '.m-ctop-course-d-list__name';
-  const EXPAND_WAIT_MS = 500;
+  // 🔴 実機確認済み: 科目トグル展開後のAjax読み込みは科目により所要時間が大きく異なる
+  //    （小さい科目は数百ms、問題数の多い科目〈72問等〉は2秒以上かかることがある）。固定500ms待機では
+  //    検出漏れが起きるため、リンク出現を300ms間隔でポーリングし最大5秒まで待つ方式に変更する。
+  const POLL_INTERVAL_MS = 300;
+  const MAX_WAIT_MS = 5000;
 
   function norm(s) {
     return (s || '').replace(/\s+/g, '').trim();
@@ -167,13 +176,11 @@ cat > "${TMP_DIR}/collect-practice-links.js" <<'JS'
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  const allEls = Array.from(document.querySelectorAll('body *'));
-  // 見出し候補: 子要素を持たない（テキストノードのみの）要素で CATEGORIES 文字列と完全一致するもの
-  const headings = [];
-  for (const label of CATEGORIES) {
-    const el = allEls.find((e) => e.children.length === 0 && norm(e.textContent) === norm(label));
-    if (el) headings.push({ label, el });
-  }
+  const allHeadings = Array.from(document.querySelectorAll(HEADING_SELECTOR));
+  const headings = allHeadings
+    .map((el) => ({ label: norm(el.textContent), el }))
+    .filter(({ label }) => !EXCLUDE_HEADING_SUBSTR.some((ex) => label.includes(ex)));
+
   if (headings.length === 0) {
     // 🔴 nosubcat フォールバック（実機確認済み・再検証済み: コースID 2722「判例ビジュアルチェック200」の
     //    ような無料公開特別コンテンツ）: 通常コースの3セクション見出しが存在せず、カテゴリ見出しが
@@ -231,29 +238,45 @@ cat > "${TMP_DIR}/collect-practice-links.js" <<'JS'
     for (const toggle of toggles) {
       const nameEl = toggle.querySelector(NAME_SELECTOR);
       const subjectTitle = ((nameEl ? nameEl.textContent : toggle.textContent) || '').trim();
-      try {
-        toggle.click();
-      } catch (e) {
-        errors.push({ category: label, subjectTitle, error: 'click-failed' });
-        continue;
+      const wasOpen = toggle.classList.contains('is-open');
+      if (!wasOpen) {
+        try {
+          toggle.click();
+        } catch (e) {
+          errors.push({ category: label, subjectTitle, error: 'click-failed' });
+          continue;
+        }
       }
 
-      // 🔴 クリック直後は展開アニメーションが未完了のため約500ms待機してから探索する
-      await sleep(EXPAND_WAIT_MS);
-
       const li = toggle.closest('li');
-      const link = li ? li.querySelector('a[href*="course/practice/index/id/"]') : null;
-      if (!link) {
+      // 🔴 リンク出現をポーリング（既存の固定500ms待機から変更。大きい科目のAjax読み込み遅延に対応）
+      let links = [];
+      let waited = 0;
+      while (waited < MAX_WAIT_MS) {
+        links = li ? Array.from(li.querySelectorAll('a[href*="course/practice/index/id/"]')) : [];
+        if (links.length > 0) break;
+        await sleep(POLL_INTERVAL_MS);
+        waited += POLL_INTERVAL_MS;
+      }
+      if (links.length === 0) {
         errors.push({ category: label, subjectTitle, error: 'practice-link-not-found-after-click' });
         continue;
       }
-      const href = link.getAttribute('href') || '';
-      const m = href.match(/id\/(\d+)/);
-      if (!m) {
-        errors.push({ category: label, subjectTitle, error: 'practice-id-not-extracted', href });
-        continue;
+
+      // 🔴 1科目=複数レッスン（複数practice_id）対応: 実機確認済み（弁理士基礎・短答合格コースで
+      //    1科目内に最大72件のレッスンが存在）。リンクが1件のみの場合は科目名をそのままsubject_titleに、
+      //    複数件の場合は各リンクのテキストをレッスン名としてsubject_titleに使う（従来の科目名決め打ちでは
+      //    2件目以降のレッスンが検出漏れになるため）。
+      for (const link of links) {
+        const href = link.getAttribute('href') || '';
+        const m = href.match(/id\/(\d+)/);
+        if (!m) {
+          errors.push({ category: label, subjectTitle, error: 'practice-id-not-extracted', href });
+          continue;
+        }
+        const lessonTitle = links.length > 1 ? (link.textContent || '').trim() || subjectTitle : subjectTitle;
+        results.push({ category: label, subject_title: lessonTitle, practice_id: m[1] });
       }
-      results.push({ category: label, subject_title: subjectTitle, practice_id: m[1] });
     }
   }
 
@@ -396,6 +419,36 @@ cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
     return clone.innerHTML.trim();
   }
 
+  // 🔴 実機確認済み（2026-07-23・弁理士基礎・短答合格コース）: 番号マーカーの手動挿入ロジックが
+  //    ol.kanalist 限定だったため、クラス名の無い無印<ol>+<li class="checkable_list_item">（単一選択・
+  //    肢自体が<ol><li>で番号自体が正解値の形式）で番号が一切挿入されず、Ankiノートタイプ側CSS
+  //    （list-style-type: none）と相まって選択肢の番号表示が完全に消えていた。ol.kanalist以外のolにも
+  //    全角数字マーカー（「１　」「２　」…）を機械的に前置する。
+  function numberOlChoices(qEl) {
+    const ZENKAKU_NUM = ['１', '２', '３', '４', '５', '６', '７', '８', '９', '１０'];
+    const ols = Array.from(qEl.querySelectorAll('ol'));
+    for (const ol of ols) {
+      if (ol.classList.contains('kanalist')) continue;
+      const lis = Array.from(ol.querySelectorAll(':scope > li.checkable_list_item'));
+      if (lis.length === 0) continue;
+      lis.forEach((li, i) => {
+        const marker = document.createElement('span');
+        marker.textContent = (ZENKAKU_NUM[i] || String(i + 1)) + '　';
+        li.insertBefore(marker, li.firstChild);
+      });
+    }
+  }
+
+  // 🔴 実機確認済み: .list_question直下に.redactor-editorが複数存在するケース（個数選択形式
+  //    「〜いくつあるか」で問題文用と選択肢「１つ／２つ…」用の2つに分離）があり、querySelector
+  //    （単数形・最初の1件のみ）だと2つ目の選択肢が欠落する。querySelectorAllで全件取得し連結する。
+  function extractQuestionHtml(qEl) {
+    numberOlChoices(qEl);
+    const editors = Array.from(qEl.querySelectorAll('.redactor-editor'));
+    if (editors.length > 0) return editors.map((e) => sanitizeHtml(e)).join('');
+    return sanitizeHtml(qEl);
+  }
+
   const bodyText = document.body.innerText || '';
 
   // メタ情報: テキスト出現順は「N分 → N問 → 合格ライン...」（実機確認済み・時間が先）
@@ -428,9 +481,9 @@ cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
 
   qEls.forEach((qEl, idx) => {
     const aEl = aEls[idx];
-    const questionEditor = qEl.querySelector('.redactor-editor');
-    // 🔴 question は HTML保持（sanitizeHtml）で抽出する（textContentでは強調・空欄マーカーが失われるため）
-    const question = sanitizeHtml(questionEditor || qEl);
+    // 🔴 question は HTML保持（sanitizeHtml）で抽出する（textContentでは強調・空欄マーカーが失われるため）。
+    //    複数.redactor-editorの連結・無印ol番号マーカー前置はextractQuestionHtml()が担う（詳細は関数コメント参照）。
+    const question = extractQuestionHtml(qEl);
 
     const markEl = aEl ? aEl.querySelector('h4 .notosans-mark') : null;
     const correctMark = markEl ? markEl.textContent.trim() : '';

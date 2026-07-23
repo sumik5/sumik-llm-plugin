@@ -20,3 +20,13 @@
 > RTK.md「環境の罠と回避策」表（ロケール依存sort/uniq偽陽性を追記）。collecting-whizlabs-exams（strong分割
 > パターン）・operating-herdr（permission-mode auto統一）は既に反映済みを実ファイルで確認。
 > bash-triple-backtick-in-echo は一過性の学びのため恒久化不要と判断。
+>
+> 2026-07-23: 蓄積エントリ（ERR-20260723-001・ERR-20260723-002・ERR-20260723-003）を全消費・削除済み。
+> 恒久化先: `collecting-studying-exams` スキル本体（`scripts/collect-studying.sh`・`INSTRUCTIONS.md`）。
+> ERR-001（固定3セクション名・1科目=1practice_id前提）は `collect-practice-links.js` の見出し検出を
+> `h2.m-ctop-course-d-list__title` 全走査＋「講座」除外方式に、リンク収集を単数から複数取得（1科目=複数
+> レッスン対応）に、展開待機を固定500msからポーリング方式に変更して解消。ERR-002（`.redactor-editor`
+> 複数存在での選択肢欠落）・ERR-003（無印`<ol>`の番号マーカー欠落）は `read-practice-page.js` に
+> `extractQuestionHtml()`・`numberOlChoices()` を追加して解消（`devkit:tachikoma-lang-bash` 実装・
+> 本体が差分とグレップ検証で確認済み）。certificate version 1.4.3→1.4.4（PATCH）。
+> CLAUDE.md inbox の対応 PROPOSAL エントリも削除済み。
