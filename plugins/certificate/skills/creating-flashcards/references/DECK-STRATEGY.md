@@ -69,7 +69,7 @@
 
 ## 外部無料問題集サイト（kentei-lab 等）からの収集データの命名
 
-`collecting-kentei-lab-exams` から収集したデータは、コンテンツ種別ルート `検定試験::` 配下に
+URL収集ワークフロー（kentei-lab 等、詳細は [URL-COLLECTION.md](URL-COLLECTION.md)）から収集したデータは、コンテンツ種別ルート `検定試験::` 配下に
 **`検定試験::<検定名>::<級>::kentei-lab`**（級を検出できない試験は `検定試験::<検定名>::kentei-lab`）
 の階層で命名する。
 

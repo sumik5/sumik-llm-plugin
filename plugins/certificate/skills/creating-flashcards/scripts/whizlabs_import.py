@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """whizlabs_import.py — Whizlabs 収集済み JSON 専用の Anki 投入ブリッジ（恒久・常設）。
 
-`collecting-whizlabs-exams` スキルが出力する固定スキーマ JSON
+本スキル（creating-flashcards）の Step 0（URL収集・whizlabs）が出力する固定スキーマ JSON
 （トップレベル course_title/course_url/quiz_title/quiz_id/questions、questions[] は
 number/domain/question/choices/choice_type/correct/explanation_html）を anki_toolkit の
 QAPair に直接マッピングして投入する。

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """studying_import.py — studying 収集済み JSON 専用の Anki 投入ブリッジ（恒久・常設）。
 
-`collecting-studying-exams` スキルが出力する固定スキーマ JSON
+本スキル（creating-flashcards）の Step 0（URL収集・studying）が出力する固定スキーマ JSON
 （トップレベル course_title/course_url/category/subject_title/practice_id/questions、
 questions[] は number/question/choice_type/choices/correct/explanation）を anki_toolkit の
 QAPair に直接マッピングして投入する。

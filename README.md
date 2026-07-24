@@ -178,14 +178,14 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 mobile / skills ./skills/ / mcpServers なし）
     │   ├── README.md
     │   └── skills/                       # ナレッジスキル (2個: applying-apple-hig, developing-ios-apps)
-    └── certificate/                      # 資格・検定学習支援プラグイン（kentei-lab問題収集/Ankiフラッシュカード/教材変換）
+    └── certificate/                      # 資格・検定学習支援プラグイン（URL問題収集内蔵Ankiフラッシュカード/教材変換）
         ├── .claude-plugin/
         │   └── plugin.json               # プラグインメタデータ（plugin 名 certificate / version 同期必須）
         ├── .codex-plugin/
         │   └── plugin.json               # Codex CLI プラグインマニフェスト（plugin 名 certificate / skills ./skills/ / mcpServers なし）
         ├── README.md
         ├── commands/                     # スラッシュコマンド (1個: improve-creating-flashcards・Claude Code専用)
-        └── skills/                       # ナレッジスキル (3個: collecting-kentei-lab-exams, creating-flashcards, converting-content)
+        └── skills/                       # ナレッジスキル (2個: creating-flashcards, converting-content)
 ```
 
 ---

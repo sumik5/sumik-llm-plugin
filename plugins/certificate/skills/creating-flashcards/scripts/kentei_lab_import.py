@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """kentei_lab_import.py — kentei-lab 収集済み JSON 専用の Anki 投入ブリッジ（恒久・常設）。
 
-`collecting-kentei-lab-exams` スキルが出力する固定スキーマ JSON
+本スキル（creating-flashcards）の Step 0（URL収集・kentei-lab）が出力する固定スキーマ JSON
 （トップレベル exam_title/slug/questions、questions[] は
 number/question/choices/answer/explanation）を anki_toolkit の QAPair に
 直接マッピングして投入する。

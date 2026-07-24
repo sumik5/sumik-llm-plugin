@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """shikaku_drill_import.py — shikaku-drill 収集済み JSON 専用の Anki 投入ブリッジ（恒久・常設）。
 
-`collecting-shikaku-drill-exams` スキルが出力する固定スキーマ JSON
+本スキル（creating-flashcards）の Step 0（URL収集・shikaku-drill）が出力する固定スキーマ JSON
 （トップレベル exam_title/slug/questions、questions[] は
 number/category/question/choices/answer/explanation）を anki_toolkit の QAPair に
 直接マッピングして投入する。
