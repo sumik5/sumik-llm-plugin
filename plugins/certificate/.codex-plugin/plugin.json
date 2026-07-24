@@ -1,6 +1,6 @@
 {
   "name": "certificate",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "資格・検定の学習支援プラグイン。2個のスキル（creating-flashcards: EPUB/PDF/スキャン本、または certificate-exam サイトの URL（kentei-lab.com・studying/member.studying.jp・Whizlabs・shikaku-drill.com）からAnki MCP Server経由でフラッシュカードを一括作成。URLはホスト名で自動判定し内蔵の収集ロジックで問題文・正解・解説を取得してからAnki登録する・converting-content: 画像ベースEPUB→テキストOCR変換とLM Studioによるローカル翻訳）と1個のコマンド（improve-creating-flashcards: creating-flashcardsの自己改善）を含む。",
   "author": {
     "name": "sumik5"
