@@ -30,91 +30,14 @@
 > `extractQuestionHtml()`・`numberOlChoices()` を追加して解消（`devkit:tachikoma-lang-bash` 実装・
 > 本体が差分とグレップ検証で確認済み）。certificate version 1.4.3→1.4.4（PATCH）。
 > CLAUDE.md inbox の対応 PROPOSAL エントリも削除済み。
-
-## [ERR-20260723-004] collecting-studying-exams: nosubcat見出し(lessonタイプ)混入によるCDPエラー
-
-社労士コース（`https://member.studying.jp/course/id/2301/`）収集時、`collect-studying.sh`
-（certificate 1.4.5、キャッシュ版）の`collect-practice-links.js`が`✗ CDP error (Runtime.evaluate):
-Inspected target navigated or closed`で2回連続失敗した。
-
-原因: コーストップページに「今日のまとめのまとめ」という見出しがあり、これは
-`h2.m-ctop-course-d-list__title m-ctop-course-d-list__title--nosubcat is-marked`という
-**2つのクラスを同時に持つ**要素だった。`HEADING_SELECTOR = 'h2.m-ctop-course-d-list__title'`は
-このクラス併記を想定しておらず、`EXCLUDE_HEADING_SUBSTR = ['講座']`の文字列除外もすり抜けるため、
-通常の問題集セクションとして扱われてしまう。この見出し配下のトグルは
-`onclick="open_detail('lesson', <id>, event)"`という**lessonタイプ**（動画/音声講座）であり、
-`practice`タイプの科目トグルと異なりクリックで実際のページ遷移を起こす。これがCDPエラーの直接原因。
-
-解決: `EXCLUDE_HEADING_SUBSTR`に見出しラベルの文字列マッチで除外を追加する方式が有効
-（`--nosubcat`クラスでの構造的除外は別の設計欠陥[ERR-20260723-005]を誘発するため非推奨）。
-
-汎用性: studyingの無料公開コンテンツ・特別企画コンテンツには通常の3セクション以外に
-`--nosubcat`クラス付きの見出しが混在しうる（「今日のまとめのまとめ」のように「講座」を
-含まないラベルもある）。見出し文字列だけでなく、配下トグルの`onclick`属性が`practice`か
-`lesson`かで判定する方がより堅牢（`EXCLUDE_HEADING_SUBSTR`のような固定文字列リストは
-新しいコースパターンで再度すり抜ける可能性がある）。
-
-## [ERR-20260723-005] collecting-studying-exams: 境界計算がフィルタ後配列基準で末尾セクションの境界喪失
-
-ERR-004の一次対策として`HEADING_SELECTOR`から`--nosubcat`要素を除外したところ、別の収集漏れ
-（かつ再度のCDPエラー）が発生した。
-
-原因: `collect-practice-links.js`のメインループは`nextHeadingEl = headings[i+1].el`で「次の
-見出し」を計算するが、`headings`は**EXCLUDE後のフィルタ済み配列**。除外対象の見出しが末尾に
-連続する構成（今回: スマート問題集→セレクト過去問集→選択式ポイント問題集→総まとめ講座(除外)→
-今日のまとめのまとめ(除外)）では、フィルタ後配列で最後に残る対象見出し「選択式ポイント問題集」の
-`nextHeadingEl`が`null`になる。`nextHeadingEl`が`null`だと`isAfter`による範囲フィルタが
-「見出し以降」だけになり、**ページ末尾までの全トグル**（除外したはずの「総まとめ講座」
-「今日のまとめのまとめ」配下のlessonタイプトグルも含む）を誤って対象化してしまう
-（実機確認: 本来9件のはずが27件検出）。
-
-解決: `nextHeadingEl`計算を、フィルタ前の全見出し配列（`allHeadings`）基準にする
-（`allHeadings.indexOf(headingEl) + 1`）。フィルタ後配列上のインデックスではなく、
-DOM上の実際の隣接関係を使う。
-
-汎用性: 「対象外要素を除外してから、除外後配列で次要素/境界を計算する」という2段階処理は、
-除外対象が配列の末尾に連続する場合に境界が消失する典型的な設計バグパターン。除外判定と
-境界計算は別々の配列基準で行う必要がある（フィルタ前配列で隣接関係を確定してから、
-フィルタ後の要素だけをループ対象にする）。同種のロジック（見出しでセクション分割する
-スクレイピングコード全般）に波及しうる。
-
-## [ERR-20260723-007] collecting-studying-exams: TOGGLE_SELECTORのaタグ誤マッチとページ遷移によるCDPエラー
-
-社労士系無料公開コース（`https://member.studying.jp/course/id/2797/`「白書統計厳選チェックテスト」）
-を収集しようとした際、ERR-004/005修正後の版でも別の構造が原因で同種のCDPエラーが起きうることが判明した
-（実行前に事前シミュレーションで検出・実収集は未発生）。
-
-原因: このコースは見出しが1件のみの nosubcat 構造（`headings.length === 0` にならないためメイン
-ループで処理される）。`TOGGLE_SELECTOR = '.m-ctop-course-d-list__link'` は div型トグル自体
-（`onclick="open_detail('practice', ...)"`・`is-open`クラス付き）だけでなく、**既に展開済みの
-`<a href="course/practice/index/id/<id>/...">`要素自体にも同じクラス名が付与されている**。今回の
-コースでは`isAfter`の境界判定でdivトグル（見出しh2を内包する祖先要素のため境界外）が除外され、
-`<a>`要素だけが`toggles`に残る。`<a>`要素は`is-open`クラスを持たないため`wasOpen`判定が`false`に
-なり`toggle.click()`が実行されるが、`<a href="...">`要素のクリックは実際にページ遷移を起こし
-agent-browserのCDP接続を落とす（ERR-004のlessonタイプ混入と症状は同じだが原因は別:
-今回は`TOGGLE_SELECTOR`自体がdivとaの両方にマッチすることが原因）。
-
-解決: メインループの`toggle`走査冒頭に`toggle.tagName === 'A'`の早期分岐を追加し、`<a>`要素で
-既に`course/practice/index/id/<id>`形式の`href`を持つ場合はクリックせず、hrefから直接
-`practice_id`を抽出して結果へ追加するよう修正した（div型トグルの既存ロジックは変更なし）。
-
-汎用性: 「同じクラス名がトグル(div)と展開済みリンク(a)の両方に付与されている」というパターンは
-studyingのnosubcat構造で複数回観測されている（nosubcatフォールバック側の既存教訓と同型のバグが
-メインループ側にも潜んでいた）。DOM要素をセレクタで一括取得してから`click()`する設計では、
-「クリック不要なリンク要素が同じセレクタに紛れ込んでいないか」を`tagName`で必ず確認すること。
-実行前に軽量な事前シミュレーション（実際にクリックせず、対象要素のtagName/onclick/hrefを一覧化
-するevalクエリ）を挟むと、実収集を汚さずに構造の異常を検出できる。
-
-## [ERR-20260723-006] AnkiConnect大量連続リクエストでのConnection refused/reset
-
-`studying_import.py`を264ファイル分ループ実行（間隔なし）した際、82件が
-`ConnectionResetError: [Errno 54]`または`URLError: <urlopen error [Errno 61] Connection refused>`
-で失敗した。Anki本体プロセスは生存しており（`curl`での`version`アクション確認済み）、
-AnkiConnect側の一時的な過負荷・キューあふれが原因と推測される。
-
-解決: 失敗ファイルのみ抽出し、各リクエスト間に`sleep 0.5`を挟んで再実行したところ全件成功
-（82/82）。
-
-汎用性: AnkiConnect経由での大量一括投入（100件超）では、リクエスト間隔を空ける
-（0.5秒程度）か、初回失敗分を後段でリトライする設計を前提にすること。exit code非0の
-ファイルだけ抽出して再実行する運用パターンは他のバッチ投入作業にも流用できる。
+>
+> 2026-07-24: 蓄積エントリ（ERR-20260723-004・ERR-20260723-005・ERR-20260723-006・ERR-20260723-007・
+> ERR-20260724-007）を全消費・削除済み。恒久化先: `creating-flashcards` スキル本体（旧
+> `collecting-studying-exams` から統合移動済み）。ERR-004（nosubcat見出し混入によるCDPエラー）・
+> ERR-005（フィルタ後配列基準の境界計算バグ）・ERR-007（TOGGLE_SELECTORのaタグ誤マッチ）は
+> `scripts/collect-studying.sh` に修正が既に反映済みであることを実grepで確認（`toggle.tagName === 'A'`・
+> `EXCLUDE_HEADING_SUBSTR`・`allHeadings`基準の境界計算、いずれも実在）。ERR-006（AnkiConnect大量連続
+> リクエストでのConnection refused/reset）は `references/SCRIPTS-CONTRACT.md` の「大量投入時の
+> リクエスト間隔」節へ新規恒久化。ERR-20260724-007（herdr agent paneの未送信入力欄プリフィルの誤送信
+> リスク）はLRN-20260719-003（同型の初回発生）と統合し `operating-herdr/INSTRUCTIONS.md` の
+> 「Escape で中断した直後の多段送信は要注意」ブロック直後へ新規恒久化。

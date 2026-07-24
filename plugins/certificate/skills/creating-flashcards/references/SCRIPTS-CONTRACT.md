@@ -62,3 +62,7 @@ QAPAIR_FIELDS: front,back,qtype,choices,correct,wrong_explanations,verdict,tags,
 RENDEROPTIONS_FIELDS: choice_list_style,details_choice_style,front_field_is_choice_shuffle
 PUBLIC_API: anki_request,ensure_deck,existing_fronts,filter_new,dedup_deck,build_note,store_media,upload,build_front_html,build_back_html,build_tags,is_code_like,sample_cards
 <!-- CONTRACT:END -->
+
+## 🔴 大量投入時のリクエスト間隔
+
+`*_import.py` を100件超のファイルに対してシェルループで間隔なく連続投入すると、AnkiConnect 側の一時的な過負荷により `ConnectionResetError`・`Connection refused`（`urlopen error`）が一部発生しうる（実測: 264件中82件失敗。Anki本体プロセスは生存しており、AnkiConnect 側のキューあふれが原因と推測される）。失敗したファイルのみ抽出し、各リクエスト間に `sleep 0.5` を挟んで再実行したところ全件成功した（82/82）。100件超をループ投入する運用では、各呼び出し間に `sleep 0.5` 程度を挟むか、失敗したファイルのみ抽出して後段でリトライする前提で組むこと。

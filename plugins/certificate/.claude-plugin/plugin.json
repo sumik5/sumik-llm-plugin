@@ -1,7 +1,7 @@
 {
   "name": "certificate",
   "description": "sumik Claude Code Plugin (certificate) — 資格・検定の学習支援スキル群（URL問題収集内蔵のAnkiフラッシュカード作成・教材OCR/翻訳変換）",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": {
     "name": "sumik5"
   }

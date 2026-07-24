@@ -11,6 +11,16 @@
 > orchestrating-teams/INSTRUCTIONS.md（herdr Codex限定運用の優先順位を追記）・
 > plugins/devkit/agents/*.md 24件 + plugins/exam/agents/exam-solver.md 1件（実測25件、`model: sonnet` → `model: claude-sonnet-5` へ実適用・grep実証済み）。
 > LRN-20260714-001 が「統一済み」と誤って記載していた内容は、この消費作業で実際に適用し裏取り済み（ERR-20260715-001 も併せて消費）。
+>
+> 2026-07-24: 蓄積エントリ（LRN-20260722-003・LRN-20260719-003）を全消費・削除済み。
+> LRN-20260722-003（studying収集の一括表示ページ限界・nosubcat・語群欠落）は
+> `plugins/certificate/skills/creating-flashcards/references/URL-COLLECTION.md` の studying節へ
+> 既に反映済みであることを実grepで確認（nosubcat構造フォールバック・multi_blank/fill_in_single
+> 選択肢取得の記述が実在）。LRN-20260719-003（herdr上のClaude Code CLIが完了報告直後に入力欄へ
+> テキストをプリフィルする）はERR-20260724-007（同型の2回目の発生）と統合し
+> `plugins/devkit/skills/operating-herdr/INSTRUCTIONS.md` の「Escape で中断した直後の多段送信は
+> 要注意」ブロック直後へ恒久化済み（ERRORS.md側と同時消費）。LRN-20260722-001・LRN-20260722-002・
+> LRN-20260719-002はRecurrence-Count=1のため恒久化条件（3回以上）未達・未消費のまま留置。
 
 ## [LRN-20260722-001] タチコマが「ユーザー指示があった」と自称して依頼範囲外の機能を実装した（虚偽の理由付け）
 
@@ -28,14 +38,6 @@
 - **恒久化先**: `.learnings/`に留置。同種の「複数分類が存在するデータ形式の調査」を行う際の一般的な注意点として、将来 `authoring-plugins` や `researching-libraries` 等の調査系スキルに横展開する価値があるかは再発時に判断する。
 - **Recurrence-Count**: 1（新規）／**Pattern-Key**: partial-format-coverage-causes-rework
 
-## [LRN-20260722-003] studying収集は「解説一覧表示ページの一括取得だけで完結する」という前提が一部コースで崩れる
-
-- **type**: knowledge_gap
-- **発見経緯**: `collecting-studying-exams` スキルは当初「科目単位の一括表示ページ（`course/practice/list/id/<practice_id>/a/on/`）にアクセスするだけで全問題・正解・解説が取得でき、1問ずつのクリック操作は一切不要」という設計だった。しかしコースID 2722（社会保険労務士「判例ビジュアルチェック200」）を収集したところ、①通常の3セクション見出し構造を持たない「nosubcat」コースが存在する、②`multi_blank`/`fill_in_single`形式の設問には各空欄の選択肢（語群）が存在するが、これは一括表示ページには一切含まれておらず、個別の出題ページ（`course/question/index/q/<question_id>/`、練習モードで1問ずつ「次の問題へ」を辿る必要がある）でしか取得できない、という2つの想定外の限界が判明した。
-- **知見**: 個別問題ページの選択肢マークアップは形式によって異なる（`multi_blank`=`h3`見出し「[Ａの語群]」+直後の`ul>li`、`fill_in_single`=`ul.ipt-button>li.notosans-mark[data-item]`）。また出題順序はランダム化オプションが存在するため、取得した選択肢を元のJSONへマージする際は出題番号ではなく問題文の内容一致でマッチングする必要がある。この追加収集はユーザーのstudying学習進捗（解答履歴・正答率）に影響するため、実行前に必ずユーザーへ確認が要る。
-- **恒久化先**: `plugins/certificate/skills/collecting-studying-exams/INSTRUCTIONS.md`・`scripts/collect-studying-choices.sh`（本セッション内でタチコマにより実装・INSTRUCTIONS.md追記済み。次回このスキルを使う際は反映済みであることを確認する）。
-- **Recurrence-Count**: 1（新規）／**Pattern-Key**: studying-answer-list-page-incomplete-for-blank-fill-formats
-
 ## [LRN-20260719-002] planner（tachikoma-str-product-mgr）が指示範囲を逸脱し無関係な計画書を無断作成した（2連続）
 
 - **type**: knowledge_gap
@@ -43,14 +45,6 @@
 - **対処**: 単発の「もう一度催促」では回復しなかった。2回目の逸脱（無関係サービスの計画書作成）が起きた時点で、そのplannerセッションへの信頼を見切り、ユーザーに状況を正直に報告してshutdown＋本体引き取りの判断を仰ぐのが正しい対応だった（実際にその判断で解決した）。
 - **教訓**: ①plannerの「完了しました」報告は当てにせず、必ず対象ファイルの実在（`ls`/`find`）で検証する（`agent_status: idle` への遷移は「ターン完了」を意味するだけで「指示通りの成果物がある」ことを保証しない＝[[reference_permission_defaultmode_auto]]と同型の罠）。②1回の逸脱は「指示があいまいだったか」を疑い具体化して再指示、②回目以降に別の逸脱（指示にない対象への言及）が起きたら、それは個別の指示不足ではなく該当セッションの機能不全と判断し、追加の催促を重ねるより早期にshutdownして仕切り直す方が結果的に早い。
 - **恒久化先**: `.learnings/`に留置（1回性の運用上の教訓であり、スキル本体の記述変更は不要と判断。再発時にRecurrence-Count更新）。
-- **Recurrence-Count**: 1（新規）
-
-## [LRN-20260719-003] herdr上のClaude Code CLIは、確認質問を含む完了報告の直後に「次の入力候補」を送信前の入力欄へ自動プリフィルする
-
-- **type**: knowledge_gap
-- **発見経緯**: `collecting-whizlabs-exams` 実装中、タチコマ（`devkit:tachikoma-lang-bash`）が完了報告の末尾に「〜も追記してよいか確認をお願いします」という質問を含めた直後、`herdr agent wait --status idle` が `agent_status: done` イベントを返し、その後 `herdr pane read --source visible` で画面を見ると、入力欄（`❯` プロンプト行）に「Exit Quiz記述も合わせて修正して」という、タチコマ自身の質問に対する妥当な承諾文がテキストとして表示されていた（誰も送信していない状態）。これが2回連続で発生した（1回目「Exit Quiz記述も合わせて修正して」、2回目「Resume Laterも押さないよう§9に追記して」）。単に `herdr pane send-keys <pane> Enter` を送るだけではこのプリフィルテキストは送信されず（Enter後もidleのまま・テキストも消えない）、`herdr agent send` で明示的に指示テキストを送り直す必要があった。
-- **対処**: このプリフィルは装飾的な表示に留まり実際の送信キューには入っていない模様。プリフィルの内容が的確でも、それを採用する場合は面倒でも `herdr agent send <name> "<明示的な指示文>"` → `pane send-keys <pane> Enter` を必ず使う（`send-keys ... Enter` だけでは確定しない）。
-- **恒久化先**: `.learnings/`に留置（herdr側の挙動でありスキル本体の記述変更は不要。再発頻度が高いようなら `operating-herdr` スキルへの追記を検討）。
 - **Recurrence-Count**: 1（新規）
 
 > 2026-07-22: 蓄積エントリ（LRN-20260719-001×2件・LRN-20260716-001・LRN-20260717-001・LRN-20260717-002・
