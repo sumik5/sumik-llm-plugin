@@ -83,11 +83,13 @@ curl http://127.0.0.1:3141/
 | `scripts/anki_toolkit.py` | 🔴 **不変・育てる側** | ソースに依らず毎回同じ部分（AnkiConnect クライアント・`addNotes` バッチ投入・冪等性・HTML整形・タグ生成・`QAPair` 中間表現契約・翻訳スキップ判定・品質検証）を全格納する。投入時に書き換えない。発見した不変バグはここを1箇所修正する |
 | `scripts/parser_scaffold.py` | **雛形・コピーして使う側** | ソース固有の `parse()` だけを毎回埋める使い捨てパーサーの雛形。共通前処理ヘルパ（pandocアーティファクト除去・NFKC正規化・smart_join・ページ番号抽出・セクションマーカーgrep・画像抽出）に加え、OCR残存フォールバック用の `collapse_repeated_lines(text, max_repeat=3)`（反復崩壊圧縮・消費側閾値3）・`strip_thinking_logs(text)`（メタ思考ログ除去・○×単独行保護）を「素材」として持つ。呼ぶ/呼ばない/regexの差し替えは毎回ソースを見て判断する（一括統合関数にはしない） |
 
-> 🔵 **kentei-lab 収集 JSON は第 3 のスクリプトを使う（固定スキーマ専用の例外）**: 上記 2 層（不変 toolkit +
-> 使い捨て scaffold）に加え、`scripts/kentei_lab_import.py` が `collecting-kentei-lab-exams` の固定スキーマ JSON
-> 専用の**恒久ブリッジ**として常設されている。kentei-lab JSON は自己管理された固定構造のため「使い捨て parse()」の
-> 前提（構造変異）が当てはまらず、ジェネリックパーサー禁止ルールの明示的な例外として扱う（詳細は Step 1 の
-> 「kentei-lab 収集済み JSON のファストパス」節）。
+> 🔵 **収集スキル出力 JSON は第 3 のスクリプトを使う（固定スキーマ専用の例外）**: 上記 2 層（不変 toolkit +
+> 使い捨て scaffold）に加え、`scripts/kentei_lab_import.py`（`collecting-kentei-lab-exams`）・
+> `scripts/whizlabs_import.py`（`collecting-whizlabs-exams`）・`scripts/studying_import.py`
+> （`collecting-studying-exams`）・`scripts/shikaku_drill_import.py`（`collecting-shikaku-drill-exams`）が、
+> それぞれの収集スキルが出力する固定スキーマ JSON 専用の**恒久ブリッジ**として常設されている。これらの JSON は
+> 自己管理された固定構造のため「使い捨て parse()」の前提（構造変異）が当てはまらず、ジェネリックパーサー禁止
+> ルールの明示的な例外として扱う（詳細は Step 1 の各「〜収集済み JSON のファストパス」節）。
 
 **毎回の作業フロー:**
 
@@ -318,6 +320,54 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/studying_import
 > ⚠️ **studying は著作権への配慮が必要なプラットフォーム**: `collecting-studying-exams` が収集した問題文・
 > 解説の実例を、投入作業中の会話・コミットメッセージ・スキル本文に引用しない（ユーザー自身の Anki 個人
 > 利用の範囲でのみ投入する）。
+
+#### shikaku-drill 収集済み JSON のファストパス（AI 構造推測をスキップ）
+
+`collecting-shikaku-drill-exams` スキルが出力した JSON（トップレベルに `exam_title`・`slug`・
+`questions` を持ち、各 `questions[]` 要素が `number`・`category`・`question`・`choices`・`answer`・
+`explanation` を持つ）を受け取った場合も、kentei-lab・whizlabs・studying 同様に**収集時に DOM から
+確定取得済みの完全構造化データ**であり、AI が構造を推測する必要がない。以下のファストパスを取る。
+
+1. Step 2（言語検出）・Step 3（コンテンツ構造の自動分析）・Step 4（サンプル確認による AI 推測）を
+   **すべてスキップ**する（構造は既知・曖昧さなし）。
+2. `parser_scaffold.py` を**コピーしない**。専用ブリッジ `scripts/shikaku_drill_import.py` を使う。
+3. Step 5（デッキ・ノートタイプ選択）へ直行する。デッキ選択（Step 5a）は kentei-lab・whizlabs・studying
+   と異なり、**ファイル単位ではなく問題単位**で決まる点に注意する。shikaku-drill は 1 ファイル = 1 試験の
+   全問題であり、各問題が個別にカテゴリ（`category`）を持つため、`shikaku_drill_import.py` は
+   `--deck` を省略した場合 `group_by_deck()` が問題ごとに
+   `検定試験::<検定名>::<級>::shikaku-drill::<カテゴリ名>`（級を検出できない試験は
+   `検定試験::<検定名>::shikaku-drill::<カテゴリ名>`）へ自動振り分けし、複数デッキへ分散投入する。
+   **これが既定の推奨動作であり、通常は AskUserQuestion で「このまま進める」ことを確認すれば足りる**
+   （whizlabs・studying のような「単位をまとめるか分けるか」の判断は不要。ただし全カードを 1 デッキへ
+   まとめたい場合は `--deck` を明示すれば単一デッキ投入にフォールバックできることも伝える）。
+   ノートタイプ選択（Step 5b）は通常どおり `modelNames`/`modelFieldNames`/`modelTemplates` を確認する
+   （既存の必須ワークフローは崩さない）。
+4. Step 5 で確定したノートタイプ名・フィールド名・`choice_list_style` を CLI 引数として渡す（デッキは
+   基本的に省略し自動振り分けに任せる。単一デッキへ統合したい場合のみ `--deck` を明示する）。
+
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/shikaku_drill_import.py" \
+    <slug>.json \
+    --model "<ノートタイプ名>" \
+    --front-field <Question 等> --back-field <Answer 等> \
+    [--extra-field "<Knowledge Area 等>"] \
+    [--choice-list-style ol|br] \
+    [--deck "<全カードを1デッキにまとめる場合のみ明示>"]
+```
+
+> 🔴 **なぜ恒久スクリプトなのか（ジェネリックパーサー禁止ルールの例外根拠）**: kentei-lab・whizlabs・
+> studying 同様、shikaku-drill JSON も**本プラグインの collect スクリプトが自己管理する固定スキーマ**
+> であり、書籍のような構造変異が起きる理由が存在しない。したがって固定スキーマ専用の
+> `shikaku_drill_import.py` を恒久化するのが正しい。将来「使い捨てルール違反」として削除・scaffold 化
+> しないこと。
+
+> 🔴 **`disable-model-invocation` とセッション内直接ブリッジ時の注意**: kentei-lab・whizlabs・studying 版と
+> 同じ制約が適用される。`creating-flashcards` は自身の SKILL.md フロントマターで
+> `disable-model-invocation: true` を持つため、`collecting-shikaku-drill-exams` の JSON を同一会話内で
+> そのまま渡そうとして `Skill(skill: "certificate:creating-flashcards", ...)` を呼ぶと**失敗する**
+> （ユーザーが `/certificate:creating-flashcards` を明示的に叩いた場合のみ起動可能）。同一会話内でこの
+> ファストパスへブリッジする際は、Skill ツールを使わず kentei-lab 版と同じ手順（`${CLAUDE_PLUGIN_ROOT}`
+> 未設定時の実体パス解決・Step 5a/5b の代行・`--dry-run` での事前確認）を踏む。
 
 > ⚠️ **JSON には2系統ある（構造化Q&A vs ページ単位OCR）**: JSON ソースには (a) 問題・解答がフィールドとして構造化済みの Q&A JSON と、(b) VLM/`recognize` 系 OCR が出力する**ページ単位 JSON**（`[{"index","filename","text"}, ...]` で各ページの生テキストを保持）の2系統がある。(b) は「構造化済み」ではなく、各ページの `text` を Markdown 同様にパースする必要がある（科目見出しページ・問題ページ・解答ページの分類が要る）。実装は **JSON パスを `md_path` として渡し、`parse()` 冒頭で `json.loads(markdown_text)` してページ列を得る**と scaffold の `main()` をそのまま再利用できる。画像主体 EPUB を VLM で逐次OCRしたケースで観測。
 

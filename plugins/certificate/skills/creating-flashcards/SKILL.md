@@ -5,15 +5,12 @@ description: >-
   API, covering MCP setup, OCR for image-based sources (Apple Vision first choice, local VLM
   fallback), deck/note-type management, and batch import with HTML formatting.
   Use when converting textbooks, question banks, or study materials into spaced repetition flashcards,
-  or when managing Anki cards via MCP tools.
-  Covers full workflow: MCP setup → file conversion (pandoc / OCR) → content analysis → batch card
-  creation. For MCP server/client development, use lang:developing-mcp instead.
-  Also supports fast-paths for pre-structured exam JSON collected by collecting-kentei-lab-exams
-  (kentei-lab schema: exam_title/slug/questions, via scripts/kentei_lab_import.py),
-  collecting-whizlabs-exams (whizlabs schema: course_title/quiz_title/quiz_id/questions, via
-  scripts/whizlabs_import.py), and collecting-studying-exams (studying schema:
-  course_title/category/subject_title/practice_id/questions, via scripts/studying_import.py),
-  skipping AI structure inference in all three cases.
+  or when managing Anki cards via MCP tools. For MCP server/client development, use
+  lang:developing-mcp instead.
+  Also supports fast-paths for pre-structured exam JSON from collecting-kentei-lab-exams,
+  collecting-whizlabs-exams, collecting-studying-exams, and collecting-shikaku-drill-exams (each via
+  a dedicated bridge script: kentei_lab_import.py / whizlabs_import.py / studying_import.py /
+  shikaku_drill_import.py), skipping AI structure inference.
   For EPUB image compression/size reduction use studio:compressing-epub-images; for standalone
   image-EPUB→text OCR conversion (no flashcard creation) use converting-content.
 argument-hint: "<file-path>"
