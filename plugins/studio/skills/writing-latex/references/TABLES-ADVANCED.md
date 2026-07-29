@@ -21,6 +21,8 @@ LaTeXにおける高度なテーブル組版技術に関する包括的なリフ
 
 ## 標準LaTeXテーブル環境の復習
 
+**注記**: 以下は`tabular`環境の生の構文を示す教材的な例である。実際の執筆では[INSTRUCTIONS.md](../INSTRUCTIONS.md)の方針に従い、`booktabs`の`\toprule`/`\midrule`/`\bottomrule`を使用し、縦罫線`|`と`\hline`は避けること。
+
 ### tabular 環境
 
 基本的なテーブル作成環境。
@@ -1006,12 +1008,14 @@ LaTeXにおける高度なテーブル組版技術に関する包括的なリフ
 
 ### 罫線スタイル
 
+本スキルが対象とする日本語学術レポートでは`booktabs`が既定・必須の選択である（詳細: [INSTRUCTIONS.md](../INSTRUCTIONS.md)の「表」セクション）。以下のboldline/arydshln/hhlineは、特殊な罫線表現がどうしても必要な場合のみ検討する代替パッケージ。
+
 | 目的 | 推奨 |
 |------|------|
-| フォーマルな論文・書籍 | `booktabs` |
-| 太い罫線 | `boldline` |
-| 破線 | `arydshln` |
-| 複雑な結合 | `hhline` |
+| 標準（本スキルの既定・必須） | `booktabs` |
+| 太い罫線が必要な特殊用途 | `boldline` |
+| 破線が必要な特殊用途 | `arydshln` |
+| 複雑な結合が必要な特殊用途 | `hhline` |
 
 ### 数値揃え
 
