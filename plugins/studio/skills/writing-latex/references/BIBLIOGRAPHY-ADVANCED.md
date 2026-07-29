@@ -32,8 +32,44 @@ Sample Publishing, 1994.
 - 複数文書で再利用不可
 - ソート・フォーマットを手動管理
 - 引用スタイルの統一が手間
+- `\cite{key1,key2,...}` のように複数キーを1つの `\cite` に渡した場合、`thebibliography` 環境は BibTeX と異なり**記述順そのまま出力する**（bibitem番号順に自動ソートしない）。著者が本文を後から並べ替えると、`\cite{key1,key2}` 内のキー順が bibitem 番号の昇順からズレて `[9, 6]` のような不自然な表示になりやすい
 
 **解決策：** BibTeX/biber + データベースファイル（`.bib`）を使用
+
+### `thebibliography` を使い続ける場合の機械検証
+
+BibTeX/biberへ移行しない小規模レポート等で `thebibliography` 環境を使い続ける場合、上記の問題点は目視チェックだけでは見逃しやすい。以下のスクリプトで検証できる。
+
+1. **複数キー`\cite`の順序チェック**: `\bibitem{key}` の出現順を番号として記録し、本文の全 `\cite{key1,key2,...}` について、各キーの番号列が昇順になっているか検証する。
+2. **未使用bibitemの検出**: `\bibitem` のキー集合から、本文の全 `\cite{}` に一度も現れないキーを検出する。
+
+🔴 **罠**: 「bibitem記載順と本文初出順が一致するか」を検証する際、未使用bibitemが記載順の途中に混入していると、それ以降の全キーが1つずつズレて見え、大量の偽陽性の不一致が報告される。**先に未使用bibitemを検出・除去してから**、記載順と本文初出順の一致を検証すること。
+
+```python
+import re
+
+text = open('document.tex', encoding='utf-8').read()
+bib_start = text.find('\\begin{thebibliography}')
+body, bib = text[:bib_start], text[bib_start:]
+
+bibitem_keys = re.findall(r'\\bibitem\{([^}]*)\}', bib)
+key_to_num = {k: i + 1 for i, k in enumerate(bibitem_keys)}
+
+cite_calls = list(re.finditer(r'\\cite\{([^}]*)\}', body))
+used_keys = {k.strip() for m in cite_calls for k in m.group(1).split(',')}
+
+# 1. 未使用bibitemを検出（先に除去してから順序検証すること）
+unused = [k for k in bibitem_keys if k not in used_keys]
+
+# 2. 複数キーcite内の昇順チェック
+for m in cite_calls:
+    keys = [k.strip() for k in m.group(1).split(',')]
+    if len(keys) < 2:
+        continue
+    nums = [key_to_num.get(k) for k in keys]
+    if nums != sorted(nums):
+        print(f"順序NG: \\cite{{{m.group(1)}}} -> 番号{nums}")
+```
 
 ---
 
