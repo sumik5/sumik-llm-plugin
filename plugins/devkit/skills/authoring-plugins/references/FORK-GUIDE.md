@@ -207,6 +207,8 @@ agent: general-purpose   # 省略時のデフォルト
 
 > 🔴 **Agent preload 対象スキルに fork を追加する場合**: `disable-model-invocation: false` を必ず維持すること。`true` に変えると preload も停止する。
 
+> ⚠️ **他 agent への途中引き継ぎ時の注意**: `disable-model-invocation: true` が設定されたスキルは `Skill` ツール経由でのロードが成立しない設計のため、作業を別の agent（background agent 等）へ途中から引き継ぐと、引き継ぎ先は同じ手段でそのスキルをロードできない。引き継ぎ用の依頼プロンプトには「`Skill` ツールは使えない前提で、`SKILL.md` 本体・`INSTRUCTIONS.md`・`references/*.md`・付属スクリプト等を直接 `Read` して手続きを再現すること」を最初から明記し、引き継ぎ先の試行錯誤による手戻りを防ぐ。
+
 ### 7.2 Agent プリロードとの共存
 
 Agent の `skills:` フィールドでプリロードされたスキルに `context: fork` を追加しても、

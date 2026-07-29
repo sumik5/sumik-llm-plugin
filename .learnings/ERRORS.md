@@ -41,3 +41,12 @@
 > リクエスト間隔」節へ新規恒久化。ERR-20260724-007（herdr agent paneの未送信入力欄プリフィルの誤送信
 > リスク）はLRN-20260719-003（同型の初回発生）と統合し `operating-herdr/INSTRUCTIONS.md` の
 > 「Escape で中断した直後の多段送信は要注意」ブロック直後へ新規恒久化。
+
+> 2026-07-29: 蓄積エントリ（ERR-20260725-001・ERR-20260727-001）を全消費・削除済み。
+> ERR-20260725-001（agent-browser open直後のAJAX生成DOM未挿入・レッスン0件誤判定）は
+> `plugins/web/skills/automating-browser/references/AGENT-EXAMPLES.md` の実践Tipsリスト末尾（11番目）へ
+> 「動的挿入要素はeval内でポーリング」として新規恒久化。ERR-20260727-001（disable-model-invocation:true
+> スキルは別agentへの引き継ぎ時にSkillツール経由でロードできない）は
+> `plugins/devkit/skills/authoring-plugins/references/FORK-GUIDE.md` の「7.1 disable-model-invocationとの
+> 関係」節208行目直後へ新規恒久化。両ファイルとも`git diff`で追加行のみ・禁止語なし・
+> `.learnings`参照残存なしを実機検証済み。web 1.4.0→1.4.1・devkit 14.12.4→14.12.5（いずれもPATCH）。

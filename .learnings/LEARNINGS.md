@@ -41,3 +41,10 @@
 > 実ファイルで反映済みを確認）。RTK.md「環境の罠と回避策」表へ dotfiles symlink 実体化の罠を追記。
 > tesseract 学びは creating-flashcards/references/OCR-CONVERSION.md が既により発展した形（Apple Vision + VLM
 > 併用のハイブリッド判断基準）で対応済みと確認したため追記不要と判断。
+
+> 2026-07-29: 蓄積エントリ（LRN-20260725-001〜005）を全消費・削除済み。全件が個人用スクリプト
+> `/Users/sumik/dotfiles/bin/collect.sh`（旧 collect-urls.sh・download-videos.sh は同スクリプトへ統合済み）
+> の設計判断記録であり、実ファイルで全項目（対話プロンプト方式・COLLECT_*汎用環境変数・逐次追記保存・
+> 間隔指定＋状態ファイルによる中断再開）が反映済みであることを確認（ユーザー承認により恒久化なし・
+> 削除のみで妥当と判断）。sumik-claude-plugin repoのプラグインコンポーネントとは無関係のため
+> スキル本体への追記は行わず。

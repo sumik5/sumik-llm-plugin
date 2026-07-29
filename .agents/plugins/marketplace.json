@@ -10,7 +10,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/devkit"
       },
-      "version": "14.12.4",
+      "version": "14.12.5",
       "description": "Claude Codeの開発ワークフローを強化する包括的なプラグインシステム。31体のタチコマAgent・31個のスキル・13個のコマンドを含み、並列実行モデルとトークン効率化を実現する開発者向け拡張プラグイン。",
       "policy": {
         "installation": "AVAILABLE",
@@ -24,7 +24,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/studio"
       },
-      "version": "2.1.0",
+      "version": "2.1.1",
       "description": "コンテンツ制作スキル群を提供するプラグイン。10個のスキル（スライド・PPTX・図表・LaTeX・コンテンツ生成・EPUB圧縮・カウントダウンアイコン・研修設計・検索可視性最適化(SEO/GEO)）と1個のコマンドを含む。",
       "policy": {
         "installation": "AVAILABLE",
@@ -52,7 +52,7 @@
         "source": "local",
         "path": "./.cache/sumik-marketplace/web"
       },
-      "version": "1.4.0",
+      "version": "1.4.1",
       "description": "Web・フロントエンド実装スキル群を提供するプラグイン。15個のスキル（developing-nextjs・developing-react・developing-fullstack-javascript・developing-web-apis・choosing-api-styles・securing-web-apis・building-nodejs-services・developing-fastapi・designing-frontend・styling-with-tailwind・implementing-design・automating-browser・using-next-devtools・testing-with-vitest・testing-e2e-with-playwright）を含む。",
       "policy": {
         "installation": "AVAILABLE",

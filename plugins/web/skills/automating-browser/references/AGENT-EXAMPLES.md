@@ -549,4 +549,5 @@ agent-browser react suspense                     # Suspense 境界の状態
 8. **--json で機械可読出力** — スクリプトに組み込む際は各コマンドの `--json` を使う
 9. **--session で並列分離** — 独立した複数ユーザーのテストは `--session` で cookie/storage/認証を分離する
 10. **diff / vitals / react で検証** — 状態差分は `diff`、性能は `vitals`、React 内部は `react`（要 `--enable react-devtools`）で確認する
+11. **動的挿入要素は eval 内でポーリング** — クリックで展開するアコーディオンやタブなど、操作後に子要素が非同期で DOM 挿入される場合、`wait --text` / `wait --url` / `wait --load` はページ全体の状態や特定文字列/URLを待つものであり捕捉できないことがある。その場合は `eval` に渡す JS 内で `click()` 実行後に `setTimeout` ベースの独自ポーリングループ（例: 250ms 間隔・最大 40 回 = 10 秒でタイムアウト）を組み、対象要素が出現するまで再クエリすると解決する
 ```
