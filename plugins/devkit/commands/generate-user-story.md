@@ -148,11 +148,31 @@ Webアプリケーションのコードを分析し、ユーザーストーリ�
 ### 6. 出力とフィードバック
 1. `docs/user-story.md` を作成または更新
 2. `docs/e2e.md` を作成または更新
-3. ユーザーに以下を報告:
+3. **併用HTMLの生成**: 両ドキュメントが確定したら、ユーザーがブラウザで読みやすいよう以下を実行して同名の`.html`を生成する
+   ```bash
+   MD_TO_HTML="$(command -v md-to-html.sh || true)"
+   if [ -z "$MD_TO_HTML" ] && [ -x "${CLAUDE_PLUGIN_ROOT:-}/scripts/md-to-html.sh" ]; then
+     MD_TO_HTML="${CLAUDE_PLUGIN_ROOT}/scripts/md-to-html.sh"
+   fi
+   if [ -z "$MD_TO_HTML" ]; then
+     MD_TO_HTML="$(find ~/.claude/plugins -path '*/devkit/*/scripts/md-to-html.sh' -print -quit 2>/dev/null)"
+   fi
+
+   if [ -n "$MD_TO_HTML" ]; then
+     "$MD_TO_HTML" "docs/user-story.md"
+     "$MD_TO_HTML" "docs/e2e.md"
+   else
+     echo "警告: md-to-html.sh が見つかりません。docs/user-story.md・docs/e2e.md のみ提示します" >&2
+   fi
+   ```
+   - pandoc未検出等でHTMLが生成されない場合は警告のみで続行してよい（`.md`が正本のため処理失敗にはしない）
+   - 既存ドキュメントを更新した場合も再実行し、`.html`を再生成する（陳腐化を防ぐ）
+4. ユーザーに以下を報告:
    - 特定したペルソナ数
    - 作成したユーザーストーリー数
    - 作成したE2Eテストケース数
    - 主要な機能の要約
+   - 生成した`.html`ファイルのパス（pandoc未検出等で生成されなかった場合はその旨）
 
 ## 注意事項
 - 既存ファイルがある場合は、その内容を尊重し、不足している部分を追加する形で更新

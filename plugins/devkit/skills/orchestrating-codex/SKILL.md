@@ -6,6 +6,7 @@ description: >-
   Triggers: "codex", "codexと相談", "codexでレビュー", "codexでオーケストレーション"、`.codex/agents/*.toml` や config.toml の [agents] セクションの検出。
   tachikoma-product-manager agent に計画策定を委譲する2フェーズ方式で、Wave計画に基づき自然言語でagentを同時起動し、config.tomlのmax_threadsで並列度を宣言的に制御する。
   カスタムagent定義はTOML形式（name/description/developer_instructions/sandbox_mode）。
+  レビュー資材（計画書・PRD・設計書・監査レポート等）はMarkdown確定後にHTML併用生成する中央変換方式を採用（producer自身ではなくCodex本体がmd-to-html.shを実行）。
   For agent conversion to Codex format, use converting-agents-to-codex instead.
   For Claude Code teammate orchestration (parallel sub-agents via Agent + run_in_background), use orchestrating-teams instead.
 context: fork

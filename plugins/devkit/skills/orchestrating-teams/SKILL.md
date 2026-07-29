@@ -5,8 +5,9 @@ description: >-
   Use when multiple files need parallel changes with independent concerns (2+ files, frontend+backend, UI+API+test).
   Triggers: 複数ファイル並列変更、マルチ関心事開発、フロントエンド+バックエンド同時変更。
   HERDR_ENV=1 では operating-herdr を必ず併用し、Claude Code の split-pane を使わず herdr CLI でエージェントを起動する。
+  レビュー資材（計画書・PRD・設計書・監査レポート等）はMarkdown確定後にHTML併用生成する中央変換方式を採用（producer自身ではなく本体がmd-to-html.shを実行）。
   For Codex CLI orchestration (config.toml max_threads, agents/*.toml), use orchestrating-codex instead.
   For operating as a single Tachikoma implementation worker, use implementing-as-tachikoma instead.
 ---
 
-詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。
+詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。レビュー資材のHTML併用生成（中央変換方式）の詳細は `references/WORKFLOW-GUIDE.md` を参照。

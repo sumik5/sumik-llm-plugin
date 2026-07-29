@@ -2,6 +2,8 @@
 
 Agent Team実行前に必ず `docs/plan-{feature-name}.md` を作成します。このファイルがチーム実行の設計図・進捗管理・回復の起点となります。
 
+> **🔴 HTML併用生成:** この計画書は、plannerの**Codexプランレビューループが完了し内容が最終化された直後**に、同名の `docs/plan-{feature-name}.html` としてもHTML併用生成される（中央変換方式・plannerがBashで自ら`md-to-html.sh`を実行）。ユーザー提示前に済んでいるべき処理であり、テンプレート構造自体（下記）はMarkdownのまま不変。詳細は `WORKFLOW-GUIDE.md` の「レビュー資材のHTML併用生成」節を参照。
+
 ---
 
 ## テンプレート全文

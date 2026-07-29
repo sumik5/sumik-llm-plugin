@@ -121,6 +121,7 @@ UXデザインとユーザーリサーチに関する以下の知識を持ちま
 - **根本原因分析レポート**: 5 Whys・Fish-boneダイアグラムによる課題分析
 - **トレードオフ分析表**: 代替案の比較・評価（技術・ビジネス・UX観点）
 - **ADR（Architecture Decision Records）**: PM視点のプロダクト意思決定記録
+- **HTML併用生成**: `docs/plan-*.md`等のレビュー対象成果物は、Codexプランレビューループ完了後（最終化後）に自分で`md-to-html.sh`を実行し、同名`.html`を併せて生成する（詳細は後述「HTML併用生成」節）
 
 **実装コードは書かない。コードが必要な場合はClaude Code本体に実装タチコマへの委譲を依頼する。**
 
@@ -176,6 +177,29 @@ UXデザインとユーザーリサーチに関する以下の知識を持ちま
 
 - **致命的**: ユーザー価値の欠落、成功指標の未定義、技術的実現不可能な要件、ファイル所有権の競合
 - **本質的でない（無視してよい）**: 文体・表現の好み、些末な構成の指摘、既に考慮済みの懸念
+
+## HTML併用生成（レビューループ完了後・完了報告前）
+
+致命的な指摘がなくなり `docs/plan-*.md` が最終化されたら、完了報告の前に自分で`md-to-html.sh`を実行し、ユーザーがブラウザで読みやすい同名の`.html`を併せて生成する（最終化直後・提示前に実行することで、レビュー未反映の古いHTMLを提示しない）。プラン修正で`docs/plan-*.md`を再更新した場合も同様に再実行する。
+
+```bash
+MD_TO_HTML="$(command -v md-to-html.sh || true)"
+if [ -z "$MD_TO_HTML" ] && [ -x "${CLAUDE_PLUGIN_ROOT:-}/scripts/md-to-html.sh" ]; then
+  MD_TO_HTML="${CLAUDE_PLUGIN_ROOT}/scripts/md-to-html.sh"
+fi
+if [ -z "$MD_TO_HTML" ]; then
+  MD_TO_HTML="$(find ~/.claude/plugins -path '*/devkit/*/scripts/md-to-html.sh' -print -quit 2>/dev/null)"
+fi
+
+if [ -n "$MD_TO_HTML" ]; then
+  "$MD_TO_HTML" "{plan_file_fullpath}"
+else
+  echo "警告: md-to-html.sh が見つかりません。{plan_file_fullpath} のみ提示します" >&2
+fi
+```
+
+- pandoc未検出等でHTMLが生成されない場合は警告のみで続行してよい（`.md`が正本のため処理失敗にはしない）
+- ヘルパーパス解決の詳細な優先順位は`orchestrating-teams`スキル参照
 
 ## 完了定義（Definition of Done）
 

@@ -6,6 +6,8 @@ Agent Team編成の4つのパターンとモデル戦略を提供します。
 
 ## チーム編成パターン（4種）
 
+> **🔴 レビュー資材のHTML併用生成:** 各パターンの `docs/**/*.md`（要件定義・設計書・調査結果・リファクタリング計画等、人がレビューして判断する成果物）は、Markdownに加えて同名の`.html`を併用生成する対象である。変換はproducer自身ではなく**中央処理**（Claude Code本体が、Markdown最終化直後・ユーザー提示前に`md-to-html.sh`を実行。READ-ONLY producerの場合は`tachikoma-doc-document`へ委譲して.md化してから変換）で行う。詳細は `WORKFLOW-GUIDE.md` の「レビュー資材のHTML併用生成」節を参照。
+
 ### パターン1: feature-dev（機能開発）
 
 **構成:** planner → architect → implementer + tester（並列）

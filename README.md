@@ -90,7 +90,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── commands/                     # スラッシュコマンド (13個)
     │   ├── hooks/                        # イベントフック (12個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
-    │   ├── scripts/                      # ヘルパースクリプト (4個)
+    │   ├── scripts/                      # ヘルパースクリプト (6個)
     │   └── skills/                       # ナレッジスキル (31個)
     ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/EPUB圧縮/LaTeX 等）
     │   ├── .claude-plugin/
@@ -304,7 +304,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `writing-effective-prose` | 統合文章術スキル（論理構成・自然な文体・AI文章パターン診断・根拠/引用整合・生成痕跡除去・技術文書7Cs・学術文書・大学レポート/論文（卒論・実験レポート・引用・剽窃防止）・技術ブログ・README作成・Zenn記事作成・投稿ワークフロー・Web編集メソッド（完読概念/主眼と骨子/構造シート）・文書の構造設計（5要素階層/辞書形式vs読み物形式/認知心理学的基盤）・+書く心構え・キャリア / 人を動かす文書 / UXコピー / 五感で書く / 推敲困ったら・61リファレンスファイル） |
 | `reviewing-code` | コードレビューガイドライン（PR構成・効果的コメント・トーン3原則: 客観性/具体性/明確なアウトカム・CodeRabbit統合・自動修正ループ） |
 
-### Scripts (4個)
+### Scripts (6個)
 
 | スクリプト | 説明 |
 |----------|------|
@@ -312,6 +312,8 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `zip-skills.sh` | `skills/` 配下の各スキルフォルダを個別にzipアーカイブ化 |
 | `pdf-to-markdown` | PDF→Markdown変換バイナリ（`authoring-plugins` のPDF入力変換で使用） |
 | `fff-mcp.sh` | fff MCPサーバ起動ラッパー（fff-mcpバイナリをPATH/~/.local/binで解決→無ければ公式インストーラで自動取得、frecency/history DBをXDG準拠で永続化）。`searching-files-with-fff` スキルが利用 |
+| `md-to-html.sh` | レビュー資材(.md)をブラウザ可読なスタンドアロンHTMLへ変換（pandoc + サニタイズLuaフィルタ、冪等・pandoc非搭載時はwarnフォールバック）。`orchestrating-teams`/`orchestrating-codex`のHTML併用生成（中央変換方式）が利用 |
+| `md-to-html-sanitize.lua` | `md-to-html.sh`が呼び出すpandoc Luaフィルタ（サニタイズ主経路）。生HTML（RawBlock/RawInline）をverbatim化し、`javascript:`/`vbscript:`/`file:`等の危険URLスキームを無害化 |
 
 ### Hooks (12個)
 

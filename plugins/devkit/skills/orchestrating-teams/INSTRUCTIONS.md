@@ -117,6 +117,19 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 
 ---
 
+## レビュー資材のHTML併用生成（中央変換方式）
+
+planner・実装タチコマが`docs/`配下に作成する**人がレビューして判断する成果物**（計画書・PRD・設計書・監査レポート等）は、Markdownに加えて同名の`.html`を併用生成する。**HTML化はAgent自身ではなく中央（Claude Code本体）が、Markdownが最終化された直後・ユーザー提示の前に行う。**
+
+- **Bash保有producer**（planner=Codexレビューループ完了後、`generate-user-story`コマンド=両ドキュメント確定後）は自分で `md-to-html.sh` を実行する
+- **READ-ONLY agent（architecture/code-reviewer/security）の返却テキスト**は、本体が `tachikoma-doc-document` へ委譲して`docs/`配下に.md化させたうえで、本体が`md-to-html.sh`を実行する（**本体は.mdを書かない**＝オーケストレーター原則を維持）
+- **Bash非搭載agent（doc-document/doc-training/ux-design）が書いた.md**は、本体がユーザー提示直前または完了時に`md-to-html.sh`を一括実行する（producer列挙に依存しない）
+- **Markdownが更新されたら、対応する`.html`を必ず再生成する**（古いHTMLを提示しない。`md-to-html.sh`は冪等）
+
+詳細な実行手順・2段階変換フロー・ヘルパーパス解決スニペットは `references/WORKFLOW-GUIDE.md` の「レビュー資材のHTML併用生成」節を参照。
+
+---
+
 ## 🔴 絶対に避けるべきこと
 
 - **herdr 環境で Claude Code の `--tmux`、iTerm2、素のtmuxを使ってペインを作らない**
@@ -139,7 +152,7 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 |---------|------|
 | `references/PARALLEL-DECISION-CRITERIA.md` | **共有正本**: 並列化判断基準・ファイル所有権パターン・依存関係グループ化（orchestrating-codexと共有） |
 | `references/TEAM-PATTERNS.md` | チーム編成パターン（4種）・モデル戦略（4種）・既存Agent/スキル統合 |
-| `references/WORKFLOW-GUIDE.md` | Step 1-8 詳細ワークフロー（要件分析 → チーム作成 → スポーン → 進捗管理 → 統合 → クリーンアップ） |
+| `references/WORKFLOW-GUIDE.md` | Step 1-8 詳細ワークフロー（要件分析 → チーム作成 → スポーン → 進捗管理 → 統合 → クリーンアップ）・レビュー資材のHTML併用生成（中央変換方式） |
 | `references/PLAN-TEMPLATE.md` | `docs/plan-{feature-name}.md` テンプレート・回復手順・実行ログ記録方法 |
 
 ---

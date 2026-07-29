@@ -244,6 +244,28 @@ Claude Code の subagent_type と Codex agent名の対応表（参照用）:
 
 ---
 
+## レビュー資材のHTML併用生成（中央変換方式）
+
+`tachikoma-product-manager` agent等が`docs/`配下に作成する**人がレビューして判断する成果物**（計画書・PRD・設計書・監査レポート等）は、Markdownに加えて同名の`.html`を併用生成する。**HTML化はagent自身ではなく中央（Codex本体）が、Markdownが最終化された直後・ユーザー提示の前に行う。**「Codex本体はファイルを読んで分析しない」原則との整合: **.mdの執筆は常にWrite可能なagent（`tachikoma-document`等）が担い、Codex本体は既に最終化された.mdに対する`md-to-html.sh`の実行（ツール実行＝グルー）のみを行う。**
+
+- **Bash保有producer**（`tachikoma-product-manager`=Codexプランレビューループ完了後）は自分で `md-to-html.sh` を実行する
+- **READ-ONLY agent（`tachikoma-architecture`/`tachikoma-code-reviewer`/`tachikoma-security`、`sandbox_mode: read-only`）の返却テキスト**は、Codex本体が `tachikoma-document` へ委譲して`docs/`配下に.md化させたうえで、Codex本体が`md-to-html.sh`を実行する（Codex本体は.mdを書かない）
+- **Bash非搭載agent（`tachikoma-document`/`tachikoma-training-presenter`等）が書いた.md**は、Codex本体がユーザー提示直前または完了時に`md-to-html.sh`を一括実行する
+- **Markdownが更新されたら、対応する`.html`を必ず再生成する**（古いHTMLを提示しない。`md-to-html.sh`は冪等）
+
+### ヘルパーパス解決（ランタイム非依存）
+
+`${CLAUDE_PLUGIN_ROOT}`はCodexで非展開のため、以下の優先順で解決する:
+
+1. `command -v md-to-html.sh`（PATHに置かれている場合）
+2. `${CLAUDE_PLUGIN_ROOT:-}/scripts/md-to-html.sh`（Claude側で変数展開・実在する場合のみ有効。Codexでは通常フォールバックへ進む）
+3. Codex marketplaceチェックアウト配下・Claude cache（`~/.claude/plugins/**/devkit/**/scripts/md-to-html.sh`）を`find`で探索
+4. いずれも見つからない場合は警告し、`.md`のみで続行する（縮退）
+
+Claude/Codex共通のツール仕様・2段階変換フロー・実行例は `../orchestrating-teams/references/WORKFLOW-GUIDE.md`（「レビュー資材のHTML併用生成」節・共有正本）を参照。
+
+---
+
 ## 🔴 絶対に避けるべきこと
 
 - **Codex本体がファイルを読んで分析する**（plannerの責務）

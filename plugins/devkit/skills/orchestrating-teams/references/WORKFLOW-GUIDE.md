@@ -105,14 +105,17 @@ Agent toolで planner タチコマを起動する:
 7. **ファイル所有権パターン定義**: 同一ファイル同時書込を防ぐパス別所有権
 8. **計画書作成**: `docs/plan-{feature-name}.md` を `references/PLAN-TEMPLATE.md` 形式で作成
 9. **🔴 Codex プランレビューループ**: 計画書作成後、Codex CLI で致命的問題をレビュー。指摘があれば修正→再レビューを繰り返す（codex未インストール・エラー時はスキップ可）
+10. **🔴 HTML併用生成**: Codexレビューループ完了後（Markdown最終化直後）、**自分で** `md-to-html.sh` を実行し `docs/plan-{feature-name}.html` を生成する。ヘルパーパス解決は本ガイド末尾「レビュー資材のHTML併用生成」節を参照
 
-**planner タチコマは実装コードを変更しない（読み取り専用 + docs/ への計画書作成のみ）。**
+**planner タチコマは実装コードを変更しない（読み取り専用 + docs/ への計画書作成・HTML併用生成のみ）。**
 
 ---
 
 ### Step 3: 計画レビュー・承認
 
 planner タチコマが `docs/plan-{feature-name}.md` を作成し**Codexレビューループを完了**したら、Claude Code本体がレビュー:
+
+> 🔴 この時点で `docs/plan-{feature-name}.html` も併用生成済みのはず（planner がレビューループ完了直後に自分で `md-to-html.sh` を実行する。詳細は本ガイド末尾「レビュー資材のHTML併用生成」節を参照）。未生成の場合は本体が同ヘルパーを実行してから提示する。
 
 1. `docs/plan-{feature-name}.md` の内容を確認
 2. AskUserQuestion でユーザー確認を取得:
@@ -455,6 +458,10 @@ software-security スキル
 - [2026-02-18 11:40] software-security セキュリティ確認完了
 ```
 
+### 7.5 レビュー資材のHTML併用生成（提示直前）
+
+ユーザーへ最終成果を提示する前に、`docs/` 配下で確定したレビュー資材（READ-ONLY agentレポートを.md化したものを含む）に対して `md-to-html.sh` を実行し、`.html` が最新であることを確認する。Markdownが実装フェーズ中に更新されていれば必ず再生成する（陳腐化防止）。詳細は「レビュー資材のHTML併用生成」節を参照。
+
 ---
 
 ## Step 8: クリーンアップ
@@ -489,6 +496,59 @@ herdr pane close "$CURRENT_PANE"
 
 **セッション終了で全メンバーは自動解散される（TeamDelete は v2.1.178 で廃止済み）。**
 能動的に特定メンバーを閉じたい場合のみ、shutdown_request 後に `teammate_terminated` 通知を確認する。
+
+---
+
+## レビュー資材のHTML併用生成（中央変換方式）
+
+`docs/` 配下に生成される**人がレビューして判断する成果物**（計画書・PRD・設計書・監査レポート・研修/UX文書等）は、Markdownに加えて同名の`.html`を併用生成する。**HTML化はAgent自身ではなく中央（Claude Code本体）が、Markdownが最終化された直後・ユーザー提示の前に行う。**
+
+「本体はドキュメントを作成しない・ファイルを読まない」原則との整合: **.mdの執筆は常にWrite可能なタチコマ（doc-document等）が担い、本体は既に最終化された.mdに対する`md-to-html.sh`の実行（ツール実行＝オーケストレーションのグルー）のみを行う。** これは本体がgit・テストを実行するのと同種の行為であり、プローズ執筆＝ドキュメント作成には該当しない。
+
+### 生成主体別の変換タイミングと実行者
+
+| 生成主体 | Bash | 変換タイミングと実行者 |
+|---------|------|---------------------|
+| planner（`tachikoma-str-product-mgr`）の計画書 | ✓ | **Codexレビューループ完了後**に**plannerが自分で** `md-to-html.sh` を実行する |
+| `generate-user-story` コマンド（general-purpose） | ✓ | 両ドキュメント確定後に自分で実行する |
+| `tachikoma-doc-document` / `tachikoma-doc-training` / `tachikoma-fe-ux-design` が書いた.md | ✗ | .md確定を報告 → **本体がユーザー提示直前または完了時に** `md-to-html.sh` を実行する（producer列挙に依存しない一括変換） |
+| architecture / code-reviewer / security（READ-ONLY・`permissionMode: plan`） | ✗ | テキスト返却 → **本体が `tachikoma-doc-document` へ委譲して `docs/` 配下に.md化させる** → **本体が** `md-to-html.sh` を実行する |
+
+### READ-ONLY agentレポートの2段階変換フロー
+
+`tachikoma-str-architecture` / `tachikoma-qa-code-reviewer` / `tachikoma-qa-security` は `permissionMode: plan` のため構造的に書込不可（この安全保証は一切変更しない）。これらの返却テキストは以下の2段階で永続化・HTML化する:
+
+1. **本体が `tachikoma-doc-document` へ委譲**し、受領したレポートテキストを `docs/` 配下へ.md化させる（本体自身は.mdを書かない）
+2. **本体が完成した.mdに対して `md-to-html.sh` を実行**し、同名の`.html`を生成する
+
+### 再生成の原則（陳腐化防止）
+
+**Markdownが後から更新された場合は、対応する`.html`を必ず再生成する。** `md-to-html.sh`は冪等なため、同じ入力に対して安全に再実行できる。ユーザー提示の直前には、対象の`.md`が最終版であることを確認したうえで(再)生成する。
+
+### ヘルパーパス解決（ランタイム非依存）
+
+`${CLAUDE_PLUGIN_ROOT}`はCodexで非展開・agent Bashでも展開未検証のため、以下の優先順で解決する:
+
+1. `command -v md-to-html.sh`（PATHに置かれている場合）
+2. `${CLAUDE_PLUGIN_ROOT:-}/scripts/md-to-html.sh`（Claude本体・タチコマで変数展開され実在する場合）
+3. Claude cache（`~/.claude/plugins/**/devkit/**/scripts/md-to-html.sh`）およびCodex marketplaceチェックアウト配下を`find`で探索
+4. いずれも見つからない場合は警告して`.md`のみで続行する（縮退。pandoc非搭載環境と同様の扱い）
+
+```bash
+MD_TO_HTML="$(command -v md-to-html.sh || true)"
+if [ -z "$MD_TO_HTML" ] && [ -x "${CLAUDE_PLUGIN_ROOT:-}/scripts/md-to-html.sh" ]; then
+  MD_TO_HTML="${CLAUDE_PLUGIN_ROOT}/scripts/md-to-html.sh"
+fi
+if [ -z "$MD_TO_HTML" ]; then
+  MD_TO_HTML="$(find ~/.claude/plugins -path '*/devkit/*/scripts/md-to-html.sh' -print -quit 2>/dev/null)"
+fi
+
+if [ -n "$MD_TO_HTML" ]; then
+  "$MD_TO_HTML" "docs/plan-{feature-name}.md"
+else
+  echo "警告: md-to-html.sh が見つかりません。docs/plan-{feature-name}.md のみ提示します" >&2
+fi
+```
 
 ---
 
