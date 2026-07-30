@@ -1,7 +1,7 @@
 {
   "name": "lang",
-  "version": "2.3.0",
-  "description": "言語スキル群を提供するプラグイン。7個のスキル（Python・Go・R・Bash・データベース・MCP・アルゴリズム）を含む。Web/フロントエンド実装は web プラグインへ分離。",
+  "version": "2.4.0",
+  "description": "言語スキル群を提供するプラグイン。8個のスキル（Python・Go・R・Bash・データベース・SQLクエリ実践・MCP・アルゴリズム）を含む。Web/フロントエンド実装は web プラグインへ分離。",
   "author": {
     "name": "sumik5"
   },
@@ -16,7 +16,7 @@
   "interface": {
     "displayName": "Sumik Lang",
     "shortDescription": "言語スキル（Python/Go/R/Bash/DB/MCP/アルゴリズム）を提供するプラグイン",
-    "longDescription": "7個の言語スキルを提供。Python・Go・R・Bash・データベース・MCP・アルゴリズムをカバーします。Web/フロントエンド実装は web プラグインへ分離。",
+    "longDescription": "8個の言語スキルを提供。Python・Go・R・Bash・データベース・SQLクエリ実践・MCP・アルゴリズムをカバーします。Web/フロントエンド実装は web プラグインへ分離。",
     "developerName": "sumik5",
     "category": "Developer Tools",
     "capabilities": ["Read", "Write", "Edit", "Bash"],

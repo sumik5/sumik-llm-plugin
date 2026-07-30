@@ -6,6 +6,7 @@ permissionMode: auto
 tools: Read, Grep, Glob, Edit, Write, Bash, SendMessage, ToolSearch
 skills:
   - lang:developing-databases
+  - lang:writing-effective-sql
   - writing-clean-code
   - testing-code
   - securing-code
@@ -67,6 +68,14 @@ skills:
 - **PostgreSQL特有インデックス**: GIN（全文検索・配列）、GiST（地理空間）、BRIN（大規模連番データ）、部分インデックス
 - **実行計画分析**: `EXPLAIN ANALYZE` の読み方。Seq Scan vs Index Scan vs Bitmap Scan の判断
 - **クエリ最適化**: 統計情報（`pg_stats`）活用・Vacuumの重要性・クエリリライト
+
+### クエリ構築技法（writing-effective-sql）
+
+- **集合ベースの宣言的思考**: 手続き型ループ思考から「文から式へ」への転換。CASE式・条件付き集計・GROUP BY/HAVING活用
+- **ウィンドウ関数**: PARTITION BY/ORDER BY/フレーム句、行間比較・移動平均・相関サブクエリからの置換
+- **結合・サブクエリ**: 結合種別の使い分け、自己結合、外部結合による行列変換、階層データのクエリ
+- **集合演算・量化**: UNION/INTERSECT/EXCEPT、EXISTS/NOT EXISTS、全称・存在量化
+- **実行計画ベースのリライト**: SARGable条件、相関サブクエリ除去、IN→EXISTS/JOIN等の書き換えカタログ（スキーマ変更に及ぶ最適化は上記インデックス設計・正規化へ委譲）
 
 ## ワークフロー
 

@@ -10,7 +10,8 @@ description: >-
   google-cloud packages, cloudbuild.yaml, BigQuery/Dataflow/Memorystore/Looker/Dataplex detected. For
   Docker→practicing-devops. For monitoring→implementing-observability. For OWASP→devkit:securing-code.
   For CQRS→architecting-data. For AWS→developing-aws. For GenAI→ai:designing-genai-patterns. For
-  Firebase (Auth/Firestore/Storage/Functions/Hosting)→developing-firebase.
+  Firebase (Auth/Firestore/Storage/Functions/Hosting)→developing-firebase. For engine-agnostic
+  SQL query-writing techniques→lang:writing-effective-sql.
 ---
 
 詳細な手順・ガイドラインは `INSTRUCTIONS.md` を参照してください。

@@ -13,7 +13,9 @@ when_to_use: >-
   For data architecture patterns (CQRS, event sourcing), use cloud:architecting-data instead.
   For GCP managed databases (Cloud SQL, Spanner, Firestore, Bigtable) and BigQuery analytics,
   use cloud:developing-google-cloud instead. For app-layer ORM workflows (Drizzle in Express),
-  use web:developing-fullstack-javascript.
+  use web:developing-fullstack-javascript. For SQL query-construction techniques (JOIN selection,
+  window functions, subqueries, CASE expressions, set operations, and execution-plan-based
+  rewriting), use lang:writing-effective-sql instead.
 disable-model-invocation: false
 ---
 
