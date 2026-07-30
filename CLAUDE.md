@@ -6,7 +6,7 @@ sumik Claude Code Plugin のプロジェクト固有開発ルール。
 
 ## ディレクトリ構成
 
-このリポジトリは `plugins/` 配下に **13 個の兄弟プラグイン** を持つ。**devkit**（開発ワークフロー特化・agents/commands/hooks/MCP を含む本体・ユニバーサルコア＋オーケストレーション＋ワークフロー＋設計/レビュー practices 系 31 スキル）と、スキル/MCP 特化の 12 プラグイン: **studio**（コンテンツ制作・10）・**lang**（言語: Python/Go/R/Bash/DB/MCP/アルゴリズム・7 スキル）・**web**（Web/フロントエンド実装: Next.js/React/フルスタックJS/Web API/APIセキュリティ/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築・14 スキル）・**cloud**（クラウド/インフラ/IaC/認可/セキュリティアーキテクチャ/クラウドセキュリティ知識体系・13 スキル）・**ai**（GenAI設計/AIエージェント/Web AI統合/LLM評価/AI支援開発/AI開発セキュリティ・6 スキル）・**design**（UX/デザイン思考/AI体験/データ可視化/デザインシステム・6 スキル）・**product**（プロダクトマネジメント/要件定義・2 スキル）・**university**（大学で使う Processing (Java Mode) 開発・1 スキル `developing-processing`）・**mobile**（Apple HIG と iPhone/iPad/Mac アプリ開発・Flutter/Dart クロスプラットフォーム開発・5 スキル `applying-apple-hig` / `developing-ios-apps` / `auditing-app-store-compliance` / `developing-dart` / `developing-flutter-apps`）、そして **exam**（生成AI活用試験の問題画像を解く・1 スキル `answering-genai-exam` ＋ 1 agent `exam-solver`）、さらに **google**（Google サービス連携: Google Analytics GA4 公式 MCP サーバー `analytics-mcp` を `pipx run` で同梱・1 スキル `analyzing-with-google-analytics`。MCP を持つため studio と同型の subdirectory + MCP 方式）、そして **certificate**（資格・検定の学習支援: URL問題収集内蔵の Anki フラッシュカード作成・教材 OCR/翻訳変換・2 スキル `creating-flashcards` / `converting-content` ＋ 1 コマンド `improve-creating-flashcards`）。lang/web/cloud/ai/design/product/university/mobile は **skills-only**（agents/commands/hooks/MCP/bin を持たず `.claude-plugin/plugin.json`・`.codex-plugin/plugin.json`・README.md・skills/ のみ。university は検証ヘルパー `scripts/verify-sketch.sh` をスキル内に bundle するが plugin レベルの bin は持たない）で、Codex 配布は **studio と同じ subdirectory-root 方式**。exam は **agent 入りだが commands/hooks/MCP/bin を持たない subdirectory 方式**（agent は Claude Code 専用で、Codex には skills のみ配布する）。certificate は **commands 入りだが agents/hooks/MCP/bin を持たない subdirectory 方式**（コマンド `improve-creating-flashcards` は Claude Code 専用で、Codex には skills のみ配布する）。全プラグインは同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から配布され、常にセットでインストールされる前提（devkit の agent が `studio:<skill>`・`lang:<skill>`・`web:<skill>`・`cloud:<skill>`・`ai:<skill>`・`design:<skill>`・`product:<skill>`・`certificate:<skill>` の修飾名でクロスプラグイン preload するため）。Claude Code プラグイン本体を `plugins/` 配下へ隔離しているのは、claude.ai の marketplace 同期が repo 丸ごとを取り込む際に Codex 異物が混入しないようにするため。ルートには claude.ai / Codex が最初に読む marketplace 定義と Codex 用マニフェストのみを残す。
+このリポジトリは `plugins/` 配下に **13 個の兄弟プラグイン** を持つ。**devkit**（開発ワークフロー特化・agents/commands/hooks/MCP を含む本体・ユニバーサルコア＋オーケストレーション＋ワークフロー＋設計/レビュー practices 系 31 スキル）と、スキル/MCP 特化の 12 プラグイン: **studio**（コンテンツ制作・10）・**lang**（言語: Python/Go/R/Bash/DB/SQLクエリ実践/MCP/アルゴリズム・8 スキル）・**web**（Web/フロントエンド実装: Next.js/React/フルスタックJS/Web API/APIセキュリティ/Tailwind/Figma実装/ブラウザ自動化/Vitest/Playwright E2E/APIスタイル選定/Node.jsサービス構築・14 スキル）・**cloud**（クラウド/インフラ/IaC/認可/セキュリティアーキテクチャ/クラウドセキュリティ知識体系・13 スキル）・**ai**（GenAI設計/AIエージェント/Web AI統合/LLM評価/AI支援開発/AI開発セキュリティ・6 スキル）・**design**（UX/デザイン思考/AI体験/データ可視化/デザインシステム・6 スキル）・**product**（プロダクトマネジメント/要件定義・2 スキル）・**university**（大学で使う Processing (Java Mode) 開発・1 スキル `developing-processing`）・**mobile**（Apple HIG と iPhone/iPad/Mac アプリ開発・Flutter/Dart クロスプラットフォーム開発・5 スキル `applying-apple-hig` / `developing-ios-apps` / `auditing-app-store-compliance` / `developing-dart` / `developing-flutter-apps`）、そして **exam**（生成AI活用試験の問題画像を解く・1 スキル `answering-genai-exam` ＋ 1 agent `exam-solver`）、さらに **google**（Google サービス連携: Google Analytics GA4 公式 MCP サーバー `analytics-mcp` を `pipx run` で同梱・1 スキル `analyzing-with-google-analytics`。MCP を持つため studio と同型の subdirectory + MCP 方式）、そして **certificate**（資格・検定の学習支援: URL問題収集内蔵の Anki フラッシュカード作成・教材 OCR/翻訳変換・2 スキル `creating-flashcards` / `converting-content` ＋ 1 コマンド `improve-creating-flashcards`）。lang/web/cloud/ai/design/product/university/mobile は **skills-only**（agents/commands/hooks/MCP/bin を持たず `.claude-plugin/plugin.json`・`.codex-plugin/plugin.json`・README.md・skills/ のみ。university は検証ヘルパー `scripts/verify-sketch.sh` をスキル内に bundle するが plugin レベルの bin は持たない）で、Codex 配布は **studio と同じ subdirectory-root 方式**。exam は **agent 入りだが commands/hooks/MCP/bin を持たない subdirectory 方式**（agent は Claude Code 専用で、Codex には skills のみ配布する）。certificate は **commands 入りだが agents/hooks/MCP/bin を持たない subdirectory 方式**（コマンド `improve-creating-flashcards` は Claude Code 専用で、Codex には skills のみ配布する）。全プラグインは同一 marketplace（Claude: `sumik` / Codex: `sumik-marketplace`）から配布され、常にセットでインストールされる前提（devkit の agent が `studio:<skill>`・`lang:<skill>`・`web:<skill>`・`cloud:<skill>`・`ai:<skill>`・`design:<skill>`・`product:<skill>`・`certificate:<skill>` の修飾名でクロスプラグイン preload するため）。Claude Code プラグイン本体を `plugins/` 配下へ隔離しているのは、claude.ai の marketplace 同期が repo 丸ごとを取り込む際に Codex 異物が混入しないようにするため。ルートには claude.ai / Codex が最初に読む marketplace 定義と Codex 用マニフェストのみを残す。
 
 ```
 plugins/devkit/              # ★ Claude Code プラグイン本体（開発ワークフロー特化・${CLAUDE_PLUGIN_ROOT}）
@@ -191,7 +191,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 ### バージョン管理
 
-- **13 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.12.5・studio 2.1.1・lang 2.3.0・web 1.4.1・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0・certificate は 2.0.3）
+- **13 プラグイン（devkit / studio / lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate）はそれぞれ独立した version を持つ**（別プラグインのため別系列で進める。現状: devkit 14.13.1・studio 2.1.1・lang 2.4.0・web 1.4.1・cloud 1.2.1・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0・certificate は 2.0.3）
 - devkit の version は `plugins/devkit/.claude-plugin/plugin.json` の `version` フィールドで管理（**devkit の 3 ファイルを必ず同期**→下記参照）
 - studio の version は `plugins/studio/.claude-plugin/plugin.json` の `version` フィールドで管理（**studio の 3 ファイルを必ず同期**→下記参照）
 - lang / web / cloud / ai / design / product / exam / university / google / mobile / certificate の version は各 `plugins/<plugin>/.claude-plugin/plugin.json` の `version` フィールドで管理（**各プラグインの 3 ファイルを必ず同期**→下記参照）
@@ -230,7 +230,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
 
 #### 同期チェック
 
-コミット前に 13 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.12.5・studio 2.1.1・lang 2.3.0・web 1.4.1・cloud 1.2.0・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0・certificate は 2.0.3:
+コミット前に 13 プラグインの version 一致を確認すること（`.agents/plugins/marketplace.json` の `plugins[]` 配列は順序依存しないよう name で引く）。期待値: devkit 14.13.1・studio 2.1.1・lang 2.4.0・web 1.4.1・cloud 1.2.1・ai 1.2.3・design 1.0.2・product 1.0.2・exam 1.2.2・university / google は 1.0.0・mobile は 1.3.0・certificate は 2.0.3:
 
 ```bash
 python3 - <<'PY'
@@ -302,8 +302,8 @@ checks = {
         (".agents/plugins/marketplace.json",          lambda d: next(p["version"] for p in d["plugins"] if p["name"]=="certificate")),
     ],
 }
-expected = {"devkit": "14.12.5", "studio": "2.1.1", "lang": "2.3.0", "web": "1.4.1",
-            "cloud": "1.2.0", "ai": "1.2.3", "design": "1.0.2",
+expected = {"devkit": "14.13.1", "studio": "2.1.1", "lang": "2.4.0", "web": "1.4.1",
+            "cloud": "1.2.1", "ai": "1.2.3", "design": "1.0.2",
             "product": "1.0.2", "exam": "1.2.2", "university": "1.0.0",
             "google": "1.0.0", "mobile": "1.3.0", "certificate": "2.0.3"}
 all_ok = True
@@ -438,3 +438,12 @@ Codex CLI への配布（marketplace / plugin / MCP）固有の罠。
 | 複合コマンドで `cd <dir> &&` を先頭に置く時 | パーミッションプロンプトを誘発しチェーン全体が不発になる。`cd` を使わず作業ディレクトリ既定のまま実行する |
 | コマンドの `exit=0`/`RC=0` を見た時 | 鵜呑みにせず `git log -1 --format='%H %s'`・`git tag --points-at HEAD`・`git status --porcelain` で**実体検証**する |
 | `grep -h`・`rm -f` 等のフラグが化ける／`git diff` 出力にノイズが混入する時 | rtk プロキシ起因。`/usr/bin/grep`・`/bin/rm` 等の絶対パスで呼ぶ |
+
+### コミット時のバージョン・タグ徹底（🔴 見落とし防止）
+
+| If X | then Y |
+|------|--------|
+| コンポーネント（Agent/Skill/Command/Hook/MCP）の追加・変更・削除を含むcommitを行う時 | **変更が及んだ全プラグイン**の `plugin.json` をSemVerに従いbumpする（他プラグインのファイルを1つだけ触った場合もそのプラグインはPATCH対象。「メインで作業したプラグインだけbumpする」は不可） |
+| commitを作成した時 | 同一タスク内で必ず `git tag` を作成する（tagなしでcommitのみで終えない）。tag名は `<plugin>-vX.Y.Z`（devkitのみ `vX.Y.Z`）形式で、変更したプラグイン名とバージョンが一目で分かるようにする |
+| 1コミットに複数プラグインの変更を含む時 | 変更したプラグインの数だけtagを作成する（例: `lang-v2.4.0` と `cloud-v1.2.1` を同一commitに対して複数付与） |
+| commit前の最終確認 | `git show --stat --name-only HEAD` で変更ファイルを俯瞰し、`plugins/<plugin>/` 配下に変更があるプラグインを洗い出して、その全てのversion bumpが済んでいるか照合する（bump漏れ・タグ漏れの実例: 2026-07-31、SQLスキル追加commitでcloud・devkitのbumpを見落とした） |
