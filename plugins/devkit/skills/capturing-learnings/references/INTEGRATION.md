@@ -11,7 +11,7 @@
 | 機構 | 位置づけ | 起動タイミング | 対象 | 置き場所 |
 |------|---------|--------------|------|---------|
 | **capturing-learnings（本スキル）** | 受動的・汎用キャプチャ層 | 常時（作業中のあらゆる気づき） | あらゆるプロジェクトの学び・エラー・訂正・機能要望 | `.learnings/` ディレクトリ（プロジェクトローカル） |
-| **CLAUDE.md inbox → authoring-plugins/IMPROVEMENT-INTAKE** | メタループ（このプラグイン自身を改善するループ） | セッション中に sumik-claude-plugin スキルを読み込んだ時 | このプラグインのスキル本体の改善提案 | `~/.claude/CLAUDE.md` の「📥 スキル改善提案」セクション |
+| **~/.claude/.learnings/SKILL-IMPROVEMENTS.md → authoring-plugins/IMPROVEMENT-INTAKE** | メタループ（このプラグイン自身を改善するループ） | セッション中に sumik-claude-plugin スキルを読み込んだ時 | このプラグインのスキル本体の改善提案 | `~/.claude/.learnings/SKILL-IMPROVEMENTS.md`（専用ファイル） |
 | **authoring-plugins/USAGE-REVIEW** | バッチ棚卸し | 月次・四半期 | スキルポートフォリオ全体の利用状況・未使用スキル・統合候補 | セッションログ（`~/.claude/projects/*/*.jsonl`）を入力源とする |
 | **managing-claude-md** | 生きた文書の整備 | CLAUDE.md の新規作成・見直し・繰り返しミス発生時 | CLAUDE.md という特定ファイルそのもの | `~/.claude/CLAUDE.md` および各プロジェクトの `CLAUDE.md` |
 | **Claude Code memory システム** | ユーザー横断・永続化 | 複数セッションに渡る事実を記録すべき時 | セッションを跨ぐユーザー固有の事実・罠・パターン | `~/.claude/projects/<key>/memory/MEMORY.md`（索引） + 個別ファイル |
@@ -36,7 +36,7 @@
         ├─ Q1: sumik-claude-plugin のスキル本体を改善すべき内容か？
         │       (スキルの記述が不正確・肥大・知見漏れ・参照切れ等)
         │   │
-        │   YES → CLAUDE.md 📥 inbox に [PROPOSAL] 形式で捕捉
+        │   YES → ~/.claude/.learnings/SKILL-IMPROVEMENTS.md に [PROPOSAL] 形式で捕捉（CWD非依存）
         │           → open 3件以上で authoring-plugins/IMPROVEMENT-INTAKE が消費
         │
         └─ Q2: あらゆるプロジェクトで再利用できる汎用知識か？
@@ -67,7 +67,7 @@
 | 学びの内容 | 正しいルーティング先 |
 |-----------|-------------------|
 | `git commit -m` に全角記号を含めると不発になる（このプロジェクト固有の罠）| このプロジェクトの `CLAUDE.md` |
-| あるスキルの description が不正確だと気づいた | `~/.claude/CLAUDE.md` の 📥 inbox（INTAKE 経由で修正） |
+| あるスキルの description が不正確だと気づいた | `~/.claude/.learnings/SKILL-IMPROVEMENTS.md`（INTAKE 経由で修正） |
 | TypeScript で `any` を使わない実装パターンを新たに習得 | 汎用性が高ければ新スキル抽出、低ければ `.learnings/LEARNINGS.md` |
 | 本番環境で特定の npm パッケージが失敗するエラー | `.learnings/ERRORS.md` |
 | ユーザーが「〜もできる?」と機能を要望した | `.learnings/FEATURE_REQUESTS.md` |
@@ -82,11 +82,11 @@
 
 最も混同しやすい2機構を明確に分ける。
 
-| 観点 | capturing-learnings（本スキル） | CLAUDE.md inbox → INTAKE |
+| 観点 | capturing-learnings（本スキル） | SKILL-IMPROVEMENTS.md → INTAKE |
 |------|--------------------------------|--------------------------|
 | **対象** | あらゆるプロジェクトの作業で生じた学び | このプラグイン（sumik-claude-plugin）のスキル本体の改善 |
 | **誰が記録するか** | hook が自動検出 or 開発者が手動記録 | Claude Code 本体が捕捉ルールに従って記録 |
-| **記録場所** | `.learnings/{LEARNINGS,ERRORS,FEATURE_REQUESTS}.md` | `~/.claude/CLAUDE.md` の 📥 セクション |
+| **記録場所** | `.learnings/{LEARNINGS,ERRORS,FEATURE_REQUESTS}.md` | `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` |
 | **消費タイミング** | プロジェクト節目のレビュー or 昇格判断時 | open 3件以上 or 「スキル改善まわして」指示時 |
 | **記録フォーマット** | `[LRN/ERR/FEAT-YYYYMMDD-XXX]` エントリ | `[PROPOSAL] <skill> / <種別> / <日付>` エントリ |
 
@@ -171,11 +171,11 @@ Claude Code / Codex のどちらでもない環境（GitHub Copilot・外部エ�
 2. 蓄積エントリを素材として活用（固有名は持ち込まない・🔴 絶対ルール遵守）
 3. 元エントリの `status` を `promoted_to_skill` に更新
 
-### .learnings/ → CLAUDE.md 📥 inbox（sumik-claude-plugin 自身の改善）
+### .learnings/ → ~/.claude/.learnings/SKILL-IMPROVEMENTS.md（sumik-claude-plugin 自身の改善）
 
 **条件**: 作業中に sumik-claude-plugin のスキル本体に問題（記述不正確・規約違反・肥大等）を発見。
 
-**重要**: これは一般プロジェクトの `.learnings/` に書くのではなく、直接 `~/.claude/CLAUDE.md` の 📥 セクションに [PROPOSAL] 形式で記録する。authoring-plugins の IMPROVEMENT-INTAKE が消費する。
+**重要**: これは一般プロジェクトの `.learnings/` に書くのではなく、直接 `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` に [PROPOSAL] 形式で記録する。authoring-plugins の IMPROVEMENT-INTAKE が消費する。
 
 ---
 

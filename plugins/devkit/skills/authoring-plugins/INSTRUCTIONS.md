@@ -577,19 +577,19 @@ Agent の追加・削除に加え、以下のマルチプラグイン操作で�
 
 ## 🔄 改善提案INTAKE（自己改善ループの消費側）
 
-実行ツールの捕捉ルール（Claude Code は `~/.claude/CLAUDE.md`、Codex は `~/dotfiles/codex/AGENTS.md`）が **エージェント設定内の「## 📥 スキル改善提案 (inbox)」セクション**に蓄積した改善提案を**消費して実際にスキルを改善する**入口。捕捉(C)→消費(D)の閉ループを閉じる（INTAKE は両ツールの inbox を走査する）。
+実行ツールの捕捉ルールが蓄積した改善提案を**消費して実際にスキルを改善する**入口。捕捉(C)→消費(D)の閉ループを閉じる。捕捉先はツールにより異なる: **Claude Code は `~/.claude/.learnings/SKILL-IMPROVEMENTS.md`**（専用ファイル・CWD非依存の単一グローバルキュー）、**Codex は `~/dotfiles/codex/AGENTS.md` の「## 📥 スキル改善提案 (inbox)」セクション**（エージェント設定内埋め込み・現状維持）。INTAKE は両ソースを走査する。
 
-> ⚠️ inbox は専用ファイルではなく **エージェント設定内のセクション**である（Claude Code=`~/.claude/CLAUDE.md` / Codex=`~/dotfiles/codex/AGENTS.md`・ユーザー選択）。設定ファイルは小さく保つ原則のため、INTAKE は処理した提案を即ドレイン（done/rejected へ）して inbox を最小に保つ責務も負う。
+> ⚠️ Claude Code 側は `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` という専用ファイルであり CLAUDE.md 本体には置かない（300行原則を守るため）。Codex 側は引き続き `~/dotfiles/codex/AGENTS.md` 内のセクション（専用ファイルではない）。INTAKE は処理した提案を即ドレイン（done/rejected へ）して各ソースを最小に保つ責務を負う。
 
-起動条件: inbox の未処理(status: open)が **3 件以上**、またはユーザーが「スキル改善まわして」と指示した時。
+起動条件: いずれかのソースで未処理(status: open)が **3 件以上**、またはユーザーが「スキル改善まわして」と指示した時。
 
 5 ステップで処理する（詳細・コマンド・章ごとの接続は [IMPROVEMENT-INTAKE.md](references/IMPROVEMENT-INTAKE.md) を参照）:
 
-1. **取り込み＆トリアージ**: CLAUDE.md の inbox セクションをパースし `status: open` を抽出。`種別` でグルーピングし `確度=高` を優先。重複（同一 skill×同一種別）はマージ。
-2. **規約検証**: 採否を判定。description 改善は 1,024 字上限・三部構成（[NAMING.md](references/NAMING.md)）、固有名混入は 🔴 絶対ルール（書籍名/著者名/出版社名禁止）に照合。却下は `status: rejected` と理由を inbox に追記。
+1. **取り込み＆トリアージ**: 各ソース（Claude Code: `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` ／ Codex: `~/dotfiles/codex/AGENTS.md` の inbox セクション）をパースし `status: open` を抽出。`種別` でグルーピングし `確度=高` を優先。重複（同一 skill×同一種別）はマージ。
+2. **規約検証**: 採否を判定。description 改善は 1,024 字上限・三部構成（[NAMING.md](references/NAMING.md)）、固有名混入は 🔴 絶対ルール（書籍名/著者名/出版社名禁止）に照合。却下は `status: rejected` と理由を該当ソースに追記。
 3. **編集委譲**: 採用提案を **tachikoma-doc-document** に委譲（本体はオーケストレーターに徹する）。種別→主担当 reference のマッピング表に従い、複数スキル並行時はファイル所有権を分割。
 4. **整合検証**: 種別が 分割/統合/参照修正、または `影響範囲` に「他スキル参照/hook/README/rules」を含む場合は [CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md) の4層スキャン＋ダングリング検出を実行。
-5. **完了ワークフローへ接続**: README 同期（種別マッピングの「README 同期」列）→ 下記「🔴 完了ワークフロー」で version bump（種別→version 列）→ 両 plugin.json 同期→ commit/tag（ユーザー確認必須）。処理済み提案を CLAUDE.md inbox の「## 処理済み」へ退避（or 削除）して open を空に近づける。
+5. **完了ワークフローへ接続**: README 同期（種別マッピングの「README 同期」列）→ 下記「🔴 完了ワークフロー」で version bump（種別→version 列）→ 両 plugin.json 同期→ commit/tag（ユーザー確認必須）。処理済み提案は、Claude Code 側なら `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` から即削除、Codex 側なら `~/dotfiles/codex/AGENTS.md` inbox の「## 処理済み」へ退避（or 削除）して open を空に近づける。
 
 > **USAGE-REVIEW.md との棲み分け**: 本INTAKE=単発・イベント駆動の改善（セッション中の気づき）。USAGE-REVIEW.md=定期・俯瞰の棚卸し（月次/四半期・ログ起点）。統合しない。
 
@@ -697,4 +697,4 @@ git tag -m "<変更内容の短い要約>" v{new-version}
 - **[CONTEXT-MANAGEMENT.md](references/CONTEXT-MANAGEMENT.md)**: Context圧迫防止・disable-model-invocationベストプラクティス
 - **[USAGE-REVIEW.md](references/USAGE-REVIEW.md)**: スキル利用状況レビュー・棚卸しガイド
 - **[CROSS-REFERENCE-INTEGRITY.md](references/CROSS-REFERENCE-INTEGRITY.md)**: スキルリネーム・統合・削除時のダングリング参照防止ガイド（4層スキャン・検出スクリプト・捏造禁止原則）
-- **[IMPROVEMENT-INTAKE.md](references/IMPROVEMENT-INTAKE.md)**: 改善提案INTAKE ガイド（global CLAUDE.md inbox 消費・5ステップ処理・種別マッピング・inbox ライフサイクル管理）
+- **[IMPROVEMENT-INTAKE.md](references/IMPROVEMENT-INTAKE.md)**: 改善提案INTAKE ガイド（Claude Code=`~/.claude/.learnings/SKILL-IMPROVEMENTS.md` / Codex=global AGENTS.md inbox の消費・5ステップ処理・種別マッピング・ライフサイクル管理）

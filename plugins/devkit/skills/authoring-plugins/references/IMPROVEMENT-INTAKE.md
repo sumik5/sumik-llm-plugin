@@ -1,6 +1,6 @@
 # 改善提案INTAKE ガイド（スキル自己改善ループの消費側）
 
-スキル改善提案を実行ツールの inbox セクション（Claude Code は `~/.claude/CLAUDE.md`、Codex は `dotfiles/codex/AGENTS.md`）から取り込み、実際のスキル編集まで通す 5 ステップの実践ガイド。各章にコピペ可能なコマンドを収録する。INTAKE は両ツールの inbox を走査する。
+スキル改善提案を実行ツールの捕捉先（Claude Code は専用ファイル `~/.claude/.learnings/SKILL-IMPROVEMENTS.md`、Codex は `dotfiles/codex/AGENTS.md` の inbox セクション）から取り込み、実際のスキル編集まで通す 5 ステップの実践ガイド。各章にコピペ可能なコマンドを収録する。INTAKE は両ソースを走査する。
 
 ---
 
@@ -10,17 +10,17 @@
 
 | 役割 | 担当 | 場所 |
 |------|------|------|
-| **捕捉(C)** | 実行ツールの捕捉ルールがセッション中の気づきを拾い上げ inbox へ append | Claude Code: `~/.claude/CLAUDE.md` ／ Codex: `dotfiles/codex/AGENTS.md` の「## 📥 スキル改善提案 (inbox)」セクション |
-| **消費(D)** | 本ガイドが inbox を読み込んでスキルを実際に改善する | `plugins/devkit/skills/` 配下の各スキルファイル |
+| **捕捉(C)** | 実行ツールの捕捉ルールがセッション中の気づきを拾い上げ捕捉先へ追記 | Claude Code: `~/.claude/.learnings/SKILL-IMPROVEMENTS.md`（専用ファイル） ／ Codex: `dotfiles/codex/AGENTS.md` の「## 📥 スキル改善提案 (inbox)」セクション |
+| **消費(D)** | 本ガイドが捕捉先を読み込んでスキルを実際に改善する | `plugins/devkit/skills/` 配下の各スキルファイル |
 
-> **inbox の場所**: 実行ツールのエージェント設定内セクション（専用ファイルではない・ユーザー選択）— Claude Code は `~/.claude/CLAUDE.md`、Codex は `dotfiles/codex/AGENTS.md` の「## 📥 スキル改善提案 (inbox)」。**INTAKE は両方を走査する**。ファイルパスではなくセクション見出しで識別する。
+> **捕捉先の場所**: Claude Code は `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` という専用ファイル（CWD非依存の単一グローバルキュー）。Codex は引き続き `dotfiles/codex/AGENTS.md` のエージェント設定内セクション（専用ファイルではない・現状維持）。**INTAKE は両方を走査する**。Claude Code 側はファイルパスで、Codex 側はセクション見出しで識別する。
 
 ### USAGE-REVIEW.md との棲み分け
 
 | 観点 | 本INTAKE（消費側） | USAGE-REVIEW.md（棚卸し） |
 |------|-------------------|--------------------------|
 | 駆動タイミング | イベント駆動（open 3件 or ユーザー指示） | バッチ駆動（月次/四半期） |
-| 起点 | CLAUDE.md inbox の提案エントリ | セッションログ分析・利用頻度統計 |
+| 起点 | 捕捉先（Claude Code=SKILL-IMPROVEMENTS.md／Codex=AGENTS.md inbox）の提案エントリ | セッションログ分析・利用頻度統計 |
 | 対象 | 特定の改善提案を消費 | ポートフォリオ全体の俯瞰・棚卸し |
 | 統合 | しない（役割が異なる） | しない |
 
@@ -30,7 +30,7 @@
 [セッション中の気づき]
         │
         ▼
-[捕捉(C): CLAUDE.md 捕捉ルールが inbox へ append]
+[捕捉(C): Claude Code=SKILL-IMPROVEMENTS.md へ追記 / Codex=AGENTS.md inbox へ追記]
         │
         ▼  ← open 3件以上 or ユーザー指示
 [消費(D): 本INTAKE が起動]
@@ -42,7 +42,7 @@
         └─ 完了ワークフロー接続（Step 5）
                 │
                 ▼
-        [スキル改善完了 + inbox クリーンアップ]
+        [スキル改善完了 + 捕捉先クリーンアップ]
 ```
 
 ---
@@ -51,10 +51,10 @@
 
 ### エントリ構造
 
-各提案は実行ツールの inbox（Claude Code=`~/.claude/CLAUDE.md` / Codex=`~/dotfiles/codex/AGENTS.md`）の「## 📥 スキル改善提案 (inbox)」セクションに以下の形式で記述する。
+各提案は捕捉先（Claude Code=`~/.claude/.learnings/SKILL-IMPROVEMENTS.md` / Codex=`~/dotfiles/codex/AGENTS.md` の「## 📥 スキル改善提案 (inbox)」セクション）に以下の形式で記述する。
 
 ```markdown
-## [PROPOSAL] <skill-name> / <種別> / <YYYY-MM-DD>
+### [PROPOSAL] <skill-name> / <種別> / <YYYY-MM-DD>
 
 - skill: <skill-name>
 - 種別: <description改善 | 分割 | 統合 | 内容追記 | 参照修正 | 規約違反>
@@ -90,20 +90,20 @@
 | `参照修正` | 壊れたリンク・ダングリング参照を修正する |
 | `規約違反` | 書籍名・著者名・出版社名等の禁止事項を除去する |
 
-### inbox からの見出し抽出
+### 捕捉先からの見出し抽出
 
-> 以下のコマンドの `~/.claude/CLAUDE.md` は **実行ツールの inbox** を指す。Codex 環境では `~/dotfiles/codex/AGENTS.md` に読み替える。INTAKE は両ツールの inbox を対象に走査・ドレインする（両方に open があれば双方を処理）。
+> 以下のコマンドの `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` は **Claude Code の捕捉先**を指す。Codex 環境では `~/dotfiles/codex/AGENTS.md` に読み替える（グレップ対象は同ファイル内の「## 📥 スキル改善提案 (inbox)」セクションに限定する）。INTAKE は両ツールの捕捉先を対象に走査・ドレインする（両方に open があれば双方を処理）。
 
 ```bash
 # open 件数確認（起動条件チェック）。Codex は AGENTS.md に読み替え
-grep -c "status: open" ~/.claude/CLAUDE.md
+grep -c "status: open" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md
 
 # 全提案見出しを一覧表示
-grep "^## \[PROPOSAL\]" ~/.claude/CLAUDE.md
+grep "^### \[PROPOSAL\]" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md
 
 # open の提案のみ抽出（ブロックごと）
-awk '/^## \[PROPOSAL\]/{block=$0; next} block{block=block"\n"$0} /status: open/{print block; block=""} /^## \[PROPOSAL\]/{block=$0}' \
-  ~/.claude/CLAUDE.md
+awk '/^### \[PROPOSAL\]/{block=$0; next} block{block=block"\n"$0} /status: open/{print block; block=""} /^### \[PROPOSAL\]/{block=$0}' \
+  ~/.claude/.learnings/SKILL-IMPROVEMENTS.md
 ```
 
 ---
@@ -116,12 +116,12 @@ awk '/^## \[PROPOSAL\]/{block=$0; next} block{block=block"\n"$0} /status: open/{
 
 | 条件 | 確認コマンド |
 |------|------------|
-| `status: open` が **3件以上** | `grep -c "status: open" ~/.claude/CLAUDE.md` |
+| いずれかのソースで `status: open` が **3件以上** | `grep -c "status: open" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md`（Codex は `~/dotfiles/codex/AGENTS.md`） |
 | ユーザーが「スキル改善まわして」と明示指示 | — |
 
 ```bash
 # 起動判定スクリプト（0=起動不要, 1=起動）
-open_count=$(grep -c "status: open" ~/.claude/CLAUDE.md 2>/dev/null || echo 0)
+open_count=$(grep -c "status: open" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md 2>/dev/null || echo 0)
 if [[ "$open_count" -ge 3 ]]; then
   echo "INTAKE 起動条件成立 (open=${open_count})"
 else
@@ -146,9 +146,8 @@ fi
 ### Step 1: 取り込み＆トリアージ
 
 ```bash
-# 1. inbox セクションをファイルに切り出し（作業用）
-awk '/^## 📥 スキル改善提案/,/^## [^#]/' ~/.claude/CLAUDE.md \
-  | head -n -1 > /tmp/inbox_snapshot.md
+# 1. 捕捉先スナップショットを作成（専用ファイルなのでセクション抽出は不要）
+cp ~/.claude/.learnings/SKILL-IMPROVEMENTS.md /tmp/inbox_snapshot.md
 
 # 2. open エントリの一覧（skill × 種別）
 grep -E "^- (skill|種別|確度|status):" /tmp/inbox_snapshot.md \
@@ -157,7 +156,7 @@ grep -E "^- (skill|種別|確度|status):" /tmp/inbox_snapshot.md \
 
 # 3. 確度=高の提案を優先キューに
 grep -B10 "確度: 高" /tmp/inbox_snapshot.md \
-  | grep "## \[PROPOSAL\]"
+  | grep "### \[PROPOSAL\]"
 ```
 
 処理手順:
@@ -204,7 +203,7 @@ print(f'現在: {len(desc)}字 / 上限: 1024字 / 余裕: {1024 - len(desc)}字
 
 委譲時は以下を必ず含める:
 
-1. **コンテキスト**: 改善提案の背景・目的（inbox エントリ全文を貼り付ける）
+1. **コンテキスト**: 改善提案の背景・目的（捕捉先エントリ全文を貼り付ける）
 2. **作業ディレクトリ**: `/Users/{user}/repo/{repo}/plugins/devkit/skills/{skill-name}/`
 3. **必読ファイル**: 種別に対応する主担当 reference（下記マッピング表参照）
 4. **担当タスク詳細**: 対象ファイル・変更箇所・変更内容
@@ -241,7 +240,7 @@ README.md 更新: 最後に1体が担当（or 全完了後に本体が別途委�
 - `影響範囲` フィールドに「他スキル参照」「hook」「README」「rules」が含まれる
 
 ```bash
-# 4層ダングリング検出（編集後に実行）
+# 4層ダングリング検出(編集後に実行)
 SKILL_NAME="authoring-plugins"  # 変更したスキル名に合わせる
 
 # Layer 1: 他スキル frontmatter
@@ -286,19 +285,17 @@ diff \
 
 #### 処理済み提案の退避
 
-commit 完了後、CLAUDE.md inbox を整理して open を空に近づける。
+commit 完了後、捕捉先を整理して open を空に近づける。
 
 ```bash
-# inbox の open 残件数を確認
-grep -c "status: open" ~/.claude/CLAUDE.md
+# Claude Code 側: open 残件数を確認
+grep -c "status: open" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md
 
-# 目視確認（退避または削除対象）
-grep -A15 "## \[PROPOSAL\]" ~/.claude/CLAUDE.md | grep -B15 "status: done\|status: rejected"
+# Codex 側: open 残件数を確認
+grep -c "status: open" ~/dotfiles/codex/AGENTS.md
 ```
 
-CLAUDE.md 内での退避先: 「## 処理済み」セクション（なければ inbox セクション直後に作成）。
-
-> CLAUDE.md の 300 行原則を死守するため、「## 処理済み」が肥大化した場合は古いエントリから削除する。
+`~/.claude/.learnings/SKILL-IMPROVEMENTS.md` は done/rejected のエントリを別途保持せず、このファイルから即削除する運用とする（ファイル冒頭にこの方針を明記済み）。Codex 側（`~/dotfiles/codex/AGENTS.md`）は引き続き「## 処理済み」セクションへ退避する運用を維持する。
 
 ---
 
@@ -356,11 +353,11 @@ EOF
 | 対応 | 手順 |
 |------|------|
 | 参照を削除し「削除済み」コメントを残す | ファイル内に `<!-- 参照削除: 旧名 YYYY-MM-DD -->` を挿入 |
-| inbox に「残存課題」として記録 | `status: rejected（移行先不在・残存課題）` と追記 |
+| 捕捉先に「残存課題」として記録 | `status: rejected（移行先不在・残存課題）` と追記 |
 
 ---
 
-## 7. inbox ライフサイクル管理（CLAUDE.md を肥大させない規律）
+## 7. 捕捉先ライフサイクル管理（肥大化させない規律）
 
 ### status 遷移
 
@@ -373,24 +370,23 @@ open → triaged（採否判定済み）→ done（編集完了）
 |--------|------|--------------|
 | `open` | 未処理 | INTAKE Step 1 でトリアージ |
 | `triaged` | 採否判定済み・採用 | Step 3 編集委譲を待つ |
-| `done` | 編集・commit 完了 | 処理済みセクションへ退避 |
-| `rejected` | 却下（理由付き） | 処理済みセクションへ退避 |
+| `done` | 編集・commit 完了 | Claude Code 側は即削除／Codex 側は処理済みセクションへ退避 |
+| `rejected` | 却下（理由付き） | Claude Code 側は即削除／Codex 側は処理済みセクションへ退避 |
 
-### 1サイクル完了後の inbox クリーンアップ手順
+### 1サイクル完了後のクリーンアップ手順
 
 ```bash
-# 1. done / rejected の件数確認
-grep -c "status: done\|status: rejected" ~/.claude/CLAUDE.md
+# 1. done / rejected の件数確認（Claude Code 側）
+grep -c "status: done\|status: rejected" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md
 
-# 2. CLAUDE.md の行数確認（300行原則）
-wc -l ~/.claude/CLAUDE.md
+# 2. open が残っていないことを確認（Claude Code 側）
+grep "status: open" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md && echo "残存 open あり" || echo "クリーン"
 
-# 3. 300行超過の場合: 古い処理済みエントリから削除
-#    （EDITOR で ~/.claude/CLAUDE.md を開き「## 処理済み」セクションの古い行を除去）
-
-# 4. open が残っていないことを確認
-grep "status: open" ~/.claude/CLAUDE.md && echo "残存 open あり" || echo "inbox クリーン"
+# 3. Codex 側（AGENTS.md）は引き続き肥大化に注意し、300行超過時は「## 処理済み」の古いエントリから削除する
+wc -l ~/dotfiles/codex/AGENTS.md
 ```
+
+> Claude Code 側は専用ファイルのため CLAUDE.md 本体の300行原則とは無関係だが、done/rejected を即削除する運用により肥大化を防ぐ。Codex 側は引き続きエージェント設定ファイル内に同居するため、肥大化防止のため即ドレインする。
 
 ---
 
@@ -400,29 +396,29 @@ grep "status: open" ~/.claude/CLAUDE.md && echo "残存 open あり" || echo "in
 
 | 異常パターン | 検知方法 | 対処 |
 |------------|---------|------|
-| 同一提案が3サイクル連続で open に戻る | 提案見出しの日付が3件以上 | CLAUDE.md 捕捉ルールに「罠追記」（managing-claude-md へ委譲） |
+| 同一提案が3サイクル連続で open に戻る | 提案見出しの日付が3件以上 | 捕捉ルールに「罠追記」（managing-claude-md へ委譲） |
 | rejected 多発（1サイクルで5件以上） | `grep -c "status: rejected"` | 捕捉側の粒度見直し（粗すぎる提案を抑制する捕捉ルール修正） |
-| inbox が 50 行を超えて肥大 | `grep -c "PROPOSAL" ~/.claude/CLAUDE.md` | INTAKE を即時起動して消化 or 低確度エントリを一括 rejected |
+| 捕捉先が 50 行を超えて肥大 | `grep -c "PROPOSAL" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md` | INTAKE を即時起動して消化 or 低確度エントリを一括 rejected |
 
-### inbox パース & トリアージ用コマンド集
+### 捕捉先パース & トリアージ用コマンド集
 
 ```bash
 # 提案件数の内訳（status 別）
-grep "status:" ~/.claude/CLAUDE.md | sort | uniq -c | sort -rn
+grep "status:" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md | sort | uniq -c | sort -rn
 
 # 種別別の open 数
-grep -A5 "## \[PROPOSAL\]" ~/.claude/CLAUDE.md \
+grep -A5 "### \[PROPOSAL\]" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md \
   | grep -E "^- 種別:" \
   | sort | uniq -c | sort -rn
 
 # 確度=高 の open 提案を一覧
-awk '/^## \[PROPOSAL\]/{p=1; block=$0; next}
+awk '/^### \[PROPOSAL\]/{p=1; block=$0; next}
      p{block=block"\n"$0}
      /status: open/ && /確度: 高/{print block"\n---"; p=0}
-     /^---/{p=0}' ~/.claude/CLAUDE.md
+     /^---/{p=0}' ~/.claude/.learnings/SKILL-IMPROVEMENTS.md
 
 # 最古の open 提案（日付で判定）
-grep "## \[PROPOSAL\]" ~/.claude/CLAUDE.md \
+grep "### \[PROPOSAL\]" ~/.claude/.learnings/SKILL-IMPROVEMENTS.md \
   | grep -oE "[0-9]{4}-[0-9]{2}-[0-9]{2}" \
   | sort | head -1
 ```
@@ -430,11 +426,10 @@ grep "## \[PROPOSAL\]" ~/.claude/CLAUDE.md \
 ### 健全性ダッシュボード（1コマンドで全指標表示）
 
 ```bash
-echo "=== INTAKE 健全性チェック ===" && \
-echo "open   : $(grep -c 'status: open' ~/.claude/CLAUDE.md 2>/dev/null || echo 0)" && \
-echo "triaged: $(grep -c 'status: triaged' ~/.claude/CLAUDE.md 2>/dev/null || echo 0)" && \
-echo "done   : $(grep -c 'status: done' ~/.claude/CLAUDE.md 2>/dev/null || echo 0)" && \
-echo "rejected: $(grep -c 'status: rejected' ~/.claude/CLAUDE.md 2>/dev/null || echo 0)" && \
-echo "CLAUDE.md 行数: $(wc -l < ~/.claude/CLAUDE.md) / 300行原則" && \
-echo "提案総数: $(grep -c '## \[PROPOSAL\]' ~/.claude/CLAUDE.md 2>/dev/null || echo 0)"
+echo "=== INTAKE 健全性チェック（Claude Code 側）===" && \
+echo "open   : $(grep -c 'status: open' ~/.claude/.learnings/SKILL-IMPROVEMENTS.md 2>/dev/null || echo 0)" && \
+echo "triaged: $(grep -c 'status: triaged' ~/.claude/.learnings/SKILL-IMPROVEMENTS.md 2>/dev/null || echo 0)" && \
+echo "done   : $(grep -c 'status: done' ~/.claude/.learnings/SKILL-IMPROVEMENTS.md 2>/dev/null || echo 0)" && \
+echo "rejected: $(grep -c 'status: rejected' ~/.claude/.learnings/SKILL-IMPROVEMENTS.md 2>/dev/null || echo 0)" && \
+echo "提案総数: $(grep -c '### \[PROPOSAL\]' ~/.claude/.learnings/SKILL-IMPROVEMENTS.md 2>/dev/null || echo 0)"
 ```

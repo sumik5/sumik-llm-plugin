@@ -30,8 +30,9 @@ user-invocable: true
 | 対象 | 処理 |
 |------|------|
 | `.learnings/LEARNINGS.md`・`ERRORS.md`（あれば `FEATURE_REQUESTS.md`） | 本コマンドで消費 |
-| CLAUDE.md「📥 スキル改善提案 (inbox)」の `[PROPOSAL]` | 対象外。`authoring-plugins` の「🔄 改善提案INTAKE」で処理する |
-| .learnings 内のスキル改善提案の性質を持つエントリ | inbox への回送を提案（ユーザーが直接編集を指示済みなら消費してよい） |
+| `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` の `[PROPOSAL]`（一般プロジェクト実行時） | 対象外。`authoring-plugins` の「🔄 改善提案INTAKE」で処理する |
+| `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` の `[PROPOSAL]`（sumik-claude-plugin repo 実行時） | 本コマンドが `authoring-plugins` の「🔄 改善提案INTAKE」フローへ接続し消費する（下記 Phase 0・Phase 2 参照） |
+| .learnings 内のスキル改善提案の性質を持つエントリ | `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` への追記を提案（ユーザーが直接編集を指示済みなら消費してよい） |
 
 ## Phase 0: 実行コンテキストの判定（🔴 恒久化先はプロジェクトで変わる）
 
@@ -39,8 +40,8 @@ user-invocable: true
 
 | コンテキスト | 恒久化先の範囲 |
 |------------|--------------|
-| **一般プロジェクト** | プロジェクト配下（CLAUDE.md・`.claude/` 配下の設定/ルール）・グローバル設定（`~/.claude/CLAUDE.md`・`~/.claude/rules/*.md`・`~/.codex/AGENTS.md`）・Claude Code memory。**プラグインのスキル（authoring-plugins 等）は更新しない**——スキル改善の気づきは global CLAUDE.md inbox の `[PROPOSAL]` へ回送を提案する |
-| **sumik-claude-plugin repo** | 上記に加えて、スキルの INSTRUCTIONS.md / references/・repo CLAUDE.md の罠表・version bump ＋タグ付きリリース |
+| **一般プロジェクト** | プロジェクト配下（CLAUDE.md・`.claude/` 配下の設定/ルール）・グローバル設定（`~/.claude/CLAUDE.md`・`~/.claude/rules/*.md`・`~/.codex/AGENTS.md`）・Claude Code memory。**プラグインのスキル（authoring-plugins 等）は更新しない**——スキル改善の気づきは `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` への追記を提案する |
+| **sumik-claude-plugin repo** | 上記に加えて、`~/.claude/.learnings/SKILL-IMPROVEMENTS.md` の open エントリを `authoring-plugins` の「🔄 改善提案INTAKE」フロー経由で消費（実際にスキルを改善）・スキルの INSTRUCTIONS.md / references/・repo CLAUDE.md の罠表・version bump ＋タグ付きリリース |
 
 ## Phase 1: 裏取り（🔴 エントリの自己申告を信じない）
 
@@ -65,6 +66,7 @@ user-invocable: true
 | ユーザー横断の事実（反復 ≥3・2 タスク以上・30 日内で昇格） | Claude Code memory ＋ MEMORY.md 索引 | 本体直接 |
 | rtk・dotfiles 系の罠 | `~/dotfiles/claude-code/RTK.md`・`rules/*.md` | 本体直接 |
 | スキルの手順・ガイドに載せるべき知見（**sumik-claude-plugin repo のみ**） | 該当スキルの INSTRUCTIONS.md / references/ | tachikoma-doc-document へ委譲 |
+| `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` の open エントリ（**sumik-claude-plugin repo のみ**） | `authoring-plugins` の「🔄 改善提案INTAKE」5ステップ処理（取り込み→規約検証→編集委譲→整合検証→完了ワークフロー）に従い実際にスキルを改善する | 本体がトリアージ・tachikoma-doc-document へ編集委譲 |
 | **sumik-claude-plugin repo の Agent（.md）・Command（.md）定義の規約違反・命名・description不整合**（**sumik-claude-plugin repo のみ**） | authoring-plugins の品質チェックリスト（命名規則・description三部構成・親ディレクトリ名一致等）に照らして本体が要修正箇所を特定 | tachikoma-doc-document（または内容に応じた該当ドメインタチコマ）へ委譲 |
 | **sumik-claude-plugin repo の plugin.json（version）・README.md の追従漏れ** | authoring-plugins の「完了ワークフロー」（version 3 ファイル同期・README同期）に従い実行 | 本体直接 or tachikoma-doc-document へ委譲 |
 | hook・スクリプトのコード修正 | 該当 `.sh` 等 | tachikoma-lang-bash 等へ委譲 |

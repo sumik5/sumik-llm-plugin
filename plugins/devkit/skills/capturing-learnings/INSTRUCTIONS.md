@@ -161,7 +161,7 @@ pending → in_progress → resolved
 | プロジェクト CLAUDE.md | そのプロジェクト固有の事実・規約・落とし穴（全員が知るべき） |
 | Claude Code memory（`~/.claude/projects/<key>/memory/`） | ユーザー横断・複数セッションにわたる事実。memory 規約に従う |
 | AGENTS.md | Codex 向けのワークフロー・ツール利用パターン・自動化ルール |
-| CLAUDE.md inbox / IMPROVEMENT-INTAKE | sumik-claude-plugin 自身のスキル改善は `.learnings/` ではなくここへ |
+| `~/.claude/.learnings/SKILL-IMPROVEMENTS.md` / IMPROVEMENT-INTAKE | sumik-claude-plugin 自身のスキル改善は実行中プロジェクトの `.learnings/` ではなくここへ（CWD非依存の単一グローバルキュー） |
 | 新スキル（authoring-plugins） | 再利用価値が高く汎用的な学びは新スキル化を検討 |
 
 ### 昇格の実施
