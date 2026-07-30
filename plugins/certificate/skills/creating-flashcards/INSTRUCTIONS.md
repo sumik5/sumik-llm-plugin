@@ -427,6 +427,8 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/shikaku_drill_i
 | **その他** | 上記に当てはまらない独自構造 |
 | **混在型** | 1つのEPUB内に複数の構造パターンが共存（例: Assessment Testは同一セクション型、Practice Examは前半後半分離型） |
 
+> 🔴 **テーマ単位ページ分離型の中でも、判定マーカー（○×）が本文列と座標的に別カラム（欄外マージン）に配置され、pandoc/フラット化OCRでは本文との対応が復元できないケース**は、テキストパース方式ではなくスキャン画像を直接 OCR する**座標マッチング方式**（`scripts/coordinate_marker_extract.py` + `scripts/coordinate_page_scaffold.py`）を使う。詳細な判定基準・既知の罠は [CONTENT-BY-TYPE.md](references/CONTENT-BY-TYPE.md) の「見開き型：本文列/マージン列座標分離ページ（座標マッチング方式）」を参照。
+
 詳細な検出ヒューリスティクスは [CONTENT-DETECTION.md](references/CONTENT-DETECTION.md) を参照（書籍タイプの判別マトリクス・マーカー検出ルール）。判別後の具体的なパース戦略は [CONTENT-BY-TYPE.md](references/CONTENT-BY-TYPE.md) を、全タイプ共通の前処理・後処理は [CONTENT-COMMON.md](references/CONTENT-COMMON.md) を参照。
 
 5. **問題と解答のペアを全件抽出**する

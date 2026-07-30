@@ -32,6 +32,13 @@ wc -l < /tmp/check.md        # 総行数
 
 画像で構成されたEPUBファイルを、LM StudioのローカルVLM（OCR）を使って日本語テキスト（Markdown）に変換する。
 
+> ⚠️ **速度優先なら Apple Vision も検討する**: 本節のLM Studio VLM方式は表・2D図等の構造化再現に強いが、
+> 約22秒/ページと低速。`creating-flashcards` 同梱の `scripts/ocr-apple-vision`（Apple Vision Neural
+> Engine・LM Studio起動不要・約1〜2秒/ページ＝約12倍速）は、本節のStep 4（`unzip -j`での画像抽出）まで
+> 済ませれば単体でも流用できる（実測: 741ページ規模の書籍2冊を約20分で変換・日本語/コード共に実用品質を
+> スモークテストで確認）。表・複雑レイアウトの構造化再現が品質に直結する箇所のみ本節のVLM方式に切り替える
+> ハイブリッド運用の詳細は `creating-flashcards` の [OCR-CONVERSION.md](../creating-flashcards/references/OCR-CONVERSION.md) を参照。
+
 ### 前提条件
 
 - **LM Studio** が起動し、VLMモデル（デフォルト: `qwen/qwen3.5-9b`）がロードされていること

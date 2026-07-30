@@ -42,6 +42,12 @@
 > リスク）はLRN-20260719-003（同型の初回発生）と統合し `operating-herdr/INSTRUCTIONS.md` の
 > 「Escape で中断した直後の多段送信は要注意」ブロック直後へ新規恒久化。
 
+> 2026-07-31: 蓄積エントリ（ERR-20260730-001）を全消費・削除済み。ネストbackground孤児化パターンは
+> Claude Code memory `background-task-dies-across-session` へ派生パターン（サブエージェント自身が
+> ネストした`run_in_background`を開始した場合も同型の孤児化が起きる）として追記・実ファイルで反映確認済み
+> （`MEMORY.md`索引も同時更新）。同一書籍のOCRパイプライン自体は本セッション内で座標マッチング方式へ
+> 発展させ最終的に1988件全件を解決済み（LRN-20260730-001として記録・同時消費）。
+
 > 2026-07-29: 蓄積エントリ（ERR-20260725-001・ERR-20260727-001）を全消費・削除済み。
 > ERR-20260725-001（agent-browser open直後のAJAX生成DOM未挿入・レッスン0件誤判定）は
 > `plugins/web/skills/automating-browser/references/AGENT-EXAMPLES.md` の実践Tipsリスト末尾（11番目）へ

@@ -66,3 +66,39 @@ PUBLIC_API: anki_request,ensure_deck,existing_fronts,filter_new,dedup_deck,build
 ## 🔴 大量投入時のリクエスト間隔
 
 `*_import.py` を100件超のファイルに対してシェルループで間隔なく連続投入すると、AnkiConnect 側の一時的な過負荷により `ConnectionResetError`・`Connection refused`（`urlopen error`）が一部発生しうる（実測: 264件中82件失敗。Anki本体プロセスは生存しており、AnkiConnect 側のキューあふれが原因と推測される）。失敗したファイルのみ抽出し、各リクエスト間に `sleep 0.5` を挟んで再実行したところ全件成功した（82/82）。100件超をループ投入する運用では、各呼び出し間に `sleep 0.5` 程度を挟むか、失敗したファイルのみ抽出して後段でリトライする前提で組むこと。
+
+## 座標マッチング方式（`coordinate_marker_extract.py` / `coordinate_page_scaffold.py`）
+
+見開き型レイアウト（本文列＝チェックボックス付き設問、マージン列＝座標分離された○×判定マーカー）向けの抽出エンジンと、そのページペアリング雛形。`anki_toolkit.py`/`parser_scaffold.py` と同じ「不変・育てる側」「雛形・コピーして使う側」の2層構成をこの方式にも適用したもの。
+
+### `coordinate_marker_extract.py`（不変・育てる側）
+
+外部依存: `ocrmac`, `Pillow`（`anki_toolkit.py` の外部依存ゼロとは異なる）。
+
+| 関数 | シグネチャ（要点） | 役割 |
+|------|------------------|------|
+| `extract_practice_page` | `(image_path, col_split_x=0.72, y_tol=0.025) -> (questions, margin_markers)` | ページ画像を ocrmac で座標付きOCRし、設問と○×判定マーカーをy座標最近傍マッチングで紐付ける公開エントリポイント |
+| `_build_questions` | `(main_col) -> list[dict]`（内部） | 本文列OCR結果からチェックボックス区切りの設問ブロックを構築 |
+| `_ocr_main_column_at_scale` | `(image_path, col_split_x, scale) -> list`（内部） | 本文列のみを再OCR（截断された設問の救済リトライ用） |
+| `_ocr_margin_column` | `(image_path, col_split_x) -> list`（内部） | マージン列のみを1x/2x/3xで再OCRし結果を統合（Visionの検出漏れ対策） |
+
+`questions` の各要素（dict）が持つキー:
+
+| キー | 型 | 内容 |
+|------|-----|------|
+| `statement` | `str` | 判定マーカー・出典を除去した設問本文。🔴 境界判定に使ったチェックボックス記号（口/□/■/ロ/コ/0/◎/o）は先頭に残ったまま返る——呼び出し側が投入前に1文字除去する契約（`coordinate_page_scaffold.py`参照） |
+| `citation` | `str` | 抽出した出典表記（無ければ空文字） |
+| `end_y` | `float` | 設問ブロックの最終行のy座標（0〜1正規化。マージン判定マーカーとのy近傍マッチングに使用） |
+| `raw_text` | `str` | 出典除去前の結合済み本文 |
+| `marker` | `dict \| None` | 対応する判定マーカー。`None` は判定マーカー欠落（`QAPair.needs_fix=True` 相当） |
+| `inline_marker` | `dict`（存在する場合のみ） | 本文列に同居していた判定マーカー（`marker` と同一形状） |
+
+`marker`（および `margin_markers` の各要素）が持つキー: `nums`（`list[int \| None]`。参照番号。丸数字・丸囲み文字代替は `_to_int` で整数化、非対応トークンは `None`）/ `mark`（`str`。生の○×記号。`anki_toolkit._normalize_verdict` 相当の正規化は呼び出し側=scaffold の責務）/ `y`（`float`）/ `raw`（`str`。マッチした生テキスト）/ `inline`（`bool`）。
+
+### `coordinate_page_scaffold.py`（雛形・コピーして使う側）
+
+`parser_scaffold.py` と同様、**使い捨てコピー前提**。`coordinate_marker_extract.extract_practice_page` と `anki_toolkit` の両方を import し、ページペアリング（基礎知識ページ×実践ページ）と `QAPair`（`qtype="truefalse"` 固定）への変換を行う。`PAGE_OFFSET`・ページファイル名パターン・基礎知識ページ変換済みMarkdownパスは `TODO` プレースホルダとして明示されており、コピー先で対象書籍の値に置き換える。見出しキーワード判定（`"基礎知識"`/`"必ず出る"`）と `era_year_tag()` の元号表記正規化（H/S/R/T）は「多くの日本語資格試験書籍で流用できる可能性が高いが確認してから使う」参考実装として残されている（削除・TODO化はしない）。
+
+### `parser_scaffold.py` と `coordinate_marker_extract.py` の使い分け
+
+OCR後のMarkdownをテキストとしてそのままパースできる場合（判定マーカー・正解が本文と同一の読み順で出現し、pandoc/フラット化OCRの時点で分離しない場合）は `parser_scaffold.py`（テキストフロー方式）を使う。一方、判定マーカーが本文と別カラム・別領域（見開きページのマージン等）に配置されており、フラット化Markdownの時点で本文との位置関係（列・座標）情報が失われて紐付け不能になる場合は、`coordinate_marker_extract.py`（座標マッチング方式）を検討する。座標マッチング方式はスキャン画像を直接 `ocrmac` 等で座標付きOCRできることが前提であり、画像そのものにアクセスできない（既に生成済みのフラット化Markdownしか無い）場合は採用できない。
