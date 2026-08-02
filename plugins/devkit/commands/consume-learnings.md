@@ -103,7 +103,7 @@ user-invocable: true
 
 ## Phase 5: エントリ削除・リリース
 
-1. 消費済みエントリを削除し、ヘッダ＋「恒久化先」の注記を残す（作業中に生まれた新知見は、その場で新エントリとして記録してよい）
+1. 消費済みエントリを削除する（注記は残さない。恒久化先の記録は git commit メッセージ〔`git log` で参照可能〕に委ねる）。作業中に生まれた新知見は、その場で新エントリとして記録してよい
 2. **（sumik-claude-plugin repo のみ）**変更したプラグインを version bump（コミット type 基準: fix → PATCH / feat → MINOR）し、3 ファイル同期・repo CLAUDE.md の期待値更新・同期チェックスクリプトを実行する（authoring-plugins の「完了ワークフロー」節と同一手順。新規コンポーネント追加を伴う場合は README.md 自動同期も同時に行う）
 3. AskUserQuestion で git 書込を確認 → 承認後に実行:
    - コミットメッセージは Write でファイル化して `git commit -F <file>`（全角記号の `-m` 直渡しはパース崩れで不発）
