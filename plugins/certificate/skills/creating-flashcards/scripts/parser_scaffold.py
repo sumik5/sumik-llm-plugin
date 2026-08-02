@@ -244,6 +244,128 @@ def extract_images(text: str, ctx: "SourceContext") -> tuple[str, list[dict]]:
     return text, media
 
 
+def crop_pdf_region_to_media(
+    pdf_path: str,
+    page: int,
+    bbox: tuple[float, float, float, float],
+    ctx: "SourceContext",
+    *,
+    unit: str = "norm",
+    dpi: int = 200,
+    fmt: str = "png",
+    filename_stem: str = "",
+) -> dict:
+    """PDF の1ページの矩形領域をクロップし base64 化して QAPair.media 用 dict を返す。
+
+    bbox=(x, y, w, h) の座標系は unit で指定する: "norm"=ページ全体を0-1に正規化した比率、
+    "pt"=PDFポイント、"px"=dpi でレンダリングした場合の画素。poppler の pdfinfo（ページ寸法
+    取得・norm/pt 時のみ）と pdftoppm（-x -y -W -H によるクロップ）を subprocess 経由で呼ぶ
+    （CONTENT-COMMON.md の pdftoppm -x -y -W -H 手順のPython化）。
+    呼び出し側は戻り値の "filename" を front/back の <img src="..."> に埋め、
+    戻り値自体を QAPair.media に append する。
+
+    🔴 ctx.media_prefix が空なら ValueError（extract_images/store_media と同じ契約。
+       汎用名衝突による既存画像の上書き＝静かなデータ破壊を防ぐ）。
+    poppler（pdftoppm/pdfinfo）未導入時は FileNotFoundError で導入方法を案内する
+    （サイレント失敗を避ける）。
+    """
+    if not ctx.media_prefix:
+        raise ValueError(
+            "media_prefix is required for crop_pdf_region_to_media "
+            "(generic filenames collide with other sources' Anki media)"
+        )
+    if unit not in ("norm", "pt", "px"):
+        raise ValueError(f"invalid unit: {unit!r} (must be one of 'norm', 'pt', 'px')")
+
+    fmt_flags = {"png": "-png", "jpeg": "-jpeg", "jpg": "-jpeg", "tiff": "-tiff"}
+    flag = fmt_flags.get(fmt)
+    if flag is None:
+        raise ValueError(f"unsupported fmt: {fmt!r} (must be one of {sorted(fmt_flags)})")
+
+    # 遅延 import: 画像を使わない parse() では scaffold 全体がこれらを要求しないようにする。
+    import base64
+    import subprocess
+    import tempfile
+    from pathlib import Path
+
+    x, y, w, h = bbox
+    if unit == "px":
+        x_px, y_px, w_px, h_px = (round(v) for v in (x, y, w, h))
+    else:
+        page_w_pt, page_h_pt = _pdf_page_size_pt(pdf_path, page)
+        if unit == "norm":
+            x_pt, y_pt, w_pt, h_pt = x * page_w_pt, y * page_h_pt, w * page_w_pt, h * page_h_pt
+        else:  # "pt"
+            x_pt, y_pt, w_pt, h_pt = x, y, w, h
+        scale = dpi / 72.0
+        x_px, y_px, w_px, h_px = (round(v * scale) for v in (x_pt, y_pt, w_pt, h_pt))
+
+    if w_px <= 0 or h_px <= 0:
+        raise ValueError(f"crop region must be positive size (got W={w_px} H={h_px}px)")
+
+    if not filename_stem:
+        bbox_key = "_".join(f"{v:g}" for v in bbox).replace(".", "-")
+        filename_stem = f"p{page}_{unit}_{bbox_key}_{dpi}dpi"
+    filename = f"{ctx.media_prefix}{filename_stem}.{fmt}"
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        out_prefix = str(Path(tmpdir) / "crop")
+        cmd = [
+            "pdftoppm", "-f", str(page), "-l", str(page), "-r", str(dpi), flag, "-singlefile",
+            "-x", str(x_px), "-y", str(y_px), "-W", str(w_px), "-H", str(h_px),
+            pdf_path, out_prefix,
+        ]
+        try:
+            subprocess.run(cmd, check=True, capture_output=True)
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(
+                "pdftoppm not found (poppler is required: "
+                "'brew install poppler' on macOS / 'apt-get install poppler-utils' on Debian)"
+            ) from exc
+        except subprocess.CalledProcessError as exc:
+            stderr = exc.stderr.decode("utf-8", "replace") if exc.stderr else ""
+            raise RuntimeError(
+                f"pdftoppm failed (page={page}, bbox_px=({x_px},{y_px},{w_px},{h_px})): {stderr}"
+            ) from exc
+
+        produced = list(Path(tmpdir).glob("crop.*"))
+        if not produced:
+            raise RuntimeError(f"pdftoppm produced no output file (page={page})")
+        data = produced[0].read_bytes()
+
+    return {
+        "filename": filename,
+        "data_b64": base64.b64encode(data).decode("ascii"),
+    }
+
+
+def _pdf_page_size_pt(pdf_path: str, page: int) -> tuple[float, float]:
+    """pdfinfo で指定ページの寸法（pt単位）を取得する（crop_pdf_region_to_media の内部ヘルパー）。"""
+    import subprocess  # 遅延 import（crop_pdf_region_to_media と同じ方針）
+
+    try:
+        result = subprocess.run(
+            ["pdfinfo", "-f", str(page), "-l", str(page), pdf_path],
+            check=True, capture_output=True,
+        )
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(
+            "pdfinfo not found (poppler is required: "
+            "'brew install poppler' on macOS / 'apt-get install poppler-utils' on Debian)"
+        ) from exc
+    except subprocess.CalledProcessError as exc:
+        stderr = exc.stderr.decode("utf-8", "replace") if exc.stderr else ""
+        raise RuntimeError(f"pdfinfo failed (page={page}): {stderr}") from exc
+
+    m = re.search(
+        r"Page\s*(?:\d+\s+)?size:\s*([\d.]+)\s*x\s*([\d.]+)",
+        result.stdout.decode("utf-8", "replace"),
+    )
+    if not m:
+        raise RuntimeError(f"could not parse page size from pdfinfo output for page {page}")
+    return float(m.group(1)), float(m.group(2))
+
+
 # ─────────────────────────────────────────────
 # 🔴 ここから下がソース固有。毎回手書きする
 # ─────────────────────────────────────────────

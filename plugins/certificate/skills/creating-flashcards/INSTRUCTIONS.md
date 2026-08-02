@@ -29,6 +29,7 @@ EPUB/PDFファイルからAnkiフラッシュカードを一括作成するワ�
 - PDF変換: `${CLAUDE_PLUGIN_ROOT}/scripts/` の依存関係がインストール済みであること
 - **画像ベースのOCR（既定 Apple Vision）**: macOS 12+／`poppler`（`pdftoppm`）／`ocrmac` Pythonパッケージ（無ければ自動pip導入）
 - **画像ベースのOCR（フォールバック VLM）**: LM Studio が起動し **vision対応モデルがロード可能**であること／`poppler`・`Pillow`・`lmstudio` Pythonパッケージ（詳細は [OCR-CONVERSION.md](references/OCR-CONVERSION.md)）
+- **PDF座標クロップ（画像フォールバック・`crop_pdf_region_to_media()` 使用時のみ）**: `Pillow`・`poppler`（`pdftoppm`）または `ImageMagick`（詳細は [SCRIPTS-CONTRACT.md](references/SCRIPTS-CONTRACT.md#pdf座標クロップヘルパー)）
 
 ---
 
@@ -431,6 +432,8 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/shikaku_drill_i
 
 詳細な検出ヒューリスティクスは [CONTENT-DETECTION.md](references/CONTENT-DETECTION.md) を参照（書籍タイプの判別マトリクス・マーカー検出ルール）。判別後の具体的なパース戦略は [CONTENT-BY-TYPE.md](references/CONTENT-BY-TYPE.md) を、全タイプ共通の前処理・後処理は [CONTENT-COMMON.md](references/CONTENT-COMMON.md) を参照。
 
+> 🔴 **複合問題（1つの文章に複数の問）は書籍タイプ非依存の横断原則として扱う**: リード文・シナリオ・パッセージに複数の小問がぶら下がる構造を検出したら、判定パターンに関わらず「問題全体はそのままコピーし、問（小問）だけを分割する」原則を適用する。詳細は [CONTENT-BY-TYPE.md の「複合問題の分割原則」](references/CONTENT-BY-TYPE.md#複合問題分割原則) を参照。
+
 5. **問題と解答のペアを全件抽出**する
 
 > ⚠️ **pandoc行折り返しの結合**: pandocは長い行を任意の位置で改行する。選択肢・段落・不正解解説等の複数行にわたるテキストは、セマンティックな単位ごとに1行に結合すること。
@@ -574,6 +577,8 @@ AskUserQuestion(
 
 判定結果に応じて以下のHTMLフォーマットを使い分ける。
 
+> 🔴 **画像設問（問題文・選択肢が画像）は `qtype="basic"` を使う**: OCRで読み取れず問題文・設問・選択肢を画像のまま `front`/`back` に埋め込む場合は、選択肢型・○×型のフォーマットを使わず `qtype="basic"` にする（`qtype="choice"`/`"truefalse"` を指定すると `build_front_html()` が選択肢 `<ol>` や判定指示を二重に追記する）。画像を `media` に載せる詳細手順は [CONTENT-COMMON.md の画像正規フロー](references/CONTENT-COMMON.md) を参照。
+
 #### HTMLフォーマットルール（選択肢型・○×型）
 
 🔴 **カードHTMLを組み立てる（`QAPair` を設計する）前に必読**: 選択肢型・○×型それぞれの Front/Back テンプレート（選択肢の `<ol>` リスト化・正解/解説/不正解解説の構成・○×大表示・⭐重要バッジ・`✕` 正規化・比較テーブルのHTML変換・出典div・タグ生成）は [CONTENT-COMMON.md](references/CONTENT-COMMON.md) の「フォーマット変換ルール」に集約されている。実装は `anki_toolkit.py` の `build_front_html()` / `build_back_html()` が担う（契約は [SCRIPTS-CONTRACT.md](references/SCRIPTS-CONTRACT.md) 参照）。書籍タイプ別のパース戦略は [CONTENT-BY-TYPE.md](references/CONTENT-BY-TYPE.md)、判別マトリクスは [CONTENT-DETECTION.md](references/CONTENT-DETECTION.md) を参照。
@@ -634,16 +639,17 @@ result = upload(qas, deck_name=deck, model_name=model,
 - `upload()` が 50 件ごとに `[upload] N/total processed` を stderr へ出力する
 - per-note エラーは `upload()` の戻り値 `errors` リストに集約され、最後にまとめて確認できる
 
-#### 画像取り込み（EPUB 埋め込み画像）の責務分担
+#### 画像取り込み（EPUB 埋め込み画像・PDF 座標クロップ）の責務分担
 
-EPUB の埋め込み画像をカードに取り込む場合、**抽出と投入で責務を分ける**:
+EPUB の埋め込み画像・読み取り困難な PDF 領域をカードに取り込む場合、**抽出と投入で責務を分ける**:
 
 | 工程 | 担当 | 内容 |
 |------|------|------|
-| 画像の抽出・`<img>` 化・base64 化 | 🔴 **scaffold の `extract_images(text, ctx)`**（ソース固有） | 本文中の `![...](image_rsrcXXX...)` を `<img src="<prefix>...">` に置換し、`unzip` で EPUB から実体を取り出して base64 化する。画像参照の regex・prefix 命名はソース依存のため毎回手書きする。escape 順序の罠（プレースホルダ退避→escape→復元）に注意 |
+| 画像の抽出・`<img>` 化・base64 化（EPUB） | 🔴 **scaffold の `extract_images(text, ctx)`**（ソース固有） | 本文中の `![...](image_rsrcXXX...)` を `<img src="<prefix>...">` に置換し、`unzip` で EPUB から実体を取り出して base64 化する。画像参照の regex・prefix 命名はソース依存のため毎回手書きする。escape 順序の罠（プレースホルダ退避→escape→復元）に注意 |
+| PDF 該当領域のクロップ・base64 化 | 🔴 **scaffold の `crop_pdf_region_to_media()`**（ソース固有・座標はソース依存） | PDF の指定ページ・矩形領域を画像化し base64 化する。詳細契約は [SCRIPTS-CONTRACT.md](references/SCRIPTS-CONTRACT.md#pdf座標クロップヘルパー)。座標は書籍レイアウト依存のため毎回指定する。読み取り困難時に最初から front/back へ画像を使う正規フローは [CONTENT-COMMON.md](references/CONTENT-COMMON.md) を参照 |
 | 画像の投入 | **toolkit の `store_media()`**（不変） | `QAPair.media`（`[{"filename","data_b64"}]`）に載せた実体を AnkiConnect `storeMediaFile` で登録する。`upload()` 内で `addNotes` 前に自動実行される（同名は上書き=冪等） |
 
-scaffold が `extract_images()` で返した `[{"filename","data_b64"}]` を `QAPair.media` に載せ、本文には `<img src="<filename>">` を埋め込む。投入は `upload()` に任せる。
+scaffold が `extract_images()`／`crop_pdf_region_to_media()` で返した `{"filename","data_b64"}` を `QAPair.media` に載せ、本文には `<img src="<filename>">` を埋め込む。投入は `upload()` に任せる。
 
 > 🔴 **`media_prefix` は必須**: filename に接頭辞を付けない汎用名（pandoc 由来の `image_rsrc001.jpg` 等）は、Anki のメディアフォルダ全体で**別ソースの既存画像を静かに上書きする**（メディアは collection 共有でデッキ分離されない）。`store_media()` は `MEDIA_PREFIX_RE`（接頭辞付きパターン）に一致しない filename を `ValueError` で拒否する。scaffold の `SourceContext.media_prefix`（例 `"<識別子>_"`）を必ず設定し、`extract_images()` が `epub_path` 指定時に `media_prefix` 未設定なら `ValueError` を出す（汎用名衝突によるデータ破壊の事前防止）。
 

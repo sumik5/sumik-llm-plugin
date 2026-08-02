@@ -67,6 +67,33 @@ PUBLIC_API: anki_request,ensure_deck,existing_fronts,filter_new,dedup_deck,build
 
 `*_import.py` を100件超のファイルに対してシェルループで間隔なく連続投入すると、AnkiConnect 側の一時的な過負荷により `ConnectionResetError`・`Connection refused`（`urlopen error`）が一部発生しうる（実測: 264件中82件失敗。Anki本体プロセスは生存しており、AnkiConnect 側のキューあふれが原因と推測される）。失敗したファイルのみ抽出し、各リクエスト間に `sleep 0.5` を挟んで再実行したところ全件成功した（82/82）。100件超をループ投入する運用では、各呼び出し間に `sleep 0.5` 程度を挟むか、失敗したファイルのみ抽出して後段でリトライする前提で組むこと。
 
+## <a id="pdf座標クロップヘルパー"></a>PDF座標クロップヘルパー（`crop_pdf_region_to_media()`）
+
+`parser_scaffold.py` に「素材」ヘルパーとして追加される、PDF の1ページの矩形領域をクロップして base64 化する関数。`extract_images()` と同じく scaffold 側（ソース固有・使い捨て素材）に属し、`anki_toolkit.py` の外部依存ゼロ原則には含まれない。OCR で問題文・設問・選択肢・図が読み取れない場合に、`parse()` の段階で該当領域を画像化し `QAPair` の `front`/`back` へ最初から埋め込む用途で使う（[CONTENT-COMMON.md の画像正規フロー](CONTENT-COMMON.md)参照）。
+
+外部依存: **Pillow ＋ poppler（`pdftoppm`）**（または ImageMagick）。`anki_toolkit.py` の外部依存ゼロとは異なる（`coordinate_marker_extract.py` の `ocrmac`/`Pillow` 依存と同じ位置づけ）。関数内で遅延 import し、未導入時は明瞭なエラーメッセージを出す（scaffold 冒頭でモジュール全体が画像を使わない parse でも壊れないようにするため）。
+
+```python
+def crop_pdf_region_to_media(
+    pdf_path: str,
+    page: int,                                    # 1始まりの物理ページ番号
+    bbox: tuple[float, float, float, float],      # (x, y, w, h)
+    ctx: "SourceContext",                         # media_prefix を強制（空なら ValueError）
+    *,
+    unit: str = "norm",                           # "norm"(0-1) | "pt" | "px"
+    dpi: int = 200,
+    fmt: str = "png",
+    filename_stem: str = "",                       # 省略時は page+bbox から決定的に生成
+) -> dict:                                         # {"filename": "<prefix>...png", "data_b64": "..."}
+```
+
+要点:
+- `ctx.media_prefix` が空なら `ValueError`（`extract_images()`/`store_media()` と同じ、接頭辞なし汎用名によるメディア衝突を防ぐ契約に整合）。
+- 戻り値は `{"filename","data_b64"}` の1件。`QAPair.media` にそのまま append できる。呼び出し側は `front`/`back` に `<img src="<返り値filename>">` を埋める。
+- `unit` で座標系を選べる（`"norm"`=0〜1正規化 / `"pt"` / `"px"`）。ページ全体を使う場合は `bbox=(0,0,1,1)`。
+- 実装方式は2案（実装側が選択）: (a) `pdftoppm -x -y -W -H`（ピクセル指定の関数化）／(b) ページ全体を `dpi` でラスタライズ後 `PIL.Image.crop()`。
+- 機械可読 CONTRACT ブロック（`PUBLIC_API` 等）には含めない。`extract_images()` 等の他の scaffold ヘルパーと同様、`anki_toolkit.py` の公開API（toolkitの単一真実）には属さないため。
+
 ## 座標マッチング方式（`coordinate_marker_extract.py` / `coordinate_page_scaffold.py`）
 
 見開き型レイアウト（本文列＝チェックボックス付き設問、マージン列＝座標分離された○×判定マーカー）向けの抽出エンジンと、そのページペアリング雛形。`anki_toolkit.py`/`parser_scaffold.py` と同じ「不変・育てる側」「雛形・コピーして使う側」の2層構成をこの方式にも適用したもの。
