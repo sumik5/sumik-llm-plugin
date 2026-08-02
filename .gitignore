@@ -1,6 +1,7 @@
 docs/*plan*
 docs/conversion-*
 node_modules/
+.claude/handovers/*
 .cache/**
 !.cache/
 !.cache/sumik-marketplace/
