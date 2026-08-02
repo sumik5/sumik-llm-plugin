@@ -56,3 +56,9 @@
 > `plugins/devkit/skills/authoring-plugins/references/FORK-GUIDE.md` の「7.1 disable-model-invocationとの
 > 関係」節208行目直後へ新規恒久化。両ファイルとも`git diff`で追加行のみ・禁止語なし・
 > `.learnings`参照残存なしを実機検証済み。web 1.4.0→1.4.1・devkit 14.12.4→14.12.5（いずれもPATCH）。
+
+> 2026-08-02: 蓄積エントリ（ERR-20260802-001）を消費・削除済み。
+> 恒久化先: `plugins/devkit/commands/refactor-agent-instructions.md`の「## 注意点」表末尾へ
+> 「カテゴリDで新規に外部ファイルを作成する前」行として新規恒久化（`git check-ignore -v`での
+> 事前確認・`docs/**`等の広いignoreパターンへの注意）。`git diff`で追加2行のみ・対象ファイル
+> 以外への差分なし・禁止語なし・`.learnings`参照残存なしを実機検証済み。
