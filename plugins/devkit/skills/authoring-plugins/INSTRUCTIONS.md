@@ -641,7 +641,7 @@ AskUserQuestion の使い方は2つの文脈で異なる。混同しないこと
 
 ### 1. バージョン更新
 
-`.claude-plugin/plugin.json` の `version` フィールドを Semantic Versioning に従って更新する:
+各プラグインの `.claude-plugin/plugin.json` の `version` フィールドを Semantic Versioning に従って更新する:
 
 > ⚠️ bump前に現行versionを**実ファイルまたは `git show HEAD:.claude-plugin/plugin.json` から読む**（HEADで既にbump済みの場合があり、記憶や推測の値を使うと既存versionと衝突する）
 
@@ -650,6 +650,10 @@ AskUserQuestion の使い方は2つの文脈で異なる。混同しないこと
 | 新規コンポーネント追加（スキル・Agent・Command） | **MINOR** | `9.24.0` → `9.25.0` |
 | 既存コンポーネントの修正・改善 | **PATCH** | `9.24.0` → `9.24.1` |
 | 破壊的変更（スキルの大幅な構成変更等） | **MAJOR** | `9.24.0` → `10.0.0` |
+
+**変更が複数プラグインに及ぶ場合は、影響を受けた全プラグインについてこの手順を実行する**（他プラグインのファイルを1つでも触った場合、そのプラグインもbump対象。「主に作業したプラグインだけbumpする」は不可）。例: あるプラグインのスキルを追加する際に別プラグインのREADMEも更新した場合、両方の `plugin.json` をbumpする。
+
+> 複数プラグイン更新時は、コミット（次項）でも影響を受けた全プラグインの変更ファイルと `plugin.json` をまとめて `git add` する（例: `git add plugins/<pluginA>/... plugins/<pluginA>/.claude-plugin/plugin.json plugins/<pluginB>/... plugins/<pluginB>/.claude-plugin/plugin.json`）。
 
 ### 2. コミット
 
@@ -665,8 +669,12 @@ git commit -m "feat(skill-name): 変更内容の要約"
 ### 3. タグ付与
 
 ```bash
-git tag -m "<変更内容の短い要約>" v{new-version}
+git tag -m "<変更内容の短い要約>" <plugin>-v{new-version}
 ```
+
+> タグ名は `<plugin>-vX.Y.Z` 形式とする（例: `certificate-v2.1.0`）。**`devkit` のみ例外**で、プラグイン名prefixなしの `v{new-version}` 形式を使う（このリポジトリの歴史的経緯による）。
+
+> 🔴 **1コミットに複数プラグインの変更を含む場合は、変更したプラグインの数だけタグを作成する。** 例: `certificate` と `studio` を同時更新した場合、同一コミットに対して `certificate-v2.1.0` と `studio-v2.1.2` の2つのタグを作成する。
 
 > `tag.gpgsign=true` 環境ではタグは常に annotated 扱いになりメッセージ必須。`-m` なしの軽量タグは非対話実行下で `fatal: no tag message?` になる。
 
