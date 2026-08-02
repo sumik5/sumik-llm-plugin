@@ -79,6 +79,9 @@ ToolSearch("SendMessage message")   → SendMessage がロードされる
 ## クイックスタート（2フェーズ方式）
 
 ### Phase 1: 計画策定（planner タチコマに全委譲）
+
+🔴 **Step 1着手前のブランチ確認** - orchestrating-teamsの起動を判断した直後・planner起動前のタイミングで、CLAUDE.mdの「新規作業開始時はブランチ作成を提案する」ルールをこの時点で適用する。AskUserQuestion等で「新規ブランチを切るか／既存ブランチのまま進めるか」をユーザーに確認してからplannerを起動する。このタイミングを逃し実装完了後までブランチ運用の確認を持ち越すと、mainブランチ上で複数ファイルの変更が進んでしまう手順ミスになるため注意する。
+
 1. **planner タチコマ起動** - herdr では `herdr agent start`、非herdrでは Agent ツール（model: opus, run_in_background: true）を使う。ユーザー要求をそのまま渡し、現状把握・コードベース分析・要件整理・チーム編成設計・`docs/plan-{feature}.md` 作成・**Codex プランレビューループ**を全てplannerが実行
 2. **計画レビュー・承認** - plannerがCodexレビュー済みのdocs/planをユーザーに提示して確認
 
