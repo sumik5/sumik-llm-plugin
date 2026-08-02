@@ -87,7 +87,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 devkit / .codex-plugin/ と version 同期必須）
     │   ├── .mcp.json                     # Claude 用 MCPサーバー設定（${CLAUDE_PLUGIN_ROOT}/bin/...）
     │   ├── agents/                       # Agent定義 (31体、カテゴリ別プレフィックス: core/lang/fw/fe/cloud/qa/data/doc/str/mobile)
-    │   ├── commands/                     # スラッシュコマンド (13個)
+    │   ├── commands/                     # スラッシュコマンド (14個)
     │   ├── hooks/                        # イベントフック (12個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (6個)
@@ -228,7 +228,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | **タチコマ（アーキテクチャ）** (tachikoma-str-architecture) | Opus | アーキテクチャ設計専門（読み取り専用）。DDD・マイクロサービス・トレードオフ分析。設計ドキュメント作成のみ |
 | **タチコマ（プロダクトマネジメント）** (tachikoma-str-product-mgr) | Opus | プロダクトマネジメント専門（読み取り専用）。PRD作成・ロードマップ策定・優先順位付け・A/Bテスト設計・成長メトリクス分析・AIプロダクト成熟度評価・技術トレードオフ分析。ドキュメント作成のみ |
 
-### Commands (13個)
+### Commands (14個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -245,6 +245,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
 | `/consume-learnings` | `.learnings/` の蓄積知見を恒久化先へ消費し処理済みエントリを削除（実ファイル裏取り→ルーティング→機械検証→リリース）。恒久化先は実行コンテキストで決まる: 一般プロジェクトはプロジェクトCLAUDE.md・`.claude/`配下・`~/.claude`/`~/.codex`のグローバル設定・memory、sumik-claude-plugin repo では加えて authoring-plugins スキルに従いAgent/Skill/Command/Hook/plugin.json/READMEを整合修正しversion bump |
+| `/refactor-agent-instructions` | CLAUDE.md・AGENTS.md（プロジェクト/グローバル双方）を新しい世代のモデル向けに再設計。コード可読情報の重複・陳腐化情報の混在・一般原則の記述・特定場面専用手順の未分離・禁止表現の偏重・他ファイルとの指示重複の6カテゴリを診断し、カテゴリ別diff提示→AskUserQuestionでの承認→適用まで一気通貫で行う |
 
 ### Skills (31個)
 
