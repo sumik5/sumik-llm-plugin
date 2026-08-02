@@ -1,4 +1,5 @@
-docs/**
+docs/*plan*
+docs/conversion-*
 node_modules/
 .cache/**
 !.cache/
