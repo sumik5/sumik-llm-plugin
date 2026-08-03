@@ -287,14 +287,29 @@ cat > "${TMP_DIR}/collect-practice-links.js" <<'JS'
       //    ブラウザをそのリンク先へページ遷移させ、agent-browserのCDP接続を落とす
       //    （「Inspected target navigated or closed」）。<a>要素で既にpracticeへのhrefを持つ場合は
       //    クリックせず、hrefから直接practice_idを抽出する。
+      // 🔴 実機確認済み（2026-08-03・FP3級合格コース course/id/2660「無料特典冊子」セクション）:
+      //    上記の直接抽出は href が practice パターンに一致する場合のみ考慮していたため、
+      //    一致しない<a>（例: course/lesson/index/id/... の無料特典PDF/動画リンク）はこのif分岐を
+      //    素通りし、下の click() 分岐に落ちてクリックされていた。<a href="...">は既に解決済みの
+      //    リーフリンクであり展開トグルではないため、practice一致・不一致に関わらずクリック対象から
+      //    除外する（一致しなければ収集対象外として無視するだけでよい）。
       if (toggle.tagName === 'A') {
         const directHref = toggle.getAttribute('href') || '';
         const directMatch = directHref.match(/course\/practice\/index\/id\/(\d+)/);
         if (directMatch) {
           const directTitle = (toggle.textContent || '').trim();
           results.push({ category: label, subject_title: directTitle, practice_id: directMatch[1] });
-          continue;
         }
+        continue;
+      }
+      // 🔴 実機確認済み（2026-08-03・同コース「要点まとめシート」セクション）: 見出しテキストによる
+      //    講座/今日のまとめの事前除外だけでは、無料特典等の単発レッスン項目（見出し自体はnosubcat/
+      //    通常見出しでも配下トグルがlessonタイプ）を取りこぼす。onclick="open_detail('lesson', ...)"
+      //    のトグルはpracticeタイプと異なりクリックで実ページ遷移しCDP接続を落とすため、見出し名に
+      //    依存せずトグル単位でも lesson タイプを判定してスキップする。
+      const onclickAttr = toggle.getAttribute('onclick') || '';
+      if (onclickAttr.includes("open_detail('lesson'")) {
+        continue;
       }
       const nameEl = toggle.querySelector(NAME_SELECTOR);
       const subjectTitle = ((nameEl ? nameEl.textContent : toggle.textContent) || '').trim();
