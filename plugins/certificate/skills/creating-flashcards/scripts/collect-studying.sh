@@ -582,12 +582,21 @@ cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
     //    レター込みの選択肢文になる（kanalist のような LETTERS 配列の割り当ては不要）。
     const transtable = kanalist ? null : qEl.querySelector('table.transtable');
 
+    // 🔴 実機確認済み（2026-08-03・FP2級 実技-個人資産相談業務 course/id/2659）: table.transtable
+    //    は「ア/イ/ウ/エ選択肢を列挙する組み合わせ選択」専用ではなく、「Ⅰ「〜（１）〜」のような
+    //    単一行のパッセージ＋インライン空欄マーカー（span.span-square）」を囲むラッパーとしても
+    //    再利用されているケースがあると判明した。この場合 .list_answer 側は正しく question_multi
+    //    を持つため、qEl 側の transtable/kanalist の有無より questionMulti の有無を優先判定しないと、
+    //    correct が空・choices に設問文の断片が誤って入る不具合が起きる（correct: [] かつ
+    //    choices: ["Ⅰ「…」"] という矛盾データとして実機確認済み。本来はmulti_blank形式の設問文
+    //    にすぎない）。questionMulti が存在する場合は choices 抽出自体もスキップする
+    //    （kanalist/transtable 由来の choices は "single" 確定時のみ組み立てる）。
     let choices = [];
-    if (kanalist) {
+    if (!questionMulti && kanalist) {
       // 4択形式（マーカー文字はテキストノードに含まれないため出現順に ア/イ/ウ/エ を割り当てる）
       const qLis = Array.from(kanalist.querySelectorAll(':scope > li'));
       choices = qLis.map((li, i) => `${LETTERS[i] || String(i + 1)}. ${normWS(li.textContent)}`);
-    } else if (transtable) {
+    } else if (!questionMulti && transtable) {
       const rows = Array.from(transtable.querySelectorAll('tbody > tr'));
       choices = rows
         .map((tr) => Array.from(tr.querySelectorAll('td')).map((td) => normWS(td.textContent)).join(' ').trim())
@@ -596,20 +605,19 @@ cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
 
     // 🔴 kanalist の有無だけで ○×/4択 を判定すると、kanalist（かつ transtable）を持たない
     //    特殊設問で「correct: ["ア"] なのに choice_type: "boolean"」という矛盾データが
-    //    生成される不具合があった（実機確認済み）。優先順位: ①kanalist/transtable の
-    //    いずれかがあれば "single"、②question_multi があれば "multi_blank"、③notosans-mark に
-    //    値があり、その値が "○"/"×" なら "boolean"、④notosans-mark に値があり（○×以外の任意の
-    //    単語・フレーズ）なら "fill_in_single"（単一空欄穴埋め形式）、⑤それ以外（本当にどの構造にも
-    //    当てはまらない場合）のみ "unknown"。
+    //    生成される不具合があった（実機確認済み）。優先順位（2026-08-03改訂）: ①question_multi
+    //    があれば "multi_blank"（.list_answer側の構造が ground truth のため kanalist/transtable
+    //    より優先。上記のtranstable再利用ケースへの対応）、②kanalist/transtableのいずれかが
+    //    あれば "single"、③notosans-markに値があり、その値が "○"/"×" なら "boolean"、
+    //    ④notosans-markに値があり（○×以外の任意の単語・フレーズ）なら "fill_in_single"
+    //    （単一空欄穴埋め形式）、⑤それ以外（本当にどの構造にも当てはまらない場合）のみ "unknown"。
     // 🔴 実機再調査で判明（practice_id=223631の7・8問目）: correctMark 自体は取得できているのに
     //    ○×以外の単語（例: 名詞・フレーズ）だと従来は "unknown" に落ちていた。これは第3の未知形式
     //    ではなく、"boolean" 判定条件（○/×限定）が厳しすぎたことが原因だったため、この優先順位に
     //    修正した。
     let choiceType;
     let multiBlankCorrect = null;
-    if (kanalist || transtable) {
-      choiceType = 'single';
-    } else if (questionMulti) {
+    if (questionMulti) {
       // 🔴 question_multi: table tbody tr の各行（th=ラベル・td=正解テキスト）から
       //    "<ラベル>. <正解テキスト>" 形式の文字列を行ごとに1要素として correct に格納する。
       //    正解テキストにも太字強調等のHTML書式が含まれうるため sanitizeHtml() を通す
@@ -628,6 +636,8 @@ cat > "${TMP_DIR}/read-practice-page.js" <<'JS'
       if (multiBlankCorrect.length === 0) {
         warnings.push({ number: idx + 1, warning: 'multi-blank-rows-not-found' });
       }
+    } else if (kanalist || transtable) {
+      choiceType = 'single';
     } else if (correctMark === '○' || correctMark === '×') {
       choiceType = 'boolean';
     } else if (correctMark) {
