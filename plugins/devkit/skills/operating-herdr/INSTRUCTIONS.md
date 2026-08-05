@@ -25,14 +25,25 @@ herdr は活発に開発が進む CLI であり、コマンド仕様・エージ
 | https://herdr.dev/docs/troubleshooting/ | 既知の問題と対処 |
 | https://herdr.dev/docs/socket-api/ | agent_status API・イベント購読方式 |
 
+**補足**: `herdr --skill` を実行すると、インストール済みバイナリに埋め込まれた公式スキルファイル（GitHub の `skills/herdr/SKILL.md` と同内容）がそのまま出力される。GitHub から取得するより「今このマシンで動いているバージョン」との不一致リスクが低いため、バージョン差異が疑われる時はこちらを優先してよい。
+
 **確認タイミング**:
 - herdr の新機能を使う判断をする前
 - herdr の挙動が本スキルの記載と食い違う時
 - 24時間以上前に確認した内容を前提にする時
 
-**最終確認日: 2026-07-22**
+**最終確認日: 2026-08-06**
 
 **🔴 herdr 0.7.4→0.7.5（2026-07-21リリース）で `agent start`・`agent wait`・`agent send` の体系が破壊的に変わったことを実機の `--help` 出力で確認済み**: `agent start` は「pane生成+配置+起動」の1コマンドから「`herdr pane split` で pane を確保 → `herdr agent start --kind <kind> --pane <id>` で既存paneに起動」の2段階方式に変わり、`--cwd`/`--workspace`/`--tab`/`--split`/`--env`/`--focus`/`--no-focus` は `agent start` から消えて `pane split` 側に残った。`agent wait --status` は `agent wait --until`（`done` も指定可・複数指定可）に統合され、トップレベルの `herdr wait` 名前空間（`wait output`・`wait agent-status`）は廃止されて `pane wait-output`（`--match`/`--regex`のいずれか必須）に一本化された。`agent send` + `pane send-keys Enter` の2段階は `agent prompt`（`--wait --until <state>...` で待機も可）1コマンドに統合された。以下の本文は全てこの新体系（0.7.5）で記述している。
+
+**🔴 herdr 0.7.5→0.8.0（実機 `--help` 出力・公式 SKILL.md で確認済み）の変更点**:
+- トップレベルに `herdr worktree`（Git worktree 連動の workspace 管理）・`herdr terminal`（raw terminal ストリームへの直接アタッチ）の2名前空間が新規追加された。詳細は下記「herdr worktree（Git worktree 連動 workspace）」「herdr terminal（raw terminal ストリーム）」節を参照。
+- 🔴 **訂正**: 従来「`pane read` の `--source` には `detection` は追加されていない（`agent read` のみ対応）」と記載していたが誤り。0.8.0時点では `pane read`・`agent read` とも `--source` は `visible`/`recent`/`recent-unwrapped`/`detection` の同一4択。
+- `pane move` に `--target-pane <ID>`・`--tab-label <TEXT>` が追加された。また `pane move` 後の新パス取得先が明確化された（`.result.move_result.pane.pane_id`、旧IDは `.result.move_result.previous_pane_id`）。
+- agent 名の命名規則（`[a-z][a-z0-9_-]{0,31}`・ライブエージェント間で一意・pane占有者の変化に紐づき解放時にクリア）が公式ドキュメントに明記された。
+- `agent prompt --wait` は単体で idle/done/blocked にマッチするデフォルト挙動が明確化され、非working状態から送信して5000ms以内に状態変化が観測されない場合は `agent_prompt_stalled` エラーを返すことが明記された。`--until` はデフォルトと同じ状態の繰り返し指定用途ではなく、`blocked` のみを狙う等の状態限定ワークフロー専用という位置付けが明確化された。
+- `agent send-keys` の logical key 名の正式名が `esc`（`escape` も可）等であることが明記された。
+- `--kind` の許容値一覧（pi/claude/codex/gemini/cursor/devin/agy/cline/omp/mastracode/opencode/copilot/kimi/kiro/droid/amp/grok/hermes/kilo/qodercli/maki）に変更はない。
 
 WebFetch の呼び出し例:
 
@@ -124,6 +135,35 @@ herdr workspace close w2                                   # 閉じる
 
 ---
 
+## 🆕 herdr worktree（Git worktree 連動 workspace・0.8.0新規）
+
+`herdr worktree` は Git worktree を作成・オープンしつつ、それを herdr の workspace として同時に登録する名前空間。ブランチを切って新規に作業空間を用意する場面に向いている（本リポジトリ CLAUDE.md の「新規作業開始時はブランチ作成を提案」運用と相性が良い）。
+
+```bash
+herdr worktree list --workspace w1                                   # 一覧（--cwd での絞り込みも可）
+herdr worktree create --cwd /path/to/repo --branch feature/x --base main --label "feature x"   # 新規ブランチでworktree作成→workspace登録
+herdr worktree open --cwd /path/to/repo --path /path/to/existing-worktree --label "existing"    # 既存worktreeをworkspaceとして開く
+herdr worktree remove --workspace w3 --force                         # worktreeを削除（対応するworkspaceも解除）
+```
+
+`create` は `--branch`（新規ブランチ名）・`--base`（分岐元ref）・`--path`（worktreeの配置先）・`--label`・`--focus`/`--no-focus` を受け付ける。`open` は既存の worktree ディレクトリ（`--path`）を herdr workspace として取り込む用途で、`--branch` は任意（既存ブランチのままでよい場合は省略可）。
+
+> **使い分け**: 単純に別ディレクトリで作業したいだけなら `workspace create --cwd`（Git worktree を作らない）で十分。ブランチ分離＋worktree実体の作成まで一括で行いたい場合に `worktree create` を使う。
+
+---
+
+## 🆕 herdr terminal（raw terminal ストリーム・0.8.0新規）
+
+`herdr terminal` は herdr が管理する構造化された pane/agent 抽象を経由せず、raw terminal ストリームに直接アタッチ・観測するための名前空間。`terminal attach`（直接アタッチ）・`terminal session`（terminal session操作）・`terminal title`（外側ターミナルのタイトル管理）のサブコマンドを持つ。
+
+```bash
+herdr terminal --help          # サブコマンド一覧を確認
+```
+
+> **pane/agent との違い**: `pane`/`agent` は herdr が状態（agent_status・レイアウト等）を追跡する構造化された抽象。`terminal` は herdr の追跡機構を経由しない生のストリーム操作。通常のエージェント協調・pane操作では `pane`/`agent` 系を使い、`terminal` は herdr の抽象を意図的にバイパスしたい場合にのみ使う。
+
+---
+
 ## pane 名前空間
 
 ### 別の pane の出力を読み取る
@@ -132,12 +172,15 @@ herdr workspace close w2                                   # 閉じる
 herdr pane read w1:p1 --source recent --lines 50
 ```
 
-`--source` オプション:
+`--source` オプション（デフォルト `recent`。🔴 0.8.0時点で `pane read`・`agent read` とも同一の4択に統一されている）:
 - `--source visible` — 現在のビューポートを取得する
-- `--source recent` — pane 内でレンダリングされた最近のスクロールバックを取得する
-- `--source recent-unwrapped` — ソフトラップを結合してまとめた最近のターミナルテキストを取得する
+- `--source recent` — pane 内でレンダリングされた最近のスクロールバック（ソフトラップ込み）を取得する
+- `--source recent-unwrapped` — ソフトラップを結合してまとめた最近のターミナルテキストを取得する（ログ・トランスクリプトの確認に向く）
+- `--source detection` — エージェント検出に使われる、画面下部バッファのプレーンテキストスナップショットを取得する
 
 > **補足**: `pane read` はテキストを返す（JSON ではない）。`--format ansi` または `--ansi` フラグを付けると TUI フィードバックループ向けにレンダリング済みの ANSI スナップショットを返す。
+>
+> **`--lines` の限界**: `--lines` は pane の利用可能な画面領域とホスト側スクロールバックからより多くの行を要求するオプション。増やしても完了済みの応答がそれ以上見えない場合、そのpaneはエージェントを alternate screen（terminalの代替画面バッファ）上で動かしている可能性が高い。alternate screen を抜けた行は herdr のホストスクロールバックに入らないため、`--lines` を増やしても復元できない。この場合は対象エージェントに「完全な応答を一時ディレクトリへ Markdown で書き出し、ファイルパスだけを返す」よう指示し、そのファイルを直接読む方が確実（最初のプロンプトから要求すると出力形式が崩れやすいため、読み取りに失敗した後のフォールバックとして使うこと）。
 
 ### pane ナビゲーション（レイアウト把握）
 
@@ -179,9 +222,14 @@ herdr pane rename w1:p5 "server"                                 # ラベル付�
 herdr pane swap --direction left --current                       # 方向指定で隣接 pane と入れ替え
 herdr pane swap --source-pane w1:p1 --target-pane w1:p2          # id 指定で入れ替え
 herdr pane move w1:p5 --tab w1:t2 --split right --focus          # 別 tab へ移動
-herdr pane move w1:p5 --new-tab --label "logs"                   # 新 tab へ切り出し
+herdr pane move w1:p5 --new-tab --label "logs" --tab-label "logs-tab"   # 新 tab へ切り出し（🆕 --tab-label でtab自体にも別名を付与）
 herdr pane move w1:p5 --new-workspace --label "api"              # 新 workspace へ切り出し
+herdr pane move w1:p5 --target-pane w1:p2 --split down           # 🆕 特定paneを基準に配置先を明示指定
 ```
+
+> **🆕 `--target-pane <ID>`**: 移動先の基準pane を明示指定するオプション（`--tab`/`--new-tab`/`--new-workspace` と併用し、その基準pane からの `--split` 方向で配置する）。`--tab-label <TEXT>` は移動先が新規tabになる場合にそのtab自体へラベルを付与する（`--label` はpane側のラベル）。
+>
+> **移動後のIDの取り方**: `pane move` の応答は `.result.move_result.pane.pane_id` に移動後の新しいpane idを、`.result.move_result.previous_pane_id` に移動前のidを含む。別 workspace/tab へ切り出すと workspace-qualified な新しいpane idを受け取るため、以降はこの新IDを使う。旧IDは移動したプロセス自身が継承する呼び出し元コンテキスト（`$HERDR_PANE_ID` 等）でのみ引き続き解決されることがあるが、汎用的なagentターゲットとして旧IDを使い回してはならない。
 
 ### テキスト・キーを pane に送信する
 
@@ -212,6 +260,8 @@ herdr pane close w1:p3
 `herdr agent` はエージェントインスタンスの起動・観測・協調に特化した名前空間。**エージェントを扱うときは pane 系より agent 系を優先する**（検出・ステータス追跡が組み込まれる）。
 
 `<target>` は terminal id / 一意な agent 名 / 検出・報告された agent ラベル / legacy pane id を受け付ける。
+
+> **🆕 agent 名の命名規則**: agent 名は正規表現 `[a-z][a-z0-9_-]{0,31}` に一致する必要があり（先頭は英小文字、以降は英小文字・数字・`_`・`-`で最大32文字）、現在ライブなエージェント間で一意でなければならない。名前は「その pane を現在占有しているプロセス」に追従する紐付けで、そのエージェントが終了・解放・別プロセスに置き換わると名前はクリアされる（＝同じ名前を再利用しても以前と同一のエージェントを指す保証はない）。
 
 ```bash
 herdr agent list                                   # 検出済みエージェント一覧
@@ -246,13 +296,17 @@ herdr agent start docs --kind claude --pane "$NEW_PANE" --timeout 30000 -- --per
 ### エージェントの出力を読む・指示を送る
 
 ```bash
-herdr agent read reviewer --source recent --lines 80          # 出力を読む（pane read と同じ --source に加え detection も指定可）
-herdr agent prompt reviewer "review the test coverage in src/api/"   # テキスト送信+Enter確定を1コマンドで実行
+herdr agent read reviewer --source recent --lines 80          # 出力を読む（pane read と同一の --source 選択肢が使える）
+herdr agent prompt reviewer "review the test coverage in src/api/" --wait   # テキスト送信+Enter確定+完了待ちを1コマンドで実行
+herdr agent send-keys reviewer esc                             # 🆕 logical key送信の例: Escape
+herdr agent send-keys reviewer ctrl+c                          # 🆕 logical key送信の例: Ctrl+C
 ```
 
-`agent read` の `--source` は `visible` / `recent` / `recent-unwrapped` に加え、🔴 `detection`（エージェント検出根拠のスナップショット）が指定可能。`pane read` の `--source` には `detection` は追加されていない。
+`agent read` の `--source` は `visible`/`recent`/`recent-unwrapped`/`detection` の4択（🔴 0.8.0時点で `pane read` と完全に同一の選択肢に統一されている。従来「pane read は detection 非対応」と記載していたのは誤りだったため訂正）。
 
-> **`agent prompt` と `agent send-keys` の違い**: 🔴 0.7.5では `agent send`（Enterを送らないテキスト書き込み）+ `pane send-keys <pane_id> Enter`（Enter確定）の2段階操作が廃止され、`herdr agent prompt <target> <text>` 1コマンドでテキスト送信とEnter確定が完結する。完了まで待ちたい場合は `--wait --until <state>...`（例: `--until idle --until done`）と `--timeout <MS>` を付ける。キー入力のみを送りたい場合（Enter単体など送信テキストがない場面）は `herdr agent send-keys <target> <key>...` を使う。シェルコマンドをテキスト入力とEnterの1リクエストで実行する場合は引き続き `herdr pane run <pane_id> <command>` を使う。
+> **`agent prompt` と `agent send-keys` の違い**: 🔴 0.7.5では `agent send`（Enterを送らないテキスト書き込み）+ `pane send-keys <pane_id> Enter`（Enter確定）の2段階操作が廃止され、`herdr agent prompt <target> <text>` 1コマンドでテキスト送信とEnter確定が完結する。キー入力のみを送りたい場合（Enter単体など送信テキストがない場面）は `herdr agent send-keys <target> <key>...` を使う。logical key名は `esc`（正式名。`escape` も可）・`ctrl+c` のような表記を使う（herdr がキーを書き込み前に検証する）。シェルコマンドをテキスト入力とEnterの1リクエストで実行する場合は引き続き `herdr pane run <pane_id> <command>` を使う。
+>
+> **🆕 `--wait` と `--until` の使い分け（0.8.0で明確化）**: 通常の完了待ちには `--wait` 単体で十分——送信後の最初の `idle`/`done`/`blocked` にデフォルトでマッチする。`--until <state>` はこのデフォルトを繰り返し指定する用途ではなく、`blocked` のみを狙う等「状態を限定したい」特殊ワークフロー専用の位置付け。非working状態から送信した場合、`--wait` は送信後5000ms以内に状態変化が観測されないと `agent_prompt_stalled` エラーを返す（`--timeout` をそれより短く設定していればタイムアウトエラーが先に出る）。この待機はターン単位ではなくlifecycle状態単位で判定されるため、送信時点で既にworkingだった場合はその進行中ターンの完了で条件を満たすことがある。`--timeout` を省略すると（stalled判定を通過した後は）無期限で待つ。
 
 > **⚠️ Escape で中断した直後の多段送信は要注意**: 長時間動作中のエージェントを Escape で中断した直後に新しい指示テキストを `agent prompt` で送ると、通常のプロンプト送信として確定するとは限らない。対話型 UI が「プランを作成しますか」のような確認ダイアログ（モード切替キーや dismiss キーの選択肢）を表示したまま止まり、送ったテキストが入力欄に反映されないことがある。`agent prompt` を機械的に連投する前に、まず `herdr agent read <target> --source recent` や `herdr pane read <pane_id> --source recent` で現在の UI 状態を確認する。確認ダイアログが出ている場合は、そのダイアログを明示的に解決（選択肢に応じたキー入力を `agent send-keys` で送る）してから本来送りたい指示を送ること。中断して全く別の独立タスクに切り替えたい場合は、同じ pane へ多段送信するより新しい `pane split` + `agent start` で別 pane を起動する方が確実。
 
@@ -264,7 +318,7 @@ herdr agent prompt reviewer "review the test coverage in src/api/"   # テキス
 herdr agent wait reviewer --until idle --timeout 120000
 ```
 
-🔴 0.7.5では `agent wait --status`（`idle`/`working`/`blocked`/`unknown`、`done`なし）とトップレベルの `herdr wait agent-status`（`idle`/`working`/`blocked`/`done`/`unknown`）という別名前空間の2コマンドが `herdr agent wait --until` 1つに統合された。`--until` は `idle`/`working`/`blocked`/`done`/`unknown` を指定でき、繰り返し指定でOR条件になる（例: `--until idle --until done`）。`--until` を省略すると `idle`/`done`/`blocked` のいずれかにマッチする。
+🔴 0.7.5では `agent wait --status`（`idle`/`working`/`blocked`/`unknown`、`done`なし）とトップレベルの `herdr wait agent-status`（`idle`/`working`/`blocked`/`done`/`unknown`）という別名前空間の2コマンドが `herdr agent wait --until` 1つに統合された。`--until` は `idle`/`working`/`blocked`/`done`/`unknown` を指定でき、繰り返し指定でOR条件になる（例: `--until idle --until done`）。`--until` を省略すると `idle`/`done`/`blocked` のいずれかにマッチする（🆕 `unknown` はデフォルトに含まれないため、`unknown` 状態を明示的に待ちたい場合は `--until unknown` を必ず指定する）。`--timeout` を省略すると無期限で待つ。
 
 ### エージェントに直接アタッチする
 
@@ -484,7 +538,7 @@ screen-manifest の検知ルールは TOML マニフェストで定義されて�
 
 **agent 検出の仕組み**: herdr のエージェント検出には2系統ある。① **lifecycle hooks**（Pi・OMP・Kimi Code CLI・Hermes Agent・OpenCode・Kilo Code CLI・MastraCode が対応）— `herdr integration install` で導入され、idle/working/blocked とセッション同一性を authoritative に報告する。② **screen manifests**（Claude Code・Codex・GitHub Copilot CLI・Droid・Qoder CLI・Cursor Agent CLI にとってはフォールバックではなく唯一の検知経路）— 画面下部バッファの直近スナップショットを TOML ルールで評価してエージェントを検出する。screen-manifest ベースのエージェントでは `blocked` 検出が意図的に厳格になる。🔴 Claude Code・Codex は `integration install` してもこの区分（screen-manifest 依存であること）は変わらない。検知遅延の実務的な緩和策は上記「検知遅延への対処」セクションを参照。
 
-**JSON を返すコマンド**: `workspace list`・`workspace create`・`tab list`・`tab create`・`tab get`・`tab focus`・`tab rename`・`tab close`・`pane list`・`pane get`・`pane current`・`pane split`・`agent list`・`agent get`・`agent explain`（`--json`）・`pane wait-output`・`agent wait` は成功時に JSON を出力する。🔴 `agent start`（0.7.5で既存paneへの起動専用に変更）自体の応答構造（JSON有無・キー構造）は実機未検証のため、以降の状態確認は `agent get <target>` / `agent list` で行うことを推奨する。
+**JSON を返すコマンド**: `workspace list`・`workspace create`・`tab list`・`tab create`・`tab get`・`tab focus`・`tab rename`・`tab close`・`pane list`・`pane get`・`pane current`・`pane split`・`pane move`・🆕`worktree list`/`create`/`open`/`remove`・`agent list`・`agent get`・`agent explain`（`--json`）・`pane wait-output`・`agent wait` は成功時に JSON を出力する。🔴 `agent start`（0.7.5で既存paneへの起動専用に変更）自体の応答構造（JSON有無・キー構造）は実機未検証のため、以降の状態確認は `agent get <target>` / `agent list` で行うことを推奨する。
 
 **テキストを返すコマンド**: `pane read`・`agent read` は JSON ではなくテキストを返す。
 
@@ -495,6 +549,7 @@ screen-manifest の検知ルールは TOML マニフェストで定義されて�
 - `tab create` のレスポンスは `result.tab`・`result.root_pane` を返す
 - `pane split` の新 pane id は `result.pane.pane_id` にある
 - 🔴 `agent start` は0.7.5で「既存paneへの起動専用」に変わったため、対象paneのidは事前の `pane split` の応答（`result.pane.pane_id`）で既に判明している。0.7.4時点で使われていた「`agent start` の新pane idは `result.agent.pane_id` にある」という取得手順は0.7.5では基本的に不要（`agent start` 自体がpane_idを返すかどうかは実機未検証。0.7.5で応答構造が変わっている場合は実機で要確認）
+- 🆕 `pane move` 後の新pane idは `result.move_result.pane.pane_id` にある。移動前のidは `result.move_result.previous_pane_id` として報告される（詳細は上記「pane のサイズ・ズーム・入れ替え・移動」参照）
 
 **`--no-focus` の効果**: `pane split`・`tab create`・`workspace create` に付けることで現在のターミナルコンテキストをフォーカスしたまま保つ（🔴 `agent start` からは0.7.5で `--no-focus` オプション自体が消えた。フォーカス制御は事前の `pane split` 側で行う）。
 

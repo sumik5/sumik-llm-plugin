@@ -228,7 +228,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | **タチコマ（アーキテクチャ）** (tachikoma-str-architecture) | Opus | アーキテクチャ設計専門（読み取り専用）。DDD・マイクロサービス・トレードオフ分析。設計ドキュメント作成のみ |
 | **タチコマ（プロダクトマネジメント）** (tachikoma-str-product-mgr) | Opus | プロダクトマネジメント専門（読み取り専用）。PRD作成・ロードマップ策定・優先順位付け・A/Bテスト設計・成長メトリクス分析・AIプロダクト成熟度評価・技術トレードオフ分析。ドキュメント作成のみ |
 
-### Commands (14個)
+### Commands (15個)
 
 | コマンド | 説明 |
 |---------|------|
@@ -244,6 +244,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/viewing-diffs` | GitHub風差分ビューア（difit）でコードdiff表示。staged/working/commit/ブランチ間比較・PR レビュー対応 |
 | `/react-doctor` | React コード品質診断（react-doctor CLI、0-100スコア、セキュリティ・パフォーマンス・正確性） |
 | `/update-software-security` | software-security スキルを上流 cosai-oasis/project-codeguard と同期（gh compareで差分検知→変更ルールのみ同一CONTRACTで再翻訳→version bump・commit）。`--check` で差分確認のみ |
+| `/update-operating-herdr` | operating-herdr スキルを herdr 公式スキル（herdrdev/herdr）と同期。ローカルに herdr バイナリがあれば `herdr --version`/`--skill` を優先取得、無ければ GitHub 最新リリースへフォールバック。逐語翻訳ではなく既存の日本語実務Tipsを維持したまま新規差分のみ統合→version bump・commit。`--check` で差分確認のみ |
 | `/consume-learnings` | `.learnings/` の蓄積知見を恒久化先へ消費し処理済みエントリを削除（実ファイル裏取り→ルーティング→機械検証→リリース）。恒久化先は実行コンテキストで決まる: 一般プロジェクトはプロジェクトCLAUDE.md・`.claude/`配下・`~/.claude`/`~/.codex`のグローバル設定・memory、sumik-claude-plugin repo では加えて authoring-plugins スキルに従いAgent/Skill/Command/Hook/plugin.json/READMEを整合修正しversion bump |
 | `/refactor-agent-instructions` | CLAUDE.md・AGENTS.md（プロジェクト/グローバル双方）を新しい世代のモデル向けに再設計。コード可読情報の重複・陳腐化情報の混在・一般原則の記述・特定場面専用手順の未分離・禁止表現の偏重・他ファイルとの指示重複の6カテゴリを診断し、カテゴリ別diff提示→AskUserQuestionでの承認→適用まで一気通貫で行う |
 
@@ -294,7 +295,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `recommending-automations` | コードベースを解析し Claude Code / Codex 双方の自動化（hooks/subagents/skills/MCP servers/plugins）を推奨する読み取り専用レコメンダー。検出プラットフォーム（.claude・CLAUDE.md / .codex・AGENTS.md）を優先しつつ各レコメンドに両クライアントのセットアップ手順を併記。references/platform-matrix でクロスプラットフォーム対応表（hooks イベント名・subagent TOML・MCP map形式・skills パス差異）を提供。anthropics/claude-plugins-official (Apache-2.0) の翻案 |
 | `searching-files-with-fff` | fff MCPによる高速ファイル検索（frecency順位付け・常駐インメモリインデックス）。3ツール（grep=内容検索/find_files=ファイル名fuzzy/multi_grep=複数パターンOR）・インライン制約構文・コアルール（bare identifierで検索・regex回避・2回で打切りRead）・DB永続化・serena/Glob/ripgrepとの使い分け |
 | `operating-gitlab` | glab CLI（GitLab公式CLI）によるGitLab操作の包括的リファレンス。全コマンドグループ（auth/mr/issue/ci/repo/release/api/variable/schedule/label/milestone/snippet/runner/securefile/鍵管理 他）と認証（self-managed `--hostname`・`GITLAB_TOKEN`・CI job token）・主要ワークフロー（MR/CI/issue/release）を網羅。GitHub操作は`gh`/`pull-request`、コミット文言は`writing-conventional-commits`、レビュー方法論は`reviewing-code`へ |
-| `operating-herdr` | herdr CLI（terminal-native agent multiplexer）操作。`HERDR_ENV=1` 環境で workspace/tab/pane の制御・pane 分割/移動/リサイズ/ナビゲーション（neighbor/focus/swap/zoom）・コマンド実行・出力読み取り（visible/recent/recent-unwrapped）・出力待機（リテラル/正規表現）・エージェントステータス待機・`herdr agent start` によるエージェント spawn/協調・`herdr integration install`（Claude/Codex はセッション復元用の識別情報付与のみで status authority にはならず screen-manifest 検知依存のまま）・screen-manifest 依存エージェントの検知遅延への実務的対処（子自身への完了報告・完了マーカー待機・`agent explain`・ローカルオーバーライド）を行う。herdr 外部からの操作は不可（HERDR_ENV ガード）。Claude Code 内の並列タチコマ編成は `orchestrating-teams` を使用し、herdrバックエンドでは本スキルを併用 |
+| `operating-herdr` | herdr CLI（terminal-native agent multiplexer）操作。`HERDR_ENV=1` 環境で workspace/tab/pane の制御・pane 分割/移動/リサイズ/ナビゲーション（neighbor/focus/swap/zoom）・コマンド実行・出力読み取り（visible/recent/recent-unwrapped/detection）・出力待機（リテラル/正規表現）・エージェントステータス待機・`pane split` + `agent start --kind <kind> --pane <id>` によるエージェント spawn/協調・🆕 `herdr worktree`（Git worktree 連動 workspace 管理）・`herdr terminal`（raw terminal ストリーム直結）・`herdr integration install`（Claude/Codex はセッション復元用の識別情報付与のみで status authority にはならず screen-manifest 検知依存のまま）・screen-manifest 依存エージェントの検知遅延への実務的対処（子自身への完了報告・完了マーカー待機・`agent explain`・ローカルオーバーライド）を行う。herdr 外部からの操作は不可（HERDR_ENV ガード）。Claude Code 内の並列タチコマ編成は `orchestrating-teams` を使用し、herdrバックエンドでは本スキルを併用 |
 | `reviewing-with-hunk` | Hunk（対話型ターミナル diff ビューア）を `hunk session *` CLI 経由で操作。file/hunk 構造の検査（`review --json`・生 diff は `--include-patch` で opt-in）・file/hunk/行へのナビゲート・内容差し替え（`reload -- diff/show`）・インラインレビューコメント（単発 `comment add` / stdin バッチ `comment apply`）を行う。TUI 本体はユーザーのもので対話コマンド（`hunk diff`/`show`）は直接叩かない。レビュー方法論は `reviewing-code`、GitLab MR 操作は `operating-gitlab` を参照 |
 
 #### ドキュメント・品質
