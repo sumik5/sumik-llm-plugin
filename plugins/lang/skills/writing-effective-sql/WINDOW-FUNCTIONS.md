@@ -305,6 +305,8 @@ SELECT user_id, sum_rev,
 
 `RANK`は「顧客ごとの1位商品」を集計することで、単純な売上合計ランキングでは見えない「本当に支持されている商品」を分析する用途に使える。`NTILE`は購入金額の上位n%層を切り出すデシル分析・パーセンタイル分析で使われる。
 
+デシル分析と同じく顧客を層やランクに切り分ける実務定型分析（RFM分析・ABC分析）は`CASE-AND-AGGREGATION.md`を参照。
+
 ### 判断基準
 
 | 状況 | 推奨関数 |
@@ -396,6 +398,48 @@ SELECT deal_date, price,
 
 「上昇」と判定された行だけに`ROW_NUMBER`で連番を振り、「連番－行番号」が一定であるかどうかで連続区間をグループ化するのが定石である。この後段のグループ化は自己結合でも実装できるが、対象行数が絞り込まれているため結合コストは相対的に小さい。
 
+### アクセスログのセッション分析
+
+アクセスログのようなイベント単位の記録を「セッション」という意味のある単位に区切って行動を分析する手法は、実務で頻出する。仕組みは新しいものではなく、直前の2節で導入した2つのイディオム——「`LAG`／フレーム句による前行との差分」と「条件判定によるフラグ立て→連続区間のグループ化」——をそのまま積み上げるだけで実現できる。
+
+まず`LAG`で前行のタイムスタンプを取得し、現在行との差分が一定のしきい値（例: 30分）を超えていたら「新しいセッションの開始」を意味するフラグを立てる。次にそのフラグを累積和（`SUM(...) OVER (... ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)`）で積み上げると、フラグが立つたびに1つ繰り上がる連番——すなわちセッションIDが得られる。
+
+```sql
+-- セッショナイズ: 30分以上の間隔を境界とし、累積和でセッションIDを付与する
+SELECT user_id, ts,
+       SUM(is_new_session) OVER (PARTITION BY user_id ORDER BY ts
+                                 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS session_id
+  FROM (SELECT user_id, ts,
+               CASE WHEN LAG(ts) OVER (PARTITION BY user_id ORDER BY ts) IS NULL
+                      OR ts - LAG(ts) OVER (PARTITION BY user_id ORDER BY ts) > INTERVAL '30' MINUTE
+                    THEN 1 ELSE 0 END AS is_new_session
+          FROM AccessLog) TMP;
+```
+
+累積和を`PARTITION BY user_id`でユーザーごとに区切っている点が要である。これを落とすと、あるユーザーの境界判定に別ユーザーの行のフラグが混入し、セッションIDがユーザーをまたいで連番になってしまう。
+
+セッションIDを付与できたら、セッション単位でイベント名を発生順に文字列連結し、1つの行動系列として1行に集約する。連結には順序保証のため連結関数に`ORDER BY`を指定する必要があり、関数名を含めて方言差が大きい点に注意する（PostgreSQL/BigQueryは`STRING_AGG(expr, sep ORDER BY ...)`、MySQLは`GROUP_CONCAT(expr ORDER BY ... SEPARATOR sep)`、Oracle/Redshiftは`LISTAGG(expr, sep) WITHIN GROUP (ORDER BY ...)`というように、`ORDER BY`の置き場所自体がDBMSごとに異なる）。
+
+```sql
+-- セッション単位でイベント名を発生順に連結する（PostgreSQL/BigQueryの例）
+SELECT session_id,
+       STRING_AGG(event_name, '->' ORDER BY ts) AS action_sequence
+  FROM SessionedLog
+ GROUP BY session_id;
+```
+
+行動系列を1つの文字列にできれば、あとは正規表現や`LIKE`によるパターンマッチで「特定ページを見た直後に離脱した」「特定の順序でイベントが発生した」といった行動パターンを抽出できる。
+
+```sql
+-- 「商品詳細ページを見た直後に離脱した」セッションを抽出する
+SELECT session_id, action_sequence
+  FROM SessionActions
+ WHERE action_sequence LIKE '%->product_detail'
+    OR action_sequence = 'product_detail';
+```
+
+区切り文字の選定には注意が必要である。イベント名に区切り文字と同じ文字が混入していると、意図しない箇所で系列が区切られたかのように誤読され、パターンマッチが壊れる。単一文字（`,`や`|`等）ではなくイベント名に出現しにくい複数文字の区切り（上記の`->`等）を選ぶか、事前にイベント名で使用可能な文字を制約しておくと安全である。
+
 ### 移動平均・累計の取得（BigQueryの例）
 
 ```sql
@@ -422,6 +466,8 @@ SELECT year_month, revenue,
 | 欠番・連続区間の検出（歯抜けが少ない） | ウィンドウ関数（1行あと/前との差分） |
 | 欠番・連続区間の検出（差集合として求めたい） | 連番ビュー＋`EXCEPT`等の集合演算（`SET-OPERATIONS-AND-QUANTIFICATION.md`参照） |
 | 累計・移動平均 | 集計分析関数としての`SUM`/`AVG`＋フレーム句 |
+| 時間ギャップによるセッション分割 | `LAG`による前行との差分判定＋フラグの累積和（`SUM(...) OVER (... ROWS UNBOUNDED PRECEDING)`）でセッションIDを付与 |
+| セッション内の行動系列パターン抽出 | セッション単位で`STRING_AGG`等（方言あり）により発生順に文字列連結し、正規表現/`LIKE`でパターンマッチ |
 | 階層構造・タリーテーブルの構築 | ウィンドウ関数の範囲外。`JOINS-AND-SUBQUERIES.md`を参照 |
 
 ---

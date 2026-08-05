@@ -59,8 +59,8 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `developing-go` | Go開発包括ガイド（クリーンコード・デザインパターン・並行処理詳細パターン・内部構造・スケジューラー・実践パターン7分野・nilハンドリング・テンプレートエンジン・34リファレンスファイル） |
 | `developing-r` | R開発包括ガイド（データ構造/coercion・ベクトル化・OOP(S3/S4/R5/R6)・デバッグ・データ入出力/文字列/正規表現・tidyverse/dplyr/tidyr/purrr・base graphics/ggplot2・記述統計/確率/分布/仮説検定/分散分析/回帰/GLM・シミュレーション・tidymodels/AI・LLM API/RAG・Shiny・Quarto/R Markdown・renv/testthat/パッケージ開発・性能/並列・C/C++/Python連携） |
 | `developing-bash` | Bashシェルスクリプティング・自動化ガイド（基礎、制御構造、I/O、プロセス制御、テスト、セキュリティ、パターン） |
-| `developing-databases` | DB設計・SQLアンチパターン・DB内部構造・PostgreSQL実践運用を統合した包括的データベース開発ガイド（リレーショナルDB設計・正規化・25のSQLアンチパターン・Bツリー/LSMストレージエンジン・分散システム・合意アルゴリズム・クエリチューニング・MVCC/VACUUM・バックアップ/PITR・レプリケーション/HA・監視）。SQLクエリ構築技法は`writing-effective-sql`を参照 |
-| `writing-effective-sql` | 正しく効果的で高速なSQLクエリを書くための実践技法ガイド（集合ベースの宣言的思考・CASE式と条件付き集計・GROUP BY/HAVING・ウィンドウ関数・結合とサブクエリ・集合演算と量化・NULLと三値論理・実行計画に基づくクエリリライト）。スキーマ設計・正規化・SQLアンチパターン・DB内部構造・PostgreSQL運用は`developing-databases`、BigQuery/GCP分析SQLは`cloud:developing-google-cloud`を参照 |
+| `developing-databases` | DB設計・SQLアンチパターン・DB内部構造・PostgreSQL実践運用を統合した包括的データベース開発ガイド（リレーショナルDB設計・正規化・25のSQLアンチパターン・Bツリー/LSMストレージエンジン・分散システム・合意アルゴリズム・クエリチューニング・MVCC/VACUUM・バックアップ/PITR・レプリケーション/HA・監視・分析システムのバッチ処理運用〈ジョブフロー設計・ワーク/サマリーテーブル・差分更新/全行洗い替え・SQLジョブテスト〉）。SQLクエリ構築技法は`writing-effective-sql`を参照 |
+| `writing-effective-sql` | 正しく効果的で高速なSQLクエリを書くための実践技法ガイド（集合ベースの宣言的思考・CASE式と条件付き集計・記述統計量算出・GROUP BY/HAVING・ウィンドウ関数とアクセスログのセッション分析・結合とサブクエリ・集合演算と量化・NULLと三値論理・実行計画に基づくクエリリライト・RFM/ABC分析等の定型分析パターン）。スキーマ設計・正規化・SQLアンチパターン・DB内部構造・PostgreSQL運用は`developing-databases`、BigQuery/GCP分析SQLは`cloud:developing-google-cloud`を参照 |
 | `developing-mcp` | MCP (Model Context Protocol) サーバー/クライアント開発・アーキテクチャパターン・セキュリティ強化（脅威モデル・OIDC認証・LLM攻撃対策・エコシステム脅威・実装チェックリスト） |
 | `solving-algorithms` | 競技プログラミング向けアルゴリズム・データ構造解法リファレンス（ソート・探索・木・グラフ・動的計画法・計算幾何・整数論を計算量解析と言語非依存実装で網羅）。問題タイプと入力サイズから最適アルゴリズムを選定し、古典的データ構造（スタック・キュー・ヒープ・BST・Union-Find）を実装。DB固有のデータ構造（Bツリー・LSM）は`developing-databases`参照 |
 

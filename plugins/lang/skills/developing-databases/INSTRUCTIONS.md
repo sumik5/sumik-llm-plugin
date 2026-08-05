@@ -160,6 +160,33 @@ Phase 1: 要件分析 → Phase 2: データモデリング → Phase 3: 正規�
 
 ---
 
+## 分析システムのバッチ処理運用
+
+分析システム（データウェアハウス・データマート等）では、業務システムから集めたデータを定期加工するバッチ処理が中核を担う。ジョブフロー設計・テーブル運用・更新方式・テストの4観点で判断が必要になる。
+
+### 更新方式の選択：差分更新 vs 全行洗い替え
+
+| 判断基準 | 差分更新推奨 | 全行洗い替え推奨 |
+|---------|------------|-----------------|
+| データ量 | 大規模（全件再計算が高コスト） | 小〜中規模（全件再計算が現実的な時間で終わる） |
+| 更新頻度 | 高頻度（時間次等） | 低頻度（日次・週次等） |
+| 参照要件 | 常時参照可能である必要がある | 短時間の切り替えが許容される |
+| 実装の複雑さ | 冪等性設計・UPSERTの実装が必要 | シンプル（`CREATE`→リネームの入れ替え方式） |
+
+**推奨**: 迷ったら全行洗い替え（`CREATE`→リネームの入れ替え方式。`DROP`→`CREATE`方式は参照不能な時間帯が生じるため避ける）から始め、処理時間がSLAを超えるようになった段階で差分更新への移行を検討する。
+
+### ワークテーブル vs サマリーテーブル
+
+| 軸 | ワークテーブル | サマリーテーブル |
+|----|--------------|-----------------|
+| ライフサイクル | ジョブ実行中のみ一時的 | 恒久的（次回バッチまで） |
+| 参照元 | 同一バッチ内の後続ステップのみ | BIツール・アプリケーション等の参照系全般 |
+| スキーマ配置 | 分離されたワーク用スキーマ（例: `work`） | 参照系が閲覧可能な本番スキーマ |
+
+**詳細**: [OPERATIONS-BATCH-PIPELINE.md](./references/OPERATIONS-BATCH-PIPELINE.md)
+
+---
+
 ## 詳細ガイド
 
 ### リレーショナルDB設計 references/
@@ -217,3 +244,9 @@ Phase 1: 要件分析 → Phase 2: データモデリング → Phase 3: 正規�
 | [POSTGRESQL-BACKUP-RECOVERY.md](./references/POSTGRESQL-BACKUP-RECOVERY.md) | pg_dump、ベースバックアップ、PITR、WAL |
 | [POSTGRESQL-MVCC-VACUUM.md](./references/POSTGRESQL-MVCC-VACUUM.md) | MVCC、autovacuum、テーブル膨張、ANALYZE |
 | [POSTGRESQL-REPLICATION-MONITORING.md](./references/POSTGRESQL-REPLICATION-MONITORING.md) | 物理/論理レプリケーション、HA、統計システム |
+
+### 分析システムのバッチ処理運用 references/
+
+| ファイル | 内容 |
+|---------|------|
+| [OPERATIONS-BATCH-PIPELINE.md](./references/OPERATIONS-BATCH-PIPELINE.md) | ジョブフロー設計（粒度・依存関係・DAG）、ワーク/サマリーテーブル運用、差分更新/全行洗い替えの選択、SQLジョブのテスト方針、運用チェックリスト |

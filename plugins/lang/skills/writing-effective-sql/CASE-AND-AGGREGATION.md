@@ -447,7 +447,189 @@ HAVING COUNT(si.item) = (SELECT COUNT(*) FROM items)   -- 店舗側に不足が�
 
 関係除算は、同時に複数の薬を併用している患者の検索や、複数の技術要件をすべて満たす人材の検索など、バスケット解析以外の業務にも同じ形で応用できる。
 
-## 13. BigQuery実務ノート（方言差のまとめ）
+## 13. 記述統計量の算出
+
+代表値（平均・中央値・最頻値）の算出は11.3および`WINDOW-FUNCTIONS.md`の中央値算出を参照。本節では代表値ではなく、**ばらつき・関係性・分布**を測る統計量を扱う。
+
+### 13.1 分散と標準偏差
+
+分散・標準偏差には母集団（除数がN）と標本（除数がN-1）の2種類があり、対象データが母集団そのものか標本かで使い分ける。
+
+| 関数 | 意味 | 除数 |
+|------|------|------|
+| `VAR_POP` / `STDDEV_POP` | 母集団の分散・標準偏差 | N |
+| `VAR_SAMP` / `STDDEV_SAMP` | 標本の分散・標準偏差（不偏推定） | N-1 |
+
+```sql
+SELECT VAR_POP(score)    AS variance_pop,
+       STDDEV_POP(score) AS stddev_pop
+FROM exam_results;
+```
+
+これらの集約関数を持たないDBMSでは、分散の定義式（二乗の平均 − 平均の二乗）から手計算できる。
+
+```sql
+-- STDDEV_POP非対応DBMSでの代替式
+SELECT AVG(score * score) - AVG(score) * AVG(score) AS variance_pop
+FROM exam_results;
+```
+
+数値型の丸め誤差など精度に関する注意点は`lang:developing-databases`のラウンディングエラーに関する記述を参照（本節では再解説しない）。
+
+### 13.2 標準化（Zスコア）と偏差値
+
+平均・標準偏差はいずれもウィンドウ関数として1パスで取得できるため、行ごとの標準化もサブクエリなしで書ける。標準偏差が0（全行が同じ値）の集合ではゼロ除算が発生するため`NULLIF`で回避する。
+
+```sql
+-- Zスコアと偏差値（1パス・標準偏差0をNULLIFで回避）
+SELECT student_id, score,
+       (score - AVG(score) OVER ()) / NULLIF(STDDEV_POP(score) OVER (), 0)          AS z_score,
+       (score - AVG(score) OVER ()) / NULLIF(STDDEV_POP(score) OVER (), 0) * 10 + 50 AS deviation_value
+FROM exam_results;
+```
+
+ウィンドウ関数そのものの構文（フレーム句・PARTITION BYの詳細）は`WINDOW-FUNCTIONS.md`を参照。
+
+### 13.3 度数分布表（ビン分割）
+
+CASE式で任意幅のビンに区切りGROUP BYで集計すれば度数分布表が得られる。等幅ビンは`FLOOR((x - min) / width)`で算術的に生成できる。
+
+```sql
+-- 得点を10点刻みのビンに分けて度数分布表を作る
+SELECT FLOOR(score / 10) * 10 AS bin_start,
+       COUNT(*)               AS freq
+FROM exam_results
+GROUP BY FLOOR(score / 10) * 10
+ORDER BY bin_start;
+```
+
+累積度数は`SUM(...) OVER (ORDER BY bin_start)`、全体比による相対度数は`COUNT(*) OVER ()`との比較で算出する。
+
+該当行が1件もないビンはGROUP BYの結果自体に現れないため、そのままでは度数分布表に「穴」が空く（空ビン問題）。ビンの一覧を持つマスタ表との外部結合で解決する手法は`JOINS-AND-SUBQUERIES.md`のタリーテーブルに関する節を参照。
+
+### 13.4 相関係数と共分散
+
+2つの数値列の関係性を測るピアソンの積率相関係数は`CORR`、共分散は`COVAR_POP`/`COVAR_SAMP`で算出する。
+
+```sql
+SELECT CORR(height, weight)      AS correlation,
+       COVAR_POP(height, weight) AS covariance_pop
+FROM measurements;
+```
+
+これらを持たないDBMSでは、共分散の定義式（積の平均 − 平均の積）から手計算できる。
+
+```sql
+-- COVAR_POP非対応DBMSでの代替式
+SELECT AVG(height * weight) - AVG(height) * AVG(weight) AS covariance_pop
+FROM measurements;
+```
+
+### 13.5 調和平均・幾何平均
+
+算術平均が適さない場面（比率の平均・成長率の平均）では幾何平均・調和平均を使う。いずれも定義域の制約があるため、対象データが制約を満たすかを事前に確認する。
+
+| 種類 | 算出式 | 定義域の制約 |
+|------|--------|------------|
+| 幾何平均 | `EXP(AVG(LN(x)))` | `x > 0`（0・負値が混入するとLNがエラーまたはNULLになる） |
+| 調和平均 | `COUNT(*) / SUM(1.0 / x)` | `x <> 0`（0が混入するとゼロ除算） |
+
+```sql
+-- 年ごとの成長率（倍率）から幾何平均成長率を求める
+SELECT EXP(AVG(LN(growth_ratio))) AS geometric_mean_growth
+FROM yearly_growth
+WHERE growth_ratio > 0;
+```
+
+### 13.6 外れ値の検出（IQR法）
+
+四分位数からIQR（四分位範囲）= Q3 − Q1を求め、`Q1 - 1.5 * IQR`未満または`Q3 + 1.5 * IQR`超をCASE式で外れ値としてフラグ付けする。
+
+```sql
+-- IQR法による外れ値フラグ付け（標準SQL構文: PERCENTILE_CONT ... WITHIN GROUP）
+WITH quartiles AS (
+    SELECT PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY score) AS q1,
+           PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY score) AS q3
+    FROM exam_results
+)
+SELECT e.student_id, e.score,
+       CASE WHEN e.score < q.q1 - 1.5 * (q.q3 - q.q1)
+              OR e.score > q.q3 + 1.5 * (q.q3 - q.q1)
+            THEN 'outlier' ELSE 'normal' END AS outlier_flag
+FROM exam_results AS e
+CROSS JOIN quartiles AS q;
+```
+
+四分位数の算出関数（`PERCENTILE_CONT`の呼び出し形式）はDBMSごとに異なるため（標準SQLの`WITHIN GROUP`集約関数形式とBigQueryの`OVER()`ウィンドウ関数形式等）、13.7の方言対応表と対象DBMSのドキュメントで確認する。集約関数がNULLを自動的に除外する挙動（`AVG`の分母が実質`COUNT(col)`になる）は、特性関数でCASE式のELSEをNULLにするかゼロにするかの使い分けと同根の注意点であり、対象列にNULLが混在していないか確認する。
+
+### 13.7 統計関数の方言対応表
+
+| 関数 | 用途 | 備考 |
+|------|------|------|
+| `STDDEV_POP` / `STDDEV_SAMP` | 標準偏差 | 主要DBMSで広くサポート |
+| `VAR_POP` / `VAR_SAMP` | 分散 | 主要DBMSで広くサポート |
+| `CORR` | 相関係数 | 対応状況がDBMSごとに分かれる |
+| `COVAR_POP` / `COVAR_SAMP` | 共分散 | 対応状況がDBMSごとに分かれる |
+| `PERCENTILE_CONT` | 四分位数・パーセンタイル | 引数順序・`WITHIN GROUP`構文の要否がDBMSごとに異なる |
+
+非対応の関数は13.1・13.4で示した手計算式のような代替式に置き換える。対応状況は対象DBMSのドキュメントで必ず確認する（15節のBigQuery実務ノートとは扱う粒度が異なり、あちらはCASE/IFの構文選択、こちらは統計関数自体の可用性を扱う）。
+
+## 14. 実務定型分析パターン（RFM分析・ABC分析）
+
+分散や相関のような統計量ではなく、CASE式による顧客・商品のランク分類を中心とした、業務で頻出する定型分析パターンを扱う。
+
+### 14.1 RFM分析
+
+Recency（直近の購買からの経過日数）・Frequency（購買回数）・Monetary（購買金額）の3軸から顧客をスコア化し、優良顧客・休眠顧客等のセグメントに分類する手法。各軸を`NTILE(5)`で5段階にスコア化し、スコアの組み合わせをCASE式でセグメント名に変換する。
+
+```sql
+-- 顧客ごとのRFMスコアを算出する
+WITH rfm AS (
+    SELECT customer_id,
+           NTILE(5) OVER (ORDER BY DATE_DIFF(@as_of_date, MAX(order_date), DAY) ASC) AS r_score,
+           NTILE(5) OVER (ORDER BY COUNT(*) DESC)                                    AS f_score,
+           NTILE(5) OVER (ORDER BY SUM(order_total) DESC)                            AS m_score
+    FROM orders
+    WHERE order_date <= @as_of_date
+    GROUP BY customer_id
+)
+SELECT customer_id,
+       CASE WHEN r_score >= 4 AND f_score >= 4 AND m_score >= 4 THEN '優良顧客'
+            WHEN r_score <= 2 AND f_score <= 2                  THEN '休眠顧客'
+            ELSE '一般顧客' END AS segment
+FROM rfm;
+```
+
+基準日（Recency算出の起点）は`CURRENT_DATE`を直書きせず、呼び出し側から渡すパラメータとして必ず外挿する（プレースホルダの構文は`@as_of_date`・`?`・`:as_of_date`等、DBMS・ドライバごとに異なる）。直書きするとクエリを再実行するたびにRecencyの値が変わり、同じ入力に対して同じ結果が返らない（冪等性が損なわれる）。日付差分を求める関数（`DATE_DIFF`等）は方言差が大きいため、対象DBMSの構文を確認する。
+
+### 14.2 ABC分析
+
+売上等を降順ソートし、累積和ウィンドウ関数で累積構成比を求め、閾値（例: 累積70%までをA、90%までをB、残りをC）でランク分類する手法。
+
+```sql
+-- 商品を売上降順で並べ、累積構成比からA/B/Cランクを付与する
+WITH ranked AS (
+    SELECT product_id, sales,
+           SUM(sales) OVER (ORDER BY sales DESC, product_id
+                             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+             / SUM(sales) OVER () AS cumulative_ratio
+    FROM product_sales
+)
+SELECT product_id, sales,
+       CASE WHEN cumulative_ratio <= 0.70 THEN 'A'
+            WHEN cumulative_ratio <= 0.90 THEN 'B'
+            ELSE 'C' END AS abc_rank
+FROM ranked
+ORDER BY sales DESC;
+```
+
+`ORDER BY sales DESC`だけでは同じ売上高の商品が複数あるとき順位が非決定的になり、実行のたびに累積和の途中経過（ひいてはランク境界）が変わりうる。`product_id`のような一意キーを`ORDER BY`に追加し、順序を確定させる。
+
+### 14.3 デシル分析との関係
+
+RFM分析・ABC分析はいずれも「対象を層に分けて優先順位付けする」という点で、`WINDOW-FUNCTIONS.md`のデシル分析と同じ系統の定型分析パターンである。デシル分析が単一の指標（例: 購買金額）を10等分するのに対し、RFM分析は複数指標の組み合わせでセグメント化する点が異なる。単一指標での層別だけで十分な場合は`WINDOW-FUNCTIONS.md`のデシル分析節を参照。
+
+## 15. BigQuery実務ノート（方言差のまとめ）
 
 BigQueryは標準SQLの集計関数（`COUNT`・`SUM`・`AVG`・`MAX`・`MIN`）に加え、`STDDEV_POP`・`STDDEV_SAMP` などの統計集計関数を持つ。2値分岐には `IF(条件式, 真の場合, 偽の場合)` 関数も使える。
 

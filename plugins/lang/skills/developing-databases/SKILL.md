@@ -4,10 +4,12 @@ description: >-
   Comprehensive database development guide covering relational design (ER modeling, normalization,
   PostgreSQL implementation), SQL antipatterns (25 patterns with detection signals and solutions),
   database internals (storage engines B-tree/LSM, distributed systems, consensus algorithms),
-  and PostgreSQL operations (server config, extensions, query tuning, MVCC/VACUUM, backup/PITR,
-  replication/HA, monitoring). Use when designing database schemas, writing SQL queries, reviewing
-  data models, choosing storage engines, tuning PostgreSQL performance, managing backup/replication,
-  or debugging distributed system behavior. Replaces: designing-relational-databases,
+  PostgreSQL operations (server config, extensions, query tuning, MVCC/VACUUM, backup/PITR,
+  replication/HA, monitoring), and analytical batch pipeline operations (job flow design,
+  work/summary tables, incremental vs full-refresh updates, SQL job testing). Use when designing
+  database schemas, writing SQL queries, reviewing data models, choosing storage engines, tuning
+  PostgreSQL performance, managing backup/replication, designing batch data pipelines, or
+  debugging distributed system behavior. Replaces: designing-relational-databases,
   avoiding-sql-antipatterns, understanding-database-internals.
 when_to_use: >-
   For data architecture patterns (CQRS, event sourcing), use cloud:architecting-data instead.

@@ -2,9 +2,10 @@
 name: writing-effective-sql
 description: >-
   Practical techniques for writing correct, effective, and fast SQL queries across engines:
-  set-based declarative thinking, CASE expressions and conditional aggregation, GROUP BY/HAVING
-  and characteristic functions, window functions (frames, inter-row comparison, correlated-subquery
-  replacement), joins and subqueries (self-join, cross join, outer-join pivot, tally/hierarchical),
+  set-based declarative thinking, CASE expressions, conditional aggregation, descriptive
+  statistics, and analysis patterns, GROUP BY/HAVING and characteristic functions, window
+  functions (frames, inter-row comparison, correlated-subquery replacement, sessionization),
+  joins and subqueries (self-join, cross join, outer-join pivot, tally/hierarchical),
   set operations and quantification (EXISTS, universal/existential), NULL and three-valued logic, and
   execution-plan-based query rewriting (SARGable predicates, slow-to-fast rewrite catalog, cross-DBMS
   dialect portability). Use when writing, reviewing, or optimizing SQL SELECT queries, choosing joins
@@ -98,8 +99,11 @@ SELECT dept, COUNT(*) AS headcount
 | したいこと | 使う技法の例 | 詳細ファイル |
 |-----------|-------------|-------------|
 | 条件によって集計対象・表示列を変えたい | CASE式、条件付き集計（横持ち変換） | [CASE-AND-AGGREGATION.md](CASE-AND-AGGREGATION.md) |
+| 分散・相関・度数分布など統計量をSQLで求めたい | 記述統計量算出（VAR/STDDEV/CORR、度数分布表） | [CASE-AND-AGGREGATION.md](CASE-AND-AGGREGATION.md) |
+| RFM・ABCなど定型の顧客分析をしたい | RFM分析・ABC分析（NTILE・累積和・CASE式によるセグメント分類） | [CASE-AND-AGGREGATION.md](CASE-AND-AGGREGATION.md) |
 | ランキング・順位・移動平均・前後の行との比較をしたい | ウィンドウ関数（RANK/ROW_NUMBER/LAG/LEAD、フレーム指定） | [WINDOW-FUNCTIONS.md](WINDOW-FUNCTIONS.md) |
 | 相関サブクエリが遅い、行ごとに繰り返し実行されている | ウィンドウ関数への置き換え | [WINDOW-FUNCTIONS.md](WINDOW-FUNCTIONS.md) |
+| アクセスログをセッション単位に分けて行動を分析したい | セッショナイズ（LAG＋累積和によるセッションID付与） | [WINDOW-FUNCTIONS.md](WINDOW-FUNCTIONS.md) |
 | 複数テーブルを組み合わせたい、自己結合したい、階層データを辿りたい | JOIN種別の使い分け、自己結合、階層クエリ | [JOINS-AND-SUBQUERIES.md](JOINS-AND-SUBQUERIES.md) |
 | 行と列を入れ替えたい（クロス集計表を作りたい） | 外部結合によるpivot/unpivot | [JOINS-AND-SUBQUERIES.md](JOINS-AND-SUBQUERIES.md) |
 | 「Aだが Bではない」「すべてのBに対応するA」を探したい | EXISTS/NOT EXISTS、全称量化・存在量化 | [SET-OPERATIONS-AND-QUANTIFICATION.md](SET-OPERATIONS-AND-QUANTIFICATION.md) |
@@ -116,8 +120,8 @@ SELECT dept, COUNT(*) AS headcount
 | ファイル | 扱う内容 |
 |---------|---------|
 | [FOUNDATIONS-AND-NULL.md](FOUNDATIONS-AND-NULL.md) | SELECT文の論理評価順序、検索/更新/分岐/集約/行間比較の基本道具立て、NULLと三値論理（`IS NULL`・排中律非成立・`NOT IN`と`NOT EXISTS`の非同値・限定述語とNULL）、標準SQLとDBMS方言の違い・移植性 |
-| [CASE-AND-AGGREGATION.md](CASE-AND-AGGREGATION.md) | CASE式（構文・型統一・ELSE/END漏れの罠）、条件付き集計（横持ち変換）、GROUP BY/HAVING活用、特性関数、関係除算・バスケット解析、歯抜け/欠番検出 |
-| [WINDOW-FUNCTIONS.md](WINDOW-FUNCTIONS.md) | ウィンドウ関数の構造（PARTITION/ORDER/フレームROWS・RANGE）、行間比較・移動平均・累計、相関サブクエリからの置き換え、内部動作とパフォーマンス特性 |
+| [CASE-AND-AGGREGATION.md](CASE-AND-AGGREGATION.md) | CASE式（構文・型統一・ELSE/END漏れの罠）、条件付き集計（横持ち変換）、GROUP BY/HAVING活用、特性関数、関係除算・バスケット解析、歯抜け/欠番検出、記述統計量、RFM/ABC分析 |
+| [WINDOW-FUNCTIONS.md](WINDOW-FUNCTIONS.md) | ウィンドウ関数の構造（PARTITION/ORDER/フレームROWS・RANGE）、行間比較・移動平均・累計、相関サブクエリからの置き換え、内部動作とパフォーマンス特性、セッション分析 |
 | [JOINS-AND-SUBQUERIES.md](JOINS-AND-SUBQUERIES.md) | 結合種別の使い分け、自己結合（順列・組み合わせ生成）、サブクエリ・相関サブクエリ、外部結合によるpivot/unpivot、タリーテーブル、階層クエリ、直積 |
 | [SET-OPERATIONS-AND-QUANTIFICATION.md](SET-OPERATIONS-AND-QUANTIFICATION.md) | UNION/INTERSECT/EXCEPT（多重集合・優先順位・実装差）、集合の相等性・差集合、EXISTS/NOT EXISTS、全称量化・存在量化、二重否定変換 |
 | [PERFORMANCE-REWRITING.md](PERFORMANCE-REWRITING.md) | 実行計画の読み方と活用、SARGable述語（インデックスを効かせる書き方）、遅い→速いの書き換えカタログ（相関サブクエリ除去・IN→EXISTS/JOIN・OR→UNION等） |
