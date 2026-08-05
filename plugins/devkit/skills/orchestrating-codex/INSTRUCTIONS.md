@@ -197,29 +197,29 @@ Claude Code の subagent_type と Codex agent名の対応表（参照用）:
 
 | Claude Code subagent_type | Codex agent名 | 用途 |
 |--------------------------|--------------|------|
-| `sumik:tachikoma-str-product-mgr` | `tachikoma-product-manager` | 要件分析・計画策定（読取専用） |
-| `sumik:tachikoma-fw-nextjs` | `tachikoma-nextjs` | Next.js/React開発 |
-| `sumik:tachikoma-fe-frontend` | `tachikoma-frontend` | UI/UX・shadcn |
-| `sumik:tachikoma-fw-fullstack-js` | `tachikoma-fullstack-js` | NestJS/Express |
-| `sumik:tachikoma-lang-typescript` | `tachikoma-typescript` | TypeScript型設計 |
-| `sumik:tachikoma-lang-python` | `tachikoma-python` | Python・ADK |
-| `sumik:tachikoma-lang-go` | `tachikoma-go` | Go開発 |
-| `sumik:tachikoma-lang-bash` | `tachikoma-bash` | シェルスクリプト |
-| `sumik:tachikoma-cloud-infra` | `tachikoma-infra` | Docker/CI-CD |
-| `sumik:tachikoma-cloud-terraform` | `tachikoma-terraform` | Terraform IaC |
-| `sumik:tachikoma-cloud-aws` | `tachikoma-aws` | AWS全般 |
-| `sumik:tachikoma-cloud-gcp` | `tachikoma-google-cloud` | GCP全般 |
-| `sumik:tachikoma-qa-security` | `tachikoma-security` | セキュリティ監査（読取専用） |
-| `sumik:tachikoma-data-database` | `tachikoma-database` | DB設計・SQL |
-| `sumik:tachikoma-data-ai-ml` | `tachikoma-ai-ml` | AI/RAG/MCP |
-| `sumik:tachikoma-qa-test` | `tachikoma-test` | ユニット/統合テスト |
-| `sumik:tachikoma-qa-e2e-test` | `tachikoma-e2e-test` | Playwright E2E |
-| `sumik:tachikoma-qa-observability` | `tachikoma-observability` | 監視・OTel |
-| `sumik:tachikoma-doc-document` | `tachikoma-document` | 技術文書 |
-| `sumik:tachikoma-fe-figma-impl` | `tachikoma-design` | Figma→コード |
-| `sumik:tachikoma-doc-training` | `tachikoma-training-presenter` | 研修・プレゼン |
-| `sumik:tachikoma` | `tachikoma` | 汎用フォールバック |
-| `sumik:serena-expert` | `serena-expert` | トークン効率化開発 |
+| `devkit:tachikoma-str-product-mgr` | `tachikoma-product-manager` | 要件分析・計画策定（読取専用） |
+| `devkit:tachikoma-fw-nextjs` | `tachikoma-nextjs` | Next.js/React開発 |
+| `devkit:tachikoma-fe-frontend` | `tachikoma-frontend` | UI/UX・shadcn |
+| `devkit:tachikoma-fw-fullstack-js` | `tachikoma-fullstack-js` | NestJS/Express |
+| `devkit:tachikoma-lang-typescript` | `tachikoma-typescript` | TypeScript型設計 |
+| `devkit:tachikoma-lang-python` | `tachikoma-python` | Python・ADK |
+| `devkit:tachikoma-lang-go` | `tachikoma-go` | Go開発 |
+| `devkit:tachikoma-lang-bash` | `tachikoma-bash` | シェルスクリプト |
+| `devkit:tachikoma-cloud-infra` | `tachikoma-infra` | Docker/CI-CD |
+| `devkit:tachikoma-cloud-terraform` | `tachikoma-terraform` | Terraform IaC |
+| `devkit:tachikoma-cloud-aws` | `tachikoma-aws` | AWS全般 |
+| `devkit:tachikoma-cloud-gcp` | `tachikoma-google-cloud` | GCP全般 |
+| `devkit:tachikoma-qa-security` | `tachikoma-security` | セキュリティ監査（読取専用） |
+| `devkit:tachikoma-data-database` | `tachikoma-database` | DB設計・SQL |
+| `devkit:tachikoma-data-ai-ml` | `tachikoma-ai-ml` | AI/RAG/MCP |
+| `devkit:tachikoma-qa-test` | `tachikoma-test` | ユニット/統合テスト |
+| `devkit:tachikoma-qa-e2e-test` | `tachikoma-e2e-test` | Playwright E2E |
+| `devkit:tachikoma-qa-observability` | `tachikoma-observability` | 監視・OTel |
+| `devkit:tachikoma-doc-document` | `tachikoma-document` | 技術文書 |
+| `devkit:tachikoma-fe-figma-impl` | `tachikoma-design` | Figma→コード |
+| `devkit:tachikoma-doc-training` | `tachikoma-training-presenter` | 研修・プレゼン |
+| `devkit:tachikoma` | `tachikoma` | 汎用フォールバック |
+| `devkit:serena-expert` | `serena-expert` | トークン効率化開発 |
 
 ### Agent選択の判断基準
 

@@ -100,7 +100,7 @@ esac
 | 参照種別 | 移動前 | 移動後 |
 |---------|--------|--------|
 | 移動スキルへの routing hint / 本文参照 | `use old-skill` | `use <plugin>:old-skill`（`plugin:skill` へ修飾） |
-| **`subagent_type` ルーティング行**（`~/.claude/rules/skill-triggers.md` 等） | `sumik:tachikoma-...` | **不変**（Agent が自プラグインに残る限り変わらない） |
+| **`subagent_type` ルーティング行**（`~/.claude/rules/skill-triggers.md` 等） | `devkit:tachikoma-...` | **不変**（Agent が自プラグインに残る限り変わらない） |
 | 同一プラグインに残るスキルへの参照 | `use other-skill` | `use other-skill`（bare 維持） |
 
 > 🔴 重要: スキルが別プラグインへ移っても、そのスキルを preload する**エージェント自体が移動しない**なら、`subagent_type` 行（ルーティング表のエージェント名）は変えない。変わるのは「スキルへの参照」だけで、これが `plugin:skill` 修飾になる。

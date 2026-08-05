@@ -184,6 +184,7 @@ Claude Code本体がタチコマにタスクを振る際、以下のいずれか
    | ブラウザ自動化 | ブラウザ操作・テスト |
    | インフラ・ツール | Docker、Git、DevTools |
    | ドキュメント・品質 | 文書作成、コードレビュー |
+4. **実数表現の突合（🔴 見落としやすい）**: README.md本体だけでなく、`.claude-plugin/plugin.json`・`.codex-plugin/plugin.json`・`.agents/plugins/marketplace.json` の `description` 内に「Nコマンド」「Nスキル」等の自由文中の実数表現が紛れていないか `grep` で洗い出し、実数と食い違っていれば更新する（`scripts/check-version-sync.py` は3ファイルの `version` フィールド一致のみを検証し、description内の実数表現までは見ない。過去に並列タチコマがそれぞれ担当ファイル本体を正確に仕上げたのに、この境界線上の実数だけ誰の担当にも入らず抜け落ちた実績あり）
 
 #### 並列実行時の扱い
 

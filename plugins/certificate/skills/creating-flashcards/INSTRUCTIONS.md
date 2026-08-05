@@ -306,6 +306,21 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/creating-flashcards/scripts/studying_import
 > の判断は AskUserQuestion で確認したうえで `--deck` を明示するのが安全（省略時の自動算出をそのまま採用
 > してよいかも含めて確認する）。
 
+> 🔴 **`--front-field`/`--back-field` はデフォルト値に頼らず必ず明示指定する（実機確認済み）**: この2つの
+> 引数のデフォルト値はそれぞれ `"Front"`/`"Back"` 固定であり、対象ノートタイプの実フィールド名と一致しない
+> 場合、AnkiConnect がフィールド名不一致を黙って無視し、結果的に全フィールド空のノート作成を試みる。この
+> 不一致は `--dry-run` では検知できない（`--dry-run` は正常終了し `cards=N needs_fix=0` と表示される）。
+> 一致しないまま実投入（`addNotes`）に進むと `AnkiConnect error: ['cannot create note because it is empty',
+> ...]` で全件失敗する。`studying_import.py`（や `*_import.py` 系スクリプト全般）を新しいノートタイプ・
+> 新しいデッキ体系に使う際は、実行前に必ず以下でノートタイプの実フィールド名を確認し、`--front-field`/
+> `--back-field` を明示指定すること。
+>
+> ```bash
+> curl -s localhost:8765 -X POST -d '{"action":"modelFieldNames","version":6,"params":{"modelName":"<model名>"}}' | jq .
+> ```
+>
+> `--dry-run` が通ってもフィールド名の妥当性は保証されないため、**dry-run 成功だけを根拠に実投入へ進まない**こと。
+
 > 🔴 **`choice_type` による `qtype` の振り分け**: studying JSON は `choice_type` が `"boolean"`（○×形式）
 > `"single"`（4択等）`"multi_blank"`（複数空欄穴埋め形式）`"fill_in_single"`（単一空欄穴埋め形式）
 > `"unknown"`（選択肢マーカー未検出のフォールバック）の5種を取る。`studying_import.py` は `"boolean"` を

@@ -197,34 +197,34 @@ Claude Code subagent_type → Codex agent名 と モデルtier の対応（変�
 
 | Claude Code subagent_type | Codex agent名（=ファイル名） | tier |
 |--------------------------|--------------------------|------|
-| `sumik:serena-expert` | `serena-expert` | high |
-| `sumik:tachikoma` | `tachikoma` | high |
-| `sumik:tachikoma-lang-python` | `tachikoma-python` | high |
-| `sumik:tachikoma-lang-go` | `tachikoma-go` | high |
-| `sumik:tachikoma-lang-bash` | `tachikoma-bash` | high |
-| `sumik:tachikoma-lang-typescript` | `tachikoma-typescript` | high |
-| `sumik:tachikoma-fw-nextjs` | `tachikoma-nextjs` | high |
-| `sumik:tachikoma-fw-fullstack-js` | `tachikoma-fullstack-js` | high |
-| `sumik:tachikoma-fe-frontend` | `tachikoma-frontend` | high |
-| `sumik:tachikoma-fe-figma-impl` | `tachikoma-figma-impl` | high |
-| `sumik:tachikoma-fe-design-system` | `tachikoma-design-system` | high |
-| `sumik:tachikoma-fe-ux-design` | `tachikoma-ux-design` | high |
-| `sumik:tachikoma-cloud-aws` | `tachikoma-aws` | high |
-| `sumik:tachikoma-cloud-gcp` | `tachikoma-google-cloud` | high |
-| `sumik:tachikoma-cloud-infra` | `tachikoma-infra` | high |
-| `sumik:tachikoma-cloud-terraform` | `tachikoma-terraform` | high |
-| `sumik:tachikoma-data-database` | `tachikoma-database` | high |
-| `sumik:tachikoma-data-ai-ml` | `tachikoma-ai-ml` | high |
-| `sumik:tachikoma-qa-test` | `tachikoma-test` | high |
-| `sumik:tachikoma-qa-e2e-test` | `tachikoma-e2e-test` | high |
-| `sumik:tachikoma-qa-observability` | `tachikoma-observability` | high |
-| `sumik:tachikoma-qa-security` | `tachikoma-security` | **xhigh** |
-| `sumik:tachikoma-qa-code-reviewer` | `tachikoma-code-reviewer` | **xhigh** |
-| `sumik:tachikoma-str-architecture` | `tachikoma-architecture` | **xhigh** |
-| `sumik:tachikoma-str-product-mgr` | `tachikoma-product-manager` | **xhigh** |
-| `sumik:tachikoma-doc-document` | `tachikoma-document` | high |
-| `sumik:tachikoma-doc-slide` | `tachikoma-slide` | **xhigh** |
-| `sumik:tachikoma-doc-training` | `tachikoma-training-presenter` | high |
+| `devkit:serena-expert` | `serena-expert` | high |
+| `devkit:tachikoma` | `tachikoma` | high |
+| `devkit:tachikoma-lang-python` | `tachikoma-python` | high |
+| `devkit:tachikoma-lang-go` | `tachikoma-go` | high |
+| `devkit:tachikoma-lang-bash` | `tachikoma-bash` | high |
+| `devkit:tachikoma-lang-typescript` | `tachikoma-typescript` | high |
+| `devkit:tachikoma-fw-nextjs` | `tachikoma-nextjs` | high |
+| `devkit:tachikoma-fw-fullstack-js` | `tachikoma-fullstack-js` | high |
+| `devkit:tachikoma-fe-frontend` | `tachikoma-frontend` | high |
+| `devkit:tachikoma-fe-figma-impl` | `tachikoma-figma-impl` | high |
+| `devkit:tachikoma-fe-design-system` | `tachikoma-design-system` | high |
+| `devkit:tachikoma-fe-ux-design` | `tachikoma-ux-design` | high |
+| `devkit:tachikoma-cloud-aws` | `tachikoma-aws` | high |
+| `devkit:tachikoma-cloud-gcp` | `tachikoma-google-cloud` | high |
+| `devkit:tachikoma-cloud-infra` | `tachikoma-infra` | high |
+| `devkit:tachikoma-cloud-terraform` | `tachikoma-terraform` | high |
+| `devkit:tachikoma-data-database` | `tachikoma-database` | high |
+| `devkit:tachikoma-data-ai-ml` | `tachikoma-ai-ml` | high |
+| `devkit:tachikoma-qa-test` | `tachikoma-test` | high |
+| `devkit:tachikoma-qa-e2e-test` | `tachikoma-e2e-test` | high |
+| `devkit:tachikoma-qa-observability` | `tachikoma-observability` | high |
+| `devkit:tachikoma-qa-security` | `tachikoma-security` | **xhigh** |
+| `devkit:tachikoma-qa-code-reviewer` | `tachikoma-code-reviewer` | **xhigh** |
+| `devkit:tachikoma-str-architecture` | `tachikoma-architecture` | **xhigh** |
+| `devkit:tachikoma-str-product-mgr` | `tachikoma-product-manager` | **xhigh** |
+| `devkit:tachikoma-doc-document` | `tachikoma-document` | high |
+| `devkit:tachikoma-doc-slide` | `tachikoma-slide` | **xhigh** |
+| `devkit:tachikoma-doc-training` | `tachikoma-training-presenter` | high |
 
 xhigh対象: 設計・監査・高度推論ロール（architecture / security / code-reviewer / product-manager / slide）
 

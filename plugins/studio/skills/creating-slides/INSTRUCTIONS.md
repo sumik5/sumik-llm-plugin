@@ -14,7 +14,7 @@ HTMLスライドの作成・カスタマイズ・ソース素材変換を体系�
 ### 委譲フロー
 
 ```
-ユーザー指示 → 本体（要件整理）→ Agent(subagent_type: "sumik:tachikoma-doc-slide") → スライド完成
+ユーザー指示 → 本体（要件整理）→ Agent(subagent_type: "devkit:tachikoma-doc-slide") → スライド完成
 ```
 
 ### 本体が行うこと

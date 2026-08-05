@@ -514,7 +514,7 @@ TaskCreate({
 Agent({
   "description": "{file-name} 生成",
   "prompt": "## タスク: {file-name} 生成\n\n**担当タスク:** #{task_id}\n**ファイル所有権:** {target-file-path}\n**ソースMarkdownパス:** {変換済みMDパス}\n**対象範囲:** {chapters/sections}\n\n## 読み込むべきドキュメント（必ず最初に読む）\n1. `docs/conversion-{skill-name}/03-design-plan.md`（構造設計・Frontmatter設計）\n2. `docs/conversion-{skill-name}/06-user-decisions.md`（ユーザー決定事項）\n3. `plugins/devkit/skills/authoring-plugins/references/CONVERTING.md`（変換ルール4.1〜4.6）\n\n## 実行手順\n1. 上記3ドキュメントを読み込み、設計意図とユーザー決定を把握する\n2. ソースMarkdownを読み込み、担当範囲の内容を抽出する\n3. 変換ルール（4.1〜4.6）に従いスキルファイルを生成する:\n   - 4.1: ソース出典を完全除去（書籍名・著者名・出版社名を含めない）\n   - 4.2: 判断分岐箇所にAskUserQuestion指示を配置\n   - 4.3: Progressive Disclosure（500行以下。超過時はAskUserQuestion）\n   - 4.4: Frontmatter三部構成（英語description必須）\n   - 4.5: 日本語スタイルルール（技術用語は原語）\n4. `docs/conversion-{skill-name}/99-progress.md` に完了状況を記録する\n\n## 注意事項\n- ファイル所有権範囲外のファイルを絶対に編集しない\n- ソース出典情報（書籍名・著者名等）を一切含めない\n- 英語ソースの場合は直接日本語で生成する（翻訳ツール不要）\n- 生成するファイルが大きい場合はセクション単位で書き込む（compaction耐性）",
-  "subagent_type": "sumik:tachikoma-doc-document",
+  "subagent_type": "devkit:tachikoma-doc-document",
   "model": "sonnet",
   "name": "implementer-{n}",
   "run_in_background": true,

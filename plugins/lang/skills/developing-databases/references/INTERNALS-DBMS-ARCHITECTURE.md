@@ -171,7 +171,7 @@ DBMSは、データを主にメモリとディスクのどちらに格納する�
 
 #### 代表的な実装
 
-- MySQL、PostgreSQL、Oracle、MongoDB、CStore
+- MySQL、PostgreSQL、Oracle、MongoDB
 
 ### 列指向データベースの特徴
 
@@ -188,7 +188,7 @@ DBMSは、データを主にメモリとディスクのどちらに格納する�
 
 #### 代表的な実装
 
-- Apache Parquet、Apache ORC、RCFile、Vertica、ClickHouse
+- Apache Parquet、Apache ORC、RCFile、Vertica、ClickHouse、CStore（列指向カラムストアの初期の学術的取り組みとして知られる）
 
 ### ワークロード別の推奨
 
