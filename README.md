@@ -91,7 +91,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
     │   ├── hooks/                        # イベントフック (12個)
     │   ├── bin/                          # MCPサーバー起動ラッパー (npx-mise.sh, uvx-mise.sh)
     │   ├── scripts/                      # ヘルパースクリプト (6個)
-    │   └── skills/                       # ナレッジスキル (31個)
+    │   └── skills/                       # ナレッジスキル (32個)
     ├── studio/                           # コンテンツ制作プラグイン（slides/diagrams/EPUB圧縮/LaTeX 等）
     │   ├── .claude-plugin/
     │   │   └── plugin.json               # プラグインメタデータ（plugin 名 studio / version 同期必須）
@@ -248,7 +248,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `/consume-learnings` | `.learnings/` の蓄積知見を恒久化先へ消費し処理済みエントリを削除（実ファイル裏取り→ルーティング→機械検証→リリース）。恒久化先は実行コンテキストで決まる: 一般プロジェクトはプロジェクトCLAUDE.md・`.claude/`配下・`~/.claude`/`~/.codex`のグローバル設定・memory、sumik-claude-plugin repo では加えて authoring-plugins スキルに従いAgent/Skill/Command/Hook/plugin.json/READMEを整合修正しversion bump |
 | `/refactor-agent-instructions` | CLAUDE.md・AGENTS.md（プロジェクト/グローバル双方）を新しい世代のモデル向けに再設計。コード可読情報の重複・陳腐化情報の混在・一般原則の記述・特定場面専用手順の未分離・禁止表現の偏重・他ファイルとの指示重複の6カテゴリを診断し、カテゴリ別diff提示→AskUserQuestionでの承認→適用まで一気通貫で行う |
 
-### Skills (31個)
+### Skills (32個)
 
 #### コア開発
 
@@ -297,6 +297,7 @@ sumik-llm-plugin/                      # GitHub repo（Codex はここを git cl
 | `operating-gitlab` | glab CLI（GitLab公式CLI）によるGitLab操作の包括的リファレンス。全コマンドグループ（auth/mr/issue/ci/repo/release/api/variable/schedule/label/milestone/snippet/runner/securefile/鍵管理 他）と認証（self-managed `--hostname`・`GITLAB_TOKEN`・CI job token）・主要ワークフロー（MR/CI/issue/release）を網羅。GitHub操作は`gh`/`pull-request`、コミット文言は`writing-conventional-commits`、レビュー方法論は`reviewing-code`へ |
 | `operating-herdr` | herdr CLI（terminal-native agent multiplexer）操作。`HERDR_ENV=1` 環境で workspace/tab/pane の制御・pane 分割/移動/リサイズ/ナビゲーション（neighbor/focus/swap/zoom）・コマンド実行・出力読み取り（visible/recent/recent-unwrapped/detection）・出力待機（リテラル/正規表現）・エージェントステータス待機・`pane split` + `agent start --kind <kind> --pane <id>` によるエージェント spawn/協調・🆕 `herdr worktree`（Git worktree 連動 workspace 管理）・`herdr terminal`（raw terminal ストリーム直結）・`herdr integration install`（Claude/Codex はセッション復元用の識別情報付与のみで status authority にはならず screen-manifest 検知依存のまま）・screen-manifest 依存エージェントの検知遅延への実務的対処（子自身への完了報告・完了マーカー待機・`agent explain`・ローカルオーバーライド）を行う。herdr 外部からの操作は不可（HERDR_ENV ガード）。Claude Code 内の並列タチコマ編成は `orchestrating-teams` を使用し、herdrバックエンドでは本スキルを併用 |
 | `reviewing-with-hunk` | Hunk（対話型ターミナル diff ビューア）を `hunk session *` CLI 経由で操作。file/hunk 構造の検査（`review --json`・生 diff は `--include-patch` で opt-in）・file/hunk/行へのナビゲート・内容差し替え（`reload -- diff/show`）・インラインレビューコメント（単発 `comment add` / stdin バッチ `comment apply`）を行う。TUI 本体はユーザーのもので対話コマンド（`hunk diff`/`show`）は直接叩かない。レビュー方法論は `reviewing-code`、GitLab MR 操作は `operating-gitlab` を参照 |
+| `converting-documents-with-anydoc` | anydoc（firecrawl/anydoc、MIT・v0.1.6）によるWord/PowerPoint/Excel/OpenDocument/RTF/CSVファイルのGitHub Flavored Markdown変換ガイド。`npx -y @firecrawl/anydoc@0.1.6`実行（Node.js 20+必須・初回実行はネットワーク接続要）、Node.js/Python/Rustコード組み込み用の対応npm/PyPI/crates.ioライブラリも記載。pandoc/pdf-to-markdownが非対応の旧Office形式（`.doc`/`.ppt`/`.xls`/`.ods`等）で唯一の選択肢。anydocはOCR非対応のため、スキャン教材の変換は`certificate:creating-flashcards`のApple Vision/ローカルVLMワークフローを使用 |
 
 #### ドキュメント・品質
 

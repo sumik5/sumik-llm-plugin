@@ -9,17 +9,20 @@
 | 形式 | 拡張子 | 前処理 |
 |------|--------|--------|
 | Markdown | `.md` | なし（直接処理） |
-| PDF | `.pdf` | 専用スクリプト (`pdf-to-markdown`) でMarkdown変換 |
-| EPUB | `.epub` | `pandoc` CLIコマンドでMarkdown変換（画像ベースの場合は変換不可） |
-| DOCX | `.docx` | `pandoc` CLIコマンドでMarkdown変換 |
-| ODT | `.odt` | `pandoc` CLIコマンドでMarkdown変換 |
+| PDF | `.pdf` | 専用スクリプト (`pdf-to-markdown`) でMarkdown変換（テキストPDF。表構造等の再現に懸念があれば`converting-documents-with-anydoc`でも変換し比較可） |
+| EPUB | `.epub` | `pandoc` CLIコマンドでMarkdown変換（画像ベースの場合は変換不可。代替として`converting-documents-with-anydoc`も選択可（品質比較目的）） |
+| DOCX | `.docx` | `pandoc` CLIコマンドでMarkdown変換（代替として`converting-documents-with-anydoc`も選択可（品質比較目的）） |
+| ODT | `.odt` | `pandoc` CLIコマンドでMarkdown変換（代替として`converting-documents-with-anydoc`も選択可（品質比較目的）） |
 | RST | `.rst` | `pandoc` CLIコマンドでMarkdown変換 |
 | LaTeX | `.tex` | `pandoc` CLIコマンドでMarkdown変換 |
 | HTML | `.html` | `pandoc` CLIコマンドでMarkdown変換 |
 | Org | `.org` | `pandoc` CLIコマンドでMarkdown変換 |
 | AsciiDoc | `.adoc` | `pandoc` CLIコマンドでMarkdown変換 |
-| RTF | `.rtf` | `pandoc` CLIコマンドでMarkdown変換 |
-| PPTX | `.pptx` | `pandoc` CLIコマンドでMarkdown変換 |
+| RTF | `.rtf` | `pandoc` CLIコマンドでMarkdown変換（代替として`converting-documents-with-anydoc`も選択可（品質比較目的）） |
+| PPTX | `.pptx` | `pandoc` CLIコマンドでMarkdown変換（代替として`converting-documents-with-anydoc`も選択可（品質比較目的）） |
+| XLSX | `.xlsx` | `pandoc` CLIコマンドでMarkdown変換（pandoc 3.8.3以降対応。代替として`converting-documents-with-anydoc`も選択可（品質比較目的）） |
+| CSV | `.csv` | `pandoc` CLIコマンドでMarkdown変換（代替として`converting-documents-with-anydoc`も選択可（品質比較目的）） |
+| 旧Office形式 | `.doc`,`.docm`,`.ppt`,`.pps`,`.pot`,`.pptm`,`.ppsx`,`.ppsm`,`.xls`,`.xlsm`,`.xlsb`,`.ods`,`.odp` | pandoc非対応。`converting-documents-with-anydoc`が**唯一の選択肢**（詳細は同スキル参照） |
 | URL | `https://...` | curl + pandoc でMarkdown変換 |
 | フォルダ | ディレクトリ | 上記形式のファイルを再帰的に列挙 |
 
@@ -78,7 +81,8 @@ Phase E: リリース（Claude Code本体）- バージョン更新・コミッ�
 |-----------|---------|-------------|
 | 単一Markdownファイル | `.md`拡張子 | ファイル変換不要（Plannerが直接読み込む） |
 | 単一PDFファイル | `.pdf`拡張子 | Plannerが変換 |
-| pandoc対応形式 | `.epub`,`.docx`,`.odt`,`.rst`,`.tex`,`.html`,`.org`,`.adoc`,`.rtf`,`.pptx` | Plannerが変換 |
+| pandoc対応形式 | `.epub`,`.docx`,`.odt`,`.rst`,`.tex`,`.html`,`.org`,`.adoc`,`.rtf`,`.pptx`,`.xlsx`,`.csv` | Plannerが変換（pandocで変換が既定。表構造等の再現に懸念があれば`converting-documents-with-anydoc`でも変換し比較） |
+| 旧Office形式（anydoc唯一選択肢13形式） | `.doc`,`.docm`,`.ppt`,`.pps`,`.pot`,`.pptm`,`.ppsx`,`.ppsm`,`.xls`,`.xlsm`,`.xlsb`,`.ods`,`.odp` | Plannerが`converting-documents-with-anydoc`スキル参照の上で変換（詳細はA.2） |
 | URL | `http://` or `https://` で始まる | Plannerが変換 |
 | フォルダ | ディレクトリパス | Plannerがファイル列挙・変換 |
 
@@ -165,7 +169,7 @@ Claude Code本体は Planner タチコマを起動してファイル変換から
 ```json
 Agent({
   "description": "計画策定",
-  "prompt": "## タスク: スキル変換計画の策定\n\n**作業ディレクトリ:** docs/conversion-{skill-name}/\n（存在しない場合はまず作成: `mkdir -p docs/conversion-{skill-name}/`）\n\n**入力ファイル・URL:**\n- {入力ファイルパス1 or URL1}\n- {入力ファイルパス2 or URL2（あれば）}\n\n## 実行ステップ\n\n### Step 1: ファイル変換（Markdown化）\n各入力ファイルを以下の方法でMarkdown変換する。変換済みMDパスを `docs/conversion-{skill-name}/00-input-files.md` に記録すること。\n\n**PDF変換:**\n> ⚠️ PDFファイルをReadツールで直接読み取ってはならない。APIの画像制限を超えるため専用スクリプトを使用すること。\n```bash\nplugins/devkit/scripts/pdf-to-markdown <input.pdf> /tmp/output.md\n```\n\n**pandoc対応形式（EPUB/DOCX/ODT/RST/LaTeX/HTML/Org/AsciiDoc/RTF/PPTX）:**\n```bash\nif ! command -v pandoc &> /dev/null; then brew install pandoc; fi\npandoc -t markdown -o /tmp/<output>.md <input-file>\n```\n\n**EPUBが画像ベースの場合（pandoc変換後に確認）:**\npandoc変換後のMarkdownで `![` 参照が大半でテキストが少ない場合は画像ベースEPUBと判定し、以下を実施すること:\n1. AskUserQuestion でユーザーに画像ベースEPUBであり変換できない旨を通知する\n2. 「了解（変換を中止）」ならば変換処理を終了する\n3. 「テキスト部分のみで続行」ならばpandoc変換済みMDをそのままソースとして使用する\n詳細: `plugins/devkit/skills/authoring-plugins/references/CONVERTING.md` の「画像ベースEPUBの検出と対応」を参照。\n\n**URL変換:**\n```bash\ncurl -o /tmp/page.html '<URL>'\npandoc /tmp/page.html -f html -t gfm -o /tmp/page.md\n```\n\n変換結果は目視確認（本文が適切に抽出されているか）。\n\n### Step 2: グルーピング分析（複数ファイル時）\n複数ファイルの場合、全Markdownファイルを読み込み、以下を `docs/conversion-{skill-name}/01-grouping-analysis.md` に保存:\n- 各ファイルの概要テーブル（ファイル名・タイトル・主要トピック・推定行数・ドメイン）\n- 意味的グルーピング提案（同一技術・スコープ → 1スキル、異なる技術 → 別スキル）\n- 既存 `plugins/devkit/skills/` との一括重複チェック結果（既存スキルのfrontmatterと比較）\n- 判断が必要なケースはその理由と候補を記録（Claude Code本体がPhase BでAskUserQuestion実施）\n\n### Step 3: 内容構造分析\n変換済みMarkdownを読み込み、以下を `docs/conversion-{skill-name}/02-content-analysis.md` に保存:\n- セクション数とトピック一覧\n- コード例の有無・言語\n- 判断基準テーブルの有無\n- 推定総行数（全ファイル合計）\n- 既存スキルとのスコープ比較（`plugins/devkit/skills/` 内の既存スキルdescriptionと照合）\n- スキル名候補2-3個（gerund形式、`plugins/devkit/skills/authoring-plugins/references/NAMING-STRATEGY.md` 参照）\n- 相互description更新が必要な類似スキルリスト\n\n### Step 4: 構造設計\n以下を設計して `docs/conversion-{skill-name}/03-design-plan.md` に保存:\n- Frontmatter設計（英語description・三部構成: What + When + 差別化）\n- SKILL.md + サブファイル構成（500行以下を目標。超過時はユーザー確認が必要と記録）\n- 判断分岐箇所（AskUserQuestion指示を配置する箇所の特定）\n- トリガー設定（REQUIRED/SessionStart hook/Use when パターン、`plugins/devkit/skills/authoring-plugins/references/TEMPLATES.md` 参照）\n\n### Step 5: 相互更新設計\n類似スキルのdescription更新案を `docs/conversion-{skill-name}/04-mutual-updates.md` に保存:\n- 新規スキル → 既存スキルへの差別化参照\n- 既存スキル → 新規スキルへの差別化参照\n- 双方向の差別化文言案\n\n### Step 6: implementer用タスク分割\n生成する各ファイルの担当範囲を `docs/conversion-{skill-name}/05-implementation-tasks.md` に保存:\n- 各ファイルの所有権（target-file-path）\n- 対応するソースMarkdownのパス・対象セクション\n- 推定行数・複雑度\n\n### Step 7: 進捗更新\n`docs/conversion-{skill-name}/99-progress.md` のPhase Aを完了マーク。変換済みMDファイルのパスも記録する。\n\n## Compaction耐性規則\n- 各Stepの完了ごとに該当 docs/ ファイルに書き込む（まとめて後から書かない）\n- 大きなソースファイル分析時は、セクション単位で中間結果を保存\n- `plugins/devkit/skills/` 実装ファイルは変更しない（読み取り + `docs/` 作成のみ）\n\n## 参照\n- 変換コマンド詳細: `plugins/devkit/skills/authoring-plugins/references/CONVERTING.md` の「A.2 変換コマンドリファレンス」\n- 命名戦略: `plugins/devkit/skills/authoring-plugins/references/NAMING-STRATEGY.md`\n- テンプレート集: `plugins/devkit/skills/authoring-plugins/references/TEMPLATES.md`",
+  "prompt": "## タスク: スキル変換計画の策定\n\n**作業ディレクトリ:** docs/conversion-{skill-name}/\n（存在しない場合はまず作成: `mkdir -p docs/conversion-{skill-name}/`）\n\n**入力ファイル・URL:**\n- {入力ファイルパス1 or URL1}\n- {入力ファイルパス2 or URL2（あれば）}\n\n## 実行ステップ\n\n### Step 1: ファイル変換（Markdown化）\n各入力ファイルを以下の方法でMarkdown変換する。変換済みMDパスを `docs/conversion-{skill-name}/00-input-files.md` に記録すること。\n\n**PDF変換:**\n> ⚠️ PDFファイルをReadツールで直接読み取ってはならない。APIの画像制限を超えるため専用スクリプトを使用すること。\n```bash\nplugins/devkit/scripts/pdf-to-markdown <input.pdf> /tmp/output.md\n```\n\n**pandoc対応形式（EPUB/DOCX/ODT/RST/LaTeX/HTML/Org/AsciiDoc/RTF/PPTX）:**\n```bash\nif ! command -v pandoc &> /dev/null; then brew install pandoc; fi\npandoc -t markdown -o /tmp/<output>.md <input-file>\n```\n\n**フォルダ入力時の変換dispatchと出力名一意化（複数ファイル/フォルダ入力時）:**\n各入力ソース（個別ファイルまたはフォルダ）に0始まりの連番 `<input-index>` を付与する（1つ目=`input-0`、2つ目=`input-1`...）。フォルダの場合は内部ファイルを再帰列挙し拡張子ごとに以下のいずれかへ振り分ける。出力先は `/tmp/anydoc-converted/input-<input-index>/<相対ディレクトリ構造をそのまま再現>/<元ファイル名(拡張子含む)>.md` とする（例: `subdir/report.doc` in input-0 → `/tmp/anydoc-converted/input-0/subdir/report.doc.md`）。`<input-index>` により異なる入力root間の同一相対パスの衝突を排除し、ディレクトリ構造保持＋元拡張子維持で単一root内の衝突（同一stem異拡張子・異なる親ディレクトリの同名ファイル）も排除する。\n\n**anydoc専用形式（.doc/.docm/.ppt/.pps/.pot/.pptm/.ppsx/.ppsm/.xls/.xlsm/.xlsb/.ods/.odp・唯一の選択肢）:**\n`converting-documents-with-anydoc`スキル（`plugins/devkit/skills/converting-documents-with-anydoc/`）を参照し、以下の関数で変換する:\n```bash\nconvert_with_anydoc() {\n  local input_file=\"$1\" output_path=\"$2\"\n  local node_major\n  node_major=\"$(node -v 2>/dev/null | sed 's/^v//' | cut -d. -f1)\"\n  if [ -z \"$node_major\" ] || [ \"$node_major\" -lt 20 ]; then\n    echo \"SKIP: Node.js 20+ not found (anydoc-only format, no fallback) for $input_file\" >&2\n    return 10\n  fi\n  npx -y \"@firecrawl/anydoc@0.1.6\" \"$input_file\" -o \"$output_path\"\n  local rc=$?\n  if [ \"$rc\" -ne 0 ]; then\n    echo \"SKIP: anydoc exited $rc for $input_file\" >&2\n    return \"$rc\"\n  fi\n  return 0\n}\nconvert_with_anydoc \"<input-file>\" \"/tmp/anydoc-converted/input-<input-index>/<relative-path>/<filename>.md\"\n```\n失敗時（戻り値が0以外）は変換をスキップし、`docs/conversion-{skill-name}/00-input-files.md` に `| <ファイル名> | 変換失敗（Node未達/anydoc exit <rc>） |` の形式で記録し、当該ファイルをスキップして他ファイルの処理を続行する。\n\n**pandoc/pdf-to-markdown対応済み形式での代替変換（.csv/.xlsx/.docx/.pptx/.odt/.rtf/EPUB/テキストPDF等）:**\n既定は上記の既存ツール（pandocまたはPDFなら`pdf-to-markdown`）での変換結果を採用する。表構造・レイアウトの再現に懸念がある場合、またはユーザーが明示的に指定した場合に限り、同一入力ファイルへ`convert_with_anydoc`を追加実行し、両方の変換結果を`00-input-files.md`に並記して後続Stepでどちらを採用するか判断する材料とする（強制的な二重実行はしない。既定は既存ツールの結果を採用し、anydoc実行はオプトイン）。\n\n**EPUBが画像ベースの場合（pandoc変換後に確認）:**\npandoc変換後のMarkdownで `![` 参照が大半でテキストが少ない場合は画像ベースEPUBと判定し、以下を実施すること:\n1. AskUserQuestion でユーザーに画像ベースEPUBであり変換できない旨を通知する\n2. 「了解（変換を中止）」ならば変換処理を終了する\n3. 「テキスト部分のみで続行」ならばpandoc変換済みMDをそのままソースとして使用する\n詳細: `plugins/devkit/skills/authoring-plugins/references/CONVERTING.md` の「画像ベースEPUBの検出と対応」を参照。\n\n**URL変換:**\n```bash\ncurl -o /tmp/page.html '<URL>'\npandoc /tmp/page.html -f html -t gfm -o /tmp/page.md\n```\n\n変換結果は目視確認（本文が適切に抽出されているか）。\n\n**Phase A完了条件（全入力ファイルの変換失敗時）:**\n入力ファイルが複数あり、その全てがanydoc/pandoc/pdf-to-markdownいずれでも変換失敗した場合（有効な変換済みMDファイルが0件）、Step 2以降には進まず `docs/conversion-{skill-name}/99-progress.md` に「Phase A失敗: 変換済みファイル0件」を記録して停止し、本体（Phase B）へ差し戻す。\n\n### Step 2: グルーピング分析（複数ファイル時）\n複数ファイルの場合、全Markdownファイルを読み込み、以下を `docs/conversion-{skill-name}/01-grouping-analysis.md` に保存:\n- 各ファイルの概要テーブル（ファイル名・タイトル・主要トピック・推定行数・ドメイン）\n- 意味的グルーピング提案（同一技術・スコープ → 1スキル、異なる技術 → 別スキル）\n- 既存 `plugins/devkit/skills/` との一括重複チェック結果（既存スキルのfrontmatterと比較）\n- 判断が必要なケースはその理由と候補を記録（Claude Code本体がPhase BでAskUserQuestion実施）\n\n### Step 3: 内容構造分析\n変換済みMarkdownを読み込み、以下を `docs/conversion-{skill-name}/02-content-analysis.md` に保存:\n- セクション数とトピック一覧\n- コード例の有無・言語\n- 判断基準テーブルの有無\n- 推定総行数（全ファイル合計）\n- 既存スキルとのスコープ比較（`plugins/devkit/skills/` 内の既存スキルdescriptionと照合）\n- スキル名候補2-3個（gerund形式、`plugins/devkit/skills/authoring-plugins/references/NAMING-STRATEGY.md` 参照）\n- 相互description更新が必要な類似スキルリスト\n\n### Step 4: 構造設計\n以下を設計して `docs/conversion-{skill-name}/03-design-plan.md` に保存:\n- Frontmatter設計（英語description・三部構成: What + When + 差別化）\n- SKILL.md + サブファイル構成（500行以下を目標。超過時はユーザー確認が必要と記録）\n- 判断分岐箇所（AskUserQuestion指示を配置する箇所の特定）\n- トリガー設定（REQUIRED/SessionStart hook/Use when パターン、`plugins/devkit/skills/authoring-plugins/references/TEMPLATES.md` 参照）\n\n### Step 5: 相互更新設計\n類似スキルのdescription更新案を `docs/conversion-{skill-name}/04-mutual-updates.md` に保存:\n- 新規スキル → 既存スキルへの差別化参照\n- 既存スキル → 新規スキルへの差別化参照\n- 双方向の差別化文言案\n\n### Step 6: implementer用タスク分割\n生成する各ファイルの担当範囲を `docs/conversion-{skill-name}/05-implementation-tasks.md` に保存:\n- 各ファイルの所有権（target-file-path）\n- 対応するソースMarkdownのパス・対象セクション\n- 推定行数・複雑度\n\n### Step 7: 進捗更新\n`docs/conversion-{skill-name}/99-progress.md` のPhase Aを完了マーク。変換済みMDファイルのパスも記録する。\n\n## Compaction耐性規則\n- 各Stepの完了ごとに該当 docs/ ファイルに書き込む（まとめて後から書かない）\n- 大きなソースファイル分析時は、セクション単位で中間結果を保存\n- `plugins/devkit/skills/` 実装ファイルは変更しない（読み取り + `docs/` 作成のみ）\n\n## 参照\n- 変換コマンド詳細: `plugins/devkit/skills/authoring-plugins/references/CONVERTING.md` の「A.2 変換コマンドリファレンス」\n- 命名戦略: `plugins/devkit/skills/authoring-plugins/references/NAMING-STRATEGY.md`\n- テンプレート集: `plugins/devkit/skills/authoring-plugins/references/TEMPLATES.md`",
   "subagent_type": "devkit:tachikoma-str-product-mgr",
   "model": "opus",
   "name": "planner",
@@ -186,7 +190,7 @@ Agent({
 
 ```bash
 # PDF → Markdown 変換
-scripts/pdf-to-markdown <input.pdf> /tmp/output.md
+plugins/devkit/scripts/pdf-to-markdown <input.pdf> /tmp/output.md
 ```
 
 スクリプトの機能:
@@ -257,6 +261,35 @@ pandocの入力形式自動判定は拡張子に基づくため、明示的に�
 - いずれも不可の場合、ユーザーにインストールを案内して処理を中断
 - PDFはpandocのレイアウト解析精度が不十分なため、専用スクリプト（`pdf-to-markdown`）を使用
 - URLはcurl + pandocで変換（WebFetchはfallback。pandocはURL直接取得に非対応）
+
+**anydoc変換（旧Office形式の唯一の選択肢・pandoc対応済み形式の代替）:**
+
+`converting-documents-with-anydoc`スキルの`convert_with_anydoc`関数を使用する。`.doc`/`.docm`/`.ppt`/`.pps`/`.pot`/`.pptm`/`.ppsx`/`.ppsm`/`.xls`/`.xlsm`/`.xlsb`/`.ods`/`.odp`はpandoc非対応のため本関数が唯一の変換手段になる。`.csv`/`.xlsx`/`.docx`/`.pptx`/`.odt`/`.rtf`/EPUB/テキストPDFは既存ツール変換が既定だが、表構造・レイアウトの再現に懸念がある場合やユーザーが明示指定した場合は本関数でも変換し目視比較する（詳細・関数定義は`converting-documents-with-anydoc`スキル参照）。
+
+```bash
+convert_with_anydoc() {
+  local input_file="$1" output_path="$2"
+  local node_major
+  node_major="$(node -v 2>/dev/null | sed 's/^v//' | cut -d. -f1)"
+  if [ -z "$node_major" ] || [ "$node_major" -lt 20 ]; then
+    echo "SKIP: Node.js 20+ not found (anydoc-only format, no fallback) for $input_file" >&2
+    return 10
+  fi
+  npx -y "@firecrawl/anydoc@0.1.6" "$input_file" -o "$output_path"
+  local rc=$?
+  if [ "$rc" -ne 0 ]; then
+    echo "SKIP: anydoc exited $rc for $input_file" >&2
+    return "$rc"
+  fi
+  return 0
+}
+
+# 呼び出し側は戻り値を必ず捕捉する
+convert_with_anydoc "<input-file>" "/tmp/anydoc-converted/input-<input-index>/<relative-path>/<filename>.md" \
+  || record_conversion_failure "<input-file>" "$?"
+```
+
+フォルダ入力時の出力名一意化（`input-<index>`namespace＋相対ディレクトリ構造保持＋元拡張子維持方式）は「A.1 Planner起動プロンプト本体」の該当節を参照。
 
 **大型EPUBの章単位分割変換（数百ページ級の書籍で推奨）:**
 
@@ -363,6 +396,8 @@ PDF/EPUB含め変換結果は目視確認（ページ/章が欠落なく本文�
 
 **確認が必要な場合**: 変換結果を目視確認し、問題があれば手動でMarkdownを修正してから次のステップに進む。
 
+**anydoc変換結果の検証**: `convert_with_anydoc`（またはA.2の同名関数）を使用した場合は、戻り値が終了コード契約（`0`=成功／`10`=Node.js 20+未達・anydoc専用形式でフォールバック不可／その他非0=anydoc自体の失敗＝画像のみPDF・暗号化ファイル等）のいずれに該当するかを確認する。`0`以外は変換失敗として`00-input-files.md`に記録しスキップする。
+
 **🔴 成否判定の一般原則（パイプ末尾のexit codeで判定しない）**: 変換系コマンドの成否を「パイプ末尾コマンドの終了コード」で判定してはならない。`pandoc ... | head -3 && echo done` は、pandoc 本体が失敗しても `head` が exit 0 を返すため "done" が出力される（偽成功の実例あり）。変換コマンドは単体で実行して `rc=$?` を取得し、stderr はファイルへリダイレクトし、**出力ファイルの実在・サイズ・行数**（`ls` / `wc -l`）で成否を判定する。
 
 ---
@@ -375,6 +410,7 @@ Planner 完了後、Claude Code本体が docs/ を読み込み AskUserQuestion �
 
 ```bash
 # Planner完了通知受信後に以下を読み込む
+# - docs/conversion-{skill-name}/00-input-files.md（変換済みMDパス・anydoc変換失敗記録の確認）
 # - docs/conversion-{skill-name}/01-grouping-analysis.md（複数ファイル時）
 # - docs/conversion-{skill-name}/02-content-analysis.md
 # - docs/conversion-{skill-name}/03-design-plan.md
@@ -393,6 +429,8 @@ Planner 完了後、Claude Code本体が docs/ を読み込み AskUserQuestion �
 4. **対象読者・使用場面**: descriptionに反映
 5. **除外内容**: ソース出典情報の除去可否、その他除外項目
 6. **既存スキルとの差別化方針**
+
+**anydoc変換失敗記録がある場合の追加確認**: `00-input-files.md`に変換失敗記録（`| <ファイル名> | 変換失敗（Node未達/anydoc exit <rc>） |`）がある場合、AskUserQuestionで「一部ファイルの変換に失敗しました。続行しますか」を確認項目に追加する。`99-progress.md`に「Phase A失敗: 変換済みファイル0件」（全件失敗）の記録がある場合は、この停止記録を検知し、AskUserQuestionで変換方法の再検討（別形式での再入力・anydoc/pandocの再試行・処理中止等）をユーザーに確認する。
 
 AskUserQuestionの実装例:
 

@@ -12,7 +12,8 @@ description: >-
   URL input is auto-detected by hostname and routed to a dedicated collector, skipping AI
   structure inference.
   For EPUB image compression/size reduction use studio:compressing-epub-images; for standalone
-  image-EPUB→text OCR conversion (no flashcard creation) use converting-content.
+  image-EPUB→text OCR (no flashcard creation) use converting-content.
+  Office/CSV conversion alone: devkit:converting-documents-with-anydoc.
 argument-hint: "<file-path-or-url>"
 context: fork
 agent: general-purpose

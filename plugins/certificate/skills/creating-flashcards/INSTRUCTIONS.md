@@ -175,6 +175,40 @@ ${CLAUDE_SKILL_DIR}/scripts/recognize-image-to-markdown <input.pdf> -o /tmp/<des
 ${CLAUDE_SKILL_DIR}/scripts/pdf-to-markdown <input.pdf> /tmp/<descriptive-name>.md
 ```
 
+**Office形式（.doc/.xls/.ods等）→ Markdown:**
+
+稀にOffice形式（.doc/.xls/.ods等、pandoc/pdf-to-markdownが対応しないレガシー形式）の資格試験教材が入力される場合は `devkit:converting-documents-with-anydoc` スキルの変換関数を使う。
+
+```bash
+convert_with_anydoc() {
+  local input_file="$1" output_path="$2"
+  local node_major
+  node_major="$(node -v 2>/dev/null | sed 's/^v//' | cut -d. -f1)"
+  if [ -z "$node_major" ] || [ "$node_major" -lt 20 ]; then
+    echo "SKIP: Node.js 20+ not found (anydoc-only format, no fallback) for $input_file" >&2
+    return 10
+  fi
+  npx -y "@firecrawl/anydoc@0.1.6" "$input_file" -o "$output_path"
+  local rc=$?
+  if [ "$rc" -ne 0 ]; then
+    echo "SKIP: anydoc exited $rc for $input_file" >&2
+    return "$rc"
+  fi
+  return 0
+}
+
+# 稀にOffice形式の資格試験教材が入力される場合（.doc/.xls/.ods等）
+convert_with_anydoc "<input-file>" "/tmp/<descriptive-name>.md"
+rc=$?
+if [ "$rc" -eq 0 ]; then
+  : # 変換後MarkdownをStep 3（コンテンツ構造分析）へ通常のテキストソースと同様に渡す
+else
+  : # 変換失敗（rc=10: Node未達／その他: anydoc失敗）。AskUserQuestionでユーザーに次の対応を確認する（本スキルは対話実行のため呼び出し可能）
+fi
+```
+
+詳細な対応形式・既存ツールとの使い分け基準は `devkit:converting-documents-with-anydoc` スキルを参照。
+
 > 🔴 **画像ベースかの検証を怠らない**: `pdf-to-markdown`/`pandoc` の出力が「ページ数の割に極端に小さい（例: 529ページで 4KB・目次のみ・Q&A 0件）」なら本文は画像。`ocr-apple-vision`（既定）でOCRし直す。詳細・列再構成・モデル選択・resume・既知の罠は [OCR-CONVERSION.md](references/OCR-CONVERSION.md)。
 
 変換後、Markdownの内容を読み込んで構造を把握する。
